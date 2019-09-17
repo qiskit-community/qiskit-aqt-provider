@@ -30,7 +30,7 @@ class AQTBackend(BaseBackend):
             'simulator': False,
             'local': False,
             'coupling_map': None,
-            'description': 'Simulates only Hadamard gates',
+            'description': 'aqt trapped ion device',
             'basis_gates': ['rx', 'ry', 'rxx'],
             'memory': True,
             'n_qubits': 5,
