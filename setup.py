@@ -12,13 +12,24 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-from setuptools import setup, find_packages
+import setuptools
 
 requirements = [
     "requests>=2.19",
+    "setuptools>=40.1.0",
 ]
 
-setup(
+
+if not hasattr(setuptools,
+               'find_namespace_packages') or not inspect.ismethod(
+                    setuptools.find_namespace_packages):
+    print("Your setuptools version:'{}' does not support PEP 420 "
+          "(find_namespace_packages). Upgrade it to version >='40.1.0' and "
+          "repeat install.".format(setuptools.__version__))
+    sys.exit(1)
+
+
+setuptools.setup(
     name="qiskit-aqt-provider",
     version="0.0.1",
     description="Qiskit provider for aqt",
@@ -38,8 +49,9 @@ setup(
         "Programming Language :: Python :: 3.7",
         "Topic :: Scientific/Engineering",
     ],
-    packages=find_packages(),
+    packages=setuptools.find_namespace_packages(exclude=['test*']),
     install_requires=requirements,
     include_package_data=True,
-    python_requires=">=3.5"
+    python_requires=">=3.5",
+    zip_safe=False
 )
