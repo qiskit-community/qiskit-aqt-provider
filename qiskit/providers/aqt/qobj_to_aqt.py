@@ -13,6 +13,7 @@
 # that they have been altered from the originals.
 
 import json
+from numpy import pi
 
 
 def _experiment_to_seq(experiment):
@@ -26,9 +27,10 @@ def _experiment_to_seq(experiment):
             name = 'MS'
         else:
             raise Exception('Gate outside of basis rx, ry, rxx')
-        theta = inst['params'][0]
+        exponent_float = inst.params[0] / pi
+        exponent = "%f" % exponent_float
         # (op name, exponent, [qubit index])
-        ops.append((name, theta, inst.qubits))
+        ops.append((name, exponent, inst.qubits))
     return ops
 
 
