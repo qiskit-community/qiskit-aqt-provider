@@ -15,13 +15,13 @@
 
 import time
 
+import requests
+
+from qiskit.providers.aqt.qobj_to_aqt import qobj_to_aqt
 from qiskit.providers import BaseJob
 from qiskit.providers import JobError
 from qiskit.providers import JobTimeoutError
 from qiskit.result import Result
-import requests
-
-from qiskit_aqt import qobj_to_aqt
 
 
 class AQTJob(BaseJob):
@@ -30,6 +30,7 @@ class AQTJob(BaseJob):
         self._backend = backend
         self.access_token = access_token
         self.qobj = qobj
+        self._job_id = job_id
 
     def _wait_for_result(self, timeout=None, wait=5):
         start_time = time.time()
@@ -48,7 +49,7 @@ class AQTJob(BaseJob):
             time.sleep(wait)
         return result
 
-    def _format_counts(samples):
+    def _format_counts(self, samples):
         counts = {}
         for result in samples:
             if hex(result) not in counts:
@@ -86,7 +87,7 @@ class AQTJob(BaseJob):
     def submit(self):
         if not self.qobj or not self._job_id:
             raise Exception
-        aqt_json = qobj_to_aqt(self.qobj)
+        aqt_json = qobj_to_aqt(self.qobj, self.access_token)
         res = requests.post(self.configuration.url, data=aqt_json[0])
         if 'id' not in res:
             raise Exception

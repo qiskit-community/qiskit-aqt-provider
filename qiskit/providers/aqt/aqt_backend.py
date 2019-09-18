@@ -12,12 +12,12 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-from qiskit.providers import BaseBackend
-from qiskit.providers.models import BackendConfiguration
 import requests
 
-from qiskit_aqt import aqt_job
-from qiskit_aqt import qobj_to_aqt
+from qiskit.providers import BaseBackend
+from qiskit.providers.models import BackendConfiguration
+from qiskit.providers.aqt import aqt_job
+from qiskit.providers.aqt import qobj_to_aqt
 
 
 class AQTBackend(BaseBackend):
@@ -52,7 +52,7 @@ class AQTBackend(BaseBackend):
             provider=provider)
 
     def run(self, qobj):
-        aqt_json = qobj_to_aqt.qobj_to_aqt(qobj)
+        aqt_json = qobj_to_aqt.qobj_to_aqt(qobj, self.access_token)
         res = requests.post(self.configuration.url, data=aqt_json[0])
         if 'id' not in res:
             raise Exception

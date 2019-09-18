@@ -16,7 +16,7 @@
 from qiskit.provider.providerutils import filter_backends
 from qiskit.providers import BaseProvider
 
-from qiskit_aqt.aqt_backend import AQTBackend
+from qiskit.providers.aqt.aqt_backend import AQTBackend
 
 
 class AQTProvider(BaseProvider):
