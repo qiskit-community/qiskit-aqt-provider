@@ -24,7 +24,7 @@ class AQTBackend(BaseBackend):
 
     def __init__(self, provider=None):
         configuration = {
-            'backend_name': 'aqt',
+            'backend_name': 'aqt_ibex',
             'backend_version': '0.0.1',
             'url': 'https://www.aqt.eu/',
             'simulator': False,
@@ -35,7 +35,7 @@ class AQTBackend(BaseBackend):
             'memory': True,
             'n_qubits': 5,
             'conditional': False,
-            'max_shots': 1024,
+            'max_shots': 250,
             'open_pulse': False,
             'gates': [
                 {
