@@ -16,8 +16,8 @@ import requests
 
 from qiskit.providers import BaseBackend
 from qiskit.providers.models import BackendConfiguration
-import aqt_job
-import qobj_to_aqt
+from . import aqt_job
+from . import qobj_to_aqt
 
 class AQTBackend(BaseBackend):
 
