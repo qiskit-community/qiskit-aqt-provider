@@ -55,10 +55,11 @@ class AQTJob(BaseJob):
     def _format_counts(self, samples):
         counts = {}
         for result in samples:
-            if hex(result) not in counts:
-                counts[hex(result)] = 1
+            h_result = hex(result)
+            if h_result not in counts:
+                counts[h_result] = 1
             else:
-                counts[hex(result)] = counts[hex(result)] + 1
+                counts[h_result] += 1
         return counts
 
     def result(self):
@@ -69,7 +70,9 @@ class AQTJob(BaseJob):
                 'success': True,
                 'shots': len(result['samples']),
                 'data': {'counts': self._format_counts(result['samples'])},
+                'header':{'memory_slots': self.qobj['memory_slots']}
             }]
+
         return Result.from_dict({
             'results': results,
             'backend_name': self._backend._configuration.backend_name,
