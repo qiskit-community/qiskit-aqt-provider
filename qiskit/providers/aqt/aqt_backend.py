@@ -22,11 +22,11 @@ from qiskit.providers.aqt import qobj_to_aqt
 
 class AQTBackend(BaseBackend):
 
-    def __init__(self, provider=None):
+    def __init__(self, provider):
         configuration = {
             'backend_name': 'aqt_ibex',
             'backend_version': '0.0.1',
-            'url': 'https://www.aqt.eu/',
+            'url': getattr(provider, '_url', 'https://www.aqt.eu/'),
             'simulator': False,
             'local': False,
             'coupling_map': None,
@@ -53,7 +53,7 @@ class AQTBackend(BaseBackend):
 
     def run(self, qobj):
         aqt_json = qobj_to_aqt.qobj_to_aqt(qobj, self.access_token)
-        res = requests.post(self.configuration.url, data=aqt_json[0])
+        res = requests.post(self._provider.url, data=aqt_json[0])
         if 'id' not in res:
             raise Exception
         job = aqt_job.AQTJob(self, res['id'])

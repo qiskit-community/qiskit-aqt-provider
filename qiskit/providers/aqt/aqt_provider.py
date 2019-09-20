@@ -22,10 +22,11 @@ from qiskit.providers.aqt.aqt_backend import AQTBackend
 class AQTProvider(BaseProvider):
     """Provider for the Hadamard backend"""
 
-    def __init__(self, access_token):
+    def __init__(self, access_token, url):
         super().__init__()
 
         self.access_token = access_token
+        self.url = url
         # Populate the list of Hadamard backends
         self._backends = [AQTBackend(provider=self)]
 
