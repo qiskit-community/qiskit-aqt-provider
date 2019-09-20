@@ -30,8 +30,11 @@ def _experiment_to_seq(experiment):
         elif inst.name == 'measure':
             meas += 1
             continue
+        elif inst.name == 'barrier':
+            continue
         else:
-            raise Exception('Gate outside of basis rx, ry, rxx')
+            raise Exception("Operation '%s' outside of basis rx, ry, rxx" %
+                            inst.name)
         exponent = inst.params[0] / pi
         # (op name, exponent, [qubit index])
         ops.append((name, float(exponent), inst.qubits))
