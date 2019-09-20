@@ -13,10 +13,10 @@
 # that they have been altered from the originals.
 
 
-from qiskit.provider.providerutils import filter_backends
+from qiskit.providers.providerutils import filter_backends
 from qiskit.providers import BaseProvider
 
-from qiskit.providers.aqt.aqt_backend import AQTBackend
+from aqt_backend import AQTBackend
 
 
 class AQTProvider(BaseProvider):
@@ -27,10 +27,19 @@ class AQTProvider(BaseProvider):
 
         self.access_token = access_token
         self.url = url
+        self.name = 'aqt_provider'
         # Populate the list of Hadamard backends
         self._backends = [AQTBackend(provider=self)]
 
+    def __str__(self):
+        return "<AQTProvider(name={})>".format(self.name)
+
+    def __repr__(self):
+        return self.__str__()
+
     def backends(self, name=None, filters=None, **kwargs):
+        """A listing of all backends from this provider.
+        """
         # pylint: disable=arguments-differ
         backends = self._backends
         if name:
