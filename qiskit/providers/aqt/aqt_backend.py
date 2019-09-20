@@ -52,7 +52,8 @@ class AQTBackend(BaseBackend):
             provider=provider)
 
     def run(self, qobj):
-        aqt_json = qobj_to_aqt.qobj_to_aqt(qobj, self._provider.access_token)[0]
+        aqt_json = qobj_to_aqt.qobj_to_aqt(
+            qobj, self._provider.access_token)[0]
         res = requests.put(self._provider.url, data=aqt_json)
         res.raise_for_status()
         response = res.json()
