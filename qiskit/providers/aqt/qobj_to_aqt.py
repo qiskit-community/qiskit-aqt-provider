@@ -19,6 +19,7 @@ from numpy import pi
 
 def _experiment_to_seq(experiment):
     ops = []
+    meas = 0
     for inst in experiment.instructions:
         if inst.name == 'rx':
             name = 'X'
@@ -26,11 +27,16 @@ def _experiment_to_seq(experiment):
             name = 'Y'
         elif inst.name == 'rxx':
             name = 'MS'
+        elif inst.name == 'measure':
+            meas += 1
+            continue
         else:
             raise Exception('Gate outside of basis rx, ry, rxx')
         exponent = inst.params[0] / pi
         # (op name, exponent, [qubit index])
         ops.append((name, float(exponent), inst.qubits))
+    if not meas:
+        raise ValueError('Circuit must have at least one measurements.')
     return json.dumps(ops)
 
 
@@ -59,6 +65,7 @@ def qobj_to_aqt(qobj, access_token):
             'access_token': access_token,
             'repetitions': qobj.config.shots,
             'no_qubits': qobj.config.n_qubits,
+            'memory_slots': qobj.config.memory_slots,
         }
         out_json.append(out_dict)
     return out_json
