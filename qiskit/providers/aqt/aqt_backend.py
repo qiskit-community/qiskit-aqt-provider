@@ -52,9 +52,11 @@ class AQTBackend(BaseBackend):
             provider=provider)
 
     def run(self, qobj):
-        aqt_json = qobj_to_aqt.qobj_to_aqt(qobj, self.access_token)
-        res = requests.post(self._provider.url, data=aqt_json[0])
-        if 'id' not in res:
+        aqt_json = qobj_to_aqt.qobj_to_aqt(qobj, self._provider.access_token)[0]
+        res = requests.put(self._provider.url, data=aqt_json)
+        res.raise_for_status()
+        response = res.json()
+        if 'id' not in response:
             raise Exception
-        job = aqt_job.AQTJob(self, res['id'])
+        job = aqt_job.AQTJob(self, response['id'])
         return job

@@ -13,7 +13,7 @@
 # that they have been altered from the originals.
 
 
-from qiskit.provider.providerutils import filter_backends
+from qiskit.providers.providerutils import filter_backends
 from qiskit.providers import BaseProvider
 
 from qiskit.providers.aqt.aqt_backend import AQTBackend
