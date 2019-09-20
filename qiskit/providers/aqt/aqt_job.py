@@ -18,11 +18,11 @@ import time
 
 import requests
 
-from qiskit.providers.aqt.qobj_to_aqt import qobj_to_aqt
 from qiskit.providers import BaseJob
 from qiskit.providers import JobError
 from qiskit.providers import JobTimeoutError
 from qiskit.result import Result
+from qobj_to_aqt import qobj_to_aqt
 
 
 class AQTJob(BaseJob):
