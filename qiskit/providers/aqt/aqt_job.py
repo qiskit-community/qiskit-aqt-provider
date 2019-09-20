@@ -12,6 +12,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+# pylint: disable=protected-access
 
 import time
 
@@ -37,11 +38,13 @@ class AQTJob(BaseJob):
         result = None
         while True:
             elapsed = time.time() - start_time
-            if elapsed >= timeout:
+            if timeout and elapsed >= timeout:
                 raise JobTimeoutError('Timed out waiting for result')
-            result = requests.put(self._backend.url,
-                                  data={'id': self._job_id,
-                                        'access_token': self.access_token})
+            result = requests.put(
+                self._backend._provider.url,
+                data={'id': self._job_id,
+                      'access_token': self._backend._provider.access_token}
+            ).json()
             if result['status'] == 'finished':
                 break
             elif result['status'] == 'error':
@@ -69,9 +72,10 @@ class AQTJob(BaseJob):
             }]
         return Result.from_dict({
             'results': results,
-            'backend_name': self._backend.name,
-            'backend_version': self._backend.version,
+            'backend_name': self._backend._configuration.backend_name,
+            'backend_version': self._backend._configuration.backend_version,
             'qobj_id': '0',
+            'success': True,
             'job_id': self._job_id,
         })
 

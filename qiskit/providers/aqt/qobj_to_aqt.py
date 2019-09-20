@@ -13,6 +13,7 @@
 # that they have been altered from the originals.
 
 import json
+
 from numpy import pi
 
 
@@ -27,11 +28,10 @@ def _experiment_to_seq(experiment):
             name = 'MS'
         else:
             raise Exception('Gate outside of basis rx, ry, rxx')
-        exponent_float = inst.params[0] / pi
-        exponent = "%f" % exponent_float
+        exponent = inst.params[0] / pi
         # (op name, exponent, [qubit index])
-        ops.append((name, exponent, inst.qubits))
-    return ops
+        ops.append((name, float(exponent), inst.qubits))
+    return json.dumps(ops)
 
 
 def qobj_to_aqt(qobj, access_token):
@@ -58,7 +58,7 @@ def qobj_to_aqt(qobj, access_token):
             'data': seqs,
             'access_token': access_token,
             'repetitions': qobj.config.shots,
-            'no_qubits': qobj.config.n_qubits
+            'no_qubits': qobj.config.n_qubits,
         }
-        out_json.append(json.dumps(out_dict))
+        out_json.append(out_dict)
     return out_json
