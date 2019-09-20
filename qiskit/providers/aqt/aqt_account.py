@@ -21,7 +21,7 @@ AQT_AUTH_URL = "http://0f4aa71c.ngrok.io/cirq"
 class AQTAccount:
     """Account for Alpine Quantum Technologies"""
 
-    def __init__(self) -> None:
+    def __init__(self):
         self._credentials = None
         self._providers = OrderedDict()
 
