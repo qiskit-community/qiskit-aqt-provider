@@ -19,7 +19,6 @@ from numpy import pi
 
 def _experiment_to_seq(experiment):
     ops = []
-    meas_map = {}
     meas = 0
     for inst in experiment.instructions:
         if inst.name == 'rx':
