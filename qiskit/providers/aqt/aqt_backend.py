@@ -19,6 +19,7 @@ from qiskit.providers.models import BackendConfiguration
 from . import aqt_job
 from . import qobj_to_aqt
 
+
 class AQTBackend(BaseBackend):
 
     def __init__(self, provider):
@@ -32,8 +33,7 @@ class AQTBackend(BaseBackend):
                              [1, 0], [1, 2], [1, 3], [1, 4],
                              [2, 0], [2, 1], [2, 3], [2, 4],
                              [3, 0], [3, 1], [3, 2], [3, 4],
-                             [4, 0], [4, 1], [4, 2], [4, 3],
-                            ],
+                             [4, 0], [4, 1], [4, 2], [4, 3]],
             'description': 'aqt trapped ion device',
             'basis_gates': ['rx', 'ry', 'rxx'],
             'memory': False,

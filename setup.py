@@ -14,10 +14,12 @@
 
 import inspect
 import setuptools
+import sys
 
 requirements = [
     "requests>=2.19",
     "setuptools>=40.1.0",
+    "qiskit-terra>=0.9.0",
 ]
 
 

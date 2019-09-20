@@ -44,8 +44,8 @@ class AQTAccount:
             name (str): Name of provider
 
         Returns:
-            list[AccountAQTProvider]: List of providers that match the specified
-                criteria.
+            list[AccountAQTProvider]: List of providers that match the
+                specified criteria.
         """
         filters = []
 
@@ -77,5 +77,3 @@ class AQTAccount:
                              'criteria')
 
         return providers[0]
-
-    
