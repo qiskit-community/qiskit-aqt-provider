@@ -16,23 +16,27 @@ import requests
 
 from qiskit.providers import BaseBackend
 from qiskit.providers.models import BackendConfiguration
-from qiskit.providers.aqt import aqt_job
-from qiskit.providers.aqt import qobj_to_aqt
-
+from . import aqt_job
+from . import qobj_to_aqt
 
 class AQTBackend(BaseBackend):
 
     def __init__(self, provider):
         configuration = {
-            'backend_name': 'aqt_ibex',
+            'backend_name': 'aqt_innsbruck',
             'backend_version': '0.0.1',
             'url': getattr(provider, '_url', 'https://www.aqt.eu/'),
             'simulator': False,
             'local': False,
-            'coupling_map': None,
+            'coupling_map': [[0, 1], [0, 2], [0, 3], [0, 4],
+                             [1, 0], [1, 2], [1, 3], [1, 4],
+                             [2, 0], [2, 1], [2, 3], [2, 4],
+                             [3, 0], [3, 1], [3, 2], [3, 4],
+                             [4, 0], [4, 1], [4, 2], [4, 3],
+                            ],
             'description': 'aqt trapped ion device',
             'basis_gates': ['rx', 'ry', 'rxx'],
-            'memory': True,
+            'memory': False,
             'n_qubits': 5,
             'conditional': False,
             'max_shots': 250,
