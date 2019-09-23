@@ -70,14 +70,14 @@ class AQTJob(BaseJob):
                 'success': True,
                 'shots': len(result['samples']),
                 'data': {'counts': self._format_counts(result['samples'])},
-                'header':{'memory_slots': self.qobj['memory_slots']}
+                'header':{'memory_slots': self.qobj.config.memory_slots}
             }]
 
         return Result.from_dict({
             'results': results,
             'backend_name': self._backend._configuration.backend_name,
             'backend_version': self._backend._configuration.backend_version,
-            'qobj_id': '0',
+            'qobj_id': self.qobj.qobj_id,
             'success': True,
             'job_id': self._job_id,
         })

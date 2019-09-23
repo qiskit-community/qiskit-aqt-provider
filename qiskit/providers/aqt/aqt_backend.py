@@ -63,5 +63,5 @@ class AQTBackend(BaseBackend):
         response = res.json()
         if 'id' not in response:
             raise Exception
-        job = aqt_job.AQTJob(self, response['id'], qobj=aqt_json)
+        job = aqt_job.AQTJob(self, response['id'], qobj=qobj)
         return job

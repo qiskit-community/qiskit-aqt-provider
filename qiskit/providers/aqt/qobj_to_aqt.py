@@ -68,7 +68,6 @@ def qobj_to_aqt(qobj, access_token):
             'access_token': access_token,
             'repetitions': qobj.config.shots,
             'no_qubits': qobj.config.n_qubits,
-            'memory_slots': qobj.config.memory_slots,
         }
         out_json.append(out_dict)
     return out_json
