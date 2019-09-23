@@ -52,10 +52,25 @@ class AQTJob(BaseJob):
             time.sleep(wait)
         return result
 
+    def rearrange_result(self, input):
+        length = self.qobj.experiments[0].header.memory_slots
+        bin_output = list('0'*length)
+        bin_output.reverse()
+        bin_input = list(bin(input)[2:].rjust(length, '0'))
+        bin_input.reverse()
+        qu2cl = {}
+        for instruction in self.qobj.experiments[0].instructions:
+            if instruction.name == 'measure':
+                qu2cl[instruction.qubits[0]] = instruction.memory[0]
+        for qu, cl in qu2cl.items():
+            bin_output[cl] = bin_input[qu]
+        bin_output.reverse()
+        return hex(int(''.join(bin_output), 2))
+
     def _format_counts(self, samples):
         counts = {}
         for result in samples:
-            h_result = hex(result)
+            h_result = self.rearrange_result(result)
             if h_result not in counts:
                 counts[h_result] = 1
             else:
