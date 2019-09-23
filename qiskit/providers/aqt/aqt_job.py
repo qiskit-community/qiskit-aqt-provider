@@ -32,6 +32,7 @@ class AQTJob(BaseJob):
         self.access_token = access_token
         self.qobj = qobj
         self._job_id = job_id
+        self.memory_mapping = self._build_memory_mapping()
 
     def _wait_for_result(self, timeout=None, wait=5):
         start_time = time.time()
@@ -52,17 +53,19 @@ class AQTJob(BaseJob):
             time.sleep(wait)
         return result
 
-    def _rearrange_result(self, input):
-        length = self.qobj.experiments[0].header.memory_slots
-        bin_output = list('0' * length)
-        bin_output.reverse()
-        bin_input = list(bin(input)[2:].rjust(length, '0'))
-        bin_input.reverse()
+    def _build_memory_mapping(self):
         qu2cl = {}
         for instruction in self.qobj.experiments[0].instructions:
             if instruction.name == 'measure':
                 qu2cl[instruction.qubits[0]] = instruction.memory[0]
-        for qu, cl in qu2cl.items():
+        return qu2cl
+
+    def _rearrange_result(self, input):
+        length = self.qobj.experiments[0].header.memory_slots
+        bin_output = list('0' * length)
+        bin_input = list(bin(input)[2:].rjust(length, '0'))
+        bin_input.reverse()
+        for qu, cl in self.memory_mapping.items():
             bin_output[cl] = bin_input[qu]
         bin_output.reverse()
         return hex(int(''.join(bin_output), 2))
