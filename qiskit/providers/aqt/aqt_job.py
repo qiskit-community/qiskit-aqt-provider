@@ -52,9 +52,9 @@ class AQTJob(BaseJob):
             time.sleep(wait)
         return result
 
-    def rearrange_result(self, input):
+    def _rearrange_result(self, input):
         length = self.qobj.experiments[0].header.memory_slots
-        bin_output = list('0'*length)
+        bin_output = list('0' * length)
         bin_output.reverse()
         bin_input = list(bin(input)[2:].rjust(length, '0'))
         bin_input.reverse()
@@ -70,7 +70,7 @@ class AQTJob(BaseJob):
     def _format_counts(self, samples):
         counts = {}
         for result in samples:
-            h_result = self.rearrange_result(result)
+            h_result = self._rearrange_result(result)
             if h_result not in counts:
                 counts[h_result] = 1
             else:
@@ -85,7 +85,7 @@ class AQTJob(BaseJob):
                 'success': True,
                 'shots': len(result['samples']),
                 'data': {'counts': self._format_counts(result['samples'])},
-                'header':{'memory_slots': self.qobj.config.memory_slots}
+                'header': {'memory_slots': self.qobj.config.memory_slots}
             }]
 
         return Result.from_dict({
