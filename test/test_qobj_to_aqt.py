@@ -23,33 +23,45 @@ from qiskit.providers.aqt.qobj_to_aqt import qobj_to_aqt
 
 class TestQobjToAQT(unittest.TestCase):
 
-    def test_empty_circuit_qobj(self):
-        qobj = assemble(QuantumCircuit(1))
+    def test_empty_circuit(self):
+        qc = QuantumCircuit(1)
+        qobj = assemble(qc)
+        self.assertRaises(ValueError, qobj_to_aqt, qobj, 'foo')
+
+    def test_just_measure_circuit_qobj(self):
+        qc = QuantumCircuit(1, 1)
+        qc.measure(0, 0)
+        qobj = assemble(qc)
         aqt_json = qobj_to_aqt(qobj, 'foo')
         self.assertEqual(
-            ['{"data": [], "access_token": "foo", "repetitions": 1024, '
-             '"no_qubits": 1}'], aqt_json)
+            [{'access_token': 'foo', 'data': '[]', 'no_qubits': 1,
+              'repetitions': 1024}], aqt_json)
 
     def test_invalid_basis_in_qobj(self):
-        qc = QuantumCircuit(1)
+        qc = QuantumCircuit(1, 1)
         qc.h(0)
+        qc.measure(0, 0)
         qobj = assemble(qc)
         self.assertRaises(Exception, qobj_to_aqt, qobj, 'foo')
 
     def test_with_single_rx(self):
-        qc = QuantumCircuit(1)
+        qc = QuantumCircuit(1, 1)
         qc.rx(pi, 0)
+        qc.measure(0, 0)
         qobj = assemble(qc)
-        expected = [
-            '{"data": [["X", "1.000000", [0]]], "access_token": "foo", '
-            '"repetitions": 1024, "no_qubits": 1}']
+        expected = [{'access_token': 'foo',
+                     'data': '[["X", 1.0, [0]]]',
+                     'no_qubits': 1,
+                     'repetitions': 1024}]
         self.assertEqual(expected, qobj_to_aqt(qobj, 'foo'))
 
-    def test_with_single_rx(self):
-        qc = QuantumCircuit(1)
+    def test_with_single_ry(self):
+        qc = QuantumCircuit(1, 1)
         qc.ry(pi, 0)
+        qc.measure(0, 0)
         qobj = assemble(qc)
-        expected = [
-            '{"data": [["Y", "1.000000", [0]]], "access_token": "foo", '
-            '"repetitions": 1024, "no_qubits": 1}']
+        expected = [{'access_token': 'foo',
+                     'data': '[["Y", 1.0, [0]]]',
+                     'no_qubits': 1,
+                     'repetitions': 1024}]
         self.assertEqual(expected, qobj_to_aqt(qobj, 'foo'))
