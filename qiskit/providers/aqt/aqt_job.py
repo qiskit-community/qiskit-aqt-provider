@@ -84,11 +84,11 @@ class AQTJob(BaseJob):
         result = self._wait_for_result()
         results = [
             {
-                'name': '',
                 'success': True,
                 'shots': len(result['samples']),
                 'data': {'counts': self._format_counts(result['samples'])},
-                'header': {'memory_slots': self.qobj.config.memory_slots}
+                'header': {'memory_slots': self.qobj.config.memory_slots,
+                           'name': self.qobj.experiments[0].header.name}
             }]
 
         return Result.from_dict({
