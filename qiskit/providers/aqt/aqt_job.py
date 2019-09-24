@@ -48,7 +48,7 @@ class AQTJob(BaseJob):
             ).json()
             if result['status'] == 'finished':
                 break
-            elif result['status'] == 'error':
+            if result['status'] == 'error':
                 raise JobError('API returned error:\n' + str(result))
             time.sleep(wait)
         return result
