@@ -7,7 +7,7 @@ trigger:
 - master
 - stable
 
-- jobs:
+jobs:
   - job: 'Windows_Testing'
     strategy:
       matrix:
