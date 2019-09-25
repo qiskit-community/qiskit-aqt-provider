@@ -34,7 +34,7 @@ if not hasattr(setuptools,
 
 setuptools.setup(
     name="qiskit-aqt-provider",
-    version="0.0.1",
+    version="0.0.1b1",
     description="Qiskit provider for AQT backends",
     url="https://github.com/Qiskit/qiskit-aqt-provider",
     author="Qiskit Development Team",
