@@ -7,43 +7,59 @@ trigger:
 - master
 - stable
 
-strategy:
-  matrix:
-    Python35_Windows:
-      python.version: '3.5'
-      TOXENV: py35
-      imageName: "vs2017-win2016"
-    Python36_Windows:
-      python.version: '3.6'
-      TOXENV: py36
-      imageName: "vs2017-win2016"
-    Python37_Windows:
-      python.version: '3.7'
-      TOXENV: py37
-      imageName: "vs2017-win2016"
-    Python35_macOS:
-      python.version: '3.5'
-      TOXENV: py35
-      imageName: "macOS-10.13"
-    Python36_macOS:
-      python.version: '3.6'
-      TOXENV: py36
-      imageName: "macOS-10.13"
-    Python37_macOS:
-      python.version: '3.7'
-      TOXENV: py37
-      imageName: "macOS-10.13"
-pool:
-  vmImage: $(imageName)
-steps:
-  - task: UsePythonVersion@0
-    inputs:
-      versionSpec: '$(python.version)'
-    displayName: 'Use Python $(python.version)'
-  - bash: |
-      set -e
-      python -m pip install --upgrade pip
-      pip install tox
-    displayName: 'Install job dependencies'
-  - script: tox -e%TOXENV%
-    displayName: 'Install package/test dependencies and run tests'
+- jobs:
+  - job: 'Windows_Testing'
+    strategy:
+      matrix:
+        Python35:
+          python.version: '3.5'
+          TOXENV: py35
+          imageName: "vs2017-win2016"
+        Python36:
+          python.version: '3.6'
+          TOXENV: py36
+          imageName: "vs2017-win2016"
+        Python37:
+          python.version: '3.7'
+          TOXENV: py37
+    pool:
+      vmImage: imageName: "vs2017-win2016"
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '$(python.version)'
+        displayName: 'Use Python $(python.version)'
+      - bash: |
+          set -e
+          python -m pip install --upgrade pip
+          pip install tox
+        displayName: 'Install job dependencies'
+      - script: tox -e%TOXENV%
+        displayName: 'Install package/test dependencies and run tests'
+
+  - job: 'macOS_Testing'
+    strategy:
+      matrix:
+        Python35:
+          python.version: '3.5'
+          TOXENV: py35
+        Python36:
+          python.version: '3.6'
+          TOXENV: py36
+        Python37:
+          python.version: '3.7'
+          TOXENV: py37
+    pool:
+      vmImage: imageName: "macOS-10.13"
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '$(python.version)'
+        displayName: 'Use Python $(python.version)'
+      - bash: |
+          set -e
+          python -m pip install --upgrade pip
+          pip install tox
+        displayName: 'Install job dependencies'
+      - script: tox -e$TOXENV
+        displayName: 'Install package/test dependencies and run tests'
