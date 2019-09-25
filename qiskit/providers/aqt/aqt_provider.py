@@ -16,20 +16,20 @@
 from qiskit.providers.providerutils import filter_backends
 from qiskit.providers import BaseProvider
 
-from .aqt_backend import AQTBackend
+from .aqt_backend import AQTSimulator, AQTDevice
 
 
 class AQTProvider(BaseProvider):
     """Provider for the Hadamard backend"""
 
-    def __init__(self, access_token, url):
+    def __init__(self, access_token):
         super().__init__()
 
         self.access_token = access_token
-        self.url = url
         self.name = 'aqt_provider'
         # Populate the list of Hadamard backends
-        self._backends = [AQTBackend(provider=self)]
+        self._backends = [AQTSimulator(provider=self),
+                          AQTDevice(provider=self)]
 
     def __str__(self):
         return "<AQTProvider(name={})>".format(self.name)
