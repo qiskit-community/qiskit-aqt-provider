@@ -23,7 +23,7 @@ trigger:
           python.version: '3.7'
           TOXENV: py37
     pool:
-      vmImage: imageName: "vs2017-win2016"
+      vmImage: "vs2017-win2016"
     steps:
       - task: UsePythonVersion@0
         inputs:
@@ -50,7 +50,7 @@ trigger:
           python.version: '3.7'
           TOXENV: py37
     pool:
-      vmImage: imageName: "macOS-10.13"
+      vmImage: "macOS-10.13"
     steps:
       - task: UsePythonVersion@0
         inputs:
