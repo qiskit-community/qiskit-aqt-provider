@@ -1,6 +1,6 @@
 # Qiskit AQT Provider
 
-[![License](https://img.shields.io/github/license/Qiskit/qiskit-aqt-provider.svg?style=popout-square)](https://opensource.org/licenses/Apache-2.0)[![Build Status](https://img.shields.io/travis/com/Qiskit/qiskit-aqt-provider/master.svg?style=popout-     square)](https://travis-ci.com/Qiskit/qiskit-aqt-provider)[![](https://img.shields.io/github/release/Qiskit/qiskit-aqt-provider.svg?style=popout-square)](https://github.com/Qiskit/qiskit-aqt-provider/releases)[![](https://img.shields.io/pypi/dm/qiskit-aqt-provider.svg?style=popout-square)](https://pypi.org/project/qiskit-aqt-provider/)
+[![License](https://img.shields.io/github/license/Qiskit/qiskit-aqt-provider.svg?style=popout-square)](https://opensource.org/licenses/Apache-2.0)[![Build Status](https://img.shields.io/travis/com/Qiskit/qiskit-aqt-provider/master.svg?style=popout-square)](https://travis-ci.com/Qiskit/qiskit-aqt-provider)[![](https://img.shields.io/github/release/Qiskit/qiskit-aqt-provider.svg?style=popout-square)](https://github.com/Qiskit/qiskit-aqt-provider/releases)[![](https://img.shields.io/pypi/dm/qiskit-aqt-provider.svg?style=popout-square)](https://pypi.org/project/qiskit-aqt-provider/)
 
 Qiskit is an open-source framework for working with noisy intermediate-scale
 quantum computers (NISQ) at the level of pulses, circuits, and algorithms.
