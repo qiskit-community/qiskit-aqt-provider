@@ -33,7 +33,7 @@ class AQTAccount:
             url (str): The optional AQT connection url.
         """
         self._credentials = {'token': token, 'url': url}
-        provider = AQTProvider(token, url)
+        provider = AQTProvider(token)
         self._providers[provider.name] = provider
         return provider
 
