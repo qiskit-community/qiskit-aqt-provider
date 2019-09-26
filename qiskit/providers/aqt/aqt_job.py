@@ -42,7 +42,7 @@ class AQTJob(BaseJob):
             if timeout and elapsed >= timeout:
                 raise JobTimeoutError('Timed out waiting for result')
             result = requests.put(
-                self._backend._provider.url,
+                self._backend.url,
                 data={'id': self._job_id,
                       'access_token': self._backend._provider.access_token}
             ).json()
@@ -113,7 +113,7 @@ class AQTJob(BaseJob):
         if not self.qobj or not self._job_id:
             raise Exception
         aqt_json = qobj_to_aqt(self.qobj, self.access_token)
-        res = requests.post(self.configuration.url, data=aqt_json[0])
+        res = requests.post(self._backend.url, data=aqt_json[0])
         if 'id' not in res:
             raise Exception
         self._job_id = res['id']
