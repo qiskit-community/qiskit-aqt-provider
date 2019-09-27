@@ -50,7 +50,20 @@ class TestQobjToAQT(unittest.TestCase):
         qc.measure(0, 0)
         qobj = assemble(qc)
         expected = [{'access_token': 'foo',
-                     'data': '[["X", 1.0, [0]]]',
+                     'data': '[["X", 0.5, [0]], ["X", 0.5, [0]]]',
+                     'no_qubits': 1,
+                     'repetitions': 1024}]
+        self.assertEqual(expected, qobj_to_aqt(qobj, 'foo'))
+
+    def test_with_two_rx(self):
+        qc = QuantumCircuit(1, 1)
+        qc.rx(pi, 0)
+        qc.rx(2*pi, 0)
+        qc.measure(0, 0)
+        qobj = assemble(qc)
+        expected = [{'access_token': 'foo',
+                     'data': '[["X", 0.5, [0]], ["X", 0.5, [0]], '
+                             '["X", 2.0, [0]]]',
                      'no_qubits': 1,
                      'repetitions': 1024}]
         self.assertEqual(expected, qobj_to_aqt(qobj, 'foo'))
