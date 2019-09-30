@@ -27,6 +27,9 @@ def _experiment_to_seq(experiment):
             name = 'Y'
         elif inst.name == 'rxx':
             name = 'MS'
+        elif inst.name == 'ms':
+            name = 'MS'
+            inst.qubits = []
         elif inst.name == 'measure':
             meas += 1
             continue
@@ -36,8 +39,14 @@ def _experiment_to_seq(experiment):
             raise Exception("Operation '%s' outside of basis rx, ry, rxx" %
                             inst.name)
         exponent = inst.params[0] / pi
-        # (op name, exponent, [qubit index])
-        ops.append((name, float(exponent), inst.qubits))
+
+        # hack: split X into X**0.5 . X**0.5
+        if name == 'X' and exponent == 1.0:
+            ops.append((name, float(0.5), inst.qubits))
+            ops.append((name, float(0.5), inst.qubits))
+        else:
+            # (op name, exponent, [qubit index])
+            ops.append((name, float(exponent), inst.qubits))
     if not meas:
         raise ValueError('Circuit must have at least one measurements.')
     return json.dumps(ops)
