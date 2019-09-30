@@ -13,6 +13,7 @@
 # that they have been altered from the originals.
 
 import inspect
+import os
 import setuptools
 import sys
 
@@ -31,10 +32,18 @@ if not hasattr(setuptools,
           "repeat install.".format(setuptools.__version__))
     sys.exit(1)
 
+version_path = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), 'qiskit', 'providers', 'aqt',
+                 'VERSION.txt'))
+
+
+with open(version_path, 'r') as fd:
+    version = fd.read().rstrip()
+
 
 setuptools.setup(
     name="qiskit-aqt-provider",
-    version="0.0.1b1",
+    version=version,
     description="Qiskit provider for AQT backends",
     url="https://github.com/Qiskit/qiskit-aqt-provider",
     author="Qiskit Development Team",

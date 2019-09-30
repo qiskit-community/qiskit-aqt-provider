@@ -1,4 +1,5 @@
 from .aqt_account import AQTAccount
+from . import version
 
 AQT = AQTAccount()
-__version__ = '0.0.1b1'
+__version__ = version.__version__
