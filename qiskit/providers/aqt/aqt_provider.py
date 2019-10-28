@@ -20,14 +20,14 @@ from .aqt_backend import AQTSimulator, AQTDevice
 
 
 class AQTProvider(BaseProvider):
-    """Provider for the Hadamard backend"""
+    """Provider for backends from Alpine Quantum Technologies (AQT)."""
 
     def __init__(self, access_token):
         super().__init__()
 
         self.access_token = access_token
         self.name = 'aqt_provider'
-        # Populate the list of Hadamard backends
+        # Populate the list of AQT backends
         self._backends = [AQTSimulator(provider=self),
                           AQTDevice(provider=self)]
 
