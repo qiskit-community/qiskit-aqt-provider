@@ -23,7 +23,7 @@ from . import qobj_to_aqt
 class AQTSimulator(BaseBackend):
 
     def __init__(self, provider):
-        self.url = 'http://0f4aa71c.ngrok.io/cirq'
+        self.url = 'https://0f4aa71c.ngrok.io/cirq'
         configuration = {
             'backend_name': 'aqt_qasm_simulator',
             'backend_version': '0.0.1',
@@ -67,7 +67,7 @@ class AQTSimulator(BaseBackend):
 class AQTDevice(BaseBackend):
 
     def __init__(self, provider):
-        self.url = 'http://aqt-uibk-lintrap.ngrok.io/cirq'
+        self.url = 'https://aqt-uibk-lintrap.ngrok.io/cirq'
         configuration = {
             'backend_name': 'aqt_innsbruck',
             'backend_version': '0.0.1',
