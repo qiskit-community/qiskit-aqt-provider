@@ -15,7 +15,7 @@
 from collections import OrderedDict
 from .aqt_provider import AQTProvider
 
-AQT_AUTH_URL = "http://0f4aa71c.ngrok.io/cirq"
+AQT_AUTH_URL = "https://0f4aa71c.ngrok.io/cirq"
 
 
 class AQTAccount:
