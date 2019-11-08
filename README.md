@@ -19,13 +19,6 @@ pip install qiskit-aqt-provider
 `pip` will handle installing all the python dependencies automatically and you
 will always install the  latest (and well-tested) version.
 
-**Note**: to get the full advantages of this provider you will need to have
-a development version of qiskit-terra installed. The current releases don't
-support transpilation for the basis gates of the AQT devices. While you'll be
-able to use this provider with the qiskit-terra 0.9.x release series, it
-will not automatically translate circuits for you. Therefore it will only
-work if you manually use `Rx` and `Ry` gates.
-
 ## Setting up the AQT Provider
 
 Once the package is installed, you can use it to access the provider from
