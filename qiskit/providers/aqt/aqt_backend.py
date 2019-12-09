@@ -23,7 +23,7 @@ from . import qobj_to_aqt
 class AQTSimulator(BaseBackend):
 
     def __init__(self, provider):
-        self.url = 'http://0f4aa71c.ngrok.io/cirq'
+        self.url = "https://gateway.aqt.eu/marmot/sim/"
         configuration = {
             'backend_name': 'aqt_qasm_simulator',
             'backend_version': '0.0.1',
@@ -53,7 +53,8 @@ class AQTSimulator(BaseBackend):
     def run(self, qobj):
         aqt_json = qobj_to_aqt.qobj_to_aqt(
             qobj, self._provider.access_token)[0]
-        res = requests.put(self.url, data=aqt_json)
+        header = {"Ocp-Apim-Subscription-Key": self._provider.access_token, "SDK": "qiskit"}
+        res = requests.put(self.url, data=aqt_json, headers=header)
         res.raise_for_status()
         response = res.json()
         if 'id' not in response:
@@ -65,7 +66,7 @@ class AQTSimulator(BaseBackend):
 class AQTDevice(BaseBackend):
 
     def __init__(self, provider):
-        self.url = 'http://aqt-uibk-lintrap.ngrok.io/cirq'
+        self.url = ' https://gateway.aqt.eu/marmot/lint'
         configuration = {
             'backend_name': 'aqt_innsbruck',
             'backend_version': '0.0.1',
@@ -95,7 +96,8 @@ class AQTDevice(BaseBackend):
     def run(self, qobj):
         aqt_json = qobj_to_aqt.qobj_to_aqt(
             qobj, self._provider.access_token)[0]
-        res = requests.put(self.url, data=aqt_json)
+        header = {"Ocp-Apim-Subscription-Key": self._provider.access_token, "SDK": "qiskit"}
+        res = requests.put(self.url, data=aqt_json, headers=header)
         res.raise_for_status()
         response = res.json()
         if 'id' not in response:
