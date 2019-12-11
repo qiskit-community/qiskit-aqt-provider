@@ -53,7 +53,10 @@ class AQTSimulator(BaseBackend):
     def run(self, qobj):
         aqt_json = qobj_to_aqt.qobj_to_aqt(
             qobj, self._provider.access_token)[0]
-        header = {"Ocp-Apim-Subscription-Key": self._provider.access_token, "SDK": "qiskit"}
+        header = {
+            "Ocp-Apim-Subscription-Key": self._provider.access_token,
+            "SDK": "qiskit"
+        }
         res = requests.put(self.url, data=aqt_json, headers=header)
         res.raise_for_status()
         response = res.json()
@@ -96,7 +99,10 @@ class AQTDevice(BaseBackend):
     def run(self, qobj):
         aqt_json = qobj_to_aqt.qobj_to_aqt(
             qobj, self._provider.access_token)[0]
-        header = {"Ocp-Apim-Subscription-Key": self._provider.access_token, "SDK": "qiskit"}
+        header = {
+            "Ocp-Apim-Subscription-Key": self._provider.access_token,
+            "SDK": "qiskit"
+        }
         res = requests.put(self.url, data=aqt_json, headers=header)
         res.raise_for_status()
         response = res.json()

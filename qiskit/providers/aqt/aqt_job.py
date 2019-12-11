@@ -37,7 +37,10 @@ class AQTJob(BaseJob):
     def _wait_for_result(self, timeout=None, wait=5):
         start_time = time.time()
         result = None
-        header = {"Ocp-Apim-Subscription-Key": self._backend._provider.access_token, "SDK": "qiskit"}
+        header = {
+            "Ocp-Apim-Subscription-Key": self._backend._provider.access_token,
+            "SDK": "qiskit"
+        }
         while True:
             elapsed = time.time() - start_time
             if timeout and elapsed >= timeout:
@@ -106,7 +109,10 @@ class AQTJob(BaseJob):
         pass
 
     def status(self):
-        header = {"Ocp-Apim-Subscription-Key": self._backend._provider.access_token, "SDK": "qiskit"}
+        header = {
+            "Ocp-Apim-Subscription-Key": self._backend._provider.access_token,
+            "SDK": "qiskit"
+        }
         result = requests.put(self._backend.url,
                               data={'id': self._job_id,
                                     'access_token': self.access_token},
