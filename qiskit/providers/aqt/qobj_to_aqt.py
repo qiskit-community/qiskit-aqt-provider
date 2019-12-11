@@ -64,8 +64,6 @@ def qobj_to_aqt(qobj, access_token):
     op_string: str that specifies the operation type, either "X","Y","MS"
     gate_exponent: float that specifies the gate_exponent of the operation
     qubits: list of qubits where the operation acts on.
-
-
     """
     out_json = []
     if len(qobj.experiments) > 1:
