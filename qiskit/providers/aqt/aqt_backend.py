@@ -69,7 +69,7 @@ class AQTSimulator(BaseBackend):
 class AQTDevice(BaseBackend):
 
     def __init__(self, provider):
-        self.url = ' https://gateway.aqt.eu/marmot/lint'
+        self.url = 'https://gateway.aqt.eu/marmot/lint'
         configuration = {
             'backend_name': 'aqt_innsbruck',
             'backend_version': '0.0.1',

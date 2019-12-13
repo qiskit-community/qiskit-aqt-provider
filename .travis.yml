@@ -6,11 +6,10 @@ matrix:
       env: TOXENV=py35
     - python: "3.6"
       env: TOXENV=py36
-    - os: linux
-      dist: xenial
-      python: 3.7
+    - python: 3.7
       env: TOXENV=py37
-      sudo: true
+    - python: 3.8
+      env: TOXENV=py38
     - python: "3.6"
       env: TOXENV=lint
     - if: tag IS present
