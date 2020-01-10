@@ -52,8 +52,8 @@ class AQTSimulator(BaseBackend):
 
     def run(self, qobj):
         if qobj.config.shots > self.configuration().max_shots:
-            raise ValueError('Number of shots is larger than maximum number of '
-                             'shots')
+            raise ValueError('Number of shots is larger than maximum '
+                             'number of shots')
         aqt_json = qobj_to_aqt.qobj_to_aqt(
             qobj, self._provider.access_token)[0]
         header = {
@@ -101,8 +101,8 @@ class AQTDevice(BaseBackend):
 
     def run(self, qobj):
         if qobj.config.shots > self.configuration().max_shots:
-            raise ValueError('Number of shots is larger than maximum number of '
-                             'shots')
+            raise ValueError('Number of shots is larger than maximum '
+                             'number of shots')
         aqt_json = qobj_to_aqt.qobj_to_aqt(
             qobj, self._provider.access_token)[0]
         header = {
