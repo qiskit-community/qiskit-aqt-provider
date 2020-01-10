@@ -5,7 +5,7 @@
 Qiskit is an open-source framework for working with noisy intermediate-scale
 quantum computers (NISQ) at the level of pulses, circuits, and algorithms.
 
-This project contains a provider that allows access **[AQT]** ion-trap quantum
+This project contains a provider that allows access to **[AQT]** ion-trap quantum
 devices.
 
 ## Installation
@@ -37,12 +37,12 @@ Where `MY_TOKEN` is your access token for the AQT device. Then you can access
 the backends from that provider:
 
 ```python
-backends = aqt.backends()
-innsbruck_backend = aqt.get_backend('aqt_innsbruck')
+print(aqt.backends())
+backend = aqt.get_backend('aqt_qasm_simulator')
 ```
 
 You can then use that backend like you would use any other qiskit backend. For
-example, getting running a bell state:
+example, running a bell state:
 
 ```python
 from qiskit import *
@@ -50,10 +50,11 @@ qc = QuantumCircuit(2, 2)
 qc.h(0)
 qc.cx(0, 1)
 qc.measure([0,1], [0,1])
-result = execute(qc, innsbruck_backend).result()
+result = execute(qc, backend, shots=100).result()
 print(result.get_counts(qc))
 ```
 
+For running the quantum circuit on the ion-trap quantum device you need to use `aqt_innsbruck` as backend, which needs a different access token.
 
 ## Authors and Citation
 
