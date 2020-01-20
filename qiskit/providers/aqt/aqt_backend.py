@@ -36,7 +36,7 @@ class AQTSimulator(BaseBackend):
             'memory': False,
             'n_qubits': 11,
             'conditional': False,
-            'max_shots': 250,
+            'max_shots': 200,
             'open_pulse': False,
             'gates': [
                 {
@@ -51,6 +51,9 @@ class AQTSimulator(BaseBackend):
             provider=provider)
 
     def run(self, qobj):
+        if qobj.config.shots > self.configuration().max_shots:
+            raise ValueError('Number of shots is larger than maximum '
+                             'number of shots')
         aqt_json = qobj_to_aqt.qobj_to_aqt(
             qobj, self._provider.access_token)[0]
         header = {
@@ -82,7 +85,7 @@ class AQTDevice(BaseBackend):
             'memory': False,
             'n_qubits': 4,
             'conditional': False,
-            'max_shots': 250,
+            'max_shots': 200,
             'open_pulse': False,
             'gates': [
                 {
@@ -97,6 +100,9 @@ class AQTDevice(BaseBackend):
             provider=provider)
 
     def run(self, qobj):
+        if qobj.config.shots > self.configuration().max_shots:
+            raise ValueError('Number of shots is larger than maximum '
+                             'number of shots')
         aqt_json = qobj_to_aqt.qobj_to_aqt(
             qobj, self._provider.access_token)[0]
         header = {
