@@ -31,7 +31,57 @@ class AQTSimulator(BaseBackend):
             'simulator': True,
             'local': False,
             'coupling_map': None,
-            'description': 'aqt trapped ion device simulator',
+            'description': 'AQT trapped-ion device simulator',
+            'basis_gates': ['rx', 'ry', 'rxx'],
+            'memory': False,
+            'n_qubits': 11,
+            'conditional': False,
+            'max_shots': 200,
+            'open_pulse': False,
+            'gates': [
+                {
+                    'name': 'TODO',
+                    'parameters': [],
+                    'qasm_def': 'TODO'
+                }
+            ]
+        }
+        super().__init__(
+            configuration=BackendConfiguration.from_dict(configuration),
+            provider=provider)
+
+    def run(self, qobj):
+        if qobj.config.shots > self.configuration().max_shots:
+            raise ValueError('Number of shots is larger than maximum '
+                             'number of shots')
+        aqt_json = qobj_to_aqt.qobj_to_aqt(
+            qobj, self._provider.access_token)[0]
+        header = {
+            "Ocp-Apim-Subscription-Key": self._provider.access_token,
+            "SDK": "qiskit"
+        }
+        res = requests.put(self.url, data=aqt_json, headers=header)
+        res.raise_for_status()
+        response = res.json()
+        if 'id' not in response:
+            raise Exception
+        job = aqt_job.AQTJob(self, response['id'], qobj=qobj)
+        return job
+
+
+class AQTSimulatorNoise1(BaseBackend):
+
+    def __init__(self, provider):
+        self.url = "https://gateway.aqt.eu/marmot/sim/noise-model-1"
+        configuration = {
+            'backend_name': 'aqt_qasm_simulator_noise_1',
+            'backend_version': '0.0.1',
+            'url': self.url,
+            'simulator': True,
+            'local': False,
+            'coupling_map': None,
+            'description': 'AQT trapped-ion device simulator '
+                           'with noise model 1',
             'basis_gates': ['rx', 'ry', 'rxx'],
             'memory': False,
             'n_qubits': 11,
@@ -80,7 +130,7 @@ class AQTDevice(BaseBackend):
             'simulator': False,
             'local': False,
             'coupling_map': None,
-            'description': 'aqt trapped ion device',
+            'description': 'AQT trapped-ion device',
             'basis_gates': ['rx', 'ry', 'rxx', 'ms'],
             'memory': False,
             'n_qubits': 4,
