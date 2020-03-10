@@ -56,7 +56,7 @@ jobs:
           python.version: '3.8'
           TOXENV: py38
     pool:
-      vmImage: "macOS-10.13"
+      vmImage: "macOS-10.15"
     steps:
       - task: UsePythonVersion@0
         inputs:
