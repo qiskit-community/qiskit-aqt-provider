@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-  
+
 # This code is part of Qiskit.
 #
 # (C) Copyright IBM 2019.
@@ -40,11 +40,18 @@ version_path = os.path.abspath(
 with open(version_path, 'r') as fd:
     version = fd.read().rstrip()
 
+README_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                           'README.md')
+with open(README_PATH) as readme_file:
+    README = readme_file.read()
+
 
 setuptools.setup(
     name="qiskit-aqt-provider",
     version=version,
     description="Qiskit provider for AQT backends",
+    long_description=README,
+    long_description_content_type='text/markdown',
     url="https://github.com/Qiskit/qiskit-aqt-provider",
     author="Qiskit Development Team",
     author_email="qiskit@qiskit.org",
@@ -69,5 +76,9 @@ setuptools.setup(
     install_requires=requirements,
     include_package_data=True,
     python_requires=">=3.5",
+    project_urls={
+        "Bug Tracker": "https://github.com/Qiskit/qiskit-aqt-provider/issues",
+        "Source Code": "https://github.com/Qiskit/qiskit-aqt-provider",
+    },
     zip_safe=False
 )
