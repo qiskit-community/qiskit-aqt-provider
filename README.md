@@ -1,6 +1,6 @@
 # Qiskit AQT Provider
 
-[![License](https://img.shields.io/github/license/Qiskit/qiskit-aqt-provider.svg?style=popout-square)](https://opensource.org/licenses/Apache-2.0)[![Build Status](https://img.shields.io/travis/com/Qiskit/qiskit-aqt-provider/master.svg?style=popout-square)](https://travis-ci.com/Qiskit/qiskit-aqt-provider)[![](https://img.shields.io/github/release/Qiskit/qiskit-aqt-provider.svg?style=popout-square)](https://github.com/Qiskit/qiskit-aqt-provider/releases)[![](https://img.shields.io/pypi/dm/qiskit-aqt-provider.svg?style=popout-square)](https://pypi.org/project/qiskit-aqt-provider/)
+[![License](https://img.shields.io/github/license/qiskit-community/qiskit-aqt-provider.svg?style=popout-square)](https://opensource.org/licenses/Apache-2.0)[![Build Status](https://img.shields.io/travis/com/qiskit-community/qiskit-aqt-provider/master.svg?style=popout-square)](https://travis-ci.com/qiskit-community/qiskit-aqt-provider)[![](https://img.shields.io/github/release/qiskit-community/qiskit-aqt-provider.svg?style=popout-square)](https://github.com/qiskit-community/qiskit-aqt-provider/releases)[![](https://img.shields.io/pypi/dm/qiskit-aqt-provider.svg?style=popout-square)](https://pypi.org/project/qiskit-aqt-provider/)
 
 Qiskit is an open-source framework for working with noisy intermediate-scale
 quantum computers (NISQ) at the level of pulses, circuits, and algorithms.
@@ -56,16 +56,9 @@ print(result.get_counts(qc))
 
 For running the quantum circuit on the ion-trap quantum device you need to use `aqt_innsbruck` as backend, which needs a different access token.
 
-## Authors and Citation
-
-The Qiskit AQT provider is the work of many people who contribute to the
-project at different levels. If you use Qiskit, please cite as per the included
-[BibTeX file].
-
 ## License
 
 [Apache License 2.0].
 
 [AQT]: https://www.aqt.eu/
-[BibTeX file]: https://github.com/Qiskit/qiskit/blob/master/Qiskit.bib
-[Apache License 2.0]: https://github.com/Qiskit/qiskit-aqt-provider/blob/master/LICENSE.txt
+[Apache License 2.0]: https://github.com/qiskit-community/qiskit-aqt-provider/blob/master/LICENSE.txt
