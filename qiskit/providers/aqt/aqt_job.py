@@ -86,8 +86,8 @@ class AQTJob(BaseJob):
         return counts
 
     def result(self,
-               timeout = None,
-               wait = 5):
+               timeout=None,
+               wait=5):
         result = self._wait_for_result(timeout, wait)
         results = [
             {
