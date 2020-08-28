@@ -37,7 +37,7 @@ class AQTSimulator(BaseBackend):
             'n_qubits': 11,
             'conditional': False,
             'max_shots': 200,
-            'max_experiments': 75,
+            'max_experiments': 1,
             'open_pulse': False,
             'gates': [
                 {
@@ -88,7 +88,7 @@ class AQTSimulatorNoise1(BaseBackend):
             'n_qubits': 11,
             'conditional': False,
             'max_shots': 200,
-            'max_experiments': 75,
+            'max_experiments': 1,
             'open_pulse': False,
             'gates': [
                 {
@@ -138,7 +138,7 @@ class AQTDevice(BaseBackend):
             'n_qubits': 4,
             'conditional': False,
             'max_shots': 200,
-            'max_experiments': 75,
+            'max_experiments': 1,
             'open_pulse': False,
             'gates': [
                 {
