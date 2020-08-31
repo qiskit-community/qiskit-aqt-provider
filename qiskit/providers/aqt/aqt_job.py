@@ -85,8 +85,10 @@ class AQTJob(BaseJob):
                 counts[h_result] += 1
         return counts
 
-    def result(self):
-        result = self._wait_for_result()
+    def result(self,
+               timeout=None,
+               wait=5):
+        result = self._wait_for_result(timeout, wait)
         results = [
             {
                 'success': True,
