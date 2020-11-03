@@ -79,7 +79,7 @@ class AQTSimulator(Backend):
                 if kwarg != 'shots':
                     warnings.warn(
                         "Option %s is not used by this backend" % kwarg,
-                        UserWarning)
+                        UserWarning, stacklevel=2)
             out_shots = kwargs.get('shots', self.options.shots)
             aqt_json = circuit_to_aqt.circuit_to_aqt(
                 qobj, self._provider.access_token, shots=out_shots)[0]
@@ -87,7 +87,6 @@ class AQTSimulator(Backend):
             "Ocp-Apim-Subscription-Key": self._provider.access_token,
             "SDK": "qiskit"
         }
-        print(aqt_json)
         res = requests.put(self.url, data=aqt_json, headers=header)
         res.raise_for_status()
         response = res.json()
@@ -150,7 +149,7 @@ class AQTSimulatorNoise1(Backend):
                 if kwarg != 'shots':
                     warnings.warn(
                         "Option %s is not used by this backend" % kwarg,
-                        UserWarning)
+                        UserWarning, stacklevel=2)
             out_shots = kwargs.get('shots', self.options.shots)
             aqt_json = circuit_to_aqt.circuit_to_aqt(
                 qobj, self._provider.access_token, shots=out_shots)[0]
@@ -219,7 +218,7 @@ class AQTDevice(Backend):
                 if kwarg != 'shots':
                     warnings.warn(
                         "Option %s is not used by this backend" % kwarg,
-                        UserWarning)
+                        UserWarning, stacklevel=2)
             out_shots = kwargs.get('shots', self.options.shots)
             aqt_json = circuit_to_aqt.circuit_to_aqt(
                 qobj, self._provider.access_token, shots=out_shots)[0]
