@@ -11,10 +11,6 @@ jobs:
   - job: 'Windows_Testing'
     strategy:
       matrix:
-        Python35:
-          python.version: '3.5'
-          TOXENV: py35
-          imageName: "vs2017-win2016"
         Python36:
           python.version: '3.6'
           TOXENV: py36
@@ -43,9 +39,6 @@ jobs:
   - job: 'macOS_Testing'
     strategy:
       matrix:
-        Python35:
-          python.version: '3.5'
-          TOXENV: py35
         Python36:
           python.version: '3.6'
           TOXENV: py36
