@@ -20,7 +20,7 @@ import sys
 requirements = [
     "requests>=2.19",
     "setuptools>=40.1.0",
-    "qiskit-terra>=0.10.0",
+    "qiskit-terra>=0.16.0",
 ]
 
 
