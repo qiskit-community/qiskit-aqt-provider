@@ -18,14 +18,15 @@ import time
 
 import requests
 
-from qiskit.providers import BaseJob
+from qiskit.providers import JobV1
 from qiskit.providers import JobError
 from qiskit.providers import JobTimeoutError
+from qiskit.qobj import QasmQobj
 from qiskit.result import Result
 from .qobj_to_aqt import qobj_to_aqt
 
 
-class AQTJob(BaseJob):
+class AQTJob(JobV1):
     def __init__(self, backend, job_id, access_token=None, qobj=None):
         super().__init__(backend, job_id)
         self._backend = backend
@@ -60,13 +61,32 @@ class AQTJob(BaseJob):
 
     def _build_memory_mapping(self):
         qu2cl = {}
-        for instruction in self.qobj.experiments[0].instructions:
-            if instruction.name == 'measure':
-                qu2cl[instruction.qubits[0]] = instruction.memory[0]
+        if isinstance(self.qobj, QasmQobj):
+            for instruction in self.qobj.experiments[0].instructions:
+                if instruction.name == 'measure':
+                    qu2cl[instruction.qubits[0]] = instruction.memory[0]
+            return qu2cl
+        qubit_map = {}
+        count = 0
+        for bit in self.qobj.qubits:
+            qubit_map[bit] = count
+        count += 1
+        clbit_map = {}
+        count = 0
+        for bit in self.qobj.clbits:
+            clbit_map[bit] = count
+        count += 1
+        for instruction in self.qobj.data:
+            if instruction[0].name == 'measure':
+                for index, qubit in enumerate(instruction[1]):
+                    qu2cl[qubit_map[qubit]] = clbit_map[instruction[2][index]]
         return qu2cl
 
     def _rearrange_result(self, input):
-        length = self.qobj.experiments[0].header.memory_slots
+        if isinstance(self.qobj, QasmQobj):
+            length = self.qobj.experiments[0].header.memory_slots
+        else:
+            length = self.qobj.num_clbits
         bin_output = list('0' * length)
         bin_input = list(bin(input)[2:].rjust(length, '0'))
         bin_input.reverse()
@@ -89,20 +109,32 @@ class AQTJob(BaseJob):
                timeout=None,
                wait=5):
         result = self._wait_for_result(timeout, wait)
-        results = [
-            {
-                'success': True,
-                'shots': len(result['samples']),
-                'data': {'counts': self._format_counts(result['samples'])},
-                'header': {'memory_slots': self.qobj.config.memory_slots,
-                           'name': self.qobj.experiments[0].header.name}
-            }]
+        if isinstance(self.qobj, QasmQobj):
+            results = [
+                {
+                    'success': True,
+                    'shots': len(result['samples']),
+                    'data': {'counts': self._format_counts(result['samples'])},
+                    'header': {'memory_slots': self.qobj.config.memory_slots,
+                               'name': self.qobj.experiments[0].header.name}
+                }]
+            qobj_id = self.qobj.qobj_id
+        else:
+            results = [
+                {
+                    'success': True,
+                    'shots': len(result['samples']),
+                    'data': {'counts': self._format_counts(result['samples'])},
+                    'header': {'memory_slots': self.qobj.num_clbits,
+                               'name': self.qobj.name}
+                }]
+            qobj_id = id(self.qobj)
 
         return Result.from_dict({
             'results': results,
             'backend_name': self._backend._configuration.backend_name,
             'backend_version': self._backend._configuration.backend_version,
-            'qobj_id': self.qobj.qobj_id,
+            'qobj_id': qobj_id,
             'success': True,
             'job_id': self._job_id,
         })
