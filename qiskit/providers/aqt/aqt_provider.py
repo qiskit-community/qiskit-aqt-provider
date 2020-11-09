@@ -14,7 +14,6 @@
 
 
 from qiskit.providers.providerutils import filter_backends
-from qiskit.providers import BaseProvider
 
 from .aqt_backend import AQTSimulator, AQTSimulatorNoise1, AQTDevice
 
