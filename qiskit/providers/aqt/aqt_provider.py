@@ -14,12 +14,12 @@
 
 
 from qiskit.providers.providerutils import filter_backends
-from qiskit.providers import BaseProvider
+from qiskit.providers import ProviderV1 as Provider
 
 from .aqt_backend import AQTSimulator, AQTSimulatorNoise1, AQTDevice
 
 
-class AQTProvider(BaseProvider):
+class AQTProvider(Provider):
     """Provider for backends from Alpine Quantum Technologies (AQT)."""
 
     def __init__(self, access_token):

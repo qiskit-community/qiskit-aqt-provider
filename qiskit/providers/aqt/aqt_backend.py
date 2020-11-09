@@ -12,15 +12,22 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+import warnings
+
 import requests
 
-from qiskit.providers import BaseBackend
+from qiskit import qobj as qobj_mod
+from qiskit.providers import BackendV1 as Backend
+from qiskit.providers import Options
 from qiskit.providers.models import BackendConfiguration
+from qiskit.exceptions import QiskitError
+
 from . import aqt_job
 from . import qobj_to_aqt
+from . import circuit_to_aqt
 
 
-class AQTSimulator(BaseBackend):
+class AQTSimulator(Backend):
 
     def __init__(self, provider):
         self.url = "https://gateway.aqt.eu/marmot/sim/"
@@ -51,12 +58,31 @@ class AQTSimulator(BaseBackend):
             configuration=BackendConfiguration.from_dict(configuration),
             provider=provider)
 
-    def run(self, qobj):
-        if qobj.config.shots > self.configuration().max_shots:
-            raise ValueError('Number of shots is larger than maximum '
-                             'number of shots')
-        aqt_json = qobj_to_aqt.qobj_to_aqt(
-            qobj, self._provider.access_token)[0]
+    @classmethod
+    def _default_options(cls):
+        return Options(shots=100)
+
+    def run(self, qobj, **kwargs):
+        if isinstance(qobj, qobj_mod.QasmQobj):
+            warnings.warn("Passing in a QASMQobj object to run() is "
+                          "deprecated and will be removed in a future "
+                          "release", DeprecationWarning)
+            if qobj.config.shots > self.configuration().max_shots:
+                raise ValueError('Number of shots is larger than maximum '
+                                 'number of shots')
+            aqt_json = qobj_to_aqt.qobj_to_aqt(
+                qobj, self._provider.access_token)[0]
+        elif isinstance(qobj, qobj_mod.PulseQobj):
+            raise QiskitError("Pulse jobs are not accepted")
+        else:
+            for kwarg in kwargs:
+                if kwarg != 'shots':
+                    warnings.warn(
+                        "Option %s is not used by this backend" % kwarg,
+                        UserWarning, stacklevel=2)
+            out_shots = kwargs.get('shots', self.options.shots)
+            aqt_json = circuit_to_aqt.circuit_to_aqt(
+                qobj, self._provider.access_token, shots=out_shots)[0]
         header = {
             "Ocp-Apim-Subscription-Key": self._provider.access_token,
             "SDK": "qiskit"
@@ -70,7 +96,7 @@ class AQTSimulator(BaseBackend):
         return job
 
 
-class AQTSimulatorNoise1(BaseBackend):
+class AQTSimulatorNoise1(Backend):
 
     def __init__(self, provider):
         self.url = "https://gateway.aqt.eu/marmot/sim/noise-model-1"
@@ -102,12 +128,31 @@ class AQTSimulatorNoise1(BaseBackend):
             configuration=BackendConfiguration.from_dict(configuration),
             provider=provider)
 
-    def run(self, qobj):
-        if qobj.config.shots > self.configuration().max_shots:
-            raise ValueError('Number of shots is larger than maximum '
-                             'number of shots')
-        aqt_json = qobj_to_aqt.qobj_to_aqt(
-            qobj, self._provider.access_token)[0]
+    @classmethod
+    def _default_options(cls):
+        return Options(shots=100)
+
+    def run(self, qobj, **kwargs):
+        if isinstance(qobj, qobj_mod.QasmQobj):
+            warnings.warn("Passing in a QASMQobj object to run() is "
+                          "deprecated and will be removed in a future "
+                          "release", DeprecationWarning)
+            if qobj.config.shots > self.configuration().max_shots:
+                raise ValueError('Number of shots is larger than maximum '
+                                 'number of shots')
+            aqt_json = qobj_to_aqt.qobj_to_aqt(
+                qobj, self._provider.access_token)[0]
+        elif isinstance(qobj, qobj_mod.PulseQobj):
+            raise QiskitError("Pulse jobs are not accepted")
+        else:
+            for kwarg in kwargs:
+                if kwarg != 'shots':
+                    warnings.warn(
+                        "Option %s is not used by this backend" % kwarg,
+                        UserWarning, stacklevel=2)
+            out_shots = kwargs.get('shots', self.options.shots)
+            aqt_json = circuit_to_aqt.circuit_to_aqt(
+                qobj, self._provider.access_token, shots=out_shots)[0]
         header = {
             "Ocp-Apim-Subscription-Key": self._provider.access_token,
             "SDK": "qiskit"
@@ -121,7 +166,7 @@ class AQTSimulatorNoise1(BaseBackend):
         return job
 
 
-class AQTDevice(BaseBackend):
+class AQTDevice(Backend):
 
     def __init__(self, provider):
         self.url = 'https://gateway.aqt.eu/marmot/lint'
@@ -152,12 +197,31 @@ class AQTDevice(BaseBackend):
             configuration=BackendConfiguration.from_dict(configuration),
             provider=provider)
 
-    def run(self, qobj):
-        if qobj.config.shots > self.configuration().max_shots:
-            raise ValueError('Number of shots is larger than maximum '
-                             'number of shots')
-        aqt_json = qobj_to_aqt.qobj_to_aqt(
-            qobj, self._provider.access_token)[0]
+    @classmethod
+    def _default_options(cls):
+        return Options(shots=100)
+
+    def run(self, qobj, **kwargs):
+        if isinstance(qobj, qobj_mod.QasmQobj):
+            warnings.warn("Passing in a QASMQobj object to run() is "
+                          "deprecated and will be removed in a future "
+                          "release", DeprecationWarning)
+            if qobj.config.shots > self.configuration().max_shots:
+                raise ValueError('Number of shots is larger than maximum '
+                                 'number of shots')
+            aqt_json = qobj_to_aqt.qobj_to_aqt(
+                qobj, self._provider.access_token)[0]
+        elif isinstance(qobj, qobj_mod.PulseQobj):
+            raise QiskitError("Pulse jobs are not accepted")
+        else:
+            for kwarg in kwargs:
+                if kwarg != 'shots':
+                    warnings.warn(
+                        "Option %s is not used by this backend" % kwarg,
+                        UserWarning, stacklevel=2)
+            out_shots = kwargs.get('shots', self.options.shots)
+            aqt_json = circuit_to_aqt.circuit_to_aqt(
+                qobj, self._provider.access_token, shots=out_shots)[0]
         header = {
             "Ocp-Apim-Subscription-Key": self._provider.access_token,
             "SDK": "qiskit"
