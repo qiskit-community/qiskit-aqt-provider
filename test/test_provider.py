@@ -27,7 +27,6 @@ class TestProvider(unittest.TestCase):
         for backend in pro.backends():
             self.assertTrue(hasattr(pro.backends, backend.name()))
 
-
     def test_provider_getbackend(self):
         """Verifies that provider.get_backend works.
         """

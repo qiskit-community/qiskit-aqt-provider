@@ -50,9 +50,9 @@ class AQTProvider():
         """
         backends = self.backends(name, **kwargs)
         if len(backends) > 1:
-            raise QiskitBackendNotFoundError('More than one backend matches the criteria')
+            raise QiskitBackendNotFoundError('More than one backend matches criteria.')
         if not backends:
-            raise QiskitBackendNotFoundError('No backend matches the criteria')
+            raise QiskitBackendNotFoundError('No backend matches criteria.')
 
         return backends[0]
 
