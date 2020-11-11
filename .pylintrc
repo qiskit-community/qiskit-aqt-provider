@@ -7,3 +7,8 @@ extension-pkg-whitelist=numpy
 generated-members = id, x, y, z, h, s, sdg, u1, u2, u3, cx, barrier, binary, measure, append, rx, ry
 
 notes = 
+
+[FORMAT]
+
+# Maximum number of characters on a single line.
+max-line-length=100
