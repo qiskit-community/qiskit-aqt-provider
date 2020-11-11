@@ -81,6 +81,9 @@ class AQTSimulator(Backend):
                         "Option %s is not used by this backend" % kwarg,
                         UserWarning, stacklevel=2)
             out_shots = kwargs.get('shots', self.options.shots)
+            if out_shots > self.configuration().max_shots:
+                raise ValueError('Number of shots is larger than maximum '
+                                 'number of shots')
             aqt_json = circuit_to_aqt.circuit_to_aqt(
                 qobj, self._provider.access_token, shots=out_shots)[0]
         header = {
@@ -151,6 +154,9 @@ class AQTSimulatorNoise1(Backend):
                         "Option %s is not used by this backend" % kwarg,
                         UserWarning, stacklevel=2)
             out_shots = kwargs.get('shots', self.options.shots)
+            if out_shots > self.configuration().max_shots:
+                raise ValueError('Number of shots is larger than maximum '
+                                 'number of shots')
             aqt_json = circuit_to_aqt.circuit_to_aqt(
                 qobj, self._provider.access_token, shots=out_shots)[0]
         header = {
@@ -220,6 +226,9 @@ class AQTDevice(Backend):
                         "Option %s is not used by this backend" % kwarg,
                         UserWarning, stacklevel=2)
             out_shots = kwargs.get('shots', self.options.shots)
+            if out_shots > self.configuration().max_shots:
+                raise ValueError('Number of shots is larger than maximum '
+                                 'number of shots')
             aqt_json = circuit_to_aqt.circuit_to_aqt(
                 qobj, self._provider.access_token, shots=out_shots)[0]
         header = {

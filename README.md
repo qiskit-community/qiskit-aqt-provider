@@ -38,20 +38,21 @@ the backends from that provider:
 
 ```python
 print(aqt.backends())
-backend = aqt.get_backend('aqt_qasm_simulator')
+backend = pro.backends.aqt_qasm_simulator
 ```
 
 You can then use that backend like you would use any other qiskit backend. For
 example, running a bell state:
 
 ```python
-from qiskit import *
+from qiskit import QuantumCircuit, transpile
 qc = QuantumCircuit(2, 2)
 qc.h(0)
 qc.cx(0, 1)
 qc.measure([0,1], [0,1])
-result = execute(qc, backend, shots=100).result()
-print(result.get_counts(qc))
+trans_qc = transpile(qc, backend)
+result = backend.run(trans_qc).result()
+print(result.get_counts())
 ```
 
 For running the quantum circuit on the ion-trap quantum device you need to use `aqt_innsbruck` as backend, which needs a different access token.
