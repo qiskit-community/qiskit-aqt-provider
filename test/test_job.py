@@ -24,6 +24,7 @@ from qiskit.providers.aqt.aqt_job import AQTJob
 class _FakeJob():
     def __init__(self, circuit):
         self.qobj = circuit
+
     def _build_memory_mapping(self):
         return AQTJob._build_memory_mapping(self)
 
