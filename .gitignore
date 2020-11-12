@@ -109,3 +109,5 @@ ENV/
 .ropeproject
 
 .DS_Store
+
+docs/stubs/
