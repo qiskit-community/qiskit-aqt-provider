@@ -36,7 +36,7 @@ with open(README_PATH) as readme_file:
     README = readme_file.read()
 
 setuptools.setup(
-    name="qiskit_aqt_provider",
+    name="qiskit-aqt-provider",
     version=version,
     packages=PACKAGES,
     description="Qiskit provider for AQT backends",
