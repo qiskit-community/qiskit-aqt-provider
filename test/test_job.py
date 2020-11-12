@@ -17,7 +17,6 @@ import unittest
 
 import numpy as np
 from qiskit import QuantumCircuit
-from qiskit.providers.aqt import AQT
 from qiskit.providers.aqt.aqt_job import AQTJob
 
 
