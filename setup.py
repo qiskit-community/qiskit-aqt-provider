@@ -12,10 +12,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-import inspect
 import os
 import setuptools
-import sys
 
 requirements = [
     "requests>=2.19",
@@ -23,19 +21,11 @@ requirements = [
     "qiskit-terra>=0.16.0",
 ]
 
-
-if not hasattr(setuptools,
-               'find_namespace_packages') or not inspect.ismethod(
-                    setuptools.find_namespace_packages):
-    print("Your setuptools version:'{}' does not support PEP 420 "
-          "(find_namespace_packages). Upgrade it to version >='40.1.0' and "
-          "repeat install.".format(setuptools.__version__))
-    sys.exit(1)
+PACKAGES = setuptools.find_packages(exclude=['test*'])
 
 version_path = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), 'qiskit', 'providers', 'aqt',
+    os.path.join(os.path.dirname(__file__), 'qiskit_aqt_provider',
                  'VERSION.txt'))
-
 
 with open(version_path, 'r') as fd:
     version = fd.read().rstrip()
@@ -45,10 +35,10 @@ README_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)),
 with open(README_PATH) as readme_file:
     README = readme_file.read()
 
-
 setuptools.setup(
     name="qiskit-aqt-provider",
     version=version,
+    packages=PACKAGES,
     description="Qiskit provider for AQT backends",
     long_description=README,
     long_description_content_type='text/markdown',
@@ -71,7 +61,6 @@ setuptools.setup(
         "Topic :: Scientific/Engineering",
     ],
     keywords="qiskit sdk quantum",
-    packages=setuptools.find_namespace_packages(exclude=['test*']),
     install_requires=requirements,
     include_package_data=True,
     python_requires=">=3.6",

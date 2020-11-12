@@ -12,6 +12,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+import warnings
+
 from collections import OrderedDict
 from .aqt_provider import AQTProvider
 
@@ -24,6 +26,10 @@ class AQTAccount:
     def __init__(self):
         self._credentials = None
         self._providers = OrderedDict()
+
+        warnings.warn("The AQTAccount should no longer be used. "
+                      "The AQProvider can now be instantiated"
+                      "directly with a token.", DeprecationWarning, stacklevel=2)
 
     def enable_account(self, token, url=AQT_AUTH_URL):
         """Enable the AQT account using token, and optional URL.

@@ -17,7 +17,7 @@ import unittest
 from numpy import pi
 from qiskit import QuantumCircuit
 
-from qiskit.providers.aqt.circuit_to_aqt import circuit_to_aqt
+from qiskit_aqt_provider.circuit_to_aqt import circuit_to_aqt
 
 
 class TestCircuitToAQT(unittest.TestCase):

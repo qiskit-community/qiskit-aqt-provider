@@ -29,18 +29,9 @@ AQT provider (:mod:`qiskit.providers.aqt`)
 
 import warnings
 
+from .aqt_provider import AQTProvider
 from .aqt_account import AQTAccount
 from .aqt_provider import AQTProvider
 from . import version
 
-_PACKAGING_WARNING = False
-
-AQT = AQTAccount()
 __version__ = version.__version__
-
-if not _PACKAGING_WARNING:
-    warnings.warn("The qiskit.providers.aqt package will be renamed in the "
-                  "next release. Starting in qiskit-aqt-provider 0.4.0 you "
-                  "will need to change imports from 'qiskit.providers.aqt' to "
-                  "'qiskit_aqt_provider'.", DeprecationWarning, stacklevel=2)
-    _PACKAGING_WARNING = True

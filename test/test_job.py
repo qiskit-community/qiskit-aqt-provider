@@ -17,10 +17,9 @@ import unittest
 
 import numpy as np
 
-from qiskit import QuantumCircuit
-from qiskit.providers.aqt.aqt_job import AQTJob
-from qiskit.providers.aqt.aqt_backend import AQTDevice
-from qiskit import transpile
+from qiskit import QuantumCircuit, transpile
+from qiskit_aqt_provider.aqt_job import AQTJob
+from qiskit_aqt_provider.aqt_backend import AQTDevice
 
 
 class _FakeJob():

@@ -21,6 +21,7 @@ import requests
 from qiskit.providers import JobV1
 from qiskit.providers import JobError
 from qiskit.providers import JobTimeoutError
+from qiskit.providers.jobstatus import JobStatus
 from qiskit.qobj import QasmQobj
 from qiskit.result import Result
 from .qobj_to_aqt import qobj_to_aqt
@@ -139,6 +140,20 @@ class AQTJob(JobV1):
             'job_id': self._job_id,
         })
 
+    def get_counts(self, circuit=None, timeout=None, wait=5):
+        """Get the histogram data of an experiment.
+
+        Parameters:
+            circuit (str or QuantumCircuit or int or None): The index of the circuit.
+            timeout (float): A timeout for trying to get the counts.
+            wait (float): A specified wait time between counts retrival
+                          attempts.
+
+        Returns:
+            dict: Dictionary of string : int key-value pairs.
+        """
+        return self.result(timeout=timeout, wait=wait).get_counts(circuit)
+
     def cancel(self):
         pass
 
@@ -151,7 +166,17 @@ class AQTJob(JobV1):
                               data={'id': self._job_id,
                                     'access_token': self.access_token},
                               headers=header)
-        return result['status']
+        code = result.status_code
+
+        if code == 100:
+            status = JobStatus.RUNNING
+        elif code == 200:
+            status = JobStatus.DONE
+        elif code in [201, 202]:
+            status = JobStatus.INITIALIZING
+        else:
+            status = JobStatus.ERROR
+        return status
 
     def submit(self):
         if not self.qobj or not self._job_id:

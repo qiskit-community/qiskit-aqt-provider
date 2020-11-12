@@ -29,8 +29,8 @@ qiskit.
 You can initialize an AQT provider using your token locally with:
 
 ```python
-from qiskit.providers.aqt import AQT
-aqt = AQT.enable_account('MY_TOKEN')
+from qiskit_aqt_provider import AQTProvider
+aqt = AQTProvider('MY_TOKEN')
 ```
 
 Where `MY_TOKEN` is your access token for the AQT device. Then you can access
@@ -38,7 +38,7 @@ the backends from that provider:
 
 ```python
 print(aqt.backends())
-backend = pro.backends.aqt_qasm_simulator
+backend = aqt.backends.aqt_qasm_simulator
 ```
 
 You can then use that backend like you would use any other qiskit backend. For
@@ -51,8 +51,8 @@ qc.h(0)
 qc.cx(0, 1)
 qc.measure([0,1], [0,1])
 trans_qc = transpile(qc, backend)
-result = backend.run(trans_qc).result()
-print(result.get_counts())
+job = backend.run(trans_qc)
+print(job.get_counts())
 ```
 
 For running the quantum circuit on the ion-trap quantum device you need to use `aqt_innsbruck` as backend, which needs a different access token.

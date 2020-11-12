@@ -14,7 +14,7 @@
 
 import unittest
 
-from qiskit.providers.aqt import AQT
+from qiskit_aqt_provider import AQTProvider
 
 
 class TestProvider(unittest.TestCase):
@@ -22,7 +22,7 @@ class TestProvider(unittest.TestCase):
     def test_provider_autocomplete(self):
         """Verifies that provider.backends autocomplete works.
         """
-        pro = AQT.enable_account('123456')
+        pro = AQTProvider('123456')
 
         for backend in pro.backends():
             self.assertTrue(hasattr(pro.backends, backend.name()))
@@ -30,7 +30,7 @@ class TestProvider(unittest.TestCase):
     def test_provider_getbackend(self):
         """Verifies that provider.get_backend works.
         """
-        pro = AQT.enable_account('123456')
+        pro = AQTProvider('123456')
 
         for backend in pro.backends():
             self.assertTrue(backend == pro.get_backend(backend.name()))
