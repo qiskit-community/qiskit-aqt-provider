@@ -70,12 +70,12 @@ class AQTJob(JobV1):
         count = 0
         for bit in self.qobj.qubits:
             qubit_map[bit] = count
-        count += 1
+            count += 1
         clbit_map = {}
         count = 0
         for bit in self.qobj.clbits:
             clbit_map[bit] = count
-        count += 1
+            count += 1
         for instruction in self.qobj.data:
             if instruction[0].name == 'measure':
                 for index, qubit in enumerate(instruction[1]):
