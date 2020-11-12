@@ -21,7 +21,7 @@ requirements = [
     "qiskit-terra>=0.16.0",
 ]
 
-PACKAGES = setuptools.find_namespace_packages(exclude=['test*'])
+PACKAGES = setuptools.find_packages(exclude=['test*'])
 
 version_path = os.path.abspath(
     os.path.join(os.path.dirname(__file__), 'qiskit_aqt_provider',
