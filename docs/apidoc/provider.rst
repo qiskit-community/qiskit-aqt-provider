@@ -1,6 +1,8 @@
 .. _qiskit-aqt-provider:
 
-.. automodule:: qiskit.providers.aqt
-   :no-members:
-   :no-inherited-members:
-   :no-special-members:
+===========
+AQTProvider
+===========
+
+.. autoclass:: qiskit_aqt_provider.aqt_provider.AQTProvider  
+   :members: 

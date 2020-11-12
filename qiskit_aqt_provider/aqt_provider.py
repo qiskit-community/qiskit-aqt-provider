@@ -19,7 +19,18 @@ from .aqt_backend import AQTSimulator, AQTSimulatorNoise1, AQTDevice
 
 
 class AQTProvider():
-    """Provider for backends from Alpine Quantum Technologies (AQT)."""
+    """Provider for backends from Alpine Quantum Technologies (AQT).
+
+    Typical usage is:
+
+    .. code-block:: python
+
+        from qiskit_aqt_provider import AQTProvider
+
+        aqt = AQTProvider('MY_TOKEN')
+
+    where `'MY_TOKEN'` is the access token provided by AQT.
+    """
 
     def __init__(self, access_token):
         super().__init__()

@@ -12,26 +12,11 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""
-=======================================================
-AQT provider (:mod:`qiskit.providers.aqt`)
-=======================================================
-
-.. currentmodule:: qiskit.providers.aqt
-
-.. autosummary::
-   :toctree: ../stubs/
-
-    AQTAccount
-    AQTProvider
-"""
-
-
 import warnings
 
 from .aqt_provider import AQTProvider
 from .aqt_account import AQTAccount
-from .aqt_provider import AQTProvider
+
 from . import version
 
 __version__ = version.__version__

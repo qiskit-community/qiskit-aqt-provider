@@ -63,8 +63,7 @@ extensions = [
     'reno.sphinxext',
     'sphinx_panels',
 ]
-html_static_path = ['_static']
-templates_path = ['_templates']
+html_static_path = []
 html_css_files = []
 
 # -----------------------------------------------------------------------------
@@ -72,13 +71,14 @@ html_css_files = []
 # -----------------------------------------------------------------------------
 
 autosummary_generate = True
-
+autoclass_content = 'both'
 # -----------------------------------------------------------------------------
 # Autodoc
 # -----------------------------------------------------------------------------
 
 autodoc_default_options = {
     'inherited-members': None,
+    'special-members': '__init__'
 }
 
 
@@ -138,5 +138,3 @@ html_theme_options = {
     'prev_next_buttons_location': 'bottom',
     'style_external_links': True,
 }
-
-autoclass_content = 'both'
