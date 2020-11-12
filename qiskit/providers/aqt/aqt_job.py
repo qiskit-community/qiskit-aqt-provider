@@ -144,12 +144,12 @@ class AQTJob(JobV1):
 
         Parameters:
             circuit (str or QuantumCircuit or int or None): The index of the circuit.
-
-        Returns:
-            dict: Dictionary of string : int key-value pairs.
             timeout (float): A timeout for trying to get the counts.
             wait (float): A specified wait time between counts retrival
                           attempts.
+
+        Returns:
+            dict: Dictionary of string : int key-value pairs.
         """
         return self.result(timeout=timeout, wait=wait).get_counts(circuit)
 
