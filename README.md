@@ -52,8 +52,7 @@ qc.cx(0, 1)
 qc.measure([0,1], [0,1])
 trans_qc = transpile(qc, backend)
 job = backend.run(trans_qc)
-result = job.result()
-print(result.get_counts())
+print(job.get_counts())
 ```
 
 For running the quantum circuit on the ion-trap quantum device you need to use `aqt_innsbruck` as backend, which needs a different access token.
