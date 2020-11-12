@@ -139,7 +139,7 @@ class AQTJob(JobV1):
             'job_id': self._job_id,
         })
 
-    def get_counts(self, circuit=None):
+    def get_counts(self, circuit=None, timeout=None, wait=5):
         """Get the histogram data of an experiment.
 
         Parameters:
@@ -147,8 +147,11 @@ class AQTJob(JobV1):
 
         Returns:
             dict: Dictionary of string : int key-value pairs.
+            timeout (float): A timeout for trying to get the counts.
+            wait (float): A specified wait time between counts retrival 
+                          attempts.
         """
-        return self.result().get_counts(circuit)
+        return self.result(timeout=timeout, wait=wait).get_counts(circuit)
 
     def cancel(self):
         pass
