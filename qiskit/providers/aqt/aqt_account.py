@@ -31,7 +31,6 @@ class AQTAccount:
                       "The AQProvider can now be instantiated"
                       "directly with a token.", DeprecationWarning, stacklevel=2)
 
-
     def enable_account(self, token, url=AQT_AUTH_URL):
         """Enable the AQT account using token, and optional URL.
 
