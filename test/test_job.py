@@ -16,8 +16,11 @@
 import unittest
 
 import numpy as np
+
 from qiskit import QuantumCircuit
 from qiskit.providers.aqt.aqt_job import AQTJob
+from qiskit.providers.aqt.aqt_backend import AQTDevice
+from qiskit import transpile
 
 
 class _FakeJob():
@@ -44,3 +47,39 @@ class TestJobs(unittest.TestCase):
 
         self.assertEqual(mapping[0], perm[0])
         self.assertEqual(mapping[2], perm[2])
+
+    def test_job_result_counts(self):
+        qc = QuantumCircuit(2, 2)
+        qc.x(range(2))
+        qc.measure_all()
+        backend = AQTDevice(None)
+        tqc = transpile(qc, backend)
+        job = AQTJob(backend, 'abc123', None, tqc)
+        fake_response = {
+            'id': 'abc123',
+            'no_qubits': 2,
+            'received': [['X', 0.5, [0]],
+                         ['X', 0.5, [0]],
+                         ['X', 0.5, [1]],
+                         ['X', 0.5, [1]]],
+            'repetitions': 200,
+            'samples': [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+                        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+                        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+                        3, 3, 3, 3, 3, 3, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+                        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3, 3,
+                        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+                        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+                        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+                        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+                        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+                        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+                        3, 3],
+            'status': 'finished'
+        }
+        with unittest.mock.patch.object(job, '_wait_for_result',
+                                        return_value=fake_response):
+            result = job.result()
+
+        self.assertEqual({'1100': 198, '1000': 1, '0100': 1},
+                         result.get_counts())
