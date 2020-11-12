@@ -29,7 +29,7 @@ qiskit.
 You can initialize an AQT provider using your token locally with:
 
 ```python
-from qiskit.providers.aqt import AQTProvider
+from qiskit_aqt_provider import AQTProvider
 aqt = AQTProvider('MY_TOKEN')
 ```
 
