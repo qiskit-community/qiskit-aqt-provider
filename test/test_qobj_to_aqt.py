@@ -18,7 +18,7 @@ from numpy import pi
 from qiskit import QuantumCircuit
 from qiskit.compiler import assemble
 
-from qiskit.providers.aqt.qobj_to_aqt import qobj_to_aqt
+from qiskit_aqt_provider.qobj_to_aqt import qobj_to_aqt
 
 
 class TestQobjToAQT(unittest.TestCase):

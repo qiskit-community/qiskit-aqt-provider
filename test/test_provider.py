@@ -14,7 +14,7 @@
 
 import unittest
 
-from qiskit.providers.aqt import AQTProvider
+from qiskit_aqt_provider import AQTProvider
 
 
 class TestProvider(unittest.TestCase):
