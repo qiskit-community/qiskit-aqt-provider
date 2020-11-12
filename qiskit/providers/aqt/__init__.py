@@ -15,6 +15,7 @@
 import warnings
 
 from .aqt_provider import AQTProvider
+from .aqt_account import AQTAccount
 from . import version
 
 _PACKAGING_WARNING = False
