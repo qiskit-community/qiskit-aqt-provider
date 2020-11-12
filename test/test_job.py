@@ -34,7 +34,7 @@ class TestJobs(unittest.TestCase):
         """Are measurements correctly mapped to counts
         """
         perm = np.random.permutation(5)
-        qc = QuantumCircuit(5,5)
+        qc = QuantumCircuit(5, 5)
         qc.x(0)
         qc.x(2)
         qc.measure(range(5), perm)
