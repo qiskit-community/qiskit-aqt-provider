@@ -86,4 +86,3 @@ class TestJobs(unittest.TestCase):
 
         self.assertEqual({'1100': 198, '1000': 1, '0100': 1},
                          job.get_counts())
-
