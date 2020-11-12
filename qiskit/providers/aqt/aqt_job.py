@@ -139,6 +139,17 @@ class AQTJob(JobV1):
             'job_id': self._job_id,
         })
 
+    def get_counts(self, circuit=None):
+        """Get the histogram data of an experiment.
+
+        Parameters:
+            circuit (str or QuantumCircuit or int or None): The index of the circuit.
+
+        Returns:
+            dict: Dictionary of string : int key-value pairs.
+        """
+        return self.result().get_counts(circuit)
+
     def cancel(self):
         pass
 
