@@ -14,12 +14,12 @@
 
 import warnings
 
+from .aqt_provider import AQTProvider
 from .aqt_account import AQTAccount
 from . import version
 
 _PACKAGING_WARNING = False
 
-AQT = AQTAccount()
 __version__ = version.__version__
 
 if not _PACKAGING_WARNING:
