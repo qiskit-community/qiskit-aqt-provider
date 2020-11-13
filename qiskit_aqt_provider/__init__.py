@@ -16,6 +16,7 @@ import warnings
 
 from .aqt_provider import AQTProvider
 from .aqt_account import AQTAccount
+
 from . import version
 
 __version__ = version.__version__
