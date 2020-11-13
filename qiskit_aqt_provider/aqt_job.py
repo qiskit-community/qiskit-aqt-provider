@@ -29,6 +29,14 @@ from .qobj_to_aqt import qobj_to_aqt
 
 class AQTJob(JobV1):
     def __init__(self, backend, job_id, access_token=None, qobj=None):
+        """Initialize a job instance.
+
+        Parameters:
+            backend (BaseBackend): Backend that job was executed on.
+            job_id (str): The unique job ID.
+            access_token (str): The AQT access token.
+            qobj (Qobj): Quantum object, if any.
+        """
         super().__init__(backend, job_id)
         self._backend = backend
         self.access_token = access_token
@@ -109,6 +117,16 @@ class AQTJob(JobV1):
     def result(self,
                timeout=None,
                wait=5):
+        """Get the result data of a circuit.
+
+        Parameters:
+            timeout (float): A timeout for trying to get the counts.
+            wait (float): A specified wait time between counts retrival
+                          attempts.
+
+        Returns:
+            Result: Result object.
+        """
         result = self._wait_for_result(timeout, wait)
         if isinstance(self.qobj, QasmQobj):
             results = [
@@ -141,7 +159,7 @@ class AQTJob(JobV1):
         })
 
     def get_counts(self, circuit=None, timeout=None, wait=5):
-        """Get the histogram data of an experiment.
+        """Get the histogram data of a measured circuit.
 
         Parameters:
             circuit (str or QuantumCircuit or int or None): The index of the circuit.
@@ -158,6 +176,8 @@ class AQTJob(JobV1):
         pass
 
     def status(self):
+        """Query for the job status.
+        """
         header = {
             "Ocp-Apim-Subscription-Key": self._backend._provider.access_token,
             "SDK": "qiskit"
@@ -179,6 +199,8 @@ class AQTJob(JobV1):
         return status
 
     def submit(self):
+        """Submits a job for execution.
+        """
         if not self.qobj or not self._job_id:
             raise Exception
         aqt_json = qobj_to_aqt(self.qobj, self.access_token)

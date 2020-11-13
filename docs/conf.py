@@ -59,7 +59,6 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.extlinks',
     'jupyter_sphinx',
-    'sphinx_panels',
 ]
 html_static_path = []
 html_css_files = []
@@ -69,7 +68,7 @@ html_css_files = []
 # -----------------------------------------------------------------------------
 
 autosummary_generate = True
-autoclass_content = 'both'
+autoclass_content = 'class'
 # -----------------------------------------------------------------------------
 # Autodoc
 # -----------------------------------------------------------------------------
