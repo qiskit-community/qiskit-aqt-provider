@@ -21,6 +21,7 @@ from qiskit.providers import BackendV1 as Backend
 from qiskit.providers import Options
 from qiskit.providers.models import BackendConfiguration
 from qiskit.exceptions import QiskitError
+from qiskit.util import deprecate_arguments
 
 from . import aqt_job
 from . import qobj_to_aqt
@@ -62,17 +63,18 @@ class AQTSimulator(Backend):
     def _default_options(cls):
         return Options(shots=100)
 
-    def run(self, qobj, **kwargs):
-        if isinstance(qobj, qobj_mod.QasmQobj):
+    @deprecate_arguments({'qobj': 'circuit'})
+    def run(self, circuit, **kwargs):
+        if isinstance(circuit, qobj_mod.QasmQobj):
             warnings.warn("Passing in a QASMQobj object to run() is "
                           "deprecated and will be removed in a future "
                           "release", DeprecationWarning)
-            if qobj.config.shots > self.configuration().max_shots:
+            if circuit.config.shots > self.configuration().max_shots:
                 raise ValueError('Number of shots is larger than maximum '
                                  'number of shots')
             aqt_json = qobj_to_aqt.qobj_to_aqt(
-                qobj, self._provider.access_token)[0]
-        elif isinstance(qobj, qobj_mod.PulseQobj):
+                circuit, self._provider.access_token)[0]
+        elif isinstance(circuit, qobj_mod.PulseQobj):
             raise QiskitError("Pulse jobs are not accepted")
         else:
             for kwarg in kwargs:
@@ -85,7 +87,7 @@ class AQTSimulator(Backend):
                 raise ValueError('Number of shots is larger than maximum '
                                  'number of shots')
             aqt_json = circuit_to_aqt.circuit_to_aqt(
-                qobj, self._provider.access_token, shots=out_shots)[0]
+                circuit, self._provider.access_token, shots=out_shots)[0]
         header = {
             "Ocp-Apim-Subscription-Key": self._provider.access_token,
             "SDK": "qiskit"
@@ -95,7 +97,7 @@ class AQTSimulator(Backend):
         response = res.json()
         if 'id' not in response:
             raise Exception
-        job = aqt_job.AQTJob(self, response['id'], qobj=qobj)
+        job = aqt_job.AQTJob(self, response['id'], qobj=circuit)
         return job
 
 
@@ -135,17 +137,18 @@ class AQTSimulatorNoise1(Backend):
     def _default_options(cls):
         return Options(shots=100)
 
-    def run(self, qobj, **kwargs):
-        if isinstance(qobj, qobj_mod.QasmQobj):
+    @deprecate_arguments({'qobj': 'circuit'})
+    def run(self, circuit, **kwargs):
+        if isinstance(circuit, qobj_mod.QasmQobj):
             warnings.warn("Passing in a QASMQobj object to run() is "
                           "deprecated and will be removed in a future "
                           "release", DeprecationWarning)
-            if qobj.config.shots > self.configuration().max_shots:
+            if circuit.config.shots > self.configuration().max_shots:
                 raise ValueError('Number of shots is larger than maximum '
                                  'number of shots')
             aqt_json = qobj_to_aqt.qobj_to_aqt(
-                qobj, self._provider.access_token)[0]
-        elif isinstance(qobj, qobj_mod.PulseQobj):
+                circuit, self._provider.access_token)[0]
+        elif isinstance(circuit, qobj_mod.PulseQobj):
             raise QiskitError("Pulse jobs are not accepted")
         else:
             for kwarg in kwargs:
@@ -158,7 +161,7 @@ class AQTSimulatorNoise1(Backend):
                 raise ValueError('Number of shots is larger than maximum '
                                  'number of shots')
             aqt_json = circuit_to_aqt.circuit_to_aqt(
-                qobj, self._provider.access_token, shots=out_shots)[0]
+                circuit, self._provider.access_token, shots=out_shots)[0]
         header = {
             "Ocp-Apim-Subscription-Key": self._provider.access_token,
             "SDK": "qiskit"
@@ -168,7 +171,7 @@ class AQTSimulatorNoise1(Backend):
         response = res.json()
         if 'id' not in response:
             raise Exception
-        job = aqt_job.AQTJob(self, response['id'], qobj=qobj)
+        job = aqt_job.AQTJob(self, response['id'], qobj=circuit)
         return job
 
 
@@ -207,17 +210,18 @@ class AQTDevice(Backend):
     def _default_options(cls):
         return Options(shots=100)
 
-    def run(self, qobj, **kwargs):
-        if isinstance(qobj, qobj_mod.QasmQobj):
+    @deprecate_arguments({'qobj': 'circuit'})
+    def run(self, circuit, **kwargs):
+        if isinstance(circuit, qobj_mod.QasmQobj):
             warnings.warn("Passing in a QASMQobj object to run() is "
                           "deprecated and will be removed in a future "
                           "release", DeprecationWarning)
-            if qobj.config.shots > self.configuration().max_shots:
+            if circuit.config.shots > self.configuration().max_shots:
                 raise ValueError('Number of shots is larger than maximum '
                                  'number of shots')
             aqt_json = qobj_to_aqt.qobj_to_aqt(
-                qobj, self._provider.access_token)[0]
-        elif isinstance(qobj, qobj_mod.PulseQobj):
+                circuit, self._provider.access_token)[0]
+        elif isinstance(circuit, qobj_mod.PulseQobj):
             raise QiskitError("Pulse jobs are not accepted")
         else:
             for kwarg in kwargs:
@@ -230,7 +234,7 @@ class AQTDevice(Backend):
                 raise ValueError('Number of shots is larger than maximum '
                                  'number of shots')
             aqt_json = circuit_to_aqt.circuit_to_aqt(
-                qobj, self._provider.access_token, shots=out_shots)[0]
+                circuit, self._provider.access_token, shots=out_shots)[0]
         header = {
             "Ocp-Apim-Subscription-Key": self._provider.access_token,
             "SDK": "qiskit"
@@ -240,5 +244,5 @@ class AQTDevice(Backend):
         response = res.json()
         if 'id' not in response:
             raise Exception
-        job = aqt_job.AQTJob(self, response['id'], qobj=qobj)
+        job = aqt_job.AQTJob(self, response['id'], qobj=circuit)
         return job
