@@ -21,6 +21,7 @@ from qiskit.providers import BackendV1 as Backend
 from qiskit.providers import Options
 from qiskit.providers.models import BackendConfiguration
 from qiskit.exceptions import QiskitError
+from qiskit.util import deprecate_arguments
 
 from . import aqt_job
 from . import qobj_to_aqt
@@ -62,6 +63,7 @@ class AQTSimulator(Backend):
     def _default_options(cls):
         return Options(shots=100)
 
+    @deprecate_arguments({'qobj': 'circuit'})
     def run(self, circuit, **kwargs):
         if isinstance(circuit, qobj_mod.QasmQobj):
             warnings.warn("Passing in a QASMQobj object to run() is "
@@ -135,6 +137,7 @@ class AQTSimulatorNoise1(Backend):
     def _default_options(cls):
         return Options(shots=100)
 
+    @deprecate_arguments({'qobj': 'circuit'})
     def run(self, circuit, **kwargs):
         if isinstance(circuit, qobj_mod.QasmQobj):
             warnings.warn("Passing in a QASMQobj object to run() is "
@@ -207,6 +210,7 @@ class AQTDevice(Backend):
     def _default_options(cls):
         return Options(shots=100)
 
+    @deprecate_arguments({'qobj': 'circuit'})
     def run(self, circuit, **kwargs):
         if isinstance(circuit, qobj_mod.QasmQobj):
             warnings.warn("Passing in a QASMQobj object to run() is "
