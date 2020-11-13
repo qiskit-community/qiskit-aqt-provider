@@ -85,8 +85,7 @@ A circuit can be passed to the backend using the `run()`
 method to retrieve a job:
 
 
-.. jupyter-execute::
-    :hide-output:
+.. code-block:: python3
 
     job = backend.run(trans_qc)
 
@@ -95,7 +94,6 @@ A circuit can also be sent to a backend using the
 Qiskit `execute` function:
 
 
-.. jupyter-execute::
-    :hide-output:
+.. code-block:: python3
 
     job = execute(trans_qc, backend)
