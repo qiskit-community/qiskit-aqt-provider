@@ -80,4 +80,4 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: html_docs
-          path: docs/_build/html
+          path: docs/_build
