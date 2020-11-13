@@ -59,9 +59,6 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.extlinks',
     'jupyter_sphinx',
-    'sphinx_autodoc_typehints',
-    'reno.sphinxext',
-    'sphinx_panels',
 ]
 html_static_path = []
 html_css_files = []
