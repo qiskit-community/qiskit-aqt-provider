@@ -29,7 +29,15 @@ class AQTProvider():
 
         aqt = AQTProvider('MY_TOKEN')
 
+        backend = aqt.backends.aqt_qasm_simulator
+
     where `'MY_TOKEN'` is the access token provided by AQT.
+
+    Attributes:
+        access_token (str): The access token.
+        name (str): Name of the provider instance.
+        backends (BackendService): A service instance that allows
+                                   for grabbing backends.
     """
 
     def __init__(self, access_token):
