@@ -7,6 +7,8 @@ Qiskit AQT provider |version| documentation
   :hidden:
 
   Installation <install>
+  Access to AQT backends <access>
+  User guide <guide>
 
 .. toctree::
   :maxdepth: 1
