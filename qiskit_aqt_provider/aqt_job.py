@@ -17,6 +17,7 @@
 import time
 
 import requests
+from qiskit import QuantumCircuit
 
 from qiskit.providers import JobV1
 from qiskit.providers import JobError
@@ -77,6 +78,10 @@ class AQTJob(JobV1):
             return qu2cl
         qubit_map = {}
         count = 0
+
+        if isinstance(self.qobj[0], QuantumCircuit):
+            self.qobj = self.qobj[0]
+
         for bit in self.qobj.qubits:
             qubit_map[bit] = count
             count += 1
