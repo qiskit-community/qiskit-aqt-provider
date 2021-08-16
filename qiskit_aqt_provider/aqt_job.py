@@ -79,7 +79,10 @@ class AQTJob(JobV1):
         qubit_map = {}
         count = 0
 
-        if isinstance(self.qobj[0], QuantumCircuit):
+        # If a list of quantum circuits use the first element
+        # since we only can have a maximum of a single
+        # circuit per job.
+        if isinstance(self.qobj, list):
             self.qobj = self.qobj[0]
 
         for bit in self.qobj.qubits:
