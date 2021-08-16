@@ -17,8 +17,6 @@
 import time
 
 import requests
-from qiskit import QuantumCircuit
-
 from qiskit.providers import JobV1
 from qiskit.providers import JobError
 from qiskit.providers import JobTimeoutError
