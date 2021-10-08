@@ -41,12 +41,11 @@ setuptools.setup(
     description="Qiskit provider for AQT backends",
     long_description=README,
     long_description_content_type='text/markdown',
-    url="https://github.com/qiskit-community/qiskit-aqt-provider",
+    url="https://github.com/Qiskit-Partners/qiskit-aqt-provider",
     author="Qiskit Development Team",
     author_email="qiskit@qiskit.org",
     license="Apache 2.0",
     classifiers=[
-        "Environment :: Console",
         "License :: OSI Approved :: Apache Software License",
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
@@ -65,8 +64,9 @@ setuptools.setup(
     include_package_data=True,
     python_requires=">=3.6",
     project_urls={
-        "Bug Tracker": "https://github.com/qiskit-community/qiskit-aqt-provider/issues",
-        "Source Code": "https://github.com/qiskit-community/qiskit-aqt-provider",
+        "Bug Tracker": "https://github.com/Qiskit-Partners/qiskit-aqt-provider/issues"
+        "Source Code": "https://github.com/Qiskit-Partners/qiskit-aqt-provider",
+        "Documentation": "https://qiskit.org/documentation/partners/aqt/"
     },
     zip_safe=False
 )
