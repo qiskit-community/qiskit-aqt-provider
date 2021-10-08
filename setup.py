@@ -17,8 +17,7 @@ import setuptools
 
 requirements = [
     "requests>=2.19",
-    "setuptools>=40.1.0",
-    "qiskit-terra>=0.16.0",
+    "qiskit-terra>=0.17.0",
 ]
 
 PACKAGES = setuptools.find_packages(exclude=['test*'])
@@ -58,6 +57,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "Topic :: Scientific/Engineering",
     ],
     keywords="qiskit sdk quantum",

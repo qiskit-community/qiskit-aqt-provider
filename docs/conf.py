@@ -38,9 +38,9 @@ copyright = '2019, Qiskit and AQT development teams'  # pylint: disable=redefine
 author = 'QiskitQiskit and AQT development teams'
 
 # The short X.Y version
-version = ''
+version = '0.4.3'
 # The full version, including alpha/beta/rc tags
-release = '0.4.2'
+release = '0.4.3'
 
 # -- General configuration ---------------------------------------------------
 
