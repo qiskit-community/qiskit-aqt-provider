@@ -151,7 +151,8 @@ class AQTJob(JobV1):
                     'shots': len(result['samples']),
                     'data': {'counts': self._format_counts(result['samples'])},
                     'header': {'memory_slots': self.qobj.num_clbits,
-                               'name': self.qobj.name}
+                               'name': self.qobj.name,
+                               'metadata': self.qobj.metadata}
                 }]
             qobj_id = id(self.qobj)
 
