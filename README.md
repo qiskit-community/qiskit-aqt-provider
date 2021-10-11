@@ -1,6 +1,9 @@
 # Qiskit AQT Provider
 
-[![License](https://img.shields.io/github/license/qiskit-community/qiskit-aqt-provider.svg?style=popout-square)](https://opensource.org/licenses/Apache-2.0)[![Build Status](https://img.shields.io/travis/com/qiskit-community/qiskit-aqt-provider/master.svg?style=popout-square)](https://travis-ci.com/qiskit-community/qiskit-aqt-provider)[![](https://img.shields.io/github/release/qiskit-community/qiskit-aqt-provider.svg?style=popout-square)](https://github.com/qiskit-community/qiskit-aqt-provider/releases)[![](https://img.shields.io/pypi/dm/qiskit-aqt-provider.svg?style=popout-square)](https://pypi.org/project/qiskit-aqt-provider/)
+[![License](https://img.shields.io/github/license/Qiskit-Partners/qiskit-aqt-provider.svg?style=popout-square)](https://opensource.org/licenses/Apache-2.0)
+![Build Status](https://github.com/Qiskit-Partners/qiskit-aqt-provider/actions/workflows/main.yml/badge.svg?branch=master)
+[![](https://img.shields.io/github/release/Qiskit-Partners/qiskit-aqt-provider.svg?style=popout-square)](https://github.com/Qiskit-Partners/qiskit-aqt-provider/releases)
+[![](https://img.shields.io/pypi/dm/qiskit-aqt-provider.svg?style=popout-square)](https://pypi.org/project/qiskit-aqt-provider/)
 
 **Qiskit** is an open-source SDK for working with quantum computers at the level of circuits, algorithms, and application modules.
 
