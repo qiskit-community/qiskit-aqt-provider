@@ -2,9 +2,12 @@
 Qiskit AQT provider |version| documentation
 ###########################################
 
+The Qiskit AQT package provides access to `AQT <https://www.aqt.eu/>`__ systems
+for Qiskit. It enables users to target and run circuits on AQT's simulators and
+hardware.
+
 .. toctree::
   :maxdepth: 2
-  :hidden:
 
   Installation <install>
   Access to AQT backends <access>
@@ -13,7 +16,6 @@ Qiskit AQT provider |version| documentation
 .. toctree::
   :maxdepth: 1
   :caption: API References
-  :hidden:
 
   AQTProvider <apidoc/provider>
   AQT backends <apidoc/backends>

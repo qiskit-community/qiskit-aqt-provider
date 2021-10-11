@@ -17,21 +17,19 @@ import setuptools
 
 requirements = [
     "requests>=2.19",
-    "setuptools>=40.1.0",
-    "qiskit-terra>=0.16.0",
+    "qiskit-terra>=0.17.0",
 ]
 
-PACKAGES = setuptools.find_packages(exclude=['test*'])
+PACKAGES = setuptools.find_packages(exclude=["test*"])
 
 version_path = os.path.abspath(
-    os.path.join(os.path.dirname(__file__), 'qiskit_aqt_provider',
-                 'VERSION.txt'))
+    os.path.join(os.path.dirname(__file__), "qiskit_aqt_provider", "VERSION.txt")
+)
 
-with open(version_path, 'r') as fd:
+with open(version_path, "r") as fd:
     version = fd.read().rstrip()
 
-README_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                           'README.md')
+README_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), "README.md")
 with open(README_PATH) as readme_file:
     README = readme_file.read()
 
@@ -41,13 +39,12 @@ setuptools.setup(
     packages=PACKAGES,
     description="Qiskit provider for AQT backends",
     long_description=README,
-    long_description_content_type='text/markdown',
-    url="https://github.com/qiskit-community/qiskit-aqt-provider",
+    long_description_content_type="text/markdown",
+    url="https://github.com/Qiskit-Partners/qiskit-aqt-provider",
     author="Qiskit Development Team",
     author_email="qiskit@qiskit.org",
     license="Apache 2.0",
     classifiers=[
-        "Environment :: Console",
         "License :: OSI Approved :: Apache Software License",
         "Intended Audience :: Developers",
         "Intended Audience :: Science/Research",
@@ -58,6 +55,7 @@ setuptools.setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "Topic :: Scientific/Engineering",
     ],
     keywords="qiskit sdk quantum",
@@ -65,8 +63,9 @@ setuptools.setup(
     include_package_data=True,
     python_requires=">=3.6",
     project_urls={
-        "Bug Tracker": "https://github.com/qiskit-community/qiskit-aqt-provider/issues",
-        "Source Code": "https://github.com/qiskit-community/qiskit-aqt-provider",
+        "Bug Tracker": "https://github.com/Qiskit-Partners/qiskit-aqt-provider/issues",
+        "Source Code": "https://github.com/Qiskit-Partners/qiskit-aqt-provider",
+        "Documentation": "https://qiskit.org/documentation/partners/aqt/",
     },
-    zip_safe=False
+    zip_safe=False,
 )
