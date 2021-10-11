@@ -34,8 +34,8 @@ Sphinx documentation builder
 
 # -- Project information -----------------------------------------------------
 project = 'Qiskit AQT Provider'
-copyright = '2019, Qiskit and AQT development teams'  # pylint: disable=redefined-builtin
-author = 'QiskitQiskit and AQT development teams'
+copyright = '2021, Qiskit and AQT development teams'  # pylint: disable=redefined-builtin
+author = 'Qiskit and AQT development teams'
 
 # The short X.Y version
 version = '0.4.3'
