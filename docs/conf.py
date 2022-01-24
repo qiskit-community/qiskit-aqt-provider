@@ -21,9 +21,9 @@ copyright = '2021, Qiskit and AQT development teams'  # pylint: disable=redefine
 author = 'Qiskit and AQT development teams'
 
 # The short X.Y version
-version = '0.4.3'
+version = '0.5.0'
 # The full version, including alpha/beta/rc tags
-release = '0.4.3'
+release = '0.5.0'
 
 extensions = [
     'sphinx.ext.napoleon',
