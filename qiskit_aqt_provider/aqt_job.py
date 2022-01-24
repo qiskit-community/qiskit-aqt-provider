@@ -21,9 +21,7 @@ from qiskit.providers import JobV1
 from qiskit.providers import JobError
 from qiskit.providers import JobTimeoutError
 from qiskit.providers.jobstatus import JobStatus
-from qiskit.qobj import QasmQobj
 from qiskit.result import Result
-from .qobj_to_aqt import qobj_to_aqt
 
 
 class AQTJob(JobV1):
@@ -69,11 +67,6 @@ class AQTJob(JobV1):
 
     def _build_memory_mapping(self):
         qu2cl = {}
-        if isinstance(self.qobj, QasmQobj):
-            for instruction in self.qobj.experiments[0].instructions:
-                if instruction.name == 'measure':
-                    qu2cl[instruction.qubits[0]] = instruction.memory[0]
-            return qu2cl
         qubit_map = {}
         count = 0
 
@@ -98,10 +91,7 @@ class AQTJob(JobV1):
         return qu2cl
 
     def _rearrange_result(self, input):
-        if isinstance(self.qobj, QasmQobj):
-            length = self.qobj.experiments[0].header.memory_slots
-        else:
-            length = self.qobj.num_clbits
+        length = self.qobj.num_clbits
         bin_output = list('0' * length)
         bin_input = list(bin(input)[2:].rjust(length, '0'))
         bin_input.reverse()
@@ -134,32 +124,21 @@ class AQTJob(JobV1):
             Result: Result object.
         """
         result = self._wait_for_result(timeout, wait)
-        if isinstance(self.qobj, QasmQobj):
-            results = [
-                {
-                    'success': True,
-                    'shots': len(result['samples']),
-                    'data': {'counts': self._format_counts(result['samples'])},
-                    'header': {'memory_slots': self.qobj.config.memory_slots,
-                               'name': self.qobj.experiments[0].header.name}
-                }]
-            qobj_id = self.qobj.qobj_id
-        else:
-            results = [
-                {
-                    'success': True,
-                    'shots': len(result['samples']),
-                    'data': {'counts': self._format_counts(result['samples'])},
-                    'header': {'memory_slots': self.qobj.num_clbits,
-                               'name': self.qobj.name,
-                               'metadata': self.qobj.metadata}
-                }]
-            qobj_id = id(self.qobj)
+        results = [
+            {
+                'success': True,
+                'shots': len(result['samples']),
+                'data': {'counts': self._format_counts(result['samples'])},
+                'header': {'memory_slots': self.qobj.num_clbits,
+                           'name': self.qobj.name,
+                           'metadata': self.qobj.metadata}
+            }]
+        qobj_id = id(self.qobj)
 
         return Result.from_dict({
             'results': results,
-            'backend_name': self._backend._configuration.backend_name,
-            'backend_version': self._backend._configuration.backend_version,
+            'backend_name': self._backend.name,
+            'backend_version': '0.0.1',
             'qobj_id': qobj_id,
             'success': True,
             'job_id': self._job_id,
@@ -207,11 +186,12 @@ class AQTJob(JobV1):
 
     def submit(self):
         """Submits a job for execution.
+
+        :class:`.AQTJob` does not support standalone submission of a job
+        object. This can not be called and the Job is only submitted via
+        the ``run()`` method of the backend
+
+        :raises NotImplementedError: This method does not support calling
+        ``submit()``.
         """
-        if not self.qobj or not self._job_id:
-            raise Exception
-        aqt_json = qobj_to_aqt(self.qobj, self.access_token)
-        res = requests.post(self._backend.url, data=aqt_json[0])
-        if 'id' not in res:
-            raise Exception
-        self._job_id = res['id']
+        raise NotImplementedError

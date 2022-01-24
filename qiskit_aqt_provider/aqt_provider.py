@@ -96,7 +96,7 @@ class BackendService():
         """
         self._backends = backends
         for backend in backends:
-            setattr(self, backend.name(), backend)
+            setattr(self, backend.name, backend)
 
     def __call__(self, name=None, filters=None, **kwargs):
         """A listing of all backends from this provider.
@@ -112,6 +112,6 @@ class BackendService():
         backends = self._backends
         if name:
             backends = [
-                backend for backend in backends if backend.name() == name]
+                backend for backend in backends if backend.name == name]
 
         return filter_backends(backends, filters=filters, **kwargs)
