@@ -47,7 +47,7 @@ numfig = True
 numfig_format = {
     'table': 'Table %s'
 }
-language = None
+language = "en"
 
 exclude_patterns = ['_build', '**.ipynb_checkpoints']
 
