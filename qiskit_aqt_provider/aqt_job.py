@@ -192,6 +192,6 @@ class AQTJob(JobV1):
         the ``run()`` method of the backend
 
         :raises NotImplementedError: This method does not support calling
-        ``submit()``.
+            ``submit()``
         """
         raise NotImplementedError
