@@ -32,6 +32,10 @@ def _experiment_to_seq(circuit):
             name = 'X'
         elif inst.name == 'ry':
             name = 'Y'
+        elif inst.name == 'rz':
+            name = 'Z'
+        elif inst.name == 'r':
+            name = 'R'
         elif inst.name == 'rxx':
             name = 'MS'
         elif inst.name == 'ms':

@@ -25,7 +25,7 @@ class TestProvider(unittest.TestCase):
         pro = AQTProvider('123456')
 
         for backend in pro.backends():
-            self.assertTrue(hasattr(pro.backends, backend.name()))
+            self.assertTrue(hasattr(pro.backends, backend.name))
 
     def test_provider_getbackend(self):
         """Verifies that provider.get_backend works.
@@ -33,4 +33,4 @@ class TestProvider(unittest.TestCase):
         pro = AQTProvider('123456')
 
         for backend in pro.backends():
-            self.assertTrue(backend == pro.get_backend(backend.name()))
+            self.assertEqual(backend, pro.get_backend(backend.name))
