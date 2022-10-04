@@ -18,7 +18,7 @@ import numpy as np
 
 from qiskit import QuantumCircuit, transpile
 from qiskit_aqt_provider.aqt_job import AQTJob
-from qiskit_aqt_provider.aqt_backend import AQTDevice
+from qiskit_aqt_provider.aqt_backend import AQTSimulator
 
 
 class _FakeJob():
@@ -64,7 +64,7 @@ class TestJobs(unittest.TestCase):
         qc = QuantumCircuit(2, 2)
         qc.x(range(2))
         qc.measure_all()
-        backend = AQTDevice(None)
+        backend = AQTSimulator(None)
         tqc = transpile(qc, backend)
         job = AQTJob(backend, 'abc123', None, tqc)
         fake_response = {

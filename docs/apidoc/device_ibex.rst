@@ -1,8 +1,8 @@
-.. _qiskit-aqt-backends-device:
+.. _qiskit-aqt-backends-device-ibex:
 
 =========================================
 qiskit_aqt_provider.aqt_backend
 =========================================
 
-.. autoclass:: qiskit_aqt_provider.aqt_backend.AQTDevice
+.. autoclass:: qiskit_aqt_provider.aqt_backend.AQTDeviceIbex
    :members:
