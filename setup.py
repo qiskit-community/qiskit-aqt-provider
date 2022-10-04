@@ -34,10 +34,10 @@ with open(README_PATH) as readme_file:
     README = readme_file.read()
 
 setuptools.setup(
-    name="qiskit-aqt-provider",
+    name="qiskit-aqt-provider-internal",
     version=version,
     packages=PACKAGES,
-    description="Qiskit provider for AQT backends",
+    description="Qiskit provider for internal AQT backends",
     long_description=README,
     long_description_content_type="text/markdown",
     url="https://github.com/Qiskit-Partners/qiskit-aqt-provider",
@@ -60,6 +60,7 @@ setuptools.setup(
     ],
     keywords="qiskit sdk quantum",
     install_requires=requirements,
+    setup_requires = ["wheel"],
     include_package_data=True,
     python_requires=">=3.7",
     project_urls={

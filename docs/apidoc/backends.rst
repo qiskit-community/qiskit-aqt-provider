@@ -7,6 +7,7 @@ AQT backends
 .. toctree::
   :maxdepth: 2
 
-  AQTDevice <device>
+  AQTDeviceIbex <device_ibex>
+  AQTDevicePine <device_pine>
   AQTSimulator <simulator>
   AQTSimulatorNoise1 <noise_simulator>

@@ -132,7 +132,8 @@ class AQTJob(JobV1):
                 'header': {'memory_slots': self.qobj.num_clbits,
                            'name': self.qobj.name,
                            'metadata': self.qobj.metadata}
-            }]
+            }
+        ]
         qobj_id = id(self.qobj)
 
         return Result.from_dict({
