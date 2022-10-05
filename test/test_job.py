@@ -14,6 +14,7 @@
 # pylint: disable=protected-access
 
 import unittest
+from unittest.mock import patch
 import numpy as np
 
 from qiskit import QuantumCircuit, transpile
@@ -26,7 +27,7 @@ class _FakeJob():
         self.qobj = circuit
 
     def _build_memory_mapping(self):
-        return AQTJob._build_memory_mapping(self)
+        return AQTJob._build_memory_mapping(self)  # type: ignore[arg-type]
 
 
 class TestJobs(unittest.TestCase):
@@ -89,8 +90,8 @@ class TestJobs(unittest.TestCase):
                         3, 3],
             'status': 'finished'
         }
-        with unittest.mock.patch.object(job, '_wait_for_result',
-                                        return_value=fake_response):
+        with patch.object(job, '_wait_for_result',
+                          return_value=fake_response):
             result = job.result()
 
         self.assertEqual({'1100': 198, '1000': 1, '0100': 1},
