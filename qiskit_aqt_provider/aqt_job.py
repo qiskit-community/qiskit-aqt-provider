@@ -90,10 +90,10 @@ class AQTJob(JobV1):
                     qu2cl[qubit_map[qubit]] = clbit_map[instruction[2][index]]
         return qu2cl
 
-    def _rearrange_result(self, input):
+    def _rearrange_result(self, input_data):
         length = self.qobj.num_clbits
         bin_output = list('0' * length)
-        bin_input = list(bin(input)[2:].rjust(length, '0'))
+        bin_input = list(bin(input_data)[2:].rjust(length, '0'))
         bin_input.reverse()
         for qu, cl in self.memory_mapping.items():
             bin_output[cl] = bin_input[qu]

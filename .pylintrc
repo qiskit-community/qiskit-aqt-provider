@@ -1,6 +1,10 @@
 [MASTER]
 
-disable = invalid-name, import-error, too-many-statements, too-many-locals, too-many-branches, too-many-arguments, eval-used, too-many-nested-blocks, too-many-public-methods, redefined-builtin, wildcard-import, function-redefined, unused-wildcard-import, duplicate-code, too-many-instance-attributes, too-few-public-methods, pointless-string-statement, no-name-in-module, no-self-use, arguments-differ, too-many-lines, missing-docstring, attribute-defined-outside-init, too-many-function-args
+disable =
+    missing-docstring,
+    too-few-public-methods,
+    too-many-branches,
+
 
 extension-pkg-whitelist=numpy
 
@@ -12,3 +16,7 @@ notes =
 
 # Maximum number of characters on a single line.
 max-line-length=100
+
+[BASIC]
+
+good-names=cl, qc, qu

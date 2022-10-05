@@ -52,7 +52,7 @@ class AQTProvider():
                                         AQTDevicePine(provider=self)])
 
     def __str__(self):
-        return "<AQTProvider(name={})>".format(self.name)
+        return f"<AQTProvider(name={self.name})>"
 
     def __repr__(self):
         return self.__str__()

@@ -47,8 +47,7 @@ def _experiment_to_seq(circuit):
         elif inst.name == 'barrier':
             continue
         else:
-            raise Exception("Operation '%s' outside of basis rx, ry, rxx" %
-                            inst.name)
+            raise Exception(f"Operation '{inst.name}' outside of basis rx, ry, rxx")
         exponent = inst.params[0] / pi
         # hack: split X into X**0.5 . X**0.5
         if name == 'X' and exponent == 1.0:
