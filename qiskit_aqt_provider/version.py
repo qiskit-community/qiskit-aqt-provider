@@ -22,22 +22,24 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 def _minimal_ext_cmd(cmd):
     # construct minimal environment
     env = {}
-    for k in ['SYSTEMROOT', 'PATH']:
-        v = os.environ.get(k)
-        if v is not None:
-            env[k] = v
+    for var in ['SYSTEMROOT', 'PATH']:
+        version = os.environ.get(var)
+        if version is not None:
+            env[var] = version
     # LANGUAGE is used on win32
     env['LANGUAGE'] = 'C'
     env['LANG'] = 'C'
     env['LC_ALL'] = 'C'
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE, env=env,
-                            cwd=os.path.join(os.path.dirname(ROOT_DIR)))
-    stdout, stderr = proc.communicate()
-    if proc.returncode > 0:
-        raise OSError('Command {} exited with code {}: {}'.format(
-            cmd, proc.returncode, stderr.strip().decode('ascii')))
-    return stdout
+    with subprocess.Popen(
+        cmd, stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE, env=env,
+        cwd=os.path.join(os.path.dirname(ROOT_DIR))
+    ) as proc:
+        stdout, stderr = proc.communicate()
+        if proc.returncode > 0:
+            error_code = stderr.strip().decode('ascii')
+            raise OSError(f'Command {cmd} exited with code {proc.returncode}: {error_code}')
+        return stdout
 
 
 def git_version():
@@ -52,7 +54,7 @@ def git_version():
     return git_revision
 
 
-with open(os.path.join(ROOT_DIR, "VERSION.txt"), "r") as version_file:
+with open(os.path.join(ROOT_DIR, "VERSION.txt"), "r", encoding="utf8") as version_file:
     VERSION = version_file.read().strip()
 
 

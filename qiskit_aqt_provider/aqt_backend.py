@@ -103,20 +103,20 @@ class AQTSimulator(Backend):
     def _default_options(cls):
         return Options(shots=100)
 
-    def run(self, circuit, **kwargs):
-        if isinstance(circuit, qobj_mod.PulseQobj):
+    def run(self, run_input, **options):
+        if isinstance(run_input, qobj_mod.PulseQobj):
             raise QiskitError("Pulse jobs are not accepted")
-        for kwarg in kwargs:
-            if kwarg != 'shots':
+        for option in options:
+            if option != 'shots':
                 warnings.warn(
-                    "Option %s is not used by this backend" % kwarg,
+                    f"Option {option} is not used by this backend",
                     UserWarning, stacklevel=2)
-        out_shots = kwargs.get('shots', self.options.shots)
+        out_shots = options.get('shots', self.options.shots)
         if out_shots > self.configuration().max_shots:
             raise ValueError('Number of shots is larger than maximum '
                              'number of shots')
         aqt_json = circuit_to_aqt.circuit_to_aqt(
-            circuit, self._provider.access_token, shots=out_shots)[0]
+            run_input, self._provider.access_token, shots=out_shots)[0]
         header = {
             "Ocp-Apim-Subscription-Key": self._provider.access_token,
             "SDK": "qiskit"
@@ -126,7 +126,7 @@ class AQTSimulator(Backend):
         response = res.json()
         if 'id' not in response:
             raise Exception
-        job = aqt_job.AQTJob(self, response['id'], qobj=circuit)
+        job = aqt_job.AQTJob(self, response['id'], qobj=run_input)
         return job
 
 
@@ -200,20 +200,20 @@ class AQTSimulatorNoise1(Backend):
     def _default_options(cls):
         return Options(shots=100)
 
-    def run(self, circuit, **kwargs):
-        if isinstance(circuit, qobj_mod.PulseQobj):
+    def run(self, run_input, **options):
+        if isinstance(run_input, qobj_mod.PulseQobj):
             raise QiskitError("Pulse jobs are not accepted")
-        for kwarg in kwargs:
-            if kwarg != 'shots':
+        for option in options:
+            if option != 'shots':
                 warnings.warn(
-                    "Option %s is not used by this backend" % kwarg,
+                    f"Option {option} is not used by this backend",
                     UserWarning, stacklevel=2)
-        out_shots = kwargs.get('shots', self.options.shots)
+        out_shots = options.get('shots', self.options.shots)
         if out_shots > self.configuration().max_shots:
             raise ValueError('Number of shots is larger than maximum '
                              'number of shots')
         aqt_json = circuit_to_aqt.circuit_to_aqt(
-            circuit, self._provider.access_token, shots=out_shots)[0]
+            run_input, self._provider.access_token, shots=out_shots)[0]
         header = {
             "Ocp-Apim-Subscription-Key": self._provider.access_token,
             "SDK": "qiskit"
@@ -223,7 +223,7 @@ class AQTSimulatorNoise1(Backend):
         response = res.json()
         if 'id' not in response:
             raise Exception
-        job = aqt_job.AQTJob(self, response['id'], qobj=circuit)
+        job = aqt_job.AQTJob(self, response['id'], qobj=run_input)
         return job
 
 
@@ -293,20 +293,20 @@ class AQTDeviceIbex(Backend):
     def _default_options(cls):
         return Options(shots=100)
 
-    def run(self, circuit, **kwargs):
-        if isinstance(circuit, qobj_mod.PulseQobj):
+    def run(self, run_input, **options):
+        if isinstance(run_input, qobj_mod.PulseQobj):
             raise QiskitError("Pulse jobs are not accepted")
-        for kwarg in kwargs:
-            if kwarg != 'shots':
+        for option in options:
+            if option != 'shots':
                 warnings.warn(
-                    "Option %s is not used by this backend" % kwarg,
+                    f"Option {option} is not used by this backend",
                     UserWarning, stacklevel=2)
-        out_shots = kwargs.get('shots', self.options.shots)
+        out_shots = options.get('shots', self.options.shots)
         if out_shots > self.configuration().max_shots:
             raise ValueError('Number of shots is larger than maximum '
                              'number of shots')
         aqt_json = circuit_to_aqt.circuit_to_aqt(
-            circuit, self._provider.access_token, shots=out_shots)[0]
+            run_input, self._provider.access_token, shots=out_shots)[0]
         header = {
             "Ocp-Apim-Subscription-Key": self._provider.access_token,
             "SDK": "qiskit"
@@ -316,7 +316,7 @@ class AQTDeviceIbex(Backend):
         response = res.json()
         if 'id' not in response:
             raise Exception
-        job = aqt_job.AQTJob(self, response['id'], qobj=circuit)
+        job = aqt_job.AQTJob(self, response['id'], qobj=run_input)
         return job
 
 
@@ -386,20 +386,20 @@ class AQTDevicePine(Backend):
     def _default_options(cls):
         return Options(shots=100)
 
-    def run(self, circuit, **kwargs):
-        if isinstance(circuit, qobj_mod.PulseQobj):
+    def run(self, run_input, **options):
+        if isinstance(run_input, qobj_mod.PulseQobj):
             raise QiskitError("Pulse jobs are not accepted")
-        for kwarg in kwargs:
-            if kwarg != 'shots':
+        for option in options:
+            if option != 'shots':
                 warnings.warn(
-                    "Option %s is not used by this backend" % kwarg,
+                    f"Option {option} is not used by this backend",
                     UserWarning, stacklevel=2)
-        out_shots = kwargs.get('shots', self.options.shots)
+        out_shots = options.get('shots', self.options.shots)
         if out_shots > self.configuration().max_shots:
             raise ValueError('Number of shots is larger than maximum '
                              'number of shots')
         aqt_json = circuit_to_aqt.circuit_to_aqt(
-            circuit, self._provider.access_token, shots=out_shots)[0]
+            run_input, self._provider.access_token, shots=out_shots)[0]
         header = {
             "Ocp-Apim-Subscription-Key": self._provider.access_token,
             "SDK": "qiskit"
@@ -409,5 +409,5 @@ class AQTDevicePine(Backend):
         response = res.json()
         if 'id' not in response:
             raise Exception
-        job = aqt_job.AQTJob(self, response['id'], qobj=circuit)
+        job = aqt_job.AQTJob(self, response['id'], qobj=run_input)
         return job
