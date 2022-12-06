@@ -58,7 +58,71 @@ job = backend.run(trans_qc)
 print(job.get_counts())
 ```
 
-For running the quantum circuit on the ion-trap quantum device you need to use `aqt_innsbruck` as backend, which needs a different access token.
+## Arnica API
+
+This version of the qiskit provider includes additional support for the Arnica API.
+
+The implementation of the legacy API is still in place, so the existing Circuit API can
+also be used as before.
+
+
+### Sending circuits to Arnica:
+
+1. Log into Arnica at https://aqt-portal-dev.firebaseapp.com
+2. Choose a workspace
+3. Copy your **Personal access token**
+4. Run the following script:
+
+```python
+from qiskit_aqt_provider.aqt_provider import AQTProvider
+from qiskit import QuantumCircuit, transpile
+
+# If no `access_token` is passed to the constructor it is read from
+# the AQT_TOKEN environment variable
+provider = AQTProvider()
+
+# The workspaces method returns a list of available workspaces and resources.
+print(provider.workspaces())
+
+# Select a workspace and resource from the output of the previous command:
+# For example:
+
+workspace = "arnica-lib-test"
+# These are the current IDs for the arnica simulators:
+simulator_id_no_noise = "prod_KVxXC1CBefcMe4"
+simulator_id_noise = "prod_L47c7esZwxR0zx"
+
+# Retrieve a backend by providing a `workspace` and `device_id`
+backend = provider.get_resource("arnica-lib-test", simulator_id_no_noise)
+
+# Creating and running a circuit works as before:
+qc = QuantumCircuit(4, 4)
+qc.h(0)
+qc.cx(0, 1)
+qc.cx(0, 2)
+qc.cx(0, 3)
+qc.measure([0, 1, 2, 3], [0, 1, 2, 3])
+trans_qc = transpile(qc, backend, optimization_level=3)
+job = backend.run(trans_qc)
+print(job.get_counts())
+```
+
+### Setting portal URL
+
+The url of the Arnica portal can be set with the `AQT_PORTAL_URL` environment variable.
+Useful values could be:
+
+```bash
+# Local mini portal
+PORTAL_URL = "http://localhost:7777"
+
+# Local Arnica
+PORTAL_URL = "http://localhost:5001/aqt-portal-dev/europe-west3"
+
+# Deployed Arnica (DEFAULT)
+PORTAL_URL = "https://europe-west3-aqt-portal-dev.cloudfunctions.net"
+
+```
 
 ## License
 

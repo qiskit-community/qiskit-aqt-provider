@@ -61,6 +61,48 @@ def _experiment_to_seq(circuit):
     return json.dumps(ops)
 
 
+def _experiment_to_aqt_circuit(circuit):
+    count = 0
+    qubit_map = {}
+    for bit in circuit.qubits:
+        qubit_map[bit] = count
+        count += 1
+    ops = []
+    meas = 0
+    for instruction in circuit.data:
+        inst = instruction[0]
+        qubits = [qubit_map[bit] for bit in instruction[1]]
+        if inst.name == 'rz':
+            ops.append({"gate": "RZ", "phi": float(inst.params[0]) / pi, "qubit": qubits[0]})
+        elif inst.name == 'r':
+            ops.append(
+                {
+                    "gate": "R",
+                    "phi": float(inst.params[1]) / pi,
+                    "theta": float(inst.params[0]) / pi,
+                    "qubit": qubits[0],
+                }
+            )
+        elif inst.name == 'rxx':
+            ops.append(
+                {
+                    "gate": "XX",
+                    "qubits": qubits[:2],
+                }
+            )
+        elif inst.name == 'measure':
+            # FIXME: we only support measurements at the end
+            meas += 1
+            continue
+        elif inst.name == 'barrier':
+            continue
+        else:
+            raise Exception(f"Operation '{inst.name}' outside of basis rz, r, rxx")
+    if not meas:
+        raise ValueError('Circuit must have at least one measurements.')
+    return ops
+
+
 def circuit_to_aqt(circuits, access_token, shots=100):
     """Return a list of json payload strings for each experiment in a qobj
 
@@ -88,3 +130,32 @@ def circuit_to_aqt(circuits, access_token, shots=100):
     }
     out_json.append(out_dict)
     return out_json
+
+
+def circuit_to_aqt_new(circuits, shots=100):
+    """Return a list of json payload strings for each experiment in a qobj
+
+    The output json format of an experiment is defined as follows:
+        [[op_string, gate_exponent, qubits]]
+
+    which is a list of sequential quantum operations, each operation defined
+    by:
+
+    op_string: str that specifies the operation type, either "X","Y","MS"
+    gate_exponent: float that specifies the gate_exponent of the operation
+    qubits: list of qubits where the operation acts on.
+    """
+    if isinstance(circuits, list):
+        if len(circuits) > 1:
+            raise Exception
+        circuits = circuits[0]
+    seqs = _experiment_to_aqt_circuit(circuits)
+    out_dict = {
+        'job_type': 'quantum_circuit',
+        'label': "qiskit",
+        'payload': {
+            'repetitions': shots,
+            'quantum_circuit': seqs
+        }
+    }
+    return out_dict

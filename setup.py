@@ -18,6 +18,7 @@ import setuptools
 requirements = [
     "requests>=2.19",
     "qiskit-terra>=0.19.2",
+    "typing-extensions>=3.6.2"
 ]
 
 PACKAGES = setuptools.find_packages(exclude=["test*"])
