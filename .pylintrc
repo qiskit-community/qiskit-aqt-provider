@@ -4,6 +4,7 @@ disable =
     missing-docstring,
     too-few-public-methods,
     too-many-branches,
+    duplicate-code,
 
 
 extension-pkg-whitelist=numpy

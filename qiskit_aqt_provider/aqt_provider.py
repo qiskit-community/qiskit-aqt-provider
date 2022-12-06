@@ -13,9 +13,25 @@
 # that they have been altered from the originals.
 
 
+import os
+from http import HTTPStatus
+from typing import Optional
+import requests
 from qiskit.providers.providerutils import filter_backends
 from qiskit.providers.exceptions import QiskitBackendNotFoundError
 from .aqt_backend import AQTSimulator, AQTSimulatorNoise1, AQTDeviceIbex, AQTDevicePine
+from .aqt_resource import AQTResource
+
+# The portal url can be overridden via the AQT_PORTAL_URL environment variable
+
+# Deployed Arnica
+PORTAL_URL = "https://europe-west3-aqt-portal-dev.cloudfunctions.net"
+
+# Local Arnica
+# PORTAL_URL = "http://localhost:5001/aqt-portal-dev/europe-west3"
+
+# Local mini portal
+# PORTAL_URL = "http://localhost:7777"
 
 
 class AQTProvider():
@@ -33,6 +49,8 @@ class AQTProvider():
 
     where `'MY_TOKEN'` is the access token provided by AQT.
 
+    If no token is given, it is read from the `AQT_TOKEN` environment variable.
+
     Attributes:
         access_token (str): The access token.
         name (str): Name of the provider instance.
@@ -40,11 +58,22 @@ class AQTProvider():
                                    for grabbing backends.
     """
 
-    def __init__(self, access_token):
+    def __init__(self, access_token: Optional[str] = None):
         super().__init__()
-
-        self.access_token = access_token
+        portal_url_env = os.environ.get("AQT_PORTAL_URL")
+        if portal_url_env:
+            self.portal_url = f"{portal_url_env}/api/v1"
+        else:
+            self.portal_url = f"{PORTAL_URL}/api/v1"
+        if access_token is None:
+            env_token = os.environ.get("AQT_TOKEN")
+            if env_token is None:
+                raise ValueError("No access token provided. Use 'AQT_TOKEN' environment variable.")
+            self.access_token = env_token
+        else:
+            self.access_token = access_token
         self.name = 'aqt_provider'
+
         # Populate the list of AQT backends
         self.backends = BackendService([AQTSimulator(provider=self),
                                         AQTSimulatorNoise1(provider=self),
@@ -56,6 +85,34 @@ class AQTProvider():
 
     def __repr__(self):
         return self.__str__()
+
+    def workspaces(self):
+        headers = {"Authorization": f"Bearer {self.access_token}", "SDK": "qiskit"}
+        res = requests.get(f"{self.portal_url}/workspaces", headers=headers)
+        if res.status_code == HTTPStatus.OK:
+            return res.json()
+        return []
+
+    def get_resource(self, workspace: str, resource: str) -> AQTResource:
+        workspaces = self.workspaces()
+        api_workspace = None
+        for workspace_data in workspaces:
+            if workspace_data.get("id") == workspace:
+                api_workspace = workspace_data
+                break
+        else:
+            raise ValueError(f"Workpace '{workspace}' is not accessible.")
+
+        resources = api_workspace.get("resources", [])
+        api_resource = None
+        for resource_data in resources:
+            if resource_data.get("id") == resource:
+                api_resource = resource_data
+                break
+        else:
+            raise ValueError(f"Resource '{resource}' does not exist in workspace '{workspace}'.")
+
+        return AQTResource(self, api_workspace.get("id"), api_resource)
 
     def get_backend(self, name=None, **kwargs):
         """Return a single backend matching the specified filtering.
