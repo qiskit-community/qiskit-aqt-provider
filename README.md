@@ -83,17 +83,33 @@ provider = AQTProvider()
 
 # The workspaces method returns a list of available workspaces and resources.
 print(provider.workspaces())
+```
 
-# Select a workspace and resource from the output of the previous command:
-# For example:
+This prints a table with all the workspaces that are accessible for this user:
 
-workspace = "arnica-lib-test"
-# These are the current IDs for the arnica simulators:
-simulator_id_no_noise = "prod_KVxXC1CBefcMe4"
-simulator_id_noise = "prod_L47c7esZwxR0zx"
+```text
+╒════════════════╤════════════════════╤═════════════════╤═════════════════╕
+│ Workspace ID   │ Resource ID        │ Description     │ Resource type   │
+╞════════════════╪════════════════════╪═════════════════╪═════════════════╡
+│ default        │ simulator_noise    │ Noisy Simulator │ simulator       │
+├────────────────┼────────────────────┼─────────────────┼─────────────────┤
+│                │ simulator_no_noise │ Ideal Simulator │ simulator       │
+├────────────────┼────────────────────┼─────────────────┼─────────────────┤
+│ aqt            │ simulator_noise    │ Noisy Simulator │ simulator       │
+├────────────────┼────────────────────┼─────────────────┼─────────────────┤
+│                │ simulator_no_noise │ Ideal Simulator │ simulator       │
+├────────────────┼────────────────────┼─────────────────┼─────────────────┤
+│                │ ibex               │ Ibex            │ device          │
+├────────────────┼────────────────────┼─────────────────┼─────────────────┤
+│                │ pine               │ Pine            │ device          │
+╘════════════════╧════════════════════╧═════════════════╧═════════════════╛
+```
 
+Select a workspace and resource from the output of the previous command:
+
+```python
 # Retrieve a backend by providing a `workspace` and `device_id`
-backend = provider.get_resource("arnica-lib-test", simulator_id_no_noise)
+backend = provider.get_resource("default", "simulator_noise")
 
 # Creating and running a circuit works as before:
 qc = QuantumCircuit(4, 4)

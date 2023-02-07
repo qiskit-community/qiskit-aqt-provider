@@ -15,8 +15,9 @@
 
 import os
 from http import HTTPStatus
-from typing import Optional
+from typing import Dict, List, Optional, Union
 import requests
+from tabulate import tabulate
 from qiskit.providers.providerutils import filter_backends
 from qiskit.providers.exceptions import QiskitBackendNotFoundError
 from .aqt_backend import AQTSimulator, AQTSimulatorNoise1, AQTDeviceIbex, AQTDevicePine
@@ -24,14 +25,45 @@ from .aqt_resource import AQTResource
 
 # The portal url can be overridden via the AQT_PORTAL_URL environment variable
 
-# Deployed Arnica
-PORTAL_URL = "https://europe-west3-aqt-portal-dev.cloudfunctions.net"
+# Firebase Arnica
+# PORTAL_URL = "https://europe-west3-aqt-portal-dev.cloudfunctions.net"
 
-# Local Arnica
+# Arnica MVP
+PORTAL_URL = "http://arnica.internal.aqt.eu:7777"
+
+# Local Firebase Arnica
 # PORTAL_URL = "http://localhost:5001/aqt-portal-dev/europe-west3"
 
 # Local mini portal
 # PORTAL_URL = "http://localhost:7777"
+
+
+class WorkspaceTable:
+    def __init__(self, data):
+        self.data: Dict[str, List] = {}
+        for entry in data:
+            workspace_id = entry.get("id")
+            resources = entry.get("resources")
+            self.data[workspace_id] = resources
+
+        self.table = []
+        for workspace_id, resources in self.data.items():
+            for count, resource in enumerate(resources):
+                if count == 0:
+                    line = [workspace_id, resource["id"], resource["name"], resource["type"]]
+                else:
+                    line = ["", resource["id"], resource["name"], resource["type"]]
+                self.table.append(line)
+
+    def workspace(self, workspace_id: str) -> Union[List, None]:
+        return self.data.get(workspace_id)
+
+    def __str__(self) -> str:
+        headers = ["Workspace ID", "Resource ID", "Description", "Resource type"]
+        return tabulate(self.table, headers=headers, tablefmt="fancy_grid")
+
+    def __iter__(self):
+        return self.data.__iter__()
 
 
 class AQTProvider():
@@ -90,20 +122,14 @@ class AQTProvider():
         headers = {"Authorization": f"Bearer {self.access_token}", "SDK": "qiskit"}
         res = requests.get(f"{self.portal_url}/workspaces", headers=headers)
         if res.status_code == HTTPStatus.OK:
-            return res.json()
-        return []
+            return WorkspaceTable(res.json())
+        return WorkspaceTable([])
 
     def get_resource(self, workspace: str, resource: str) -> AQTResource:
-        workspaces = self.workspaces()
-        api_workspace = None
-        for workspace_data in workspaces:
-            if workspace_data.get("id") == workspace:
-                api_workspace = workspace_data
-                break
-        else:
+        resources = self.workspaces().workspace(workspace)
+        if resources is None:
             raise ValueError(f"Workpace '{workspace}' is not accessible.")
 
-        resources = api_workspace.get("resources", [])
         api_resource = None
         for resource_data in resources:
             if resource_data.get("id") == resource:
@@ -112,7 +138,7 @@ class AQTProvider():
         else:
             raise ValueError(f"Resource '{resource}' does not exist in workspace '{workspace}'.")
 
-        return AQTResource(self, api_workspace.get("id"), api_resource)
+        return AQTResource(self, workspace, api_resource)
 
     def get_backend(self, name=None, **kwargs):
         """Return a single backend matching the specified filtering.
