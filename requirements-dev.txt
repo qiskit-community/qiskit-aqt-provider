@@ -1,7 +1,7 @@
 stestr>=2.5.0
 pytest>=7
 numpy>=1.17
-Sphinx>=3
+Sphinx==5.3.0
 qiskit-sphinx-theme>=1.7.0
 jupyter
 jupyter-sphinx
