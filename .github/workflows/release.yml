@@ -23,8 +23,13 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           path: ./dist/qiskit*
-      - name: Publish to PyPi
+      # - name: Publish to PyPi
+      #   env:
+      #     TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+      #     TWINE_USERNAME: qiskit
+      #   run: twine upload dist/qiskit*
+      - name: Publish to AQT Package registry
         env:
-          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
-          TWINE_USERNAME: qiskit
-        run: twine upload dist/qiskit*
+          TWINE_PASSWORD: ${{ secrets.AQT_PACKAGE_REGISTRY_WRITE_TOKEN }}
+          TWINE_USERNAME: github-pypi-python-packages-upload
+        run: twine upload --repository-url ${{ secrets.AQT_PACKAGE_REGISTRY_URL }} dist/qiskit*
