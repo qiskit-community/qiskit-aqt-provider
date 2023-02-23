@@ -135,7 +135,7 @@ PORTAL_URL = "http://localhost:7777"
 # Local Arnica
 PORTAL_URL = "http://localhost:5001/aqt-portal-dev/europe-west3"
 
-# Deployed Arnica (Firebase)
+# Deployed Arnica (Internal)
 PORTAL_URL = "http://arnica.internal.aqt.eu:7777"
 
 # Deployed Arnica (Firebase)
