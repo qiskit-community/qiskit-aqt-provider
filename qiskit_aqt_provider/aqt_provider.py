@@ -16,12 +16,16 @@
 import os
 from http import HTTPStatus
 from typing import Dict, List, Optional, Union
+
 import requests
-from tabulate import tabulate
-from qiskit.providers.providerutils import filter_backends
 from qiskit.providers.exceptions import QiskitBackendNotFoundError
-from .aqt_backend import AQTSimulator, AQTSimulatorNoise1, AQTDeviceIbex, AQTDevicePine
+from qiskit.providers.providerutils import filter_backends
+from tabulate import tabulate
+
+from .aqt_backend import (AQTDeviceIbex, AQTDevicePine, AQTSimulator,
+                          AQTSimulatorNoise1)
 from .aqt_resource import AQTResource
+from .constants import REQUESTS_TIMEOUT
 
 # The portal url can be overridden via the AQT_PORTAL_URL environment variable
 
@@ -120,7 +124,9 @@ class AQTProvider():
 
     def workspaces(self):
         headers = {"Authorization": f"Bearer {self.access_token}", "SDK": "qiskit"}
-        res = requests.get(f"{self.portal_url}/workspaces", headers=headers)
+        res = requests.get(
+            f"{self.portal_url}/workspaces", headers=headers, timeout=REQUESTS_TIMEOUT
+        )
         if res.status_code == HTTPStatus.OK:
             return WorkspaceTable(res.json())
         return WorkspaceTable([])

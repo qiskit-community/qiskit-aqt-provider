@@ -12,25 +12,23 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-from math import pi
 import sys
-
 import warnings
+from math import pi
 
 import requests
-
 from qiskit import qobj as qobj_mod
-from qiskit.circuit.parameter import Parameter
-from qiskit.circuit.library import RZGate, RGate, RXXGate
+from qiskit.circuit.library import RGate, RXXGate, RZGate
 from qiskit.circuit.measure import Measure
+from qiskit.circuit.parameter import Parameter
+from qiskit.exceptions import QiskitError
 from qiskit.providers import BackendV2 as Backend
 from qiskit.providers import Options
-from qiskit.transpiler import Target
 from qiskit.providers.models import BackendConfiguration
-from qiskit.exceptions import QiskitError
+from qiskit.transpiler import Target
 
-from . import aqt_job_new
-from . import circuit_to_aqt
+from . import aqt_job_new, circuit_to_aqt
+from .constants import REQUESTS_TIMEOUT
 
 if sys.version_info >= (3, 8):
     from typing import TypedDict
@@ -137,15 +135,16 @@ class AQTResource(Backend):
             f"{self.url}/submit/{self._workspace}/{self._resource['id']}",
             json=aqt_json,
             headers=self.headers,
+            timeout=REQUESTS_TIMEOUT,
         )
         res.raise_for_status()
         response = res.json()
         api_job = response.get("job")
         if api_job is None:
-            raise Exception("API Response does not contain field 'job'.")
+            raise RuntimeError("API Response does not contain field 'job'.")
         job_id = api_job.get("job_id")
         if job_id is None:
-            raise Exception("API Response does not contain field 'job'.'job_id'.")
+            raise RuntimeError("API Response does not contain field 'job'.'job_id'.")
         print(job_id)
         job = aqt_job_new.AQTJobNew(self, job_id, qobj=run_input)
         return job
