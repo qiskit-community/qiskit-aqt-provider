@@ -11,7 +11,7 @@ extension-pkg-whitelist=numpy
 
 generated-members = id, x, y, z, h, s, sdg, u1, u2, u3, cx, barrier, binary, measure, append, rx, ry
 
-notes = 
+notes =
 
 [FORMAT]
 
@@ -21,3 +21,9 @@ max-line-length=100
 [BASIC]
 
 good-names=cl, qc, qu
+
+[REPORTS]
+
+reports=no # setting this to yes causes the running time to double.
+           # See: https://github.com/PyCQA/pylint/issues/3443
+score=no

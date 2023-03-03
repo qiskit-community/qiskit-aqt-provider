@@ -45,7 +45,7 @@ backend = aqt.backends.aqt_qasm_simulator
 ```
 
 You can then use that backend like you would use any other qiskit backend. For
-example, running a bell state:
+example, running a Bell state:
 
 ```python
 from qiskit import QuantumCircuit, transpile
@@ -120,7 +120,7 @@ qc.cx(0, 3)
 qc.measure([0, 1, 2, 3], [0, 1, 2, 3])
 trans_qc = transpile(qc, backend, optimization_level=3)
 job = backend.run(trans_qc)
-print(job.get_counts())
+print(job.result().get_counts())
 ```
 
 ### Setting portal URL
