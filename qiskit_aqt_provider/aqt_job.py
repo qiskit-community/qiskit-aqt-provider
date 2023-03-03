@@ -17,11 +17,11 @@
 import time
 
 import requests
-from qiskit.providers import JobV1
-from qiskit.providers import JobError
-from qiskit.providers import JobTimeoutError
+from qiskit.providers import JobError, JobTimeoutError, JobV1
 from qiskit.providers.jobstatus import JobStatus
 from qiskit.result import Result
+
+from .constants import REQUESTS_TIMEOUT
 
 
 class AQTJob(JobV1):
@@ -56,7 +56,8 @@ class AQTJob(JobV1):
                 self._backend.url,
                 data={'id': self._job_id,
                       'access_token': self._backend._provider.access_token},
-                headers=header
+                headers=header,
+                timeout=REQUESTS_TIMEOUT,
             ).json()
             if result['status'] == 'finished':
                 break
@@ -172,7 +173,7 @@ class AQTJob(JobV1):
         result = requests.put(self._backend.url,
                               data={'id': self._job_id,
                                     'access_token': self.access_token},
-                              headers=header)
+                              headers=header, timeout=REQUESTS_TIMEOUT)
         code = result.status_code
 
         if code == 100:

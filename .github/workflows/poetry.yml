@@ -1,0 +1,38 @@
+name: Tests
+on:
+  push:
+    branches: [ master, 'stable/*' ]
+  pull_request:
+    branches: [ master, 'stable/*' ]
+jobs:
+  tests:
+    name: tests-python${{ matrix.python-version }}-${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        # TODO: restore full test matrix before merging into public repository
+        # python-version: [3.7, 3.8, 3.9, '3.10']
+        # os: ["macOS-latest", "ubuntu-latest", "windows-latest"]
+        python-version: [3.8]
+        poetry-version: [1.3.2]
+        os: ["ubuntu-latest"]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install poetry
+        uses: abatilo/actions-poetry@v2
+        with:
+          poetry-version: ${{ matrix.poetry-version }}
+      - name: Installing
+        run: poetry install
+      - name: Linting
+        run: poetry run poe pylint
+      - name: Type checking
+        run: poetry run poe mypy
+      - name: Testing
+        run: poetry run poe test
+      - name: Docs
+        run: poetry run poe docs
