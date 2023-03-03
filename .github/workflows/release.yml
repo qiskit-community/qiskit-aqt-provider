@@ -13,12 +13,15 @@ jobs:
         name: Install Python
         with:
           python-version: '3.8'
+      - uses: abatilo/actions-poetry@v2
+        name: Install Poetry
+        with:
+          poetry-version: '1.3.2'
       - name: Install Deps
         run: pip install -U twine wheel
       - name: Build Artifacts
         run: |
-          python setup.py sdist
-          python setup.py bdist_wheel
+          poetry build
         shell: bash
       - uses: actions/upload-artifact@v2
         with:
