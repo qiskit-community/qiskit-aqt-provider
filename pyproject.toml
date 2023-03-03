@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "qiskit-aqt-provider"
+name = "qiskit-aqt-provider-internal"
 version = "0.7.0"
 description = "Qiskit provider for internal AQT backends"
 authors = ["Qiskit Development Team"]
