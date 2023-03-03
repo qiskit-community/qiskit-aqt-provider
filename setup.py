@@ -13,6 +13,7 @@
 # that they have been altered from the originals.
 
 import os
+
 import setuptools
 
 requirements = [

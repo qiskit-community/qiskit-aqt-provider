@@ -6,3 +6,8 @@ qiskit-sphinx-theme>=1.7.0
 jupyter
 jupyter-sphinx
 qiskit-terra[visualization]
+types-requests
+types-tabulate
+types-setuptools
+black
+isort
