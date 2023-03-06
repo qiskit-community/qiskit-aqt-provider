@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # This code is part of Qiskit.
 #
 # (C) Copyright IBM 2019.
@@ -108,9 +106,7 @@ class AQTProvider:
         if access_token is None:
             env_token = os.environ.get("AQT_TOKEN")
             if env_token is None:
-                raise ValueError(
-                    "No access token provided. Use 'AQT_TOKEN' environment variable."
-                )
+                raise ValueError("No access token provided. Use 'AQT_TOKEN' environment variable.")
             self.access_token = env_token
         else:
             self.access_token = access_token
@@ -152,9 +148,7 @@ class AQTProvider:
                 api_resource = resource_data
                 break
         else:
-            raise ValueError(
-                f"Resource '{resource}' does not exist in workspace '{workspace}'."
-            )
+            raise ValueError(f"Resource '{resource}' does not exist in workspace '{workspace}'.")
 
         return AQTResource(self, workspace, api_resource)
 

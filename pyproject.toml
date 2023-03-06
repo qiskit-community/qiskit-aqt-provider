@@ -41,7 +41,9 @@ requests = "^2.19"
 tabulate = "^0.9.0"
 typing-extensions = "^4.0.0"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
+black = "^23.1.0"
+isort = "^5.12.0"
 jupyter-sphinx = "^0.4.0"
 mypy = "=1.0.1"
 poethepoet = "^0.18.1"
@@ -59,16 +61,48 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py37', 'py38', 'py39', 'py310']
+preview = true  # don't use implicit string concatenation
 
 [tool.isort]
 profile = "black"
+
+[tool.pylint.BASIC]
+good-names = [
+    "qc",  # quantum circuit
+]
+
+[tool.pylint."MESSAGES CONTROL"]
+disable = [
+    "fixme",  # don't show FIXME and TODO notes as linter warnings
+    "typecheck",  # mypy
+    "format",  # black
+    "line-too-long",  # black
+    "missing-docstring",  # too verbose at the moment
+    "too-few-public-methods",
+    "duplicate-code",  # too verbose
+    "wrong-import-order",  # isort
+    "ungrouped-imports",  # isort
+    "protected-access",  # too annoying
+]
+
+[tool.pylint."REPORTS"]
+# enabling reports causes the runtime to double
+# see https://github.com/PyCQA/pylint/issues/3443
+reports = false
+score = false
 
 [tool.poe.tasks]
 test = "pytest"
 pylint = "pylint qiskit_aqt_provider test"
 mypy = "mypy ."
+isort = "isort ."
+isort_check = "isort --check ."
+black = "black ."
+black_check = "black --check ."
 lint = ["mypy", "pylint"]
+format = ["isort", "black"]
+format_check = ["isort_check", "black_check"]
 docs = "sphinx-build -b html -W docs docs/_build"
 all = ["test", "lint", "docs"]

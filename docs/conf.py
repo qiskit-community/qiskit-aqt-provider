@@ -16,26 +16,26 @@ Sphinx documentation builder
 """
 
 
-project = 'Qiskit AQT Provider'
-copyright = '2021, Qiskit and AQT development teams'  # pylint: disable=redefined-builtin
-author = 'Qiskit and AQT development teams'
+project = "Qiskit AQT Provider"
+copyright = "2021, Qiskit and AQT development teams"  # pylint: disable=redefined-builtin
+author = "Qiskit and AQT development teams"
 
 # The short X.Y version
-version = '0.5.0'
+version = "0.5.0"
 # The full version, including alpha/beta/rc tags
-release = '0.5.0'
+release = "0.5.0"
 
 extensions = [
-    'sphinx.ext.napoleon',
-    'sphinx.ext.autodoc',
-    'sphinx.ext.autosummary',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.extlinks',
-    'jupyter_sphinx',
+    "sphinx.ext.napoleon",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.mathjax",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.extlinks",
+    "jupyter_sphinx",
 ]
 templates_path = ["_templates"]
-html_static_path = ['_static']
+html_static_path = ["_static"]
 html_css_files = []
 
 autosummary_generate = True
@@ -44,24 +44,22 @@ autoclass_content = "both"
 
 numfig = True
 
-numfig_format = {
-    'table': 'Table %s'
-}
+numfig_format = {"table": "Table %s"}
 language = "en"
 
-exclude_patterns = ['_build', '**.ipynb_checkpoints']
+exclude_patterns = ["_build", "**.ipynb_checkpoints"]
 
-pygments_style = 'colorful'
+pygments_style = "colorful"
 
 add_module_names = False
 
-modindex_common_prefix = ['qiskit_aqt.']
+modindex_common_prefix = ["qiskit_aqt."]
 
-html_theme = 'qiskit_sphinx_theme'
-html_last_updated_fmt = '%Y/%m/%d'
+html_theme = "qiskit_sphinx_theme"
+html_last_updated_fmt = "%Y/%m/%d"
 html_theme_options = {
-    'logo_only': True,
-    'display_version': True,
-    'prev_next_buttons_location': 'bottom',
-    'style_external_links': True,
+    "logo_only": True,
+    "display_version": True,
+    "prev_next_buttons_location": "bottom",
+    "style_external_links": True,
 }

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # This code is part of Qiskit.
 #
 # (C) Copyright IBM 2019.
@@ -13,8 +11,8 @@
 # that they have been altered from the originals.
 
 import warnings
-
 from collections import OrderedDict
+
 from .aqt_provider import AQTProvider
 
 AQT_AUTH_URL = "https://gateway.aqt.eu/marmot/sim/"
@@ -27,9 +25,15 @@ class AQTAccount:
         self._credentials = None
         self._providers = OrderedDict()
 
-        warnings.warn("The AQTAccount should no longer be used. "
-                      "The AQProvider can now be instantiated"
-                      "directly with a token.", DeprecationWarning, stacklevel=2)
+        warnings.warn(
+            (
+                "The AQTAccount should no longer be used. "
+                "The AQProvider can now be instantiated"
+                "directly with a token."
+            ),
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
     def enable_account(self, token, url=AQT_AUTH_URL):
         """Enable the AQT account using token, and optional URL.
@@ -38,7 +42,7 @@ class AQTAccount:
             token (str): The AQT token.
             url (str): The optional AQT connection url.
         """
-        self._credentials = {'token': token, 'url': url}
+        self._credentials = {"token": token, "url": url}
         provider = AQTProvider(token)
         self._providers[provider.name] = provider
         return provider
@@ -58,8 +62,9 @@ class AQTAccount:
         if name:
             filters.append(lambda pro_name: pro_name == name)
 
-        providers = [provider for key, provider in self._providers.items()
-                     if all(f(key) for f in filters)]
+        providers = [
+            provider for key, provider in self._providers.items() if all(f(key) for f in filters)
+        ]
 
         return providers
 
@@ -77,9 +82,8 @@ class AQTAccount:
         providers = self.providers(name)
 
         if not providers:
-            raise ValueError('No provider matching the criteria')
+            raise ValueError("No provider matching the criteria")
         if len(providers) > 1:
-            raise ValueError('More than one provider matching the '
-                             'criteria')
+            raise ValueError("More than one provider matching the criteria")
 
         return providers[0]
