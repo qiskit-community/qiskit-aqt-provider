@@ -28,6 +28,8 @@ jobs:
           poetry-version: ${{ matrix.poetry-version }}
       - name: Installing
         run: poetry install
+      - name: Formatting
+        run: poetry run poe format_check
       - name: Linting
         run: poetry run poe pylint
       - name: Type checking

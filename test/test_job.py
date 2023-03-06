@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # This code is part of Qiskit.
 #
 # (C) Copyright IBM 2019.
@@ -11,18 +9,18 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-# pylint: disable=protected-access
 
 import unittest
 from unittest.mock import patch
+
 import numpy as np
-
 from qiskit import QuantumCircuit, transpile
-from qiskit_aqt_provider.aqt_job import AQTJob
+
 from qiskit_aqt_provider.aqt_backend import AQTSimulator
+from qiskit_aqt_provider.aqt_job import AQTJob
 
 
-class _FakeJob():
+class _FakeJob:
     def __init__(self, circuit):
         self.qobj = circuit
 
@@ -31,10 +29,8 @@ class _FakeJob():
 
 
 class TestJobs(unittest.TestCase):
-
     def test_job_counts_measurement_mapping(self):
-        """Are measurements correctly mapped to counts
-        """
+        """Are measurements correctly mapped to counts"""
         perm = np.random.permutation(5)
         qc = QuantumCircuit(5, 5)
         qc.x(0)
@@ -67,32 +63,16 @@ class TestJobs(unittest.TestCase):
         qc.measure_all()
         backend = AQTSimulator(None)
         tqc = transpile(qc, backend)
-        job = AQTJob(backend, 'abc123', None, tqc)
+        job = AQTJob(backend, "abc123", None, tqc)
         fake_response = {
-            'id': 'abc123',
-            'no_qubits': 2,
-            'received': [['X', 0.5, [0]],
-                         ['X', 0.5, [0]],
-                         ['X', 0.5, [1]],
-                         ['X', 0.5, [1]]],
-            'repetitions': 200,
-            'samples': [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-                        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-                        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-                        3, 3, 3, 3, 3, 3, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-                        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3, 3,
-                        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-                        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-                        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-                        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-                        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-                        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-                        3, 3],
-            'status': 'finished'
+            "id": "abc123",
+            "no_qubits": 2,
+            "received": [["X", 0.5, [0]], ["X", 0.5, [0]], ["X", 0.5, [1]], ["X", 0.5, [1]]],
+            "repetitions": 200,
+            "samples": [3] * 198 + [1] + [2],
+            "status": "finished",
         }
-        with patch.object(job, '_wait_for_result',
-                          return_value=fake_response):
+        with patch.object(job, "_wait_for_result", return_value=fake_response):
             result = job.result()
 
-        self.assertEqual({'1100': 198, '1000': 1, '0100': 1},
-                         result.get_counts())
+        self.assertEqual({"1100": 198, "1000": 1, "0100": 1}, result.get_counts())

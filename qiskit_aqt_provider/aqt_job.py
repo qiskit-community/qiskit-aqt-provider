@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # This code is part of Qiskit.
 #
 # (C) Copyright IBM 2019.
@@ -11,8 +9,6 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
-
-# pylint: disable=protected-access
 
 import time
 
@@ -46,23 +42,22 @@ class AQTJob(JobV1):
         result = None
         header = {
             "Ocp-Apim-Subscription-Key": self._backend._provider.access_token,
-            "SDK": "qiskit"
+            "SDK": "qiskit",
         }
         while True:
             elapsed = time.time() - start_time
             if timeout and elapsed >= timeout:
-                raise JobTimeoutError('Timed out waiting for result')
+                raise JobTimeoutError("Timed out waiting for result")
             result = requests.put(
                 self._backend.url,
-                data={'id': self._job_id,
-                      'access_token': self._backend._provider.access_token},
+                data={"id": self._job_id, "access_token": self._backend._provider.access_token},
                 headers=header,
                 timeout=REQUESTS_TIMEOUT,
             ).json()
-            if result['status'] == 'finished':
+            if result["status"] == "finished":
                 break
-            if result['status'] == 'error':
-                raise JobError('API returned error:\n' + str(result))
+            if result["status"] == "error":
+                raise JobError("API returned error:\n" + str(result))
             time.sleep(wait)
         return result
 
@@ -86,20 +81,20 @@ class AQTJob(JobV1):
             clbit_map[bit] = count
             count += 1
         for instruction in self.qobj.data:
-            if instruction[0].name == 'measure':
+            if instruction[0].name == "measure":
                 for index, qubit in enumerate(instruction[1]):
                     qu2cl[qubit_map[qubit]] = clbit_map[instruction[2][index]]
         return qu2cl
 
     def _rearrange_result(self, input_data):
         length = self.qobj.num_clbits
-        bin_output = list('0' * length)
-        bin_input = list(bin(input_data)[2:].rjust(length, '0'))
+        bin_output = list("0" * length)
+        bin_input = list(bin(input_data)[2:].rjust(length, "0"))
         bin_input.reverse()
-        for qu, cl in self.memory_mapping.items():
-            bin_output[cl] = bin_input[qu]
+        for qubit, clbit in self.memory_mapping.items():
+            bin_output[clbit] = bin_input[qubit]
         bin_output.reverse()
-        return hex(int(''.join(bin_output), 2))
+        return hex(int("".join(bin_output), 2))
 
     def _format_counts(self, samples):
         counts = {}
@@ -111,9 +106,7 @@ class AQTJob(JobV1):
                 counts[h_result] += 1
         return counts
 
-    def result(self,
-               timeout=None,
-               wait=5):
+    def result(self, timeout=None, wait=5):
         """Get the result data of a circuit.
 
         Parameters:
@@ -127,24 +120,28 @@ class AQTJob(JobV1):
         result = self._wait_for_result(timeout, wait)
         results = [
             {
-                'success': True,
-                'shots': len(result['samples']),
-                'data': {'counts': self._format_counts(result['samples'])},
-                'header': {'memory_slots': self.qobj.num_clbits,
-                           'name': self.qobj.name,
-                           'metadata': self.qobj.metadata}
+                "success": True,
+                "shots": len(result["samples"]),
+                "data": {"counts": self._format_counts(result["samples"])},
+                "header": {
+                    "memory_slots": self.qobj.num_clbits,
+                    "name": self.qobj.name,
+                    "metadata": self.qobj.metadata,
+                },
             }
         ]
         qobj_id = id(self.qobj)
 
-        return Result.from_dict({
-            'results': results,
-            'backend_name': self._backend.name,
-            'backend_version': '0.0.1',
-            'qobj_id': qobj_id,
-            'success': True,
-            'job_id': self._job_id,
-        })
+        return Result.from_dict(
+            {
+                "results": results,
+                "backend_name": self._backend.name,
+                "backend_version": "0.0.1",
+                "qobj_id": qobj_id,
+                "success": True,
+                "job_id": self._job_id,
+            }
+        )
 
     def get_counts(self, circuit=None, timeout=None, wait=5):
         """Get the histogram data of a measured circuit.
@@ -164,16 +161,17 @@ class AQTJob(JobV1):
         pass
 
     def status(self):
-        """Query for the job status.
-        """
+        """Query for the job status."""
         header = {
             "Ocp-Apim-Subscription-Key": self._backend._provider.access_token,
-            "SDK": "qiskit"
+            "SDK": "qiskit",
         }
-        result = requests.put(self._backend.url,
-                              data={'id': self._job_id,
-                                    'access_token': self.access_token},
-                              headers=header, timeout=REQUESTS_TIMEOUT)
+        result = requests.put(
+            self._backend.url,
+            data={"id": self._job_id, "access_token": self.access_token},
+            headers=header,
+            timeout=REQUESTS_TIMEOUT,
+        )
         code = result.status_code
 
         if code == 100:

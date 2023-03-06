@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # This code is part of Qiskit.
 #
 # (C) Copyright IBM 2019.
@@ -18,19 +16,16 @@ from qiskit_aqt_provider import AQTProvider
 
 
 class TestProvider(unittest.TestCase):
-
     def test_provider_autocomplete(self):
-        """Verifies that provider.backends autocomplete works.
-        """
-        pro = AQTProvider('123456')
+        """Verifies that provider.backends autocomplete works."""
+        pro = AQTProvider("123456")
 
         for backend in pro.backends():
             self.assertTrue(hasattr(pro.backends, backend.name))
 
     def test_provider_getbackend(self):
-        """Verifies that provider.get_backend works.
-        """
-        pro = AQTProvider('123456')
+        """Verifies that provider.get_backend works."""
+        pro = AQTProvider("123456")
 
         for backend in pro.backends():
             self.assertEqual(backend, pro.get_backend(backend.name))
