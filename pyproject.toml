@@ -33,10 +33,16 @@ include = [
     "README.md"
 ]
 
+[tool.poetry.plugins."qiskit.transpiler.scheduling"]
+aqt = "qiskit_aqt_provider.transpiler_plugin:AQTSchedulingPlugin"
+
+[tool.poetry.plugins."qiskit.transpiler.translation"]
+aqt = "qiskit_aqt_provider.transpiler_plugin:AQTTranslationPlugin"
+
 [tool.poetry.dependencies]
 python = "^3.8"
 
-qiskit-terra = "^0.23.2"
+qiskit-terra = ">=0.23.2"
 requests = "^2.19"
 tabulate = "^0.9.0"
 typing-extensions = "^4.0.0"
@@ -50,6 +56,7 @@ poethepoet = "^0.18.1"
 pre-commit = "^3.1.1"
 pylint = "2.16.*"
 pytest = ">=7"
+qiskit-aer = "^0.11.2"
 qiskit-sphinx-theme = ">=1.7.0"
 qiskit-terra = {version = ">=0.23.2", extras = ["visualization"]}
 sphinx = ">=5.3"
@@ -72,6 +79,9 @@ profile = "black"
 [tool.pylint.BASIC]
 good-names = [
     "qc",  # quantum circuit
+    "qr",  # quantum register
+    "q0",  # qubit 0
+    "q1",  # qubit 1
 ]
 
 [tool.pylint."MESSAGES CONTROL"]

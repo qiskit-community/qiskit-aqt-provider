@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+* Allow the transpiler to decompose any series of single-qubit rotations as ZRZ #13
+* Wrap single-qubit rotation angles to [-π, π] #13
+
 ## qiskit-aqt-provider v0.7.0
 
 * Fix quantum/classical registers mapping #10
