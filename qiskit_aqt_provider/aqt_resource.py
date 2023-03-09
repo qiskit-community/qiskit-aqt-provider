@@ -18,12 +18,12 @@ from typing import Any, Dict, List, Union
 import requests
 from qiskit import QuantumCircuit, pulse
 from qiskit import qobj as qobj_mod
-from qiskit.circuit.library import RGate, RXXGate, RZGate
+from qiskit.circuit.library import RXGate, RXXGate, RZGate
 from qiskit.circuit.measure import Measure
 from qiskit.circuit.parameter import Parameter
 from qiskit.exceptions import QiskitError
 from qiskit.providers import BackendV2 as Backend
-from qiskit.providers import Options
+from qiskit.providers import Options, Provider
 from qiskit.providers.models import BackendConfiguration
 from qiskit.transpiler import Target
 
@@ -43,7 +43,7 @@ class ApiResource(TypedDict):
 
 
 class AQTResource(Backend):
-    def __init__(self, provider, workspace: str, resource: ApiResource):
+    def __init__(self, provider: Provider, workspace: str, resource: ApiResource):
         super().__init__(name="aqt_qasm_simulator", provider=provider)
         self._resource = resource
         self._workspace = workspace
@@ -56,13 +56,13 @@ class AQTResource(Backend):
         self._configuration = BackendConfiguration.from_dict(
             {
                 "backend_name": resource["name"],
-                "backend_version": "0.0.1",
+                "backend_version": 2,
                 "url": self.url,
                 "simulator": True,
                 "local": False,
                 "coupling_map": None,
                 "description": "AQT trapped-ion device simulator",
-                "basis_gates": ["rz", "r", "rxx"],
+                "basis_gates": ["r", "rz", "rxx"],  # the actual basis gates
                 "memory": False,
                 "n_qubits": num_qubits,
                 "conditional": False,
@@ -78,10 +78,11 @@ class AQTResource(Backend):
         )
         self._target = Target(num_qubits=num_qubits)
         theta = Parameter("θ")
-        phi = Parameter("ϕ")
         lam = Parameter("λ")
+        # configure the transpiler to use RX/RZ/RXX
+        # the custom scheduling pass rewrites RX to R to comply to the Arnica API format.
         self._target.add_instruction(RZGate(lam))
-        self._target.add_instruction(RGate(theta, phi))
+        self._target.add_instruction(RXGate(theta))
         self._target.add_instruction(RXXGate(pi / 2.0))
         self._target.add_instruction(Measure())
         self.options.set_validator("shots", (1, 200))
@@ -160,6 +161,12 @@ class AQTResource(Backend):
     @classmethod
     def _default_options(cls):
         return Options(shots=100)
+
+    def get_translation_stage_plugin(self) -> str:
+        return "aqt"
+
+    def get_scheduling_stage_plugin(self) -> str:
+        return "aqt"
 
     def run(self, run_input: Union[QuantumCircuit, List[QuantumCircuit]], **options):
         if not isinstance(run_input, list):
