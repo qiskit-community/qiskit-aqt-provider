@@ -4,6 +4,8 @@
 
 * Allow the transpiler to decompose any series of single-qubit rotations as ZRZ #13
 * Wrap single-qubit rotation angles to [-π, π] #13
+* Add `offline_simulator_no_noise` resource (based on Qiskit-Aer simulator) to all workspaces #16
+* Add simple execution tests #16
 
 ## qiskit-aqt-provider v0.7.0
 

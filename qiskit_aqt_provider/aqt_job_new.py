@@ -33,8 +33,6 @@ from qiskit.providers.jobstatus import JobStatus
 from qiskit.result.result import Result
 from qiskit.utils.lazy_tester import contextlib
 
-from qiskit_aqt_provider import circuit_to_aqt
-
 if TYPE_CHECKING:
     from qiskit_aqt_provider.aqt_resource import AQTResource
 
@@ -194,8 +192,7 @@ class AQTJobNew(JobV1):
         Returns:
             The AQT job identifier.
         """
-        payload = circuit_to_aqt.circuit_to_aqt_new(circuit, shots=shots)
-        job_id = self._backend.submit(payload)
+        job_id = self._backend.submit(circuit, shots)
         with self._jobs_lock:
             self._jobs[job_id] = JobQueued()
 

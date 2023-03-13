@@ -16,25 +16,11 @@ import numpy.testing as npt
 import pytest
 from qiskit import QuantumCircuit, transpile
 from qiskit.circuit.quantumcircuit import QuantumRegister
-from qiskit.providers import Provider
 from qiskit_aer import AerSimulator
 
 from qiskit_aqt_provider.aqt_resource import AQTResource
+from qiskit_aqt_provider.test.circuits import assert_circuits_equal
 from qiskit_aqt_provider.transpiler_plugin import arbitrary_rxx_as_xx
-
-
-def dummy_resource() -> AQTResource:
-    """An AQT resource that can only be used as transpiler target."""
-
-    class DummyProvider(Provider):
-        portal_url = ""
-        access_token = ""
-
-    return AQTResource(
-        DummyProvider(),
-        workspace="dummy",
-        resource={"name": "dummy", "id": "dummy", "type": "simulator"},
-    )
 
 
 @pytest.mark.parametrize(
@@ -46,7 +32,9 @@ def dummy_resource() -> AQTResource:
         (22 * pi / 3, -2 * pi / 3),
     ],
 )
-def test_rx_wrap_angle(angle: float, expected_angle: float) -> None:
+def test_rx_wrap_angle(
+    angle: float, expected_angle: float, offline_simulator_no_noise: AQTResource
+) -> None:
     """Check that transpiled rotation gate angles are wrapped to [-π,π]."""
     qc = QuantumCircuit(1)
     qc.rx(angle, 0)
@@ -54,13 +42,11 @@ def test_rx_wrap_angle(angle: float, expected_angle: float) -> None:
     expected = QuantumCircuit(1)
     expected.r(expected_angle, 0, 0)
 
-    result = transpile(qc, dummy_resource(), optimization_level=3)
-
-    msg = f"\nexpected:\n{expected}\nresult:\n{result}"
-    assert expected == result, msg
+    result = transpile(qc, offline_simulator_no_noise, optimization_level=3)
+    assert_circuits_equal(result, expected)
 
 
-def test_rx_r_rewrite_simple() -> None:
+def test_rx_r_rewrite_simple(offline_simulator_no_noise: AQTResource) -> None:
     """Check that Rx gates are rewritten as R gates."""
     qc = QuantumCircuit(1)
     qc.rx(pi / 2, 0)
@@ -68,13 +54,11 @@ def test_rx_r_rewrite_simple() -> None:
     expected = QuantumCircuit(1)
     expected.r(pi / 2, 0, 0)
 
-    result = transpile(qc, dummy_resource(), optimization_level=3)
-
-    msg = f"\nexpected:\n{expected}\nresult:\n{result}"
-    assert expected == result, msg
+    result = transpile(qc, offline_simulator_no_noise, optimization_level=3)
+    assert_circuits_equal(result, expected)
 
 
-def test_decompose_1q_rotations_simple() -> None:
+def test_decompose_1q_rotations_simple(offline_simulator_no_noise: AQTResource) -> None:
     """Check that runs of single-qubit rotations are optimized as a ZXZ."""
     qc = QuantumCircuit(1)
     qc.rx(pi / 2, 0)
@@ -84,13 +68,11 @@ def test_decompose_1q_rotations_simple() -> None:
     expected.rz(-pi / 2, 0)
     expected.r(pi / 2, 0, 0)
 
-    result = transpile(qc, dummy_resource(), optimization_level=3)
-
-    msg = f"\nexpected:\n{expected}\nresult:\n{result}"
-    assert expected == result, msg
+    result = transpile(qc, offline_simulator_no_noise, optimization_level=3)
+    assert_circuits_equal(result, expected)
 
 
-def test_decompose_rxx_as_xx_simple() -> None:
+def test_decompose_rxx_as_xx_simple(offline_simulator_no_noise: AQTResource) -> None:
     """Check that arbitrary-angle Rxx gates are rewritten in terms of Rxx(π/2) ones."""
     qc = QuantumCircuit(2)
     qc.rxx(pi / 3, 0, 1)
@@ -106,10 +88,8 @@ def test_decompose_rxx_as_xx_simple() -> None:
     expected.rz(pi / 2, 1)
 
     # use optimization level 0 such that no other transformation is done
-    result = transpile(qc, dummy_resource(), optimization_level=0)
-
-    msg = f"\nexpected:\n{expected}\nresult:\n{result}"
-    assert expected == result, msg
+    result = transpile(qc, offline_simulator_no_noise, optimization_level=0)
+    assert_circuits_equal(result, expected)
 
 
 @pytest.mark.parametrize("theta", [pi / 2, pi / 3, pi / 4, -pi / 3, -pi / 4])

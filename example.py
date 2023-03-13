@@ -1,4 +1,5 @@
-from qiskit import QuantumCircuit, transpile
+import qiskit
+from qiskit import QuantumCircuit
 
 from qiskit_aqt_provider.aqt_provider import AQTProvider
 
@@ -10,15 +11,15 @@ provider = AQTProvider("")
 print(provider.workspaces())
 
 # Retrieve a backend by providing a `workspace` and `device_id`
-backend = provider.get_resource("aqt", "simulator_no_noise")
+backend = provider.get_resource("default", "offline_simulator_no_noise")
 
 # Creating and running a circuit works as before:
-qc = QuantumCircuit(4, 4)
+qc = QuantumCircuit(4)
 qc.h(0)
 qc.cx(0, 1)
 qc.cx(0, 2)
 qc.cx(0, 3)
-qc.measure([0, 1, 2, 3], [0, 1, 2, 3])
-trans_qc = transpile(qc, backend, optimization_level=3)
-job = backend.run(trans_qc, shots=200)
+qc.measure_all()
+
+job = qiskit.execute(qc, backend, shots=200)
 print(job.result().get_counts())

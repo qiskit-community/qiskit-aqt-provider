@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2019.
+# (C) Copyright IBM 2019, Alpine Quantum Technologies 2020
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -11,17 +11,18 @@
 # that they have been altered from the originals.
 
 
+import itertools
 import os
-from http import HTTPStatus
-from typing import Dict, List, Optional, Union
+from typing import Dict, Final, Iterable, Iterator, List, Optional, Set
 
 import requests
 from qiskit.providers.exceptions import QiskitBackendNotFoundError
 from qiskit.providers.providerutils import filter_backends
 from tabulate import tabulate
+from typing_extensions import NotRequired, TypedDict
 
 from .aqt_backend import AQTDeviceIbex, AQTDevicePine, AQTSimulator, AQTSimulatorNoise1
-from .aqt_resource import AQTResource
+from .aqt_resource import ApiResource, AQTResource, OfflineSimulatorResource
 from .constants import REQUESTS_TIMEOUT
 
 # The portal url can be overridden via the AQT_PORTAL_URL environment variable
@@ -39,16 +40,54 @@ PORTAL_URL = "http://arnica.internal.aqt.eu:7777"
 # PORTAL_URL = "http://localhost:7777"
 
 
+class WorkspaceResources(TypedDict):
+    """Return type of the '/workspaces' endpoint on the AQT public API."""
+
+    id: NotRequired[str]
+    """Workspace identifier."""
+
+    resources: NotRequired[List[ApiResource]]
+    """List of resources for that workspace."""
+
+
 class WorkspaceTable:
-    def __init__(self, data):
-        self.data: Dict[str, List] = {}
+    """Pretty-printable list of workspaces and associated resources."""
+
+    class OfflineSimulators:
+        """Identifiers for the offline simulators, available in any workspace."""
+
+        NO_NOISE: Final = ("offline_simulator_no_noise", "Offline ideal simulator")
+
+        @classmethod
+        def resources(cls) -> Iterator[ApiResource]:
+            """Offline simulator resources."""
+            for key in vars(cls):
+                if not key.startswith("__") and key != "resources":
+                    resource_id, resource_name = getattr(cls, key)
+                    yield ApiResource(
+                        {"id": resource_id, "name": resource_name, "type": "offline_simulator"}
+                    )
+
+    def __init__(self, data: Iterable[WorkspaceResources]):
+        self._workspaces: Dict[str, List[ApiResource]] = {}
+
         for entry in data:
             workspace_id = entry.get("id")
-            resources = entry.get("resources")
-            self.data[workspace_id] = resources
+            if workspace_id is None:
+                continue
+            resources = entry.get("resources", [])
+            self._workspaces[workspace_id] = list(
+                itertools.chain(WorkspaceTable.OfflineSimulators.resources(), resources)
+            )
 
+        # if no workspace is available online, provide a default one
+        # with the offline simulators.
+        if not self._workspaces:
+            self._workspaces["default"] = list(WorkspaceTable.OfflineSimulators.resources())
+
+        self.headers = ["Workspace ID", "Resource ID", "Description", "Resource type"]
         self.table = []
-        for workspace_id, resources in self.data.items():
+        for workspace_id, resources in self._workspaces.items():
             for count, resource in enumerate(resources):
                 if count == 0:
                     line = [
@@ -61,15 +100,23 @@ class WorkspaceTable:
                     line = ["", resource["id"], resource["name"], resource["type"]]
                 self.table.append(line)
 
-    def workspace(self, workspace_id: str) -> Union[List, None]:
-        return self.data.get(workspace_id)
+    def workspaces(self) -> Set[str]:
+        """Names of the available workspaces names."""
+        return set(self._workspaces.keys())
+
+    def workspace(self, workspace_id: str) -> List[ApiResource]:
+        """List of resources in a given workspace."""
+        return self._workspaces.get(workspace_id, [])
 
     def __str__(self) -> str:
-        headers = ["Workspace ID", "Resource ID", "Description", "Resource type"]
-        return tabulate(self.table, headers=headers, tablefmt="fancy_grid")
+        return tabulate(self.table, headers=self.headers, tablefmt="fancy_grid")
+
+    def _repr_html_(self) -> str:
+        """HTML representation (for IPython)."""
+        return tabulate(self.table, headers=self.headers, tablefmt="html")
 
     def __iter__(self):
-        return self.data.__iter__()
+        return self._workspaces.__iter__()
 
 
 class AQTProvider:
@@ -128,18 +175,37 @@ class AQTProvider:
     def __repr__(self):
         return self.__str__()
 
-    def workspaces(self):
+    def workspaces(self) -> WorkspaceTable:
+        """Pretty-printable list of workspaces and accessible resources."""
+        if os.environ.get("CI"):
+            # don't attempt to connect to the AQT Arnica service when running CI tests
+            return WorkspaceTable([])
+
         headers = {"Authorization": f"Bearer {self.access_token}", "SDK": "qiskit"}
-        res = requests.get(
-            f"{self.portal_url}/workspaces", headers=headers, timeout=REQUESTS_TIMEOUT
-        )
-        if res.status_code == HTTPStatus.OK:
+        try:
+            res = requests.get(
+                f"{self.portal_url}/workspaces", headers=headers, timeout=REQUESTS_TIMEOUT
+            )
+            res.raise_for_status()
             return WorkspaceTable(res.json())
-        return WorkspaceTable([])
+        except (requests.HTTPError, requests.ConnectionError):
+            return WorkspaceTable([])
 
     def get_resource(self, workspace: str, resource: str) -> AQTResource:
+        """Retrieve a resource (Qiskit backend) from a workspace.
+
+        Args:
+            workspace: name of the workspace for the resource lookup
+            resource: name of the resource to retrieve.
+
+        Returns:
+            A Qiskit backend for running jobs on the target resource.
+
+        Raises:
+            ValueError: the workspace or the resource are not accessible.
+        """
         resources = self.workspaces().workspace(workspace)
-        if resources is None:
+        if not resources:
             raise ValueError(f"Workpace '{workspace}' is not accessible.")
 
         api_resource = None
@@ -150,7 +216,10 @@ class AQTProvider:
         else:
             raise ValueError(f"Resource '{resource}' does not exist in workspace '{workspace}'.")
 
-        return AQTResource(self, workspace, api_resource)
+        resource_class = (
+            OfflineSimulatorResource if api_resource["type"] == "offline_simulator" else AQTResource
+        )
+        return resource_class(self, workspace, api_resource)
 
     def get_backend(self, name=None, **kwargs):
         """Return a single backend matching the specified filtering.
