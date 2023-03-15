@@ -6,6 +6,9 @@
 * Wrap single-qubit rotation angles to [-π, π] #13
 * Add `offline_simulator_no_noise` resource (based on Qiskit-Aer simulator) to all workspaces #16
 * Add simple execution tests #16
+* Use native support for arbitrary-angle RXX gates #19
+* Stricter validation of measurement operations #19
+* Allow executing circuits with only measurement operations #19
 
 ## qiskit-aqt-provider v0.7.0
 

@@ -168,9 +168,6 @@ class AQTResource(Backend):
     def _default_options(cls):
         return Options(shots=100)
 
-    def get_translation_stage_plugin(self) -> str:
-        return "aqt"
-
     def get_scheduling_stage_plugin(self) -> str:
         return "aqt"
 

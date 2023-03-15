@@ -13,6 +13,7 @@
 import math
 from typing import List, Optional
 
+import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import RGate
 from qiskit.circuit.quantumregister import Qubit
@@ -54,35 +55,45 @@ class AQTSchedulingPlugin(PassManagerStagePlugin):
         return PassManager(passes)
 
 
-def arbitrary_rxx_as_xx(theta: float, q0: Qubit, q1: Qubit) -> QuantumCircuit:
-    """Quantum circuit equivalent to Rxx(theta) on q0,q1 in terms of Rxx(π/2)"""
+def wrap_rxx_angle(theta: float, q0: Qubit, q1: Qubit) -> QuantumCircuit:
+    """Circuit equivalent to RXX(theta, q0, q1) with the RXX angle in [-π/2, π/2]."""
 
     qr = {q0.register, q1.register}
-    qc = QuantumCircuit(*qr)
-    qc.rx(-math.pi, q0)
-    qc.ry(math.pi / 2, q1)
-    qc.rx(math.pi / 2, q1)
-    qc.rxx(math.pi / 2, q0, q1)
-    qc.rz(theta, q1)
-    qc.rxx(math.pi / 2, q0, q1)
-    qc.ry(-math.pi / 2, q1)
-    qc.rz(math.pi / 2, q1)
 
+    if abs(theta) <= math.pi / 2:
+        qc = QuantumCircuit(*qr)
+        qc.rxx(theta, q0, q1)
+        return qc
+
+    theta %= 2 * math.pi
+
+    if abs(theta) < 3 * math.pi / 2:
+        corrected_angle = theta - np.sign(theta) * math.pi
+        qc = QuantumCircuit(*qr)
+        qc.rx(math.pi, q0)
+        qc.rx(math.pi, q1)
+        qc.rxx(corrected_angle, q0, q1)
+        return qc
+
+    corrected_angle = theta - np.sign(theta) * 2 * math.pi
+    qc = QuantumCircuit(*qr)
+    qc.rxx(corrected_angle, q0, q1)
     return qc
 
 
-class RewriteRxxAsXx(TransformationPass):
-    """Rewrite synthesized Rxx gates as Rxx(pi/2) gates."""
+class WrapRxxAngles(TransformationPass):
+    """Wrap Rxx angles to [-π/2, π/2]."""
 
     def run(self, dag: DAGCircuit) -> DAGCircuit:
         for node in dag.gate_nodes():
             if node.name == "rxx":
-                (theta,) = node.op.params
-                if math.isclose(float(theta), math.pi / 2):
+                (theta,) = node.op.params[0]
+
+                if abs(float(theta)) <= math.pi / 2:
                     continue
 
                 q0, q1 = node.qargs
-                qc = arbitrary_rxx_as_xx(float(theta), q0, q1)
+                qc = wrap_rxx_angle(float(theta), q0, q1)
                 dag.substitute_node_with_dag(node, circuit_to_dag(qc))
 
         return dag
@@ -103,6 +114,6 @@ class AQTTranslationPlugin(PassManagerStagePlugin):
             hls_config=pass_manager_config.hls_config,
         )
 
-        passes: List[BasePass] = [RewriteRxxAsXx()]
+        passes: List[BasePass] = [WrapRxxAngles()]
 
         return translation_pm + PassManager(passes)

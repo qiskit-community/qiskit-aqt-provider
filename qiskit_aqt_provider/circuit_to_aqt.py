@@ -63,22 +63,36 @@ def _experiment_to_seq(circuit):
 
 
 def _experiment_to_aqt_circuit(circuit: QuantumCircuit) -> List[Dict[str, Any]]:
+    """Build the list of operations for the `quantum_circuit` JSON payload."""
     count = 0
     qubit_map = {}
     for bit in circuit.qubits:
         qubit_map[bit] = count
         count += 1
     ops = []
-    meas = 0
+    num_measurements = 0
+
     for instruction in circuit.data:
         inst = instruction[0]
         qubits = [qubit_map[bit] for bit in instruction[1]]
+
+        if inst.name != "measure" and num_measurements > 0:
+            raise ValueError(
+                "Measurement operations can only be located at the end of the circuit."
+            )
+
         if inst.name == "rz":
-            ops.append({"gate": "RZ", "phi": float(inst.params[0]) / pi, "qubit": qubits[0]})
+            ops.append(
+                {
+                    "operation": "RZ",
+                    "phi": float(inst.params[0]) / pi,
+                    "qubit": qubits[0],
+                }
+            )
         elif inst.name == "r":
             ops.append(
                 {
-                    "gate": "R",
+                    "operation": "R",
                     "phi": float(inst.params[1]) / pi,
                     "theta": float(inst.params[0]) / pi,
                     "qubit": qubits[0],
@@ -87,20 +101,22 @@ def _experiment_to_aqt_circuit(circuit: QuantumCircuit) -> List[Dict[str, Any]]:
         elif inst.name == "rxx":
             ops.append(
                 {
-                    "gate": "XX",
+                    "operation": "RXX",
+                    "theta": float(inst.params[0]) / pi,
                     "qubits": qubits[:2],
                 }
             )
         elif inst.name == "measure":
-            # FIXME: we only support measurements at the end
-            meas += 1
-            continue
+            num_measurements += 1
         elif inst.name == "barrier":
             continue
         else:
             raise ValueError(f"Operation '{inst.name}' outside of basis rz, r, rxx")
-    if not meas:
-        raise ValueError("Circuit must have at least one measurements.")
+
+    if not num_measurements:
+        raise ValueError("Circuit must have at least one measurement operation.")
+
+    ops.append({"operation": "MEASURE"})
     return ops
 
 
