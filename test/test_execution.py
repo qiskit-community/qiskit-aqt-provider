@@ -15,14 +15,29 @@
 This tests whether the circuit pre-conditioning and results formatting works as
 expected."""
 
+from fractions import Fraction
 from math import pi
+from typing import List
 
+import numpy as np
 import pytest
 import qiskit
 from qiskit import ClassicalRegister, QuantumCircuit, QuantumRegister
+from qiskit.result import Counts
 from qiskit_experiments.library import QuantumVolume
 
 from qiskit_aqt_provider.aqt_resource import AQTResource
+from qiskit_aqt_provider.test.circuits import qft_circuit
+
+
+@pytest.mark.parametrize("shots", [100])
+def test_empty_circuit(shots: int, offline_simulator_no_noise: AQTResource) -> None:
+    """Run an empty circuit."""
+    qc = QuantumCircuit(1)
+    qc.measure_all()
+
+    job = qiskit.execute(qc, offline_simulator_no_noise)
+    assert job.result().get_counts() == {"0": shots}
 
 
 @pytest.mark.parametrize("shots", [1, 100, 200])
@@ -123,3 +138,95 @@ def test_simulator_quantum_volume(
     result = job.analysis_results("quantum_volume")
     assert result.value == (1 << qubits)
     assert result.extra["success"]
+
+
+# pylint: disable-next=too-many-locals
+def test_period_finding_circuit(offline_simulator_no_noise: AQTResource) -> None:
+    """Run a period-finding circuit for the function 13**x mod 15 on the offline simulator.
+
+    Do 20 evaluations of the 2-shot procedure and collect results. Check that the correct
+    period (4) is found often enough."""
+
+    # The function to find the period of
+    def f(x: int) -> int:
+        return (13**x) % 15
+
+    def f_circuit(num_qubits: int) -> QuantumCircuit:
+        """Quantum circuit for f(x) = 13^x mod 15."""
+        qr_x = QuantumRegister(num_qubits, "x")
+        qr_fx = QuantumRegister(4, "f(x)")  # 4 bits are enough to store any modulo 15 value
+
+        qc = QuantumCircuit(qr_x, qr_fx)
+
+        qc.x(qr_fx[0])
+        qc.x(qr_fx[2])
+        qc.x(qr_x[0])
+        qc.ccx(qr_x[0], qr_x[1], qr_fx[0])
+        qc.x(qr_x[0])
+        qc.ccx(qr_x[0], qr_x[1], qr_fx[1])
+        qc.x(qr_x[0])
+        qc.x(qr_x[1])
+        qc.ccx(qr_x[0], qr_x[1], qr_fx[2])
+        qc.x(qr_x[0])
+        qc.ccx(qr_x[0], qr_x[1], qr_fx[3])
+        qc.x(qr_x[1])
+
+        return qc
+
+    # Period finding circuit
+    num_qubits = 8
+    qr_x = QuantumRegister(num_qubits, "x")
+    qr_fx = QuantumRegister(4, "f(x)")
+    cr_x = ClassicalRegister(num_qubits, "c_x")
+    qc = QuantumCircuit(qr_x, qr_fx, cr_x)
+
+    # Hadamard gates for x register
+    for qubit in range(num_qubits):
+        qc.h(qr_x[qubit])
+
+    # Create f(x) and QFT subcircuits, and add them to qc
+    qc_f = f_circuit(num_qubits)
+    qc_qft = qft_circuit(num_qubits)
+    gate_f = qc_f.to_gate(label="f(x)")
+    gate_qft = qc_qft.to_gate(label="QFT")
+    qc.append(gate_f, range(num_qubits + 4))
+    qc.append(gate_qft, range(num_qubits))
+
+    # Measure qubits in x register
+    qc.measure(qr_x, cr_x)
+
+    def iteration() -> Counts:
+        result = qiskit.execute(qc, offline_simulator_no_noise, shots=2).result()
+        return result.get_counts()
+
+    n_attempts = 20
+    results: List[bool] = []
+
+    # run the circuits (2 shots) n_attempts times
+    # and do the classical post-processing to extract the period of the function f.
+    for _ in range(n_attempts):
+        try:
+            # pylint: disable-next=invalid-name
+            x1, x2 = iteration().int_outcomes().keys()
+        except ValueError:  # identical results, skip
+            continue
+
+        m = num_qubits // 2  # pylint: disable=invalid-name
+
+        # pylint: disable-next=invalid-name
+        k1 = Fraction(x1, 2**num_qubits).limit_denominator(2**m - 1)
+        # pylint: disable-next=invalid-name
+        k2 = Fraction(x2, 2**num_qubits).limit_denominator(2**m - 1)
+
+        b1 = k1.denominator  # pylint: disable=invalid-name
+        b2 = k2.denominator  # pylint: disable=invalid-name
+
+        r = np.lcm(b1, b2)  # pylint: disable=invalid-name
+        results.append(f(r) == f(0))
+
+    # more than 50% of the attempts were successful
+    assert len(results) > n_attempts * 0.5
+
+    # got the right result more than 50% of the successful attempts
+    # this is quite loose, but doing more iterations would be annoyingly long on CI
+    assert np.count_nonzero(results) > len(results) * 0.5
