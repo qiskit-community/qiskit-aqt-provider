@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## qiskit-aqt-provider v0.8.1
+
+* Relax the Python version requirement #23
+
 ## qiskit-aqt-provider v0.8.0
 
 * Allow the transpiler to decompose any series of single-qubit rotations as ZRZ #13
