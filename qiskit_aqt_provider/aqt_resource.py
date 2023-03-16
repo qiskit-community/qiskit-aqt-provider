@@ -10,7 +10,6 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-import sys
 import warnings
 from math import pi
 from typing import Any, Dict, List, Union
@@ -27,16 +26,12 @@ from qiskit.providers import Options, Provider
 from qiskit.providers.models import BackendConfiguration
 from qiskit.transpiler import Target
 from qiskit_aer import AerJob, AerSimulator
+from typing_extensions import TypedDict
 
 from qiskit_aqt_provider.circuit_to_aqt import circuit_to_aqt_new
 
 from . import aqt_job_new
 from .constants import REQUESTS_TIMEOUT
-
-if sys.version_info >= (3, 8):
-    from typing import TypedDict
-else:
-    from typing_extensions import TypedDict
 
 
 class ApiResource(TypedDict):
@@ -169,6 +164,9 @@ class AQTResource(Backend):
         return Options(shots=100)
 
     def get_scheduling_stage_plugin(self) -> str:
+        return "aqt"
+
+    def get_translation_stage_plugin(self) -> str:
         return "aqt"
 
     def run(self, run_input: Union[QuantumCircuit, List[QuantumCircuit]], **options):

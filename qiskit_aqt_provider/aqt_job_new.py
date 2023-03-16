@@ -33,7 +33,7 @@ from qiskit.providers.jobstatus import JobStatus
 from qiskit.result.result import Result
 from qiskit.utils.lazy_tester import contextlib
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from qiskit_aqt_provider.aqt_resource import AQTResource
 
 

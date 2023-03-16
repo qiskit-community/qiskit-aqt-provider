@@ -106,6 +106,15 @@ def test_rxx_wrap_angle(angle: float) -> None:
     assert set(qc.count_ops()) <= {"rxx", "rz", "rx", "ry", "r"}
     assert qc.count_ops()["rxx"] == 1
 
+    for operation in qc.data:
+        instruction = operation[0]
+        if instruction.name == "rxx":
+            (theta,) = instruction.params
+            assert abs(float(theta)) <= pi / 2
+            break
+    else:  # pragma: no cover
+        assert False, "There must be at least one RXX operation in the circuit."
+
     expected = QuantumCircuit(2)
     expected.rxx(angle, 0, 1)
 
@@ -118,6 +127,7 @@ def test_rxx_wrap_angle_transpile(angle: float, offline_simulator_no_noise: AQTR
     qc = QuantumCircuit(2)
     qc.rxx(angle, 0, 1)
     trans_qc = transpile(qc, offline_simulator_no_noise, optimization_level=3)
+
     assert isinstance(trans_qc, QuantumCircuit)
 
     assert set(trans_qc.count_ops()) <= set(offline_simulator_no_noise.configuration().basis_gates)
@@ -125,8 +135,9 @@ def test_rxx_wrap_angle_transpile(angle: float, offline_simulator_no_noise: AQTR
 
     # check that all Rxx have angles in [-π/2, π/2]
     for operation in trans_qc.data:
-        if operation[0] == "rxx":
-            (theta,) = operation.params
+        instruction = operation[0]
+        if instruction.name == "rxx":
+            (theta,) = instruction.params
             assert abs(float(theta)) <= pi / 2
 
     # check that the transpiled circuit is equivalent to the original one
@@ -147,12 +158,13 @@ def test_qft_circuit_transpilation(
     assert set(trans_qc.count_ops()) <= set(offline_simulator_no_noise.configuration().basis_gates)
 
     for operation in trans_qc.data:
-        if operation[0] == "rxx":
-            (theta,) = operation.params
+        instruction = operation[0]
+        if instruction.name == "rxx":
+            (theta,) = instruction.params
             assert abs(float(theta)) <= pi / 2
 
-        if operation[0] == "r":
-            (theta, _) = operation.params
+        if instruction.name == "r":
+            (theta, _) = instruction.params
             assert abs(theta) <= pi
 
     if optimization_level < 3 and qubits < 6:

@@ -36,6 +36,9 @@ include = [
 [tool.poetry.plugins."qiskit.transpiler.scheduling"]
 aqt = "qiskit_aqt_provider.transpiler_plugin:AQTSchedulingPlugin"
 
+[tool.poetry.plugins."qiskit.transpiler.translation"]
+aqt = "qiskit_aqt_provider.transpiler_plugin:AQTTranslationPlugin"
+
 [tool.poetry.plugins.pytest11]
 pytest_qiskit_aqt = "qiskit_aqt_provider.test.fixtures"
 
@@ -49,6 +52,7 @@ typing-extensions = ">=4.0.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.1.0"
+coverage = "^7.2.1"
 isort = "^5.12.0"
 jupyter-sphinx = "^0.4.0"
 mypy = "=1.0.1"
@@ -79,6 +83,18 @@ preview = true  # don't use implicit string concatenation
 
 [tool.isort]
 profile = "black"
+
+[tool.pyright]
+typeCheckingMode = "basic"
+analyzeUnannotatedFunctions = false
+reportMissingImports = false
+reportMissingTypeStubs = false
+reportImportCycles = false
+
+reportDuplicateImport = "error"
+
+pythonVersion = "3.8"
+pythonPlatform = "Linux"
 
 [tool.pylint.BASIC]
 good-names = [
@@ -115,8 +131,13 @@ disable = [
 reports = false
 score = false
 
+[tool.coverage.report]
+fail_under = 80
+
 [tool.poe.tasks]
-test = "pytest"
+_test = "coverage run -m pytest"
+_cov_report = "coverage report"
+test = ["_test", "_cov_report"]
 pylint = "pylint qiskit_aqt_provider test"
 mypy = "mypy ."
 isort = "isort ."
