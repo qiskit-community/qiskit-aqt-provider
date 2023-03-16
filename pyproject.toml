@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qiskit-aqt-provider-internal"
-version = "0.7.0"
+version = "0.8.0"
 description = "Qiskit provider for internal AQT backends"
 authors = ["Qiskit Development Team"]
 readme = "README.md"
@@ -132,7 +132,7 @@ reports = false
 score = false
 
 [tool.coverage.report]
-fail_under = 80
+fail_under = 82
 
 [tool.poe.tasks]
 _test = "coverage run -m pytest"
