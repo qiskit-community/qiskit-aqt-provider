@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qiskit-aqt-provider-internal"
-version = "0.8.0"
+version = "0.8.1"
 description = "Qiskit provider for internal AQT backends"
 authors = ["Qiskit Development Team"]
 readme = "README.md"
@@ -43,7 +43,7 @@ aqt = "qiskit_aqt_provider.transpiler_plugin:AQTTranslationPlugin"
 pytest_qiskit_aqt = "qiskit_aqt_provider.test.fixtures"
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.12"
+python = ">=3.8"
 
 qiskit-terra = ">=0.23.2"
 requests = ">=2"
