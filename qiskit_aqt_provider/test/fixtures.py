@@ -42,5 +42,6 @@ def fixture_offline_simulator_no_noise() -> Iterator[AQTResource]:
 
             try:
                 _ = circuit_to_aqt_new(circuit, shots=shots)
-            except Exception:  # pylint: disable=broad-except
+            # pylint: disable-next=broad-except
+            except Exception:  # pragma: no cover
                 pytest.fail(f"Circuit cannot be converted to the AQT JSON format:\n{circuit}")

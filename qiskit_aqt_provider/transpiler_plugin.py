@@ -60,12 +60,12 @@ def wrap_rxx_angle(theta: float, q0: Qubit, q1: Qubit) -> QuantumCircuit:
 
     qr = {q0.register, q1.register}
 
+    theta %= 2 * math.pi
+
     if abs(theta) <= math.pi / 2:
         qc = QuantumCircuit(*qr)
         qc.rxx(theta, q0, q1)
         return qc
-
-    theta %= 2 * math.pi
 
     if abs(theta) < 3 * math.pi / 2:
         corrected_angle = theta - np.sign(theta) * math.pi
@@ -87,7 +87,7 @@ class WrapRxxAngles(TransformationPass):
     def run(self, dag: DAGCircuit) -> DAGCircuit:
         for node in dag.gate_nodes():
             if node.name == "rxx":
-                (theta,) = node.op.params[0]
+                (theta,) = node.op.params
 
                 if abs(float(theta)) <= math.pi / 2:
                     continue
