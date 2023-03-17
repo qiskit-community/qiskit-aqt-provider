@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* Fix and improve error handing from individual circuits #24
+
 ## qiskit-aqt-provider v0.8.1
 
 * Relax the Python version requirement #23

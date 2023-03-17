@@ -21,5 +21,9 @@ qc.cx(0, 2)
 qc.cx(0, 3)
 qc.measure_all()
 
-job = qiskit.execute(qc, backend, shots=200)
-print(job.result().get_counts())
+result = qiskit.execute(qc, backend, shots=200).result()
+
+if result.success:
+    print(result.get_counts())
+else:
+    print(result.to_dict()["errors"])

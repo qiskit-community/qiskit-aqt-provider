@@ -22,6 +22,7 @@ from typing import List
 import numpy as np
 import pytest
 import qiskit
+from dirty_equals import IsUUID
 from qiskit import ClassicalRegister, QuantumCircuit, QuantumRegister
 from qiskit.result import Counts
 from qiskit_experiments.library import QuantumVolume
@@ -30,14 +31,38 @@ from qiskit_aqt_provider.aqt_resource import AQTResource
 from qiskit_aqt_provider.test.circuits import qft_circuit
 
 
-@pytest.mark.parametrize("shots", [100])
+@pytest.mark.parametrize("shots", [200])
 def test_empty_circuit(shots: int, offline_simulator_no_noise: AQTResource) -> None:
     """Run an empty circuit."""
     qc = QuantumCircuit(1)
     qc.measure_all()
 
-    job = qiskit.execute(qc, offline_simulator_no_noise)
+    job = qiskit.execute(qc, offline_simulator_no_noise, shots=shots)
     assert job.result().get_counts() == {"0": shots}
+
+
+def test_error_circuit(error_resource: AQTResource) -> None:
+    """Check that errors in circuits are reported in the `errors` field of the Qiskit
+    result metadata, where the keys are the circuit job ids."""
+    qc = QuantumCircuit(1)
+    qc.measure_all()
+
+    result = qiskit.execute(qc, error_resource).result()
+    assert result.success is False
+    errors = list(result._metadata["errors"].items())
+    assert errors == [(IsUUID, error_resource.error_str)]
+
+
+def test_non_compliant_resource(non_compliant_resource: AQTResource) -> None:
+    """Check that if the resource sends back ill-formed payloads, the job raises a
+    RuntimeError."""
+    qc = QuantumCircuit(1)
+    qc.measure_all()
+
+    with pytest.raises(RuntimeError) as excinfo:
+        qiskit.execute(qc, non_compliant_resource).result()
+
+    assert "Unexpected error while retrieving job status" in str(excinfo)
 
 
 @pytest.mark.parametrize("shots", [1, 100, 200])
