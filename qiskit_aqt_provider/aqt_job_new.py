@@ -13,7 +13,7 @@
 import threading
 import uuid
 from collections import Counter, defaultdict, namedtuple
-from concurrent.futures import ThreadPoolExecutor, wait
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
@@ -108,11 +108,21 @@ class AQTJobNew(JobV1):
         """Query the job's status.
 
         The job status is aggregated from the status of the individual circuits running
-        on the AQT resource."""
+        on the AQT resource.
+
+        Returns:
+            JobStatus: aggregated job status for all the circuits in this job.
+
+        Raises:
+            RuntimeError: an unexpected error occurred while retrieving a circuit status.
+        """
         # update the local job cache
         with ThreadPoolExecutor(thread_name_prefix="status_worker_") as pool:
             futures = [pool.submit(self._status_single, job_id) for job_id in self._jobs]
-            wait(futures, timeout=10.0)
+
+            for fut in as_completed(futures, timeout=10.0):
+                if (exc := fut.exception()) is not None:
+                    raise RuntimeError("Unexpected error while retrieving job status.") from exc
 
         return self._aggregate_status()
 
@@ -164,6 +174,12 @@ class AQTJobNew(JobV1):
                 "job_id": self.job_id(),
                 "success": agg_status is JobStatus.DONE,
                 "results": results,
+                # Pass individual circuit errors as metadata
+                "errors": {
+                    job_id: job.error
+                    for job_id, job in self._jobs.items()
+                    if isinstance(job, JobFailed)
+                },
             }
         )
 
@@ -206,11 +222,13 @@ class AQTJobNew(JobV1):
             if response["status"] == "finished":
                 self._jobs[job_id] = JobFinished(samples=response["result"])
             elif response["status"] == "error":
-                self._jobs[job_id] = JobFailed(error=str(response["result"]))
+                self._jobs[job_id] = JobFailed(error=str(response["message"]))
             elif response["status"] == "queued":
                 self._jobs[job_id] = JobQueued()
             elif response["status"] == "ongoing":
                 self._jobs[job_id] = JobOngoing()
+            elif response["status"] == "cancelled":
+                self._jobs[job_id] = JobCancelled()
             else:
                 raise RuntimeError(f"API returned unknown job status: {response['status']}.")
 
