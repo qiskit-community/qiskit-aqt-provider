@@ -26,19 +26,30 @@ jobs:
         uses: abatilo/actions-poetry@v2
         with:
           poetry-version: ${{ matrix.poetry-version }}
-      - name: Installing
-        run: poetry install
-      - name: Formatting
+      - name: Check Poetry lock file status
+        run: poetry lock --check
+      - name: Check shell scripts
+        uses: ludeeus/action-shellcheck@2.0.0
+      - name: Install main dependencies
+        run: |
+          poetry run pip install coverage[toml]
+          poetry install --only main
+      - name: Run examples
+        run: |
+          poetry run examples/run_all.sh -c
+      - name: Install all dependencies
+        run: poetry install --sync
+      - name: Check formatting
         run: poetry run poe format_check
       - name: Linting
         run: poetry run poe pylint
       - name: Type checking
         run: poetry run poe mypy
       - name: Testing
-        run: poetry run poe test
+        run: poetry run poe test --cov_opts="-a"  # add to examples coverage
       - name: Docs
         run: poetry run poe docs
-      - name: Generate coverage report
+      - name: Generate XML coverage report
         run: poetry run coverage xml -o coverage.xml
       - name: Read global coverage target
         id: coverage-target
