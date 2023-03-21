@@ -165,6 +165,10 @@ def circuit_to_aqt_new(circuit: QuantumCircuit, shots: int) -> Dict[str, Any]:
     out_dict = {
         "job_type": "quantum_circuit",
         "label": "qiskit",
-        "payload": {"repetitions": shots, "quantum_circuit": seqs},
+        "payload": {
+            "repetitions": shots,
+            "quantum_circuit": seqs,
+            "number_of_qubits": circuit.num_qubits,
+        },
     }
     return out_dict

@@ -35,7 +35,11 @@ def test_just_measure_circuit() -> None:
     expected = {
         "job_type": "quantum_circuit",
         "label": "qiskit",
-        "payload": {"quantum_circuit": [{"operation": "MEASURE"}], "repetitions": shots},
+        "payload": {
+            "quantum_circuit": [{"operation": "MEASURE"}],
+            "repetitions": shots,
+            "number_of_qubits": 1,
+        },
     }
 
     result = circuit_to_aqt_new(qc, shots=shots)
@@ -57,6 +61,7 @@ def test_valid_circuit() -> None:
         "job_type": "quantum_circuit",
         "label": "qiskit",
         "payload": {
+            "number_of_qubits": 2,
             "repetitions": 1,
             "quantum_circuit": [
                 {
@@ -120,6 +125,7 @@ def test_invalid_measurements() -> None:
         "job_type": "quantum_circuit",
         "label": "qiskit",
         "payload": {
+            "number_of_qubits": 2,
             "repetitions": 1,
             "quantum_circuit": [
                 {
