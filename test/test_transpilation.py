@@ -14,7 +14,7 @@ from math import pi
 from typing import Final
 
 import pytest
-from qiskit import QuantumCircuit, QuantumRegister, transpile
+from qiskit import QuantumCircuit, transpile
 
 from qiskit_aqt_provider.aqt_resource import AQTResource
 from qiskit_aqt_provider.test.circuits import (
@@ -22,7 +22,6 @@ from qiskit_aqt_provider.test.circuits import (
     assert_circuits_equivalent,
     qft_circuit,
 )
-from qiskit_aqt_provider.transpiler_plugin import wrap_rxx_angle
 
 
 @pytest.mark.parametrize(
@@ -94,39 +93,15 @@ RXX_ANGLES: Final = [
 
 
 @pytest.mark.parametrize("angle", RXX_ANGLES)
-def test_rxx_wrap_angle(angle: float) -> None:
-    """Check that the circuit returned by `wrap_rxx_angle`
-    is equivalent to an Rxx operation with the passed angle."""
-
-    qr = QuantumRegister(2)
-    q0, q1 = qr._bits
-    qc = wrap_rxx_angle(angle, q0, q1)
-
-    # one rxx in, one rxx out!
-    assert set(qc.count_ops()) <= {"rxx", "rz", "rx", "ry", "r"}
-    assert qc.count_ops()["rxx"] == 1
-
-    for operation in qc.data:
-        instruction = operation[0]
-        if instruction.name == "rxx":
-            (theta,) = instruction.params
-            assert abs(float(theta)) <= pi / 2
-            break
-    else:  # pragma: no cover
-        assert False, "There must be at least one RXX operation in the circuit."
-
-    expected = QuantumCircuit(2)
-    expected.rxx(angle, 0, 1)
-
-    assert_circuits_equivalent(qc, expected)
-
-
-@pytest.mark.parametrize("angle", RXX_ANGLES)
-def test_rxx_wrap_angle_transpile(angle: float, offline_simulator_no_noise: AQTResource) -> None:
+@pytest.mark.parametrize("qubits", [2, 3, 5])
+@pytest.mark.parametrize("optimization_level", [1, 2, 3])
+def test_rxx_wrap_angle_transpile(
+    angle: float, qubits: int, optimization_level: int, offline_simulator_no_noise: AQTResource
+) -> None:
     """Check that Rxx angles are wrapped by the transpiler."""
-    qc = QuantumCircuit(2)
+    qc = QuantumCircuit(qubits)
     qc.rxx(angle, 0, 1)
-    trans_qc = transpile(qc, offline_simulator_no_noise, optimization_level=3)
+    trans_qc = transpile(qc, offline_simulator_no_noise, optimization_level=optimization_level)
 
     assert isinstance(trans_qc, QuantumCircuit)
 

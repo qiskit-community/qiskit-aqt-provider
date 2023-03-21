@@ -15,9 +15,9 @@ from typing import List, Optional
 
 import numpy as np
 from qiskit import QuantumCircuit
+from qiskit.circuit import Instruction
 from qiskit.circuit.library import RGate
-from qiskit.circuit.quantumregister import Qubit
-from qiskit.converters import circuit_to_dag
+from qiskit.circuit.tools import pi_check
 from qiskit.dagcircuit import DAGCircuit
 from qiskit.transpiler.basepasses import BasePass, TransformationPass
 from qiskit.transpiler.passmanager import PassManager
@@ -55,30 +55,28 @@ class AQTSchedulingPlugin(PassManagerStagePlugin):
         return PassManager(passes)
 
 
-def wrap_rxx_angle(theta: float, q0: Qubit, q1: Qubit) -> QuantumCircuit:
-    """Circuit equivalent to RXX(theta, q0, q1) with the RXX angle in [-π/2, π/2]."""
+def wrap_rxx_angle(theta: float) -> Instruction:
+    """Instruction equivalent to RXX(θ) with θ ∈ [-π/2, π/2]."""
 
-    qr = {q0.register, q1.register}
+    theta_str = pi_check(theta)
+    qc = QuantumCircuit(2, name=f"Rxx({theta_str})")
 
     theta %= 2 * math.pi
 
     if abs(theta) <= math.pi / 2:
-        qc = QuantumCircuit(*qr)
-        qc.rxx(theta, q0, q1)
-        return qc
+        qc.rxx(theta, 0, 1)
+        return qc.to_instruction()
 
     if abs(theta) < 3 * math.pi / 2:
         corrected_angle = theta - np.sign(theta) * math.pi
-        qc = QuantumCircuit(*qr)
-        qc.rx(math.pi, q0)
-        qc.rx(math.pi, q1)
-        qc.rxx(corrected_angle, q0, q1)
-        return qc
+        qc.rx(math.pi, 0)
+        qc.rx(math.pi, 1)
+        qc.rxx(corrected_angle, 0, 1)
+        return qc.to_instruction()
 
     corrected_angle = theta - np.sign(theta) * 2 * math.pi
-    qc = QuantumCircuit(*qr)
-    qc.rxx(corrected_angle, q0, q1)
-    return qc
+    qc.rxx(corrected_angle, 0, 1)
+    return qc.to_instruction()
 
 
 class WrapRxxAngles(TransformationPass):
@@ -92,9 +90,8 @@ class WrapRxxAngles(TransformationPass):
                 if abs(float(theta)) <= math.pi / 2:
                     continue
 
-                q0, q1 = node.qargs
-                qc = wrap_rxx_angle(float(theta), q0, q1)
-                dag.substitute_node_with_dag(node, circuit_to_dag(qc))
+                rxx = wrap_rxx_angle(float(theta))
+                dag.substitute_node(node, rxx)
 
         return dag
 
