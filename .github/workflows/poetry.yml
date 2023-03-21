@@ -53,7 +53,7 @@ jobs:
         run: poetry run coverage xml -o coverage.xml
       - name: Read global coverage target
         id: coverage-target
-        run: echo "fail-under=$(python read-target-coverage.py)" >> $GITHUB_OUTPUT
+        run: echo "fail-under=$(poetry run python scripts/read-target-coverage.py)" >> $GITHUB_OUTPUT
       - name: Post coverage comment
         if: ${{ github.event_name == 'pull_request' }}
         uses: orgoro/coverage@v3
