@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-* Fix and improve error handing from individual circuits #24
+* Fix and improve error handling from individual circuits #24
 * Run the examples in the continuous integration pipeline #26
 * Automatically create a Github release when a version tag is pushed #28
 * Add `number_of_qubits` to the `quantum_circuit` job payload #29
