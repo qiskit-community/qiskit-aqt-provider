@@ -2,35 +2,39 @@ name: Release Artifacts
 on:
   push:
     tags:
-      - '*'
+      - 'v*'
 jobs:
   wheel-build:
     name: Build and Publish Release Artifacts
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        name: Install Python
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install Python
+        uses: actions/setup-python@v2
         with:
           python-version: '3.8'
-      - uses: abatilo/actions-poetry@v2
-        name: Install Poetry
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2
         with:
           poetry-version: '1.3.2'
-      - name: Install Deps
+      - name: Install release dependencies
         run: pip install -U twine wheel
-      - name: Build Artifacts
+      - name: Build packages
         run: |
           poetry build
         shell: bash
-      - uses: actions/upload-artifact@v2
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
         with:
           path: ./dist/qiskit*
-      # - name: Publish to PyPi
-      #   env:
-      #     TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
-      #     TWINE_USERNAME: qiskit
-      #   run: twine upload dist/qiskit*
+      - name: Extract changelog
+        run: poetry run python scripts/extract-changelog.py ${{ github.ref }} | tee ${{ github.workspace }}-CHANGELOG.txt
+      - name: Create Github release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ./dist/qiskit*
+          body_path: ${{ github.workspace }}-CHANGELOG.txt
       - name: Publish to AQT Package registry
         env:
           TWINE_PASSWORD: ${{ secrets.AQT_PACKAGE_REGISTRY_WRITE_TOKEN }}
