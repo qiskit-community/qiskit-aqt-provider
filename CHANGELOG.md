@@ -7,6 +7,7 @@
 * Automatically create a Github release when a version tag is pushed #28
 * Add `number_of_qubits` to the `quantum_circuit` job payload #29
 * Fix substitution circuit for wrapping the `Rxx` angles #30
+* Connect to internal Arnica on port 80 by default #33
 
 ## qiskit-aqt-provider v0.8.1
 
