@@ -29,7 +29,7 @@ jobs:
         with:
           path: ./dist/qiskit*
       - name: Extract changelog
-        run: python scripts/extract-changelog.py ${{ github.ref }} | tee ${{ github.workspace }}-CHANGELOG.txt
+        run: python scripts/extract-changelog.py ${{ github.ref_name }} | tee ${{ github.workspace }}-CHANGELOG.txt
       - name: Create Github release
         uses: softprops/action-gh-release@v1
         with:
