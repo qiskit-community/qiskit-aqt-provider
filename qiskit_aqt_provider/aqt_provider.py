@@ -25,20 +25,6 @@ from .aqt_backend import AQTDeviceIbex, AQTDevicePine, AQTSimulator, AQTSimulato
 from .aqt_resource import ApiResource, AQTResource, OfflineSimulatorResource
 from .constants import REQUESTS_TIMEOUT
 
-# The portal url can be overridden via the AQT_PORTAL_URL environment variable
-
-# Firebase Arnica
-# PORTAL_URL = "https://europe-west3-aqt-portal-dev.cloudfunctions.net"
-
-# Arnica MVP
-PORTAL_URL = "http://arnica.internal.aqt.eu:7777"
-
-# Local Firebase Arnica
-# PORTAL_URL = "http://localhost:5001/aqt-portal-dev/europe-west3"
-
-# Local mini portal
-# PORTAL_URL = "http://localhost:7777"
-
 
 class WorkspaceResources(TypedDict):
     """Return type of the '/workspaces' endpoint on the AQT public API."""
@@ -126,30 +112,24 @@ class AQTProvider:
 
     .. code-block:: python
 
-        from qiskit_aqt_provider import AQTProvider
-
-        aqt = AQTProvider('MY_TOKEN')
-
-        backend = aqt.backends.aqt_qasm_simulator
+        >>> from qiskit_aqt_provider import AQTProvider
+        ...
+        >>> aqt = AQTProvider('MY_TOKEN')
+        >>> backend = aqt.get_resource("default", "offline_simulator_no_noise")
 
     where `'MY_TOKEN'` is the access token provided by AQT.
 
     If no token is given, it is read from the `AQT_TOKEN` environment variable.
-
-    Attributes:
-        access_token (str): The access token.
-        name (str): Name of the provider instance.
-        backends (BackendService): A service instance that allows
-                                   for grabbing backends.
     """
+
+    # Set AQT_PORTAL_URL environment variable to override
+    DEFAULT_PORTAL_URL: Final = "http://arnica.internal.aqt.eu"
 
     def __init__(self, access_token: Optional[str] = None):
         super().__init__()
-        portal_url_env = os.environ.get("AQT_PORTAL_URL")
-        if portal_url_env:
-            self.portal_url = f"{portal_url_env}/api/v1"
-        else:
-            self.portal_url = f"{PORTAL_URL}/api/v1"
+        portal_base_url = os.environ.get("AQT_PORTAL_URL", AQTProvider.DEFAULT_PORTAL_URL)
+        self.portal_url = f"{portal_base_url}/api/v1"
+
         if access_token is None:
             env_token = os.environ.get("AQT_TOKEN")
             if env_token is None:
@@ -159,7 +139,7 @@ class AQTProvider:
             self.access_token = access_token
         self.name = "aqt_provider"
 
-        # Populate the list of AQT backends
+        # Populate the list of legacy AQT backends
         self.backends = BackendService(
             [
                 AQTSimulator(provider=self),
@@ -168,12 +148,6 @@ class AQTProvider:
                 AQTDevicePine(provider=self),
             ]
         )
-
-    def __str__(self):
-        return f"<AQTProvider(name={self.name})>"
-
-    def __repr__(self):
-        return self.__str__()
 
     def workspaces(self) -> WorkspaceTable:
         """Pretty-printable list of workspaces and accessible resources."""
