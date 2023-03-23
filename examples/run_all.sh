@@ -20,7 +20,7 @@
 set -euo pipefail
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-ALL_EXAMPLES=$(find "$SCRIPT_DIR" -name "*.py")
+ALL_EXAMPLES=$(find "$SCRIPT_DIR" -name "*.py" | sort)
 
 usage() { echo "Usage: $0 [-c|-n]" 1>&2; exit 1; }
 
