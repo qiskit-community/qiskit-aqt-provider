@@ -49,6 +49,13 @@ jobs:
         run: poetry run poe test --cov_opts="-a"  # add to examples coverage
       - name: Docs
         run: poetry run poe docs
+      - name: Generate HTML coverage report
+        run: poetry run coverage html
+      - name: Upload HTML coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: html-coverage
+          path: htmlcov/
       - name: Generate XML coverage report
         run: poetry run coverage xml -o coverage.xml
       - name: Read global coverage target
