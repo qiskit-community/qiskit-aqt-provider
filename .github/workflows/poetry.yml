@@ -33,12 +33,12 @@ jobs:
       - name: Install main dependencies
         run: |
           poetry run pip install coverage[toml]
-          poetry install --only main
+          poetry install --only main --extras examples
       - name: Run examples
         run: |
           poetry run examples/run_all.sh -c
       - name: Install all dependencies
-        run: poetry install --sync
+        run: poetry install --all-extras --sync
       - name: Check formatting
         run: poetry run poe format_check
       - name: Linting

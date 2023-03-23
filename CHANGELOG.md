@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* Add a Grover-based 3-SAT solver example #31
+
 ## qiskit-aqt-provider v0.9.0
 
 * Fix and improve error handling from individual circuits #24

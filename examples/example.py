@@ -10,6 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+"""Basic example with the Qiskit AQT provider. Creates a 4-qubit GHZ state."""
+
 import qiskit
 from qiskit import QuantumCircuit
 
