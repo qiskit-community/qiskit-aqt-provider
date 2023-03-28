@@ -10,8 +10,9 @@ Users guide
 Setting up the provider
 =======================
 
-To begin, the `AQTProvider` must be instantiated with
-an AQT access token:
+To begin, the `AQTProvider` must be instantiated.
+The authentication token can either be passed explcitly
+or stored in the environment variable `AQT_TOKEN`:
 
 .. jupyter-execute::
 
@@ -20,30 +21,28 @@ an AQT access token:
     aqt = AQTProvider('MY_TOKEN')
 
 Once loaded with your credentials, the provider
-gives access to the available AQT backend. These
-backends can be listed using
+gives access certain workspaces. These, and their
+contained resources (computing backends) can be listed
+using
 
 .. jupyter-execute::
 
-    print(aqt.backends())
+    print(aqt.workspaces())
 
-and selected using autocomplete
-
-.. jupyter-execute::
-
-    backend = aqt.backends.aqt_qasm_simulator
-
-One can also query a specific backend by name:
+To select a resource within a workspace, use
 
 .. jupyter-execute::
 
-    backend = aqt.get_backend('aqt_qasm_simulator')
+    backend = aqt.get_resource("default", "offline_simulator_no_noise")
+
+The default workspace is always present and contains at least an offline
+noiseless simulator (powered by Qiskit-Aer).
 
 
 Compiling circuits for AQT backends
 ===================================
 
-Although one may right a quantum circuit using any
+Although one may write a quantum circuit using any
 selection of quantum gates, the AQT backends can only
 run a subset of these operations.  The gates a given
 backend supports can be found from the configuration
@@ -90,8 +89,22 @@ method to retrieve a job:
 
 
 A circuit can also be sent to a backend using the
-Qiskit `execute` function:
+Qiskit `execute` function, which calls the transpiler
+automatically:
 
-.. code-block:: python3
+.. jupyter-execute::
 
-    job = execute(trans_qc, backend)
+    job = execute(qc, backend)
+
+
+To retrieve wait for a result to be available and retrieve it, use
+
+.. jupyter-execute::
+
+    result = job.result()
+
+The Qiskit `Result` object contains the outcome of all circuit samples:
+
+.. jupyter-execute::
+
+    print(result.get_counts())

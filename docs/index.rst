@@ -9,8 +9,6 @@ hardware.
 .. toctree::
   :maxdepth: 2
 
-  Installation <install>
-  Access to AQT backends <access>
   User guide <guide>
 
 .. toctree::
@@ -18,7 +16,7 @@ hardware.
   :caption: API References
 
   AQTProvider <apidoc/provider>
-  AQT backends <apidoc/backends>
+  AQTResource <apidoc/resource>
   AQTJob <apidoc/job>
 
 .. Hiding - Indices and tables
