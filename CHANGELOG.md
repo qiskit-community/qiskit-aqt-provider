@@ -4,6 +4,7 @@
 
 * Add a Grover-based 3-SAT solver example #31
 * **Breaking change** Remove provider for legacy API #40
+* Automatically load environment variables from `.env` files #42
 
 ## qiskit-aqt-provider v0.9.0
 

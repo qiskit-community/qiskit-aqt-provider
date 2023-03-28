@@ -13,15 +13,19 @@
 
 import itertools
 import os
-from typing import Dict, Final, Iterable, Iterator, List, Optional, Set
+from pathlib import Path
+from typing import Dict, Final, Iterable, Iterator, List, Optional, Set, Union
 
+import dotenv
 import requests
 from qiskit.providers.exceptions import QiskitBackendNotFoundError
 from tabulate import tabulate
-from typing_extensions import NotRequired, TypedDict
+from typing_extensions import NotRequired, TypeAlias, TypedDict
 
 from .aqt_resource import ApiResource, AQTResource, OfflineSimulatorResource
 from .constants import REQUESTS_TIMEOUT
+
+StrPath: TypeAlias = Union[str, Path]
 
 
 class WorkspaceResources(TypedDict):
@@ -123,8 +127,34 @@ class AQTProvider:
     # Set AQT_PORTAL_URL environment variable to override
     DEFAULT_PORTAL_URL: Final = "http://arnica.internal.aqt.eu"
 
-    def __init__(self, access_token: Optional[str] = None):
-        super().__init__()
+    def __init__(
+        self,
+        access_token: Optional[str] = None,
+        *,
+        load_dotenv: bool = True,
+        dotenv_path: Optional[StrPath] = None,
+    ):
+        """Initialize the AQT provider.
+
+        The access token for the AQT cloud can be provided either through the
+        `access_token` argument or the `AQT_TOKEN` environment variable.
+
+        The AQT cloud portal URL can be configured using the `AQT_PORTAL_URL`
+        environment variable.
+
+        If `load_dotenv`, environment variables are loaded from a file, by default
+        any `.env` file in the working directory or above it in the directory tree.
+        The `dotenv_path` argument allows to pass a specific file to load environment
+        variables from.
+
+        Args:
+            access_token: AQT cloud access token
+            load_dotenv: whether to load environment variables from a .env file
+            dotenv_path: path to the environment file. This implies `load_dotenv`.
+        """
+        if load_dotenv or dotenv_path is not None:
+            dotenv.load_dotenv(dotenv_path)
+
         portal_base_url = os.environ.get("AQT_PORTAL_URL", AQTProvider.DEFAULT_PORTAL_URL)
         self.portal_url = f"{portal_base_url}/api/v1"
 
