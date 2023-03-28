@@ -11,12 +11,13 @@
 # that they have been altered from the originals.
 
 import math
-from typing import List, Optional
+from dataclasses import dataclass
+from typing import List, Optional, Tuple
 
 import numpy as np
 from qiskit import QuantumCircuit
-from qiskit.circuit import Instruction
-from qiskit.circuit.library import RGate
+from qiskit.circuit import Gate, Instruction
+from qiskit.circuit.library import RGate, RXGate, RXXGate, RZGate
 from qiskit.circuit.tools import pi_check
 from qiskit.dagcircuit import DAGCircuit
 from qiskit.transpiler.basepasses import BasePass, TransformationPass
@@ -61,28 +62,63 @@ class AQTSchedulingPlugin(PassManagerStagePlugin):
         return PassManager(passes)
 
 
+@dataclass(frozen=True)
+class CircuitInstruction:
+    """Partial substitute for `qiskit.circuit.CircuitInstruction`
+    that allows passing the qubits as integers."""
+
+    gate: Gate
+    qubits: Tuple[int, ...]
+
+
+def _rxx_positive_angle(theta: float) -> List[CircuitInstruction]:
+    """List of instructions equivalent to RXX(θ) with θ >= 0."""
+    rxx = CircuitInstruction(RXXGate(abs(theta)), qubits=(0, 1))
+
+    if theta >= 0:
+        return [rxx]
+
+    return [
+        CircuitInstruction(RZGate(math.pi), (0,)),
+        rxx,
+        CircuitInstruction(RZGate(math.pi), (0,)),
+    ]
+
+
+def _emit_rxx_instruction(theta: float, instructions: List[CircuitInstruction]) -> Instruction:
+    """Collect the passed instructions into a single one labeled 'Rxx(θ)'."""
+    qc = QuantumCircuit(2, name=f"Rxx({pi_check(theta)})")
+    for instruction in instructions:
+        qc.append(instruction.gate, instruction.qubits)
+
+    return qc.to_instruction()
+
+
 def wrap_rxx_angle(theta: float) -> Instruction:
-    """Instruction equivalent to RXX(θ) with θ ∈ [-π/2, π/2]."""
+    """Instruction equivalent to RXX(θ) with θ ∈ [0, π/2]."""
 
-    theta_str = pi_check(theta)
-    qc = QuantumCircuit(2, name=f"Rxx({theta_str})")
+    # fast path if -π/2 <= θ <= π/2
+    if abs(theta) <= math.pi / 2:
+        operations = _rxx_positive_angle(theta)
+        return _emit_rxx_instruction(theta, operations)
 
+    # exploit 2-pi periodicity of Rxx
     theta %= 2 * math.pi
 
     if abs(theta) <= math.pi / 2:
-        qc.rxx(theta, 0, 1)
-        return qc.to_instruction()
-
-    if abs(theta) < 3 * math.pi / 2:
+        operations = _rxx_positive_angle(theta)
+    elif abs(theta) <= 3 * math.pi / 2:
         corrected_angle = theta - np.sign(theta) * math.pi
-        qc.rx(math.pi, 0)
-        qc.rx(math.pi, 1)
-        qc.rxx(corrected_angle, 0, 1)
-        return qc.to_instruction()
+        operations = [
+            CircuitInstruction(RXGate(math.pi), (0,)),
+            CircuitInstruction(RXGate(math.pi), (1,)),
+        ]
+        operations.extend(_rxx_positive_angle(corrected_angle))
+    else:
+        corrected_angle = theta - np.sign(theta) * 2 * math.pi
+        operations = _rxx_positive_angle(corrected_angle)
 
-    corrected_angle = theta - np.sign(theta) * 2 * math.pi
-    qc.rxx(corrected_angle, 0, 1)
-    return qc.to_instruction()
+    return _emit_rxx_instruction(theta, operations)
 
 
 class WrapRxxAngles(TransformationPass):
@@ -93,7 +129,7 @@ class WrapRxxAngles(TransformationPass):
             if node.name == "rxx":
                 (theta,) = node.op.params
 
-                if abs(float(theta)) <= math.pi / 2:
+                if 0 <= float(theta) <= math.pi / 2:
                     continue
 
                 rxx = wrap_rxx_angle(float(theta))
