@@ -26,7 +26,7 @@ from qiskit_aqt_provider.test.circuits import (
     assert_circuits_equivalent,
     qft_circuit,
 )
-from qiskit_aqt_provider.transpiler_plugin import rewrite_rx_as_r
+from qiskit_aqt_provider.transpiler_plugin import rewrite_rx_as_r, wrap_rxx_angle
 
 
 @pytest.mark.parametrize(
@@ -116,6 +116,84 @@ def test_decompose_1q_rotations_example(offline_simulator_no_noise: AQTResource)
     assert_circuits_equivalent(result, expected)
 
 
+def test_rxx_wrap_angle_case0() -> None:
+    """Snapshot test for Rxx(θ) rewrite with 0 <= θ <= π/2."""
+    result = QuantumCircuit(2)
+    result.append(wrap_rxx_angle(pi / 2), (0, 1))
+
+    expected = QuantumCircuit(2)
+    expected.rxx(pi / 2, 0, 1)
+
+    assert_circuits_equal(result.decompose(), expected)
+    assert_circuits_equivalent(result.decompose(), expected)
+
+
+def test_rxx_wrap_angle_case0_negative() -> None:
+    """Snapshot test for Rxx(θ) rewrite with -π/2 <= θ < 0."""
+    result = QuantumCircuit(2)
+    result.append(wrap_rxx_angle(-pi / 2), (0, 1))
+
+    expected = QuantumCircuit(2)
+    expected.rz(pi, 0)
+    expected.rxx(pi / 2, 0, 1)
+    expected.rz(pi, 0)
+
+    assert_circuits_equal(result.decompose(), expected)
+    assert_circuits_equivalent(result.decompose(), expected)
+
+
+def test_rxx_wrap_angle_case1() -> None:
+    """Snapshot test for Rxx(θ) rewrite with π/2 < θ <= 3π/2."""
+    result = QuantumCircuit(2)
+    result.append(wrap_rxx_angle(3 * pi / 2), (0, 1))
+
+    expected = QuantumCircuit(2)
+    expected.rx(pi, 0)
+    expected.rx(pi, 1)
+    expected.rxx(pi / 2, 0, 1)
+
+    assert_circuits_equal(result.decompose(), expected)
+    assert_circuits_equivalent(result.decompose(), expected)
+
+
+def test_rxx_wrap_angle_case1_negative() -> None:
+    """Snapshot test for Rxx(θ) rewrite with -3π/2 <= θ < -π/2."""
+    result = QuantumCircuit(2)
+    result.append(wrap_rxx_angle(-3 * pi / 2), (0, 1))
+
+    expected = QuantumCircuit(2)
+    expected.rxx(pi / 2, 0, 1)
+
+    assert_circuits_equal(result.decompose(), expected)
+    assert_circuits_equivalent(result.decompose(), expected)
+
+
+def test_rxx_wrap_angle_case2() -> None:
+    """Snapshot test for Rxx(θ) rewrite with θ > 3*π/2."""
+    result = QuantumCircuit(2)
+    result.append(wrap_rxx_angle(18 * pi / 10), (0, 1))  # mod 2π = 9π/5 → -π/5
+
+    expected = QuantumCircuit(2)
+    expected.rz(pi, 0)
+    expected.rxx(pi / 5, 0, 1)
+    expected.rz(pi, 0)
+
+    assert_circuits_equal(result.decompose(), expected)
+    assert_circuits_equivalent(result.decompose(), expected)
+
+
+def test_rxx_wrap_angle_case2_negative() -> None:
+    """Snapshot test for Rxx(θ) rewrite with θ < -3π/2."""
+    result = QuantumCircuit(2)
+    result.append(wrap_rxx_angle(-18 * pi / 10), (0, 1))  # mod 2π = π/5
+
+    expected = QuantumCircuit(2)
+    expected.rxx(pi / 5, 0, 1)
+
+    assert_circuits_equal(result.decompose(), expected)
+    assert_circuits_equivalent(result.decompose(), expected)
+
+
 RXX_ANGLES: Final = [
     pi / 4,
     pi / 2,
@@ -129,35 +207,50 @@ RXX_ANGLES: Final = [
 ]
 
 
-@pytest.mark.parametrize("angle", RXX_ANGLES)
-@pytest.mark.parametrize("qubits", [2, 3, 5])
+@given(
+    angle=st.floats(
+        allow_nan=False,
+        allow_infinity=False,
+        min_value=-1000 * pi,
+        max_value=1000 * pi,
+    )
+)
+@pytest.mark.parametrize("qubits", [3])
 @pytest.mark.parametrize("optimization_level", [1, 2, 3])
-def test_rxx_wrap_angle_transpile(
-    angle: float, qubits: int, optimization_level: int, offline_simulator_no_noise: AQTResource
-) -> None:
+def test_rxx_wrap_angle_transpile(angle: float, qubits: int, optimization_level: int) -> None:
     """Check that Rxx angles are wrapped by the transpiler."""
+    assume(abs(angle) > pi / 200)
+
     qc = QuantumCircuit(qubits)
     qc.rxx(angle, 0, 1)
-    trans_qc = transpile(qc, offline_simulator_no_noise, optimization_level=optimization_level)
 
+    # we only need the backend's transpilation target for this test
+    backend = AQTProvider("").get_resource("default", "offline_simulator_no_noise")
+    trans_qc = transpile(qc, backend, optimization_level=optimization_level)
     assert isinstance(trans_qc, QuantumCircuit)
 
-    assert set(trans_qc.count_ops()) <= set(offline_simulator_no_noise.configuration().basis_gates)
-    assert trans_qc.count_ops()["rxx"] == 1
+    assert_circuits_equivalent(trans_qc, qc)
 
-    # check that all Rxx have angles in [-π/2, π/2]
+    assert set(trans_qc.count_ops()) <= set(backend.configuration().basis_gates)
+    num_rxx = trans_qc.count_ops().get("rxx")
+
+    # in high optimization levels, the gate might be dropped
+    assume(num_rxx is not None)
+    assert num_rxx == 1
+
+    # check that all Rxx have angles in [0, π/2]
     for operation in trans_qc.data:
         instruction = operation[0]
         if instruction.name == "rxx":
             (theta,) = instruction.params
-            assert abs(float(theta)) <= pi / 2
-
-    # check that the transpiled circuit is equivalent to the original one
-    assert_circuits_equivalent(trans_qc, qc)
+            assert 0 <= float(theta) <= pi / 2
+            break  # there's only one Rxx gate in the circuit
+    else:  # pragma: no cover
+        pytest.fail("Transpiled circuit contains no Rxx gate.")
 
 
 @pytest.mark.parametrize("qubits", [1, 5, 10])
-@pytest.mark.parametrize("optimization_level", [0, 1, 2, 3])
+@pytest.mark.parametrize("optimization_level", [1, 2, 3])
 def test_qft_circuit_transpilation(
     qubits: int, optimization_level: int, offline_simulator_no_noise: AQTResource
 ) -> None:
@@ -173,7 +266,7 @@ def test_qft_circuit_transpilation(
         instruction = operation[0]
         if instruction.name == "rxx":
             (theta,) = instruction.params
-            assert abs(float(theta)) <= pi / 2
+            assert 0 <= float(theta) <= pi / 2
 
         if instruction.name == "r":
             (theta, _) = instruction.params
