@@ -3,6 +3,7 @@
 ## Unreleased
 
 * Add a Grover-based 3-SAT solver example #31
+* Wrap single-qubit rotation angles to [0, π] instead of [-π, π]  #39
 * **Breaking change** Remove provider for legacy API #40
 * Automatically load environment variables from `.env` files #42
 
