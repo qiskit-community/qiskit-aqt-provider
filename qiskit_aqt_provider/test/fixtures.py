@@ -29,7 +29,7 @@ from qiskit_aqt_provider.aqt_resource import (
     AQTResource,
     OfflineSimulatorResource,
 )
-from qiskit_aqt_provider.circuit_to_aqt import circuit_to_aqt_new
+from qiskit_aqt_provider.circuit_to_aqt import circuit_to_aqt
 
 
 @pytest.fixture(name="offline_simulator_no_noise")
@@ -48,7 +48,7 @@ def fixture_offline_simulator_no_noise() -> Iterator[AQTResource]:
             circuit, shots = call_args.args
 
             try:
-                _ = circuit_to_aqt_new(circuit, shots=shots)
+                _ = circuit_to_aqt(circuit, shots=shots)
             # pylint: disable-next=broad-except
             except Exception:  # pragma: no cover
                 pytest.fail(f"Circuit cannot be converted to the AQT JSON format:\n{circuit}")

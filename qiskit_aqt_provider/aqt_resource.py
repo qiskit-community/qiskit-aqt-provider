@@ -11,7 +11,6 @@
 # that they have been altered from the originals.
 
 import warnings
-from math import pi
 from typing import Any, Dict, List, Union
 
 import requests
@@ -28,10 +27,9 @@ from qiskit.transpiler import Target
 from qiskit_aer import AerJob, AerSimulator
 from typing_extensions import TypedDict
 
-from qiskit_aqt_provider.circuit_to_aqt import circuit_to_aqt_new
-
-from . import aqt_job_new
-from .constants import REQUESTS_TIMEOUT
+from qiskit_aqt_provider.aqt_job import AQTJob
+from qiskit_aqt_provider.circuit_to_aqt import circuit_to_aqt
+from qiskit_aqt_provider.constants import REQUESTS_TIMEOUT
 
 
 class ApiResource(TypedDict):
@@ -81,7 +79,7 @@ class AQTResource(Backend):
         # the custom scheduling pass rewrites RX to R to comply to the Arnica API format.
         self._target.add_instruction(RZGate(lam))
         self._target.add_instruction(RXGate(theta))
-        self._target.add_instruction(RXXGate(pi / 2.0))
+        self._target.add_instruction(RXXGate(theta))
         self._target.add_instruction(Measure())
         self.options.set_validator("shots", (1, 200))
 
@@ -95,7 +93,7 @@ class AQTResource(Backend):
         Returns:
             The unique identifier for the submitted job.
         """
-        payload = circuit_to_aqt_new(circuit, shots=shots)
+        payload = circuit_to_aqt(circuit, shots=shots)
 
         url = f"{self.url}/submit/{self._workspace}/{self._resource['id']}"
         req = requests.post(url, json=payload, headers=self.headers, timeout=REQUESTS_TIMEOUT)
@@ -152,15 +150,15 @@ class AQTResource(Backend):
         )
 
     @property
-    def max_circuits(self):
-        return 1
+    def max_circuits(self) -> int:
+        return 2000
 
     @property
-    def target(self):
+    def target(self) -> Target:
         return self._target
 
     @classmethod
-    def _default_options(cls):
+    def _default_options(cls) -> Options:
         return Options(shots=100)
 
     def get_scheduling_stage_plugin(self) -> str:
@@ -196,7 +194,7 @@ class AQTResource(Backend):
         if shots > self.configuration().max_shots:
             raise ValueError("Number of shots is larger than maximum number of shots")
 
-        job = aqt_job_new.AQTJobNew(self, circuits=run_input, shots=shots)
+        job = AQTJob(self, circuits=run_input, shots=shots)
         job.submit()
         return job
 

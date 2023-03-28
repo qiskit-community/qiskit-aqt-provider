@@ -17,11 +17,9 @@ from typing import Dict, Final, Iterable, Iterator, List, Optional, Set
 
 import requests
 from qiskit.providers.exceptions import QiskitBackendNotFoundError
-from qiskit.providers.providerutils import filter_backends
 from tabulate import tabulate
 from typing_extensions import NotRequired, TypedDict
 
-from .aqt_backend import AQTDeviceIbex, AQTDevicePine, AQTSimulator, AQTSimulatorNoise1
 from .aqt_resource import ApiResource, AQTResource, OfflineSimulatorResource
 from .constants import REQUESTS_TIMEOUT
 
@@ -139,16 +137,6 @@ class AQTProvider:
             self.access_token = access_token
         self.name = "aqt_provider"
 
-        # Populate the list of legacy AQT backends
-        self.backends = BackendService(
-            [
-                AQTSimulator(provider=self),
-                AQTSimulatorNoise1(provider=self),
-                AQTDeviceIbex(provider=self),
-                AQTDevicePine(provider=self),
-            ]
-        )
-
     def workspaces(self) -> WorkspaceTable:
         """Pretty-printable list of workspaces and accessible resources."""
         if os.environ.get("CI"):
@@ -176,11 +164,11 @@ class AQTProvider:
             A Qiskit backend for running jobs on the target resource.
 
         Raises:
-            ValueError: the workspace or the resource are not accessible.
+            QiskitBackendNotFound: the workspace or the resource are not accessible.
         """
         resources = self.workspaces().workspace(workspace)
         if not resources:
-            raise ValueError(f"Workpace '{workspace}' is not accessible.")
+            raise QiskitBackendNotFoundError(f"Workpace '{workspace}' is not accessible.")
 
         api_resource = None
         for resource_data in resources:
@@ -188,68 +176,11 @@ class AQTProvider:
                 api_resource = resource_data
                 break
         else:
-            raise ValueError(f"Resource '{resource}' does not exist in workspace '{workspace}'.")
+            raise QiskitBackendNotFoundError(
+                f"Resource '{resource}' does not exist in workspace '{workspace}'."
+            )
 
         resource_class = (
             OfflineSimulatorResource if api_resource["type"] == "offline_simulator" else AQTResource
         )
         return resource_class(self, workspace, api_resource)
-
-    def get_backend(self, name=None, **kwargs):
-        """Return a single backend matching the specified filtering.
-        Args:
-            name (str): name of the backend.
-            **kwargs: dict used for filtering.
-        Returns:
-            Backend: a backend matching the filtering.
-        Raises:
-            QiskitBackendNotFoundError: if no backend could be found or
-                more than one backend matches the filtering criteria.
-        """
-        backends = self.backends(name, **kwargs)
-        if len(backends) > 1:
-            raise QiskitBackendNotFoundError("More than one backend matches criteria.")
-        if not backends:
-            raise QiskitBackendNotFoundError("No backend matches criteria.")
-
-        return backends[0]
-
-    def __eq__(self, other):
-        """Equality comparison.
-        By default, it is assumed that two `Providers` from the same class are
-        equal. Subclassed providers can override this behavior.
-        """
-        return type(self).__name__ == type(other).__name__
-
-
-class BackendService:
-    """A service class that allows for autocompletion
-    of backends from provider.
-    """
-
-    def __init__(self, backends):
-        """Initialize service
-
-        Parameters:
-            backends (list): List of backend instances.
-        """
-        self._backends = backends
-        for backend in backends:
-            setattr(self, backend.name, backend)
-
-    def __call__(self, name=None, filters=None, **kwargs):
-        """A listing of all backends from this provider.
-
-        Parameters:
-            name (str): The name of a given backend.
-            filters (callable): A filter function.
-
-        Returns:
-            list: A list of backends, if any.
-        """
-        # pylint: disable=arguments-differ
-        backends = self._backends
-        if name:
-            backends = [backend for backend in backends if backend.name == name]
-
-        return filter_backends(backends, filters=filters, **kwargs)

@@ -3,6 +3,7 @@
 ## Unreleased
 
 * Add a Grover-based 3-SAT solver example #31
+* **Breaking change** Remove provider for legacy API #40
 
 ## qiskit-aqt-provider v0.9.0
 
