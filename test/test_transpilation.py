@@ -11,60 +11,96 @@
 # that they have been altered from the originals.
 
 from math import pi
-from typing import Final
+from typing import Final, Union
 
 import pytest
+from hypothesis import assume, given
+from hypothesis import strategies as st
 from qiskit import QuantumCircuit, transpile
+from qiskit.circuit.library import RXGate, RYGate
 
+from qiskit_aqt_provider.aqt_provider import AQTProvider
 from qiskit_aqt_provider.aqt_resource import AQTResource
 from qiskit_aqt_provider.test.circuits import (
     assert_circuits_equal,
     assert_circuits_equivalent,
     qft_circuit,
 )
+from qiskit_aqt_provider.transpiler_plugin import rewrite_rx_as_r
 
 
 @pytest.mark.parametrize(
-    "angle,expected_angle",
+    "input_theta,output_theta,output_phi",
     [
-        (pi / 3, pi / 3),
-        (7 * pi / 5, -3 * pi / 5),
-        (25 * pi, -pi),
-        (22 * pi / 3, -2 * pi / 3),
+        (pi / 3, pi / 3, 0.0),
+        (-pi / 3, pi / 3, pi),
+        (7 * pi / 5, 3 * pi / 5, pi),
+        (25 * pi, pi, pi),
+        (22 * pi / 3, 2 * pi / 3, pi),
     ],
 )
-def test_rx_wrap_angle(
-    angle: float, expected_angle: float, offline_simulator_no_noise: AQTResource
+def test_rx_rewrite_example(
+    input_theta: float,
+    output_theta: float,
+    output_phi: float,
 ) -> None:
-    """Check that transpiled rotation gate angles are wrapped to [-π,π]."""
-    qc = QuantumCircuit(1)
-    qc.rx(angle, 0)
+    """Snapshot test for the Rx(θ) → R(θ, φ) rule."""
+
+    result = QuantumCircuit(1)
+    result.append(rewrite_rx_as_r(input_theta), (0,))
 
     expected = QuantumCircuit(1)
-    expected.r(expected_angle, 0, 0)
+    expected.r(output_theta, output_phi, 0)
 
-    result = transpile(qc, offline_simulator_no_noise, optimization_level=3)
-    assert isinstance(result, QuantumCircuit)
+    reference = QuantumCircuit(1)
+    reference.rx(input_theta, 0)
 
     assert_circuits_equal(result, expected)
+    assert_circuits_equivalent(result, reference)
 
 
-def test_rx_r_rewrite_simple(offline_simulator_no_noise: AQTResource) -> None:
-    """Check that Rx gates are rewritten as R gates."""
+@given(theta=st.floats(allow_nan=False, min_value=-1000 * pi, max_value=1000 * pi))
+@pytest.mark.parametrize("optimization_level", [1, 2, 3])
+@pytest.mark.parametrize("test_gate", [RXGate, RYGate])
+def test_rx_ry_rewrite_transpile(
+    theta: float,
+    optimization_level: int,
+    test_gate: Union[RXGate, RYGate],
+) -> None:
+    """Test the rewrite rule: Rx(θ), Ry(θ) → R(θ, φ), θ ∈ [0, π], φ ∈ [0, 2π]."""
+
+    assume(abs(theta) > pi / 200)
+
+    # we only need the backend's transpiler target for this test
+    backend = AQTProvider("").get_resource("default", "offline_simulator_no_noise")
+
     qc = QuantumCircuit(1)
-    qc.rx(pi / 2, 0)
+    qc.append(test_gate(theta), (0,))
 
-    expected = QuantumCircuit(1)
-    expected.r(pi / 2, 0, 0)
+    trans_qc = transpile(qc, backend, optimization_level=optimization_level)
+    assert isinstance(trans_qc, QuantumCircuit)
 
-    result = transpile(qc, offline_simulator_no_noise, optimization_level=3)
-    assert isinstance(result, QuantumCircuit)  # only got one circuit back
+    assert_circuits_equivalent(trans_qc, qc)
 
-    assert_circuits_equal(result, expected)
+    assert set(trans_qc.count_ops()) <= set(backend.configuration().basis_gates)
+
+    num_r = trans_qc.count_ops().get("r")
+    assume(num_r is not None)
+    assert num_r == 1
+
+    for operation in trans_qc.data:
+        instruction = operation[0]
+        if instruction.name == "r":
+            theta, phi = instruction.params
+            assert 0 <= float(theta) <= pi
+            assert 0 <= float(phi) <= 2 * pi
+            break
+    else:  # pragma: no cover
+        pytest.fail("No R gates in transpiled circuit.")
 
 
-def test_decompose_1q_rotations_simple(offline_simulator_no_noise: AQTResource) -> None:
-    """Check that runs of single-qubit rotations are optimized as a ZXZ."""
+def test_decompose_1q_rotations_example(offline_simulator_no_noise: AQTResource) -> None:
+    """Snapshot test for the efficient rewrite of single-qubit rotation runs as ZXZ."""
     qc = QuantumCircuit(1)
     qc.rx(pi / 2, 0)
     qc.ry(pi / 2, 0)
@@ -77,6 +113,7 @@ def test_decompose_1q_rotations_simple(offline_simulator_no_noise: AQTResource) 
     assert isinstance(result, QuantumCircuit)  # only got one circuit back
 
     assert_circuits_equal(result, expected)
+    assert_circuits_equivalent(result, expected)
 
 
 RXX_ANGLES: Final = [
