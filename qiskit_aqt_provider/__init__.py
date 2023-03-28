@@ -10,6 +10,6 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-from .aqt_provider import AQTProvider
+from qiskit_aqt_provider.aqt_provider import AQTProvider
 
 __all__ = ["AQTProvider"]
