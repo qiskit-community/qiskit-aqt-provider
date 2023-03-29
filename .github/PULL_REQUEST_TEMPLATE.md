@@ -14,5 +14,3 @@
 
 
 ### Details and comments
-
-

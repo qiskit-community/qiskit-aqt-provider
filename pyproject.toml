@@ -66,6 +66,7 @@ mypy = "=1.0.1"
 poethepoet = "^0.18.1"
 pre-commit = "^3.1.1"
 pylint = "2.16.*"
+pyproject-fmt = "^0.9.2"
 pytest = ">=7"
 pytest-sugar = "^0.9.6"
 qiskit-experiments = "^0.4.0"
@@ -84,8 +85,10 @@ examples = [
 ]
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+requires = [
+  "poetry-core>=1",
+]
 
 [tool.black]
 line-length = 100
@@ -155,15 +158,23 @@ coverage report
 name = "cov_opts"
 default = ""
 
+[tool.poe.tasks.format]
+shell = """
+isort .
+black .
+pyproject-fmt .
+"""
+
+[tool.poe.tasks.format_check]
+shell = """
+isort --check .
+black --check .
+pyproject-fmt --check .
+"""
+
 [tool.poe.tasks]
 pylint = "pylint qiskit_aqt_provider test"
 mypy = "mypy ."
-isort = "isort ."
-isort_check = "isort --check ."
-black = "black ."
-black_check = "black --check ."
 lint = ["mypy", "pylint"]
-format = ["isort", "black"]
-format_check = ["isort_check", "black_check"]
 docs = "sphinx-build -b html -W docs docs/_build"
 all = ["test", "lint", "docs"]

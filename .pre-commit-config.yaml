@@ -19,7 +19,7 @@ repos:
       - id: black
         language_version: python3
   - repo: https://github.com/myint/autoflake
-    rev: v2.0.1
+    rev: v2.0.2
     hooks:
       - id: autoflake
         args: [--remove-all-unused-imports, --in-place, --ignore-init-module-imports]
@@ -28,3 +28,7 @@ repos:
     hooks:
       - id: isort
         name: isort (python)
+  - repo: https://github.com/tox-dev/pyproject-fmt
+    rev: "0.9.2"
+    hooks:
+      - id: pyproject-fmt
