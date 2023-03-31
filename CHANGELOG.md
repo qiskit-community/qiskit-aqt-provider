@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## qiskit-aqt-provider v0.10.0
+
 * Add a Grover-based 3-SAT solver example #31
 * Wrap `Rxx` angles to [0, π/2] instead of [-π/2, π/2] #37
 * Wrap single-qubit rotation angles to [0, π] instead of [-π, π]  #39
