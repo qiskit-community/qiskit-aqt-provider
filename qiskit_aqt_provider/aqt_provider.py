@@ -103,9 +103,6 @@ class WorkspaceTable:
         """HTML representation (for IPython)."""
         return tabulate(self.table, headers=self.headers, tablefmt="html")
 
-    def __iter__(self):
-        return self._workspaces.__iter__()
-
 
 class AQTProvider:
     """Provider for backends from Alpine Quantum Technologies (AQT).

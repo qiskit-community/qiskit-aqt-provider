@@ -15,21 +15,15 @@
 This module is exposed as pytest plugin for this project.
 """
 
-import abc
-import uuid
-from typing import Any, Dict, Final, Iterator, Set
+from typing import Iterator
 from unittest.mock import patch
 
 import pytest
-from qiskit import QuantumCircuit
 
 from qiskit_aqt_provider.aqt_provider import AQTProvider
-from qiskit_aqt_provider.aqt_resource import (
-    ApiResource,
-    AQTResource,
-    OfflineSimulatorResource,
-)
+from qiskit_aqt_provider.aqt_resource import AQTResource, OfflineSimulatorResource
 from qiskit_aqt_provider.circuit_to_aqt import circuit_to_aqt
+from qiskit_aqt_provider.test.resources import ErrorResource, NonCompliantResource
 
 
 @pytest.fixture(name="offline_simulator_no_noise")
@@ -68,45 +62,3 @@ def fixture_error_resource() -> Iterator[AQTResource]:
 def fixture_non_compliant_resource() -> Iterator[AQTResource]:
     """An AQT resource that always returns ill-formed payloads."""
     yield NonCompliantResource()
-
-
-class AbstractDummyResource(AQTResource, abc.ABC):
-    """Abstract dummy AQT resource."""
-
-    def __init__(self) -> None:
-        self.jobs: Set[str] = set()
-        super().__init__(
-            AQTProvider(""), "dummy", ApiResource(name="dummy", id="dummy", type="simulator")
-        )
-
-    def submit(self, circuit: QuantumCircuit, shots: int) -> str:
-        job_id = str(uuid.uuid4())
-        self.jobs.add(job_id)
-        return job_id
-
-    @abc.abstractmethod
-    def result(self, job_id: str) -> Dict[str, Any]:
-        ...  # pragma: no cover
-
-
-class ErrorResource(AbstractDummyResource):
-    """An AQT resource that always returns a well-formed error.
-
-    The returned error string is unique between different instances.
-    """
-
-    def __init__(self) -> None:
-        self.error_str: Final = str(uuid.uuid4())
-        super().__init__()
-
-    def result(self, job_id: str) -> Dict[str, Any]:
-        self.jobs.remove(job_id)
-        return {"response": {"status": "error", "message": self.error_str}}
-
-
-class NonCompliantResource(AbstractDummyResource):
-    """An AQT resource that always returns invalid payloads."""
-
-    def result(self, job_id: str) -> Dict[str, Any]:
-        self.jobs.remove(job_id)
-        return {"invalid": "invalid"}

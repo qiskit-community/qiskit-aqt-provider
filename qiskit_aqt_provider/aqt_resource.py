@@ -10,16 +10,15 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+import abc
 import warnings
 from typing import Any, Dict, List, Union
 
 import requests
-from qiskit import QuantumCircuit, pulse
-from qiskit import qobj as qobj_mod
+from qiskit import QuantumCircuit
 from qiskit.circuit.library import RXGate, RXXGate, RZGate
 from qiskit.circuit.measure import Measure
 from qiskit.circuit.parameter import Parameter
-from qiskit.exceptions import QiskitError
 from qiskit.providers import BackendV2 as Backend
 from qiskit.providers import Options, Provider
 from qiskit.providers.models import BackendConfiguration
@@ -36,6 +35,55 @@ class ApiResource(TypedDict):
     name: str
     id: str
     type: str  # Literal["simulator", "device"]
+
+
+class OptionalFloat(metaclass=abc.ABCMeta):
+    """Runtime type for optional floating-point numbers.
+
+    The type is permissive: integers are also allowed.
+
+    Runtime type checking can be done with the `isinstance` builtin.
+    See PEP-3119 for details.
+
+    Examples:
+        >>> isinstance(3.5, OptionalFloat)
+        True
+        >>> isinstance(3, OptionalFloat)
+        True
+        >>> isinstance(None, OptionalFloat)
+        True
+        >>> isinstance("abc", OptionalFloat)
+        False
+    """
+
+
+OptionalFloat.register(int)
+OptionalFloat.register(float)
+OptionalFloat.register(type(None))
+
+
+class Float(metaclass=abc.ABCMeta):
+    """Permissive runtime type for floating-point numbers.
+
+    The type is permissive: integers are also allowed.
+
+    Runtime type checking can be done with the `isinstance` builtin.
+    See PEP-3119 for details.
+
+    Examples:
+        >>> isinstance(3.5, Float)
+        True
+        >>> isinstance(3, Float)
+        True
+        >>> isinstance(None, Float)
+        False
+        >>> isinstance("abc", Float)
+        False
+    """
+
+
+Float.register(int)
+Float.register(float)
 
 
 class AQTResource(Backend):
@@ -82,6 +130,8 @@ class AQTResource(Backend):
         self._target.add_instruction(RXXGate(theta))
         self._target.add_instruction(Measure())
         self.options.set_validator("shots", (1, 200))
+        self.options.set_validator("query_timeout_seconds", OptionalFloat)
+        self.options.set_validator("query_period_seconds", Float)
 
     def submit(self, circuit: QuantumCircuit, shots: int) -> str:
         """Submit a circuit.
@@ -124,7 +174,7 @@ class AQTResource(Backend):
         req.raise_for_status()
         return req.json()
 
-    def configuration(self):
+    def configuration(self) -> BackendConfiguration:
         warnings.warn(
             (
                 "The configuration() method is deprecated and will be removed in a "
@@ -137,7 +187,7 @@ class AQTResource(Backend):
         )
         return self._configuration
 
-    def properties(self):
+    def properties(self) -> None:
         warnings.warn(
             (
                 "The properties() method is deprecated and will be removed in a "
@@ -159,7 +209,11 @@ class AQTResource(Backend):
 
     @classmethod
     def _default_options(cls) -> Options:
-        return Options(shots=100)
+        return Options(
+            shots=100,  # number of repetitions per circuit
+            query_timeout_seconds=None,  # timeout for job status queries
+            query_period_seconds=5,  # interval between job status queries
+        )
 
     def get_scheduling_stage_plugin(self) -> str:
         return "aqt"
@@ -167,17 +221,9 @@ class AQTResource(Backend):
     def get_translation_stage_plugin(self) -> str:
         return "aqt"
 
-    def run(self, run_input: Union[QuantumCircuit, List[QuantumCircuit]], **options):
+    def run(self, run_input: Union[QuantumCircuit, List[QuantumCircuit]], **options: Any) -> AQTJob:
         if not isinstance(run_input, list):
             run_input = [run_input]
-
-        if any(
-            map(
-                lambda x: isinstance(x, (qobj_mod.PulseQobj, pulse.Schedule, pulse.ScheduleBlock)),
-                run_input,
-            )
-        ):
-            raise QiskitError("Pulse jobs are not accepted")
 
         unknown_options = set(options) - set(self.options.__dict__ or {})
         if unknown_options:
@@ -188,11 +234,7 @@ class AQTResource(Backend):
                     stacklevel=2,
                 )
 
-        # TODO: use the Options validator instead of custom logic here
         shots = options.get("shots", self.options.shots)
-
-        if shots > self.configuration().max_shots:
-            raise ValueError("Number of shots is larger than maximum number of shots")
 
         job = AQTJob(self, circuits=run_input, shots=shots)
         job.submit()
