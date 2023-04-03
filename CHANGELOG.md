@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* Expose the result polling period and timeout as backend options #46
+
 ## qiskit-aqt-provider v0.10.0
 
 * Add a Grover-based 3-SAT solver example #31

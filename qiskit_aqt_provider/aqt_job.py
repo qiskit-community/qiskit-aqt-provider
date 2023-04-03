@@ -75,6 +75,8 @@ class JobCancelled:
 
 
 class AQTJob(JobV1):
+    _backend: "AQTResource"
+
     def __init__(
         self,
         backend: "AQTResource",
@@ -137,7 +139,12 @@ class AQTJob(JobV1):
         Returns:
             The combined result of all circuit evaluations.
         """
-        self.wait_for_final_state()  # one of DONE, CANCELLED, ERROR
+        # one of DONE; CANCELLED, ERROR
+        self.wait_for_final_state(
+            timeout=self._backend.options.query_timeout_seconds,
+            wait=self._backend.options.query_period_seconds,
+        )
+
         agg_status = self._aggregate_status()
 
         results = []
