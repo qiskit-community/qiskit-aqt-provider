@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qiskit-aqt-provider-internal"
-version = "0.10.0"
+version = "0.11.0"
 description = "Qiskit provider for internal AQT backends"
 authors = ["Qiskit Development Team"]
 readme = "README.md"
