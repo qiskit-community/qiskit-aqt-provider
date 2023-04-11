@@ -25,6 +25,7 @@ import qiskit
 from dirty_equals import IsUUID
 from qiskit import ClassicalRegister, QuantumCircuit, QuantumRegister
 from qiskit.result import Counts
+from qiskit_aer import AerSimulator
 from qiskit_experiments.library import QuantumVolume
 
 from qiskit_aqt_provider.aqt_resource import AQTResource
@@ -131,6 +132,68 @@ def test_multiple_classical_registers(shots: int, offline_simulator_no_noise: AQ
 
     # counts are returned as "memory_b memory_a", msb first
     assert job.result().get_counts() == {"010 01": shots}
+
+
+@pytest.mark.parametrize("shots", [123])
+@pytest.mark.parametrize("memory_opt", [True, False])
+def test_get_memory_simple(
+    shots: int, memory_opt: bool, offline_simulator_no_noise: AQTResource
+) -> None:
+    """Check that the raw bitstrings can be accessed for each shot via the
+    get_memory() method in Qiskit's Result.
+
+    The memory option has no effect (raw memory is always accessible)."""
+    qc = QuantumCircuit(2)
+    qc.h(0)
+    qc.cx(0, 1)
+    qc.measure_all()
+
+    result = qiskit.execute(qc, offline_simulator_no_noise, shots=shots, memory=memory_opt).result()
+    memory = result.get_memory()
+
+    assert set(memory) == {"11", "00"}
+    assert len(memory) == shots
+
+
+@pytest.mark.parametrize("shots", [123])
+def test_get_memory_ancilla_qubits(shots: int, offline_simulator_no_noise: AQTResource) -> None:
+    """Check that the raw bistrings returned by get_memory() in Qiskit's Result only
+    contain the mapped classical bits."""
+    qr = QuantumRegister(2)
+    qr_aux = QuantumRegister(3)
+    memory = ClassicalRegister(2)
+
+    qc = QuantumCircuit(qr, qr_aux, memory)
+    qc.rx(pi, qr[0])
+    qc.ry(pi, qr[1])
+    qc.rxx(pi / 2, qr_aux[0], qr_aux[1])
+    qc.measure(qr, memory)
+
+    job = qiskit.execute(qc, offline_simulator_no_noise, shots=shots)
+    memory = job.result().get_memory()
+
+    assert set(memory) == {"11"}
+    assert len(memory) == shots
+
+
+@pytest.mark.parametrize("shots", [123])
+def test_get_memory_bit_ordering(shots: int, offline_simulator_no_noise: AQTResource) -> None:
+    """Check that the bitstrings returned by the results produced by AQT jobs have the same
+    bit order as the Qiskit Aer simulators."""
+    sim = AerSimulator(method="statevector")
+
+    qc = QuantumCircuit(3)
+    qc.rx(pi, 0)
+    qc.rx(pi, 1)
+    qc.measure_all()
+
+    aqt_memory = qiskit.execute(qc, offline_simulator_no_noise, shots=shots).result().get_memory()
+    sim_memory = qiskit.execute(qc, sim, shots=shots, memory=True).result().get_memory()
+
+    assert set(sim_memory) == set(aqt_memory)
+
+    # sanity check: bitstrings are no palindromes
+    assert not any(bitstring == bitstring[::-1] for bitstring in sim_memory)
 
 
 @pytest.mark.parametrize("shots,qubits", [(100, 5), (100, 8)])

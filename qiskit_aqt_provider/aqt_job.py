@@ -17,6 +17,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
+    Any,
     ClassVar,
     DefaultDict,
     Dict,
@@ -151,11 +152,14 @@ class AQTJob(JobV1):
 
         # jobs order is submission order
         for circuit, result in zip(self.circuits, self._jobs.values()):
-            data = {}
+            data: Dict[str, Any] = {}
 
             if isinstance(result, JobFinished):
                 meas_map = _build_memory_mapping(circuit)
                 data["counts"] = _format_counts(result.samples, meas_map)
+                data["memory"] = [
+                    "".join(str(x) for x in reversed(shots)) for shots in result.samples
+                ]
 
             results.append(
                 {
