@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## qiskit-aqt-provider v0.11.0
+
 * Expose the result polling period and timeout as backend options #46
 * Support `qiskit.result.Result.get_memory()` to retrieve the raw results bitstrings #48
 
