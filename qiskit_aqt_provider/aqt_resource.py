@@ -107,7 +107,7 @@ class AQTResource(Backend):
                 "coupling_map": None,
                 "description": "AQT trapped-ion device simulator",
                 "basis_gates": ["r", "rz", "rxx"],  # the actual basis gates
-                "memory": False,
+                "memory": True,
                 "n_qubits": num_qubits,
                 "conditional": False,
                 "max_shots": 200,
