@@ -97,6 +97,7 @@ class WorkspaceTable:
         return self._workspaces.get(workspace_id, [])
 
     def __str__(self) -> str:
+        """Text table representation."""
         return tabulate(self.table, headers=self.headers, tablefmt="fancy_grid")
 
     def _repr_html_(self) -> str:

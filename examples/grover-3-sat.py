@@ -16,6 +16,7 @@ This is a modified version of the corresponding
 [Qiskit tutorial](https://qiskit.org/documentation/tutorials/algorithms/07_grover_examples.html).
 """
 
+
 import tempfile
 import textwrap
 from typing import Final, Set, Tuple
@@ -66,8 +67,7 @@ if __name__ == "__main__":
 
     # Problem definition
     sat_problem = ThreeSatProblem(
-        textwrap.dedent(
-            """
+        textwrap.dedent("""
             c example DIMACS-CNF 3-SAT
             p cnf 3 5
             -1 -2 -3 0
@@ -75,8 +75,7 @@ if __name__ == "__main__":
             1 2 -3 0
             1 -2 -3 0
             -1 2 3 0
-            """
-        ),
+            """),
         num_solutions=3,
     )
 
@@ -101,6 +100,4 @@ if __name__ == "__main__":
         raise RuntimeError(f"Didn't find all solutions in {MAX_ITERATIONS} iterations.")
 
     for solution in solutions:
-        # validate again that the solutions are indeed solutions
-        assert sat_problem.is_solution(solution)
         print(format_bitstring(solution))

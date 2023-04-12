@@ -35,7 +35,7 @@ def main(
     changelog_path: Path = typer.Argument(default_changelog_path),
 ) -> None:
     """Print the changes for the given version. By default, use the latest version (if any)."""
-    with open(changelog_path, encoding="utf-8") as fp:
+    with changelog_path.open(encoding="utf-8") as fp:
         md_ast = Document(fp)
 
     changelogs: Dict[str, str] = {}

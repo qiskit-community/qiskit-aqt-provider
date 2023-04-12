@@ -82,10 +82,9 @@ def _qiskit_to_aqt_circuit(circuit: QuantumCircuit) -> List[Dict[str, Any]]:
 
 
 def circuit_to_aqt(circuit: QuantumCircuit, shots: int) -> Dict[str, Any]:
-    """Convert a Qiskit `QuantumCircuit` into a JSON-serializable payload describing
-    a circuit execution request on the AQT API.
+    """Convert a Qiskit circuit to its JSON representation for the AQT API.
 
-    Parameters:
+    Args:
         circuit: the quantum circuit to convert
         shots: number of repetitions.
 
@@ -94,7 +93,7 @@ def circuit_to_aqt(circuit: QuantumCircuit, shots: int) -> Dict[str, Any]:
     """
     seqs = _qiskit_to_aqt_circuit(circuit)
 
-    out_dict = {
+    return {
         "job_type": "quantum_circuit",
         "label": "qiskit",
         "payload": {
@@ -103,4 +102,3 @@ def circuit_to_aqt(circuit: QuantumCircuit, shots: int) -> Dict[str, Any]:
             "number_of_qubits": circuit.num_qubits,
         },
     }
-    return out_dict
