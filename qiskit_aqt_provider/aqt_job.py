@@ -186,11 +186,7 @@ class AQTJob(JobV1):
                 "success": agg_status is JobStatus.DONE,
                 "results": results,
                 # Pass individual circuit errors as metadata
-                "errors": {
-                    job_id: job.error
-                    for job_id, job in self._jobs.items()
-                    if isinstance(job, JobFailed)
-                },
+                "errors": self.failed_jobs,
             }
         )
 
