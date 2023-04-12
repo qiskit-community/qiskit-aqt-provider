@@ -29,7 +29,6 @@ from qiskit.transpiler.preset_passmanagers.plugin import PassManagerStagePlugin
 
 def rewrite_rx_as_r(theta: float) -> Instruction:
     """Instruction equivalent to Rx(θ) as R(θ, φ) with θ ∈ [0, π] and φ ∈ [0, 2π]."""
-
     theta = math.atan2(math.sin(theta), math.cos(theta))
     phi = math.pi if theta < 0.0 else 0.0
     return RGate(abs(theta), phi)
@@ -48,7 +47,9 @@ class RewriteRxAsR(TransformationPass):
 
 class AQTSchedulingPlugin(PassManagerStagePlugin):
     def pass_manager(
-        self, pass_manager_config: PassManagerConfig, optimization_level: Optional[int] = None
+        self,
+        pass_manager_config: PassManagerConfig,  # noqa: ARG002
+        optimization_level: Optional[int] = None,  # noqa: ARG002
     ) -> PassManager:
         passes: List[BasePass] = [
             # The Qiskit Target declares RX/RZ as basis gates.
@@ -64,8 +65,11 @@ class AQTSchedulingPlugin(PassManagerStagePlugin):
 
 @dataclass(frozen=True)
 class CircuitInstruction:
-    """Partial substitute for `qiskit.circuit.CircuitInstruction`
-    that allows passing the qubits as integers."""
+    """Substitute for `qiskit.circuit.CircuitInstruction`.
+
+    Contrary to its Qiskit counterpart, this type allows
+    passing the qubits as integers.
+    """
 
     gate: Gate
     qubits: Tuple[int, ...]
@@ -96,7 +100,6 @@ def _emit_rxx_instruction(theta: float, instructions: List[CircuitInstruction]) 
 
 def wrap_rxx_angle(theta: float) -> Instruction:
     """Instruction equivalent to RXX(θ) with θ ∈ [0, π/2]."""
-
     # fast path if -π/2 <= θ <= π/2
     if abs(theta) <= math.pi / 2:
         operations = _rxx_positive_angle(theta)
@@ -140,7 +143,9 @@ class WrapRxxAngles(TransformationPass):
 
 class AQTTranslationPlugin(PassManagerStagePlugin):
     def pass_manager(
-        self, pass_manager_config: PassManagerConfig, optimization_level: Optional[int] = None
+        self,
+        pass_manager_config: PassManagerConfig,
+        optimization_level: Optional[int] = None,  # noqa: ARG002
     ) -> PassManager:
         translation_pm = common.generate_translation_passmanager(
             target=pass_manager_config.target,

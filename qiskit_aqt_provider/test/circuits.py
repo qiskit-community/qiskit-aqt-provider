@@ -21,19 +21,20 @@ from qiskit.quantum_info.operators import Operator
 def assert_circuits_equal(result: QuantumCircuit, expected: QuantumCircuit) -> None:
     """Assert result == expected, pretty-printing the circuits if they don't match."""
     msg = f"\nexpected:\n{expected}\nresult:\n{result}"
-    assert result == expected, msg
+    assert result == expected, msg  # noqa: S101
 
 
 def assert_circuits_equivalent(result: QuantumCircuit, expected: QuantumCircuit) -> None:
     """Assert that the passed circuits are equivalent up to a global phase."""
     msg = f"\nexpected:\n{expected}\nresult:\n{result}"
-    assert Operator(expected).equiv(Operator(result)), msg
+    assert Operator(expected).equiv(Operator(result)), msg  # noqa: S101
 
 
 def qft_circuit(num_qubits: int) -> QuantumCircuit:
     """N-qubits quantum Fourier transform.
 
-    Source: Nielsen & Chuang, Quantum Computation and Quantum Information."""
+    Source: Nielsen & Chuang, Quantum Computation and Quantum Information.
+    """
     qc = QuantumCircuit(num_qubits)
     for qubit in range(num_qubits - 1, -1, -1):
         qc.h(qubit)

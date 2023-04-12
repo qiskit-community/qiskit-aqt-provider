@@ -10,14 +10,11 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-# pylint: disable=invalid-name
-"""
-Sphinx documentation builder
-"""
+"""Sphinx documentation builder."""
 
 
 project = "Qiskit AQT Provider"
-copyright = "2021, Qiskit and AQT development teams"  # pylint: disable=redefined-builtin
+copyright = "2021, Qiskit and AQT development teams"
 author = "Qiskit and AQT development teams"
 
 # The short X.Y version

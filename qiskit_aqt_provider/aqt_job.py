@@ -221,7 +221,9 @@ class AQTJob(JobV1):
 
     def _status_single(self, job_id: str) -> None:
         """Query the status of a single circuit execution.
-        Update the internal life-cycle tracker."""
+
+        This method updates the internal life-cycle tracker.
+        """
         payload = self._backend.result(job_id)
         response = payload["response"]
 
@@ -241,7 +243,6 @@ class AQTJob(JobV1):
 
     def _aggregate_status(self) -> JobStatus:
         """Aggregate the Qiskit job status from the status of the individual circuit evaluations."""
-
         # aggregate job status from individual circuits
         with self._jobs_lock:
             statuses = [payload.status for payload in self._jobs.values()]

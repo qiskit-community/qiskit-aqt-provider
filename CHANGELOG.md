@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* Use `ruff` instead of `pylint` as linter #51
+
 ## qiskit-aqt-provider v0.11.0
 
 * Expose the result polling period and timeout as backend options #46

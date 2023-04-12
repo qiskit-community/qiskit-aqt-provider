@@ -12,6 +12,7 @@
 
 """Basic example with the Qiskit AQT provider. Creates a 4-qubit GHZ state."""
 
+
 import qiskit
 from qiskit import QuantumCircuit
 

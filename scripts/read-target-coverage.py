@@ -2,7 +2,8 @@
 
 """Extract the coverage target from the pyproject.toml file.
 
-This is used by the Github workflows to write the coverage report comment on PRs."""
+This is used by the Github workflows to write the coverage report comment on PRs.
+"""
 
 import shlex
 import subprocess
@@ -24,11 +25,20 @@ def default_pyproject_path() -> Path:
 
 
 def main(pyproject_path: Path = typer.Argument(default_pyproject_path)) -> None:
-    """Read the 'pyproject.toml' file at `pyproject_path` and extract the
-    'fail_under' field of the 'coverage' tool configuration."""
-    with open(pyproject_path, encoding="utf-8") as fp:
+    """Extract the coverage target from a pyproject.toml file.
+
+    Read the 'pyproject.toml' file at `pyproject_path` and extract the
+    'fail_under' field of the 'coverage' tool configuration.
+
+    Args:
+        pyproject_path: path of the pyproject.toml file to read.
+    """
+    with pyproject_path.open(encoding="utf-8") as fp:
         data = tomlkit.load(fp)
-        print(float(data["tool"]["coverage"]["report"]["fail_under"]) / 100.0)  # type: ignore[index, arg-type]
+        print(
+            float(data["tool"]["coverage"]["report"]["fail_under"])  # type: ignore[index, arg-type]
+            / 100.0
+        )
 
 
 if __name__ == "__main__":

@@ -93,7 +93,7 @@ class TestJob:  # pylint: disable=too-many-instance-attributes
         if self.status is JobStatus.CANCELLED:
             return {"response": {"status": "cancelled"}}
 
-        assert False, "unreachable"  # pragma: no cover
+        assert False, "unreachable"  # pragma: no cover  # noqa: PT015,S101
 
 
 class TestResource(AQTResource):  # pylint: disable=too-many-instance-attributes

@@ -10,6 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+
 from math import pi
 
 import pytest
@@ -92,7 +93,8 @@ def test_valid_circuit() -> None:
 
 def test_invalid_gates_in_circuit() -> None:
     """Circuits must already be in the target basis when they are converted
-    to the AQT wire format."""
+    to the AQT wire format.
+    """
     qc = QuantumCircuit(1)
     qc.h(0)  # not an AQT-resource basis gate
     qc.measure_all()
@@ -103,7 +105,6 @@ def test_invalid_gates_in_circuit() -> None:
 
 def test_invalid_measurements() -> None:
     """Measurement operations can only be located at the end of the circuit."""
-
     qc_invalid = QuantumCircuit(2, 2)
     qc_invalid.r(pi / 2, 0.0, 0)
     qc_invalid.measure([0], [0])

@@ -10,6 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+
 from math import pi
 from typing import Final, Union
 
@@ -30,7 +31,7 @@ from qiskit_aqt_provider.transpiler_plugin import rewrite_rx_as_r, wrap_rxx_angl
 
 
 @pytest.mark.parametrize(
-    "input_theta,output_theta,output_phi",
+    ("input_theta", "output_theta", "output_phi"),
     [
         (pi / 3, pi / 3, 0.0),
         (-pi / 3, pi / 3, pi),
@@ -45,7 +46,6 @@ def test_rx_rewrite_example(
     output_phi: float,
 ) -> None:
     """Snapshot test for the Rx(θ) → R(θ, φ) rule."""
-
     result = QuantumCircuit(1)
     result.append(rewrite_rx_as_r(input_theta), (0,))
 
@@ -68,7 +68,6 @@ def test_rx_ry_rewrite_transpile(
     test_gate: Union[RXGate, RYGate],
 ) -> None:
     """Test the rewrite rule: Rx(θ), Ry(θ) → R(θ, φ), θ ∈ [0, π], φ ∈ [0, 2π]."""
-
     assume(abs(theta) > pi / 200)
 
     # we only need the backend's transpiler target for this test
@@ -255,7 +254,8 @@ def test_qft_circuit_transpilation(
     qubits: int, optimization_level: int, offline_simulator_no_noise: AQTResource
 ) -> None:
     """Transpile a N-qubit QFT circuit for an AQT backend. Check that the angles are properly
-    wrapped."""
+    wrapped.
+    """
     qc = qft_circuit(qubits)
     trans_qc = transpile(qc, offline_simulator_no_noise, optimization_level=optimization_level)
     assert isinstance(trans_qc, QuantumCircuit)
