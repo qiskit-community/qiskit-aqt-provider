@@ -12,10 +12,12 @@
 
 """Dummy resources for testing purposes."""
 
-import abc
+import enum
+import random
 import time
 import uuid
-from typing import Any, Dict, Final, Set, Tuple
+from dataclasses import dataclass, field
+from typing import Any, Dict, List
 
 from qiskit import QuantumCircuit
 
@@ -23,67 +25,146 @@ from qiskit_aqt_provider.aqt_provider import AQTProvider
 from qiskit_aqt_provider.aqt_resource import ApiResource, AQTResource
 
 
-class AbstractDummyResource(AQTResource, abc.ABC):
-    """Abstract dummy AQT resource."""
+class JobStatus(enum.Enum):
+    """AQT job lifecycle labels."""
 
-    def __init__(self) -> None:
-        self.jobs: Set[str] = set()
-        super().__init__(
-            AQTProvider(""), "dummy", ApiResource(name="dummy", id="dummy", type="simulator")
-        )
-
-    def submit(self, circuit: QuantumCircuit, shots: int) -> str:
-        job_id = str(uuid.uuid4())
-        self.jobs.add(job_id)
-        return job_id
-
-    @abc.abstractmethod
-    def result(self, job_id: str) -> Dict[str, Any]:
-        ...  # pragma: no cover
+    QUEUED = enum.auto()
+    ONGOING = enum.auto()
+    FINISHED = enum.auto()
+    ERROR = enum.auto()
+    CANCELLED = enum.auto()
 
 
-class ErrorResource(AbstractDummyResource):
-    """An AQT resource that always returns a well-formed error.
+@dataclass
+class TestJob:  # pylint: disable=too-many-instance-attributes
+    """Job state holder for the TestResource."""
 
-    The returned error string is unique between different instances.
-    """
+    circuit: QuantumCircuit
+    shots: int
+    status: JobStatus = JobStatus.QUEUED
+    job_id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    time_queued: float = field(default_factory=time.time)
+    time_submitted: float = 0.0
+    time_finished: float = 0.0
+    error_message: str = "error"
 
-    def __init__(self) -> None:
-        self.error_str: Final = str(uuid.uuid4())
-        super().__init__()
+    num_clbits: int = field(init=False)
+    samples: List[List[int]] = field(init=False)
 
-    def result(self, job_id: str) -> Dict[str, Any]:
-        self.jobs.remove(job_id)
-        return {"response": {"status": "error", "message": self.error_str}}
+    def __post_init__(self) -> None:
+        """Calculate derived quantities."""
+        self.num_clbits = self.circuit.num_clbits
+        self.samples = [random.choices([0, 1], k=self.num_clbits) for _ in range(self.shots)]
 
+    def submit(self) -> None:
+        """Submit the job for execution."""
+        self.time_submitted = time.time()
+        self.status = JobStatus.ONGOING
 
-class NonCompliantResource(AbstractDummyResource):
-    """An AQT resource that always returns invalid payloads."""
+    def finish(self) -> None:
+        """The job execution finished successfully."""
+        self.time_finished = time.time()
+        self.status = JobStatus.FINISHED
 
-    def result(self, job_id: str) -> Dict[str, Any]:
-        self.jobs.remove(job_id)
-        return {"invalid": "invalid"}
+    def error(self) -> None:
+        """The job execution triggered an error."""
+        self.time_finished = time.time()
+        self.status = JobStatus.ERROR
 
+    def cancel(self) -> None:
+        """The job execution was cancelled."""
+        self.time_finished = time.time()
+        self.status = JobStatus.CANCELLED
 
-class SlowResource(AbstractDummyResource):
-    """An AQT resource that has a configurable response delay."""
+    def response_payload(self) -> Dict[str, Any]:
+        """AQT API-compatible response for the current job status."""
+        if self.status is JobStatus.QUEUED:
+            return {"response": {"status": "queued"}}
 
-    def __init__(self, seconds_to_complete: float = 10.0) -> None:
-        super().__init__()
-        self.seconds_to_complete = seconds_to_complete
-        self.jobs: Dict[str, Tuple[float, int]] = {}  # type: ignore[assignment]
-
-    def submit(self, circuit: QuantumCircuit, shots: int) -> str:
-        job_id = str(uuid.uuid4())
-        self.jobs[job_id] = (time.time(), shots)
-        return job_id
-
-    def result(self, job_id: str) -> Dict[str, Any]:
-        start_time, shots = self.jobs[job_id]
-        elapsed_seconds = time.time() - start_time
-
-        if elapsed_seconds < self.seconds_to_complete:
+        if self.status is JobStatus.ONGOING:
             return {"response": {"status": "ongoing"}}
 
-        del self.jobs[job_id]
-        return {"response": {"status": "finished", "result": [[1] * shots]}}
+        if self.status is JobStatus.FINISHED:
+            return {"response": {"status": "finished", "result": self.samples}}
+
+        if self.status is JobStatus.ERROR:
+            return {"response": {"status": "error", "message": self.error_message}}
+
+        if self.status is JobStatus.CANCELLED:
+            return {"response": {"status": "cancelled"}}
+
+        assert False, "unreachable"  # pragma: no cover
+
+
+class TestResource(AQTResource):  # pylint: disable=too-many-instance-attributes
+    """AQT computing resource with hooks for triggering different execution scenarios."""
+
+    def __init__(
+        self,
+        *,
+        min_queued_duration: float = 0.0,
+        min_running_duration: float = 0.0,
+        always_invalid: bool = False,
+        always_invalid_status: bool = False,
+        always_cancel: bool = False,
+        always_error: bool = False,
+        error_message: str = "",
+    ) -> None:
+        """Initialize the testing resource.
+
+        Args:
+            min_queued_duration: minimum time in seconds spent by all jobs in the QUEUED state
+            min_running_duration: minimum time in seconds spent by all jobs in the ONGOING state
+            always_invalid: always return invalid payloads when queried
+            always_invalid_status: always return a valid payload but with an invalid status
+            always_cancel: always cancel the jobs directly after submission
+            always_error: always finish execution with an error
+            error_message: the error message returned by failed jobs. Implies `always_error`.
+        """
+        super().__init__(
+            AQTProvider(""),
+            "test-resource",
+            ApiResource(name="test-resource", id="test", type="simulator"),
+        )
+        self.jobs: Dict[str, TestJob] = {}
+
+        self.min_queued_duration = min_queued_duration
+        self.min_running_duration = min_running_duration
+        self.always_invalid = always_invalid
+        self.always_invalid_status = always_invalid_status
+        self.always_cancel = always_cancel
+        self.always_error = always_error or error_message
+        self.error_message = error_message or str(uuid.uuid4())
+
+    def submit(self, circuit: QuantumCircuit, shots: int) -> str:
+        job = TestJob(circuit, shots, error_message=self.error_message)
+
+        if self.always_cancel:
+            job.cancel()
+
+        self.jobs[job.job_id] = job
+        return job.job_id
+
+    def result(self, job_id: str) -> Dict[str, Any]:
+        job = self.jobs[job_id]
+        now = time.time()
+
+        if self.always_invalid:
+            return {"invalid": "invalid"}
+
+        if self.always_invalid_status:
+            return {"response": {"status": "invalid"}}
+
+        if job.status is JobStatus.QUEUED and (now - job.time_queued) > self.min_queued_duration:
+            job.submit()
+
+        if (
+            job.status is JobStatus.ONGOING
+            and (now - job.time_submitted) > self.min_running_duration
+        ):
+            if self.always_error:
+                job.error()
+            else:
+                job.finish()
+
+        return job.response_payload()

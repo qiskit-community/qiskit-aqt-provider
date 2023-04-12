@@ -188,7 +188,7 @@ class AQTResource(Backend):
         return self._configuration
 
     def properties(self) -> None:
-        warnings.warn(
+        warnings.warn(  # pragma: no cover
             (
                 "The properties() method is deprecated and will be removed in a "
                 "future release. Instead you should access these attributes directly "
