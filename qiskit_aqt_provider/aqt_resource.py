@@ -15,7 +15,7 @@ import typing
 import warnings
 from typing import Any, Dict, List, Union
 
-import requests
+import httpx
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import RXGate, RXXGate, RZGate
 from qiskit.circuit.measure import Measure
@@ -147,17 +147,17 @@ class AQTResource(Backend):
         payload = circuit_to_aqt(circuit, shots=shots)
 
         url = f"{self.url}/submit/{self._workspace}/{self._resource['id']}"
-        req = requests.post(url, json=payload, headers=self.headers, timeout=REQUESTS_TIMEOUT)
+        req = httpx.post(url, json=payload, headers=self.headers, timeout=REQUESTS_TIMEOUT)
         req.raise_for_status()
         response = req.json()
 
         api_job = response.get("job")
         if api_job is None:
-            raise RuntimeError("API response does not contain field 'job'.")
+            raise ValueError("API response does not contain field 'job'.")
 
         job_id = api_job.get("job_id")
         if job_id is None:
-            raise RuntimeError("API response does not contain field 'job.job_id'.")
+            raise ValueError("API response does not contain field 'job.job_id'.")
 
         return str(job_id)
 
@@ -171,7 +171,7 @@ class AQTResource(Backend):
             Full returned payload.
         """
         url = f"{self.url}/result/{job_id}"
-        req = requests.get(url, headers=self.headers, timeout=REQUESTS_TIMEOUT)
+        req = httpx.get(url, headers=self.headers, timeout=REQUESTS_TIMEOUT)
         req.raise_for_status()
         return typing.cast(Dict[str, Any], req.json())
 

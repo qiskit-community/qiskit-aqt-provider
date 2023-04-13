@@ -10,11 +10,13 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-
 import math
+import uuid
 from unittest import mock
 
+import httpx
 import pytest
+from pytest_httpx import HTTPXMock
 from qiskit import QuantumCircuit
 from qiskit.providers.exceptions import JobTimeoutError
 
@@ -25,7 +27,8 @@ from qiskit_aqt_provider.aqt_resource import (
     AQTResource,
     OfflineSimulatorResource,
 )
-from qiskit_aqt_provider.test.resources import TestResource
+from qiskit_aqt_provider.test.circuits import empty_circuit
+from qiskit_aqt_provider.test.resources import DummyResource, TestResource
 
 
 def test_options_set_query_timeout(offline_simulator_no_noise: AQTResource) -> None:
@@ -134,3 +137,110 @@ def test_offline_simulator_invalid_api_resource() -> None:
             "default",
             ApiResource(name="dummy", id="dummy", type="device"),
         )
+
+
+def test_submit_valid_response(httpx_mock: HTTPXMock) -> None:
+    """Check that AQTResource.submit passes the authorization token and
+    extracts the correct job_id when the response payload is valid.
+    """
+    token = str(uuid.uuid4())
+    backend = DummyResource(token)
+    expected_job_id = str(uuid.uuid4())
+
+    def handle_submit(request: httpx.Request) -> httpx.Response:
+        assert request.headers["sdk"] == "qiskit"
+        assert request.headers["authorization"] == f"Bearer {token}"
+
+        return httpx.Response(
+            status_code=httpx.codes.OK,
+            json={
+                "job": {
+                    "job_id": expected_job_id,
+                    "job_type": "quantum_circuit",
+                    "label": "Example computation",
+                    "resource_id": backend._resource["id"],
+                    "workspace_id": backend._workspace,
+                },
+                "response": {"status": "queued"},
+            },
+        )
+
+    httpx_mock.add_callback(handle_submit, method="POST")
+
+    job_id = backend.submit(empty_circuit(2), shots=10)
+    assert job_id == expected_job_id
+
+
+def test_submit_bad_request(httpx_mock: HTTPXMock) -> None:
+    """Check that AQTResource.submit raises an HTTPError if the request
+    is flagged invalid by the server.
+    """
+    backend = DummyResource("")
+    httpx_mock.add_response(status_code=httpx.codes.BAD_REQUEST)
+
+    with pytest.raises(httpx.HTTPError):
+        backend.submit(empty_circuit(2), shots=10)
+
+
+def test_submit_bad_payload_no_job(httpx_mock: HTTPXMock) -> None:
+    """Check that AQTResource.submit raises a ValueError if the returned
+    payload does not contain a job field.
+    """
+    backend = DummyResource("")
+    httpx_mock.add_response(json={})
+
+    with pytest.raises(ValueError, match=r"^API response does not contain field"):
+        backend.submit(empty_circuit(2), shots=10)
+
+
+def test_submit_bad_payload_no_jobid(httpx_mock: HTTPXMock) -> None:
+    """Check that AQTResource.submit raises a ValueError if the returned
+    payload does not contain a job.job_id field.
+    """
+    backend = DummyResource("")
+    httpx_mock.add_response(json={"job": {}})
+
+    with pytest.raises(ValueError, match=r"^API response does not contain field"):
+        backend.submit(empty_circuit(2), shots=10)
+
+
+def test_result_valid_response(httpx_mock: HTTPXMock) -> None:
+    """Check that AQTResource.result passes the authorization token
+    and returns the raw response payload.
+    """
+    token = str(uuid.uuid4())
+    backend = DummyResource(token)
+    job_id = str(uuid.uuid4())
+
+    payload = {
+        "job": {
+            "job_id": job_id,
+            "job_type": "quantum_circuit",
+            "label": "Example computation",
+            "resource_id": backend._resource["id"],
+            "workspace_id": backend._workspace,
+        },
+        "response": {"status": "cancelled"},
+    }
+
+    def handle_result(request: httpx.Request) -> httpx.Response:
+        assert request.headers["sdk"] == "qiskit"
+        assert request.headers["authorization"] == f"Bearer {token}"
+
+        return httpx.Response(status_code=httpx.codes.OK, json=payload)
+
+    httpx_mock.add_callback(handle_result, method="GET")
+
+    response = backend.result(job_id)
+    assert response == payload
+
+
+def test_result_bad_request(httpx_mock: HTTPXMock) -> None:
+    """Check that AQTResource.result raises an HTTPError if the request
+    is flagged invalid by the server.
+    """
+    backend = DummyResource("")
+    httpx_mock.add_response(status_code=httpx.codes.BAD_REQUEST)
+
+    with pytest.raises(httpx.HTTPError):
+        backend.result(str(uuid.uuid4()))

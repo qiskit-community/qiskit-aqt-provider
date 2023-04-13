@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Dict, Final, Iterable, Iterator, List, Optional, Set, Union
 
 import dotenv
-import requests
+import httpx
 from qiskit.providers.exceptions import QiskitBackendNotFoundError
 from tabulate import tabulate
 from typing_extensions import NotRequired, TypeAlias, TypedDict
@@ -173,12 +173,12 @@ class AQTProvider:
 
         headers = {"Authorization": f"Bearer {self.access_token}", "SDK": "qiskit"}
         try:
-            res = requests.get(
+            res = httpx.get(
                 f"{self.portal_url}/workspaces", headers=headers, timeout=REQUESTS_TIMEOUT
             )
             res.raise_for_status()
             return WorkspaceTable(res.json())
-        except (requests.HTTPError, requests.ConnectionError):
+        except (httpx.HTTPError, httpx.NetworkError):
             return WorkspaceTable([])
 
     def get_resource(self, workspace: str, resource: str) -> AQTResource:
