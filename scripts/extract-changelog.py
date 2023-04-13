@@ -16,7 +16,7 @@ HEADER_REGEX: Final = re.compile(r"([a-z-]+)\s+(v\d+\.\d+\.\d+)")
 
 class Renderer(BaseRenderer):
     def render_list_item(self, token: block_token.ListItem) -> str:
-        return "* " + self.render_inner(token) + "\n"
+        return f"* {self.render_inner(token)}\n"
 
 
 def default_changelog_path() -> Path:
