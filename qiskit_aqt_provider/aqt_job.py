@@ -466,7 +466,7 @@ def _shot_to_int(
     else:
         creg = fluorescence_states.copy()
 
-    return (np.left_shift(1, np.arange(len(creg))) * creg).sum()
+    return int((np.left_shift(1, np.arange(len(creg))) * creg).sum())
 
 
 def _format_counts(

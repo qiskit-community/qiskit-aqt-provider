@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 
 import abc
+import typing
 import warnings
 from typing import Any, Dict, List, Union
 
@@ -158,7 +159,7 @@ class AQTResource(Backend):
         if job_id is None:
             raise RuntimeError("API response does not contain field 'job.job_id'.")
 
-        return job_id
+        return str(job_id)
 
     def result(self, job_id: str) -> Dict[str, Any]:
         """Query the result for a specific job.
@@ -172,7 +173,7 @@ class AQTResource(Backend):
         url = f"{self.url}/result/{job_id}"
         req = requests.get(url, headers=self.headers, timeout=REQUESTS_TIMEOUT)
         req.raise_for_status()
-        return req.json()
+        return typing.cast(Dict[str, Any], req.json())
 
     def configuration(self) -> BackendConfiguration:
         warnings.warn(
@@ -290,7 +291,7 @@ class OfflineSimulatorResource(AQTResource):
     def submit(self, circuit: QuantumCircuit, shots: int) -> str:
         job = self.simulator.run(circuit, shots=shots)
         self.jobs[job.job_id()] = job
-        return job.job_id()
+        return str(job.job_id())
 
     def result(self, job_id: str) -> Dict[str, Any]:
         qiskit_result = self.jobs[job_id].result()
