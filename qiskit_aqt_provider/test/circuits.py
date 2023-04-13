@@ -30,6 +30,13 @@ def assert_circuits_equivalent(result: QuantumCircuit, expected: QuantumCircuit)
     assert Operator(expected).equiv(Operator(result)), msg  # noqa: S101
 
 
+def empty_circuit(num_qubits: int) -> QuantumCircuit:
+    """An empty circuit, with the given number of qubits."""
+    qc = QuantumCircuit(num_qubits)
+    qc.measure_all()
+    return qc
+
+
 def qft_circuit(num_qubits: int) -> QuantumCircuit:
     """N-qubits quantum Fourier transform.
 

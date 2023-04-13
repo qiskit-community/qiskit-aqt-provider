@@ -99,6 +99,8 @@ class TestJob:  # pylint: disable=too-many-instance-attributes
 class TestResource(AQTResource):  # pylint: disable=too-many-instance-attributes
     """AQT computing resource with hooks for triggering different execution scenarios."""
 
+    __test__ = False  # disable pytest collection
+
     def __init__(
         self,
         *,
@@ -168,3 +170,12 @@ class TestResource(AQTResource):  # pylint: disable=too-many-instance-attributes
                 job.finish()
 
         return job.response_payload()
+
+
+class DummyResource(AQTResource):
+    """A non-functional resource, for testing purposes."""
+
+    def __init__(self, token: str) -> None:
+        super().__init__(
+            AQTProvider(token), "dummy", ApiResource(name="dummy", id="dummy", type="simulator")
+        )
