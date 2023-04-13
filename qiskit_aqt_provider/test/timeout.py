@@ -13,7 +13,6 @@
 """Timeout utilities for tests."""
 
 import threading
-import time
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from typing import Iterator
@@ -31,15 +30,12 @@ def timeout(seconds: float) -> Iterator[None]:
     """
     stop = threading.Event()
 
-    def counter(deadline: float) -> None:
-        while time.time() < deadline:
-            if stop.is_set():
-                return
-
-        raise TimeoutError
+    def counter(duration: float) -> None:
+        if not stop.wait(duration):
+            raise TimeoutError
 
     with ThreadPoolExecutor(max_workers=1, thread_name_prefix="timeout_") as pool:
-        task = pool.submit(counter, deadline=time.time() + seconds)
+        task = pool.submit(counter, duration=seconds)
         yield
 
         stop.set()
