@@ -9,7 +9,7 @@ systems.
 
 ## Usage
 
-See the [user guide](docs/guide.rst) and the [examples](examples/).
+See the [user guide](https://github.com/alpine-quantum-technologies/qiskit-aqt-provider-internal/blob/master/docs/guide.rst) and the [examples](https://github.com/alpine-quantum-technologies/qiskit-aqt-provider-internal/tree/master/examples).
 
 ## License
 
