@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## qiskit-aqt-provider v0.12.0
+
 * Use `ruff` instead of `pylint` as linter #51
 * Publish release artifacts to PyPI #55
 
