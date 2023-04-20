@@ -35,13 +35,8 @@ jobs:
         with:
           files: ./dist/qiskit*
           body_path: ${{ github.workspace }}-CHANGELOG.txt
-      - name: Publish to AQT package registry
+      - name: Publish to PyPI
         env:
-          TWINE_PASSWORD: ${{ secrets.AQT_PACKAGE_REGISTRY_WRITE_TOKEN }}
-          TWINE_USERNAME: github-pypi-python-packages-upload
-        run: twine upload --repository-url ${{ secrets.AQT_PACKAGE_REGISTRY_URL }} dist/qiskit*
-      - name: Publish to AQT-partners package registry
-        env:
-          TWINE_PASSWORD: ${{ secrets.AQT_PARTNERS_PACKAGE_REGISTRY_WRITE_TOKEN }}
-          TWINE_USERNAME: github-pypi-python-packages-upload
-        run: twine upload --repository-url ${{ secrets.AQT_PARTNERS_PACKAGE_REGISTRY_URL }} dist/qiskit*
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+          TWINE_USERNAME: __token__
+        run: twine upload dist/qiskit*
