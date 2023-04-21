@@ -22,7 +22,9 @@ class Renderer(BaseRenderer):
 def default_changelog_path() -> Path:
     """Path to the 'CHANGELOG.md' file at the repository root."""
     repo_root = Path(
-        subprocess.run(shlex.split("git rev-parse --show-toplevel"), capture_output=True)
+        subprocess.run(
+            shlex.split("git rev-parse --show-toplevel"), capture_output=True  # noqa: S603
+        )
         .stdout.strip()
         .decode("utf-8")
     )
