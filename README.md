@@ -1,6 +1,12 @@
 # Qiskit AQT Provider
 
+[![Latest release](https://img.shields.io/pypi/v/qiskit-aqt-provider-internal.svg)](https://pypi.python.org/pypi/qiskit-aqt-provider-internal)
+[![License](https://img.shields.io/pypi/l/qiskit-aqt-provider-internal.svg)](https://pypi.python.org/pypi/qiskit-aqt-provider-internal)
+[![Supported Python versions](https://img.shields.io/pypi/pyversions/qiskit-aqt-provider-internal.svg)](https://pypi.python.org/pypi/qiskit-aqt-provider-internal)
 ![Build Status](https://github.com/alpine-quantum-technologies/qiskit-aqt-provider-internal/actions/workflows/poetry.yml/badge.svg?branch=master)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v1.json)](https://github.com/charliermarsh/ruff)
+[![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 
 [Qiskit](https://qiskit.org/) is an open-source SDK for working with quantum computers at the level of circuits, algorithms, and application modules.
 
@@ -10,7 +16,3 @@ systems.
 ## Usage
 
 See the [user guide](https://github.com/alpine-quantum-technologies/qiskit-aqt-provider-internal/blob/master/docs/guide.rst) and the [examples](https://github.com/alpine-quantum-technologies/qiskit-aqt-provider-internal/tree/master/examples).
-
-## License
-
-[Apache License 2.0](https://github.com/alpine-quantum-technologies/qiskit-aqt-provider-internal/blob/master/LICENSE.txt)
