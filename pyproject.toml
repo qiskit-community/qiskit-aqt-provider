@@ -170,7 +170,7 @@ target-version = 'py38'
 convention = "google"
 
 [tool.coverage.report]
-fail_under = 96
+fail_under = 97
 
 [tool.poe.tasks.test]
 shell = """

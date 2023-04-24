@@ -15,12 +15,16 @@ from math import pi
 from typing import Callable
 
 import pytest
+import qiskit
 from qiskit.circuit import Parameter, QuantumCircuit
 from qiskit.primitives import BackendSampler, BaseSampler, Sampler
 from qiskit.providers import Backend
 from qiskit.transpiler.exceptions import TranspilerError
 
 from qiskit_aqt_provider.aqt_resource import AQTResource
+from qiskit_aqt_provider.primitives import AQTSampler
+from qiskit_aqt_provider.test.circuits import assert_circuits_equal
+from qiskit_aqt_provider.test.fixtures import MockSimulator
 
 
 @pytest.mark.skipif(
@@ -52,14 +56,18 @@ def test_circuit_sampling_opflow(offline_simulator_no_noise: AQTResource) -> Non
 @pytest.mark.parametrize(
     "get_sampler",
     [
+        # Reference implementation
         lambda _: Sampler(),
         # The AQT transpilation plugin doesn't support transpiling unbound parametric circuits
         # and the BackendSampler doesn't fallback to transpiling the bound circuit if
         # transpiling the unbound circuit failed (like the opflow sampler does).
-        # Sampling a parametric circuit with an AQT backend is therefore not supported.
+        # Sampling a parametric circuit with the generic BackendSampler is therefore not supported.
         pytest.param(
             lambda backend: BackendSampler(backend), marks=pytest.mark.xfail(raises=TranspilerError)
         ),
+        # The specialized implementation of the Sampler primitive for AQT backends delays the
+        # transpilation passes that require bound parameters.
+        lambda backend: AQTSampler(backend),
     ],
 )
 def test_circuit_sampling_primitive(
@@ -81,3 +89,48 @@ def test_circuit_sampling_primitive(
     sampler = get_sampler(offline_simulator_no_noise)
     sampled = sampler.run(qc, [pi]).result().quasi_dists
     assert sampled == [{3: 1.0}]
+
+
+@pytest.mark.parametrize(
+    "theta",
+    [
+        pi / 3,
+        -pi / 3,
+        pi / 2,
+        -pi / 2,
+        3 * pi / 4,
+        -3 * pi / 4,
+        15 * pi / 8,
+        -15 * pi / 8,
+        33 * pi / 16,
+        -33 * pi / 16,
+    ],
+)
+def test_aqt_sampler_transpilation(theta: float, offline_simulator_no_noise: MockSimulator) -> None:
+    """Check that the AQTSampler passes the same circuit to the backend as a call to
+    `qiskit.execute` with the same transpiler call on the bound circuit would.
+    """
+    theta_param = Parameter("θ")
+
+    # define a circuit with unbound parameters
+    qc = QuantumCircuit(2)
+    qc.rx(pi / 3, 0)
+    qc.rxx(theta_param, 0, 1)
+    qc.measure_all()
+
+    assert qc.num_parameters > 0
+
+    # sample the circuit, passing parameter assignments
+    sampler = AQTSampler(offline_simulator_no_noise)
+    sampler.run(qc, [theta]).result()
+
+    # the sampler was only called once
+    assert len(offline_simulator_no_noise.submitted_circuits) == 1
+    # get the circuit passed to the backend
+    (transpiled_circuit,) = offline_simulator_no_noise.submitted_circuits
+
+    # compare to the circuit obtained by binding the parameters and transpiling at once
+    expected = qc.assign_parameters({theta_param: theta})
+    tr_expected = qiskit.transpile(expected, offline_simulator_no_noise)
+
+    assert_circuits_equal(transpiled_circuit, tr_expected)
