@@ -21,10 +21,13 @@ from qiskit.circuit.library import RGate, RXGate, RXXGate, RZGate
 from qiskit.circuit.tools import pi_check
 from qiskit.dagcircuit import DAGCircuit
 from qiskit.transpiler.basepasses import BasePass, TransformationPass
+from qiskit.transpiler.exceptions import TranspilerError
 from qiskit.transpiler.passmanager import PassManager
 from qiskit.transpiler.passmanager_config import PassManagerConfig
 from qiskit.transpiler.preset_passmanagers import common
 from qiskit.transpiler.preset_passmanagers.plugin import PassManagerStagePlugin
+
+from qiskit_aqt_provider.utils import map_exceptions
 
 
 def rewrite_rx_as_r(theta: float) -> Instruction:
@@ -37,6 +40,7 @@ def rewrite_rx_as_r(theta: float) -> Instruction:
 class RewriteRxAsR(TransformationPass):
     """Rewrite Rx(θ) as R(θ, φ) with θ ∈ [0, π] and φ ∈ [0, 2π]."""
 
+    @map_exceptions(TranspilerError)
     def run(self, dag: DAGCircuit) -> DAGCircuit:
         for node in dag.gate_nodes():
             if node.name == "rx":
@@ -127,6 +131,7 @@ def wrap_rxx_angle(theta: float) -> Instruction:
 class WrapRxxAngles(TransformationPass):
     """Wrap Rxx angles to [-π/2, π/2]."""
 
+    @map_exceptions(TranspilerError)
     def run(self, dag: DAGCircuit) -> DAGCircuit:
         for node in dag.gate_nodes():
             if node.name == "rxx":

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* Always raise `TranspilerError` on errors in the custom transpilation passes #57
+
 ## qiskit-aqt-provider v0.12.0
 
 * Use `ruff` instead of `pylint` as linter #51
