@@ -28,6 +28,7 @@ from qiskit_aqt_provider.aqt_resource import (
     OfflineSimulatorResource,
 )
 from qiskit_aqt_provider.test.circuits import empty_circuit
+from qiskit_aqt_provider.test.fixtures import MockSimulator
 from qiskit_aqt_provider.test.resources import DummyResource, TestResource
 
 
@@ -244,3 +245,18 @@ def test_result_bad_request(httpx_mock: HTTPXMock) -> None:
 
     with pytest.raises(httpx.HTTPError):
         backend.result(str(uuid.uuid4()))
+
+
+def test_resource_fixture_detect_invalid_circuits(
+    offline_simulator_no_noise: MockSimulator,
+) -> None:
+    """Pass a circuit that cannot be converted to the AQT API to the mock simulator.
+    This must fail.
+    """
+    qc = QuantumCircuit(2)
+    qc.h(0)
+    qc.cnot(0, 1)
+    qc.measure_all()
+
+    with pytest.raises(ValueError, match="^Circuit cannot be converted"):
+        offline_simulator_no_noise.run(qc)

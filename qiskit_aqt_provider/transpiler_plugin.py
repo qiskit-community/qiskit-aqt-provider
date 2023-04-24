@@ -12,7 +12,7 @@
 
 import math
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
+from typing import Final, List, Optional, Tuple
 
 import numpy as np
 from qiskit import QuantumCircuit
@@ -20,6 +20,7 @@ from qiskit.circuit import Gate, Instruction
 from qiskit.circuit.library import RGate, RXGate, RXXGate, RZGate
 from qiskit.circuit.tools import pi_check
 from qiskit.dagcircuit import DAGCircuit
+from qiskit.transpiler import Target
 from qiskit.transpiler.basepasses import BasePass, TransformationPass
 from qiskit.transpiler.exceptions import TranspilerError
 from qiskit.transpiler.passmanager import PassManager
@@ -28,6 +29,10 @@ from qiskit.transpiler.preset_passmanagers import common
 from qiskit.transpiler.preset_passmanagers.plugin import PassManagerStagePlugin
 
 from qiskit_aqt_provider.utils import map_exceptions
+
+
+class UnboundParametersTarget(Target):
+    """Target that disables passes that require bound parameters."""
 
 
 def rewrite_rx_as_r(theta: float) -> Instruction:
@@ -52,9 +57,12 @@ class RewriteRxAsR(TransformationPass):
 class AQTSchedulingPlugin(PassManagerStagePlugin):
     def pass_manager(
         self,
-        pass_manager_config: PassManagerConfig,  # noqa: ARG002
+        pass_manager_config: PassManagerConfig,
         optimization_level: Optional[int] = None,  # noqa: ARG002
     ) -> PassManager:
+        if isinstance(pass_manager_config.target, UnboundParametersTarget):
+            return PassManager([])
+
         passes: List[BasePass] = [
             # The Qiskit Target declares RX/RZ as basis gates.
             # This allows decomposing any run of rotations into the ZXZ form, taking
@@ -95,7 +103,7 @@ def _rxx_positive_angle(theta: float) -> List[CircuitInstruction]:
 
 def _emit_rxx_instruction(theta: float, instructions: List[CircuitInstruction]) -> Instruction:
     """Collect the passed instructions into a single one labeled 'Rxx(θ)'."""
-    qc = QuantumCircuit(2, name=f"Rxx({pi_check(theta)})")
+    qc = QuantumCircuit(2, name=f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}({pi_check(theta)})")
     for instruction in instructions:
         qc.append(instruction.gate, instruction.qubits)
 
@@ -131,6 +139,8 @@ def wrap_rxx_angle(theta: float) -> Instruction:
 class WrapRxxAngles(TransformationPass):
     """Wrap Rxx angles to [-π/2, π/2]."""
 
+    SUBSTITUTE_GATE_NAME: Final = "Rxx"
+
     @map_exceptions(TranspilerError)
     def run(self, dag: DAGCircuit) -> DAGCircuit:
         for node in dag.gate_nodes():
@@ -162,6 +172,9 @@ class AQTTranslationPlugin(PassManagerStagePlugin):
             unitary_synthesis_plugin_config=pass_manager_config.unitary_synthesis_plugin_config,
             hls_config=pass_manager_config.hls_config,
         )
+
+        if isinstance(pass_manager_config.target, UnboundParametersTarget):
+            return translation_pm
 
         passes: List[BasePass] = [WrapRxxAngles()]
 

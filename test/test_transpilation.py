@@ -12,7 +12,7 @@
 
 
 from math import pi
-from typing import Final, Union
+from typing import Union
 
 import pytest
 from hypothesis import assume, given
@@ -191,19 +191,6 @@ def test_rxx_wrap_angle_case2_negative() -> None:
 
     assert_circuits_equal(result.decompose(), expected)
     assert_circuits_equivalent(result.decompose(), expected)
-
-
-RXX_ANGLES: Final = [
-    pi / 4,
-    pi / 2,
-    -pi / 2,
-    3 * pi / 4,
-    -3 * pi / 4,
-    15 * pi / 8,
-    -15 * pi / 8,
-    33 * pi / 16,
-    -33 * pi / 16,
-]
 
 
 @given(

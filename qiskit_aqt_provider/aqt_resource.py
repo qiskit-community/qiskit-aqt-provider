@@ -13,7 +13,7 @@
 import abc
 import typing
 import warnings
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Type, TypeVar, Union
 
 import httpx
 from qiskit import QuantumCircuit
@@ -87,6 +87,34 @@ Float.register(int)
 Float.register(float)
 
 
+TargetT = TypeVar("TargetT", bound=Target)
+
+
+def make_transpiler_target(target_cls: Type[TargetT], num_qubits: int) -> TargetT:
+    """Factory for transpilation targets of AQT resources.
+
+    Args:
+        target_cls: base class to use for the returned instance
+        num_qubits: maximum number of qubits supported by the resource.
+
+    Returns:
+        A Qiskit transpilation target for an AQT resource.
+    """
+    target: TargetT = target_cls(num_qubits=num_qubits)
+
+    theta = Parameter("θ")
+    lam = Parameter("λ")
+
+    # configure the transpiler to use RX/RZ/RXX
+    # the custom scheduling pass rewrites RX to R to comply to the Arnica API format.
+    target.add_instruction(RZGate(lam))
+    target.add_instruction(RXGate(theta))
+    target.add_instruction(RXXGate(theta))
+    target.add_instruction(Measure())
+
+    return target
+
+
 class AQTResource(Backend):
     def __init__(self, provider: Provider, workspace: str, resource: ApiResource):
         super().__init__(name="aqt_qasm_simulator", provider=provider)
@@ -121,15 +149,8 @@ class AQTResource(Backend):
                 ],
             }
         )
-        self._target = Target(num_qubits=num_qubits)
-        theta = Parameter("θ")
-        lam = Parameter("λ")
-        # configure the transpiler to use RX/RZ/RXX
-        # the custom scheduling pass rewrites RX to R to comply to the Arnica API format.
-        self._target.add_instruction(RZGate(lam))
-        self._target.add_instruction(RXGate(theta))
-        self._target.add_instruction(RXXGate(theta))
-        self._target.add_instruction(Measure())
+        self._target = make_transpiler_target(Target, num_qubits)
+
         self.options.set_validator("shots", (1, 200))
         self.options.set_validator("query_timeout_seconds", OptionalFloat)
         self.options.set_validator("query_period_seconds", Float)
