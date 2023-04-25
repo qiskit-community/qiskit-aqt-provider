@@ -27,3 +27,11 @@ repos:
     rev: "0.9.2"
     hooks:
       - id: pyproject-fmt
+  - repo: local
+    hooks:
+      - id: check-api-models
+        name: check generated API models
+        entry: ./scripts/api_models.py generate
+        language: script
+        pass_filenames: false
+        always_run: true

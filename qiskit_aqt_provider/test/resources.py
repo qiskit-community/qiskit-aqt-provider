@@ -17,10 +17,11 @@ import random
 import time
 import uuid
 from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from typing import Dict, List
 
 from qiskit import QuantumCircuit
 
+from qiskit_aqt_provider import api_models
 from qiskit_aqt_provider.aqt_provider import AQTProvider
 from qiskit_aqt_provider.aqt_resource import ApiResource, AQTResource
 
@@ -42,7 +43,7 @@ class TestJob:  # pylint: disable=too-many-instance-attributes
     circuit: QuantumCircuit
     shots: int
     status: JobStatus = JobStatus.QUEUED
-    job_id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    job_id: uuid.UUID = field(default_factory=lambda: uuid.uuid4())
     time_queued: float = field(default_factory=time.time)
     time_submitted: float = 0.0
     time_finished: float = 0.0
@@ -50,6 +51,9 @@ class TestJob:  # pylint: disable=too-many-instance-attributes
 
     num_clbits: int = field(init=False)
     samples: List[List[int]] = field(init=False)
+
+    workspace: str = field(default="test-workspace", init=False)
+    resource: str = field(default="test-resource", init=False)
 
     def __post_init__(self) -> None:
         """Calculate derived quantities."""
@@ -76,22 +80,42 @@ class TestJob:  # pylint: disable=too-many-instance-attributes
         self.time_finished = time.time()
         self.status = JobStatus.CANCELLED
 
-    def response_payload(self) -> Dict[str, Any]:
+    def response_payload(self) -> api_models.JobResponse:
         """AQT API-compatible response for the current job status."""
         if self.status is JobStatus.QUEUED:
-            return {"response": {"status": "queued"}}
+            return api_models.Response.queued(
+                job_id=self.job_id,
+                workspace_id=self.workspace,
+                resource_id=self.resource,
+            )
 
         if self.status is JobStatus.ONGOING:
-            return {"response": {"status": "ongoing"}}
+            return api_models.Response.ongoing(
+                job_id=self.job_id,
+                workspace_id=self.workspace,
+                resource_id=self.resource,
+            )
 
         if self.status is JobStatus.FINISHED:
-            return {"response": {"status": "finished", "result": self.samples}}
+            return api_models.Response.finished(
+                job_id=self.job_id,
+                workspace_id=self.workspace,
+                resource_id=self.resource,
+                samples=self.samples,
+            )
 
         if self.status is JobStatus.ERROR:
-            return {"response": {"status": "error", "message": self.error_message}}
+            return api_models.Response.error(
+                job_id=self.job_id,
+                workspace_id=self.workspace,
+                resource_id=self.resource,
+                message=self.error_message,
+            )
 
         if self.status is JobStatus.CANCELLED:
-            return {"response": {"status": "cancelled"}}
+            return api_models.Response.cancelled(
+                job_id=self.job_id, workspace_id=self.workspace, resource_id=self.resource
+            )
 
         assert False, "unreachable"  # pragma: no cover  # noqa: PT015,S101
 
@@ -106,8 +130,6 @@ class TestResource(AQTResource):  # pylint: disable=too-many-instance-attributes
         *,
         min_queued_duration: float = 0.0,
         min_running_duration: float = 0.0,
-        always_invalid: bool = False,
-        always_invalid_status: bool = False,
         always_cancel: bool = False,
         always_error: bool = False,
         error_message: str = "",
@@ -117,28 +139,24 @@ class TestResource(AQTResource):  # pylint: disable=too-many-instance-attributes
         Args:
             min_queued_duration: minimum time in seconds spent by all jobs in the QUEUED state
             min_running_duration: minimum time in seconds spent by all jobs in the ONGOING state
-            always_invalid: always return invalid payloads when queried
-            always_invalid_status: always return a valid payload but with an invalid status
             always_cancel: always cancel the jobs directly after submission
             always_error: always finish execution with an error
             error_message: the error message returned by failed jobs. Implies `always_error`.
         """
         super().__init__(
             AQTProvider(""),
-            "test-resource",
+            "test-workspace",
             ApiResource(name="test-resource", id="test", type="simulator"),
         )
-        self.jobs: Dict[str, TestJob] = {}
+        self.jobs: Dict[uuid.UUID, TestJob] = {}
 
         self.min_queued_duration = min_queued_duration
         self.min_running_duration = min_running_duration
-        self.always_invalid = always_invalid
-        self.always_invalid_status = always_invalid_status
         self.always_cancel = always_cancel
         self.always_error = always_error or error_message
         self.error_message = error_message or str(uuid.uuid4())
 
-    def submit(self, circuit: QuantumCircuit, shots: int) -> str:
+    def submit(self, circuit: QuantumCircuit, shots: int) -> uuid.UUID:
         job = TestJob(circuit, shots, error_message=self.error_message)
 
         if self.always_cancel:
@@ -147,15 +165,9 @@ class TestResource(AQTResource):  # pylint: disable=too-many-instance-attributes
         self.jobs[job.job_id] = job
         return job.job_id
 
-    def result(self, job_id: str) -> Dict[str, Any]:
+    def result(self, job_id: uuid.UUID) -> api_models.JobResponse:
         job = self.jobs[job_id]
         now = time.time()
-
-        if self.always_invalid:
-            return {"invalid": "invalid"}
-
-        if self.always_invalid_status:
-            return {"response": {"status": "invalid"}}
 
         if job.status is JobStatus.QUEUED and (now - job.time_queued) > self.min_queued_duration:
             job.submit()

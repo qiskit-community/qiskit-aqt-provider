@@ -33,14 +33,11 @@ from qiskit.providers import JobV1
 from qiskit.providers.jobstatus import JobStatus
 from qiskit.result.result import Result
 from qiskit.utils.lazy_tester import contextlib
+from typing_extensions import assert_never
+
+from qiskit_aqt_provider import api_models_generated
 
 if TYPE_CHECKING:  # pragma: no cover
-    # Pyright also reports import cycles, even if guarded by TYPE_CHECKING
-    # (see https://github.com/microsoft/pylance-release/issues/531).
-    # The following comment disables import cycles detection for the whole
-    # file but really only should apply to this block.
-
-    # pyright: reportImportCycles=false
     from qiskit_aqt_provider.aqt_resource import AQTResource
 
 
@@ -103,7 +100,7 @@ class AQTJob(JobV1):
         self.circuits = circuits
 
         self._jobs: Dict[
-            str, Union[JobFinished, JobFailed, JobQueued, JobOngoing, JobCancelled]
+            uuid.UUID, Union[JobFinished, JobFailed, JobQueued, JobOngoing, JobCancelled]
         ] = {}
         self._jobs_lock = threading.Lock()
 
@@ -197,12 +194,12 @@ class AQTJob(JobV1):
         )
 
     @property
-    def job_ids(self) -> Set[str]:
+    def job_ids(self) -> Set[uuid.UUID]:
         """The AQT API identifiers of all the circuits evaluated in this Qiskit job."""
         return set(self._jobs)
 
     @property
-    def failed_jobs(self) -> Dict[str, str]:
+    def failed_jobs(self) -> Dict[uuid.UUID, str]:
         """Map of failed job ids to error reports from the API."""
         with self._jobs_lock:
             return {
@@ -225,27 +222,29 @@ class AQTJob(JobV1):
         with self._jobs_lock:
             self._jobs[job_id] = JobQueued()
 
-    def _status_single(self, job_id: str) -> None:
+    def _status_single(self, job_id: uuid.UUID) -> None:
         """Query the status of a single circuit execution.
 
         This method updates the internal life-cycle tracker.
         """
         payload = self._backend.result(job_id)
-        response = payload["response"]
 
         with self._jobs_lock:
-            if response["status"] == "finished":
-                self._jobs[job_id] = JobFinished(samples=response["result"])
-            elif response["status"] == "error":
-                self._jobs[job_id] = JobFailed(error=str(response["message"]))
-            elif response["status"] == "queued":
+            # TODO: why don't user-defined TypeGuards narrow the type properly?
+            if isinstance(payload, api_models_generated.JobResponseRRQueued):
                 self._jobs[job_id] = JobQueued()
-            elif response["status"] == "ongoing":
+            elif isinstance(payload, api_models_generated.JobResponseRROngoing):
                 self._jobs[job_id] = JobOngoing()
-            elif response["status"] == "cancelled":
+            elif isinstance(payload, api_models_generated.JobResponseRRFinished):
+                self._jobs[job_id] = JobFinished(
+                    samples=[[state.__root__ for state in shot] for shot in payload.response.result]
+                )
+            elif isinstance(payload, api_models_generated.JobResponseRRError):
+                self._jobs[job_id] = JobFailed(error=payload.response.message)
+            elif isinstance(payload, api_models_generated.JobResponseRRCancelled):
                 self._jobs[job_id] = JobCancelled()
-            else:
-                raise RuntimeError(f"API returned unknown job status: {response['status']}.")
+            else:  # pragma: no cover
+                assert_never(payload)
 
     def _aggregate_status(self) -> JobStatus:
         """Aggregate the Qiskit job status from the status of the individual circuit evaluations."""

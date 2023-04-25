@@ -10,27 +10,30 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-from typing import Any, Dict, List
+from typing import List
 
 from numpy import pi
 from qiskit import QuantumCircuit
 
+from qiskit_aqt_provider import api_models
 
-def _qiskit_to_aqt_circuit(circuit: QuantumCircuit) -> List[Dict[str, Any]]:
+
+def _qiskit_to_aqt_circuit(circuit: QuantumCircuit) -> api_models.Circuit:
     """Convert a Qiskit `QuantumCircuit` into a payload for AQT's quantum_circuit job type.
 
     Args:
         circuit: Qiskit circuit to convert.
 
     Returns:
-        list of instructions for AQT's quantum_circuit job type.
+        AQT API circuit payload.
     """
     count = 0
     qubit_map = {}
     for bit in circuit.qubits:
         qubit_map[bit] = count
         count += 1
-    ops = []
+    ops: List[api_models.OperationModel] = []
+
     num_measurements = 0
 
     for instruction in circuit.data:
@@ -44,28 +47,25 @@ def _qiskit_to_aqt_circuit(circuit: QuantumCircuit) -> List[Dict[str, Any]]:
 
         if inst.name == "rz":
             ops.append(
-                {
-                    "operation": "RZ",
-                    "phi": float(inst.params[0]) / pi,
-                    "qubit": qubits[0],
-                }
+                api_models.Operation.rz(
+                    phi=float(inst.params[0]) / pi,
+                    qubit=qubits[0],
+                )
             )
         elif inst.name == "r":
             ops.append(
-                {
-                    "operation": "R",
-                    "phi": float(inst.params[1]) / pi,
-                    "theta": float(inst.params[0]) / pi,
-                    "qubit": qubits[0],
-                }
+                api_models.Operation.r(
+                    phi=float(inst.params[1]) / pi,
+                    theta=float(inst.params[0]) / pi,
+                    qubit=qubits[0],
+                )
             )
         elif inst.name == "rxx":
             ops.append(
-                {
-                    "operation": "RXX",
-                    "theta": float(inst.params[0]) / pi,
-                    "qubits": qubits[:2],
-                }
+                api_models.Operation.rxx(
+                    theta=float(inst.params[0]) / pi,
+                    qubits=qubits[:2],
+                )
             )
         elif inst.name == "measure":
             num_measurements += 1
@@ -77,11 +77,11 @@ def _qiskit_to_aqt_circuit(circuit: QuantumCircuit) -> List[Dict[str, Any]]:
     if not num_measurements:
         raise ValueError("Circuit must have at least one measurement operation.")
 
-    ops.append({"operation": "MEASURE"})
-    return ops
+    ops.append(api_models.Operation.measure())
+    return api_models.Circuit(__root__=ops)
 
 
-def circuit_to_aqt(circuit: QuantumCircuit, shots: int) -> Dict[str, Any]:
+def circuit_to_aqt_job(circuit: QuantumCircuit, shots: int) -> api_models.JobSubmission:
     """Convert a Qiskit circuit to its JSON representation for the AQT API.
 
     Args:
@@ -91,14 +91,14 @@ def circuit_to_aqt(circuit: QuantumCircuit, shots: int) -> Dict[str, Any]:
     Returns:
         The corresponding circuit execution request payload.
     """
-    seqs = _qiskit_to_aqt_circuit(circuit)
+    circuit_payload = _qiskit_to_aqt_circuit(circuit)
 
-    return {
-        "job_type": "quantum_circuit",
-        "label": "qiskit",
-        "payload": {
-            "repetitions": shots,
-            "quantum_circuit": seqs,
-            "number_of_qubits": circuit.num_qubits,
-        },
-    }
+    return api_models.JobSubmission(
+        job_type="quantum_circuit",
+        label="qiskit",
+        payload=api_models.QuantumCircuit(
+            repetitions=shots,
+            quantum_circuit=circuit_payload,
+            number_of_qubits=circuit.num_qubits,
+        ),
+    )

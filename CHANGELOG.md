@@ -4,6 +4,7 @@
 
 * Always raise `TranspilerError` on errors in the custom transpilation passes #57
 * Add `AQTSampler`, a specialized implementation of the `Sampler` primitive #60
+* Auto-generate and use Pydantic models for the API requests payloads #62
 
 ## qiskit-aqt-provider v0.12.0
 
