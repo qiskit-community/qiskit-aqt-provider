@@ -64,6 +64,7 @@ mypy = "=1.2.0"
 poethepoet = "^0.18.1"
 pre-commit = "^3.1.1"
 pyproject-fmt = "^0.9.2"
+pyright = "=1.1.304"  # also update in workflows/poetry.yml!
 pytest = ">=7"
 pytest-httpx = "^0.22.0"
 pytest-sugar = "^0.9.6"
@@ -77,6 +78,7 @@ typer = "^0.7.0"
 types-requests = "^2.28.11"
 types-setuptools = "^65.7.0"
 types-tabulate = "^0.9.0.1"
+
 
 [tool.poetry.extras]
 examples = [
@@ -98,11 +100,21 @@ preview = true  # don't use implicit string concatenation
 profile = "black"
 
 [tool.pyright]
+exclude = [
+    "**/__pycache__",
+    "**/.*",
+    "docs/",
+]
+
 typeCheckingMode = "basic"
 analyzeUnannotatedFunctions = false
+reportShadowedImports = true
+reportTypeCommentUsage = true
+reportImportCycles = true
 reportMissingImports = false
 reportMissingTypeStubs = false
-reportImportCycles = false
+reportConstantRedefinition = true
+reportUnnecessaryTypeIgnoreComment = true
 
 reportDuplicateImport = "error"
 
@@ -194,9 +206,13 @@ black --check .
 pyproject-fmt --check .
 """
 
+[tool.poe.tasks.typecheck]
+shell = """
+mypy .
+pyright .
+"""
+
 [tool.poe.tasks]
-ruff = "ruff check ."
-mypy = "mypy ."
-lint = ["mypy", "ruff"]
+lint = "ruff check ."
 docs = "sphinx-build -b html -W docs docs/_build"
-all = ["test", "lint", "docs"]
+all = ["format_check", "lint", "typecheck", "test", "docs"]

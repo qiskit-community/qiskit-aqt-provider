@@ -52,9 +52,7 @@ class WorkspaceTable:
             for key in vars(cls):
                 if not key.startswith("__") and key != "resources":
                     resource_id, resource_name = getattr(cls, key)
-                    yield ApiResource(
-                        {"id": resource_id, "name": resource_name, "type": "offline_simulator"}
-                    )
+                    yield ApiResource(id=resource_id, name=resource_name, type="offline_simulator")
 
     def __init__(self, data: Iterable[WorkspaceResources]):
         self._workspaces: Dict[str, List[ApiResource]] = {}

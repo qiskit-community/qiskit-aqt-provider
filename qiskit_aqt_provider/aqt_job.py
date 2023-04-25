@@ -35,6 +35,12 @@ from qiskit.result.result import Result
 from qiskit.utils.lazy_tester import contextlib
 
 if TYPE_CHECKING:  # pragma: no cover
+    # Pyright also reports import cycles, even if guarded by TYPE_CHECKING
+    # (see https://github.com/microsoft/pylance-release/issues/531).
+    # The following comment disables import cycles detection for the whole
+    # file but really only should apply to this block.
+
+    # pyright: reportImportCycles=false
     from qiskit_aqt_provider.aqt_resource import AQTResource
 
 
