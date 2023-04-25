@@ -11,9 +11,9 @@
 # that they have been altered from the originals.
 
 import abc
-import typing
 import warnings
 from typing import Any, Dict, List, Type, TypeVar, Union
+from uuid import UUID
 
 import httpx
 from qiskit import QuantumCircuit
@@ -27,8 +27,9 @@ from qiskit.transpiler import Target
 from qiskit_aer import AerJob, AerSimulator
 from typing_extensions import TypedDict
 
+from qiskit_aqt_provider import api_models
 from qiskit_aqt_provider.aqt_job import AQTJob
-from qiskit_aqt_provider.circuit_to_aqt import circuit_to_aqt
+from qiskit_aqt_provider.circuit_to_aqt import circuit_to_aqt_job
 from qiskit_aqt_provider.constants import REQUESTS_TIMEOUT
 
 
@@ -155,7 +156,7 @@ class AQTResource(Backend):
         self.options.set_validator("query_timeout_seconds", OptionalFloat)
         self.options.set_validator("query_period_seconds", Float)
 
-    def submit(self, circuit: QuantumCircuit, shots: int) -> str:
+    def submit(self, circuit: QuantumCircuit, shots: int) -> UUID:
         """Submit a circuit.
 
         Parameters:
@@ -165,24 +166,14 @@ class AQTResource(Backend):
         Returns:
             The unique identifier for the submitted job.
         """
-        payload = circuit_to_aqt(circuit, shots=shots)
+        payload = circuit_to_aqt_job(circuit, shots=shots)
 
         url = f"{self.url}/submit/{self._workspace}/{self._resource['id']}"
-        req = httpx.post(url, json=payload, headers=self.headers, timeout=REQUESTS_TIMEOUT)
+        req = httpx.post(url, json=payload.json(), headers=self.headers, timeout=REQUESTS_TIMEOUT)
         req.raise_for_status()
-        response = req.json()
+        return api_models.Response.parse_raw(req.json()).job.job_id
 
-        api_job = response.get("job")
-        if api_job is None:
-            raise ValueError("API response does not contain field 'job'.")
-
-        job_id = api_job.get("job_id")
-        if job_id is None:
-            raise ValueError("API response does not contain field 'job.job_id'.")
-
-        return str(job_id)
-
-    def result(self, job_id: str) -> Dict[str, Any]:
+    def result(self, job_id: UUID) -> api_models.JobResponse:
         """Query the result for a specific job.
 
         Parameters:
@@ -194,7 +185,7 @@ class AQTResource(Backend):
         url = f"{self.url}/result/{job_id}"
         req = httpx.get(url, headers=self.headers, timeout=REQUESTS_TIMEOUT)
         req.raise_for_status()
-        return typing.cast(Dict[str, Any], req.json())
+        return api_models.Response.parse_raw(req.json())
 
     def configuration(self) -> BackendConfiguration:
         warnings.warn(
@@ -306,15 +297,16 @@ class OfflineSimulatorResource(AQTResource):
         # TODO: also support a noisy simulator
         super().__init__(provider, workspace, resource)
 
-        self.jobs: Dict[str, AerJob] = {}
+        self.jobs: Dict[UUID, AerJob] = {}
         self.simulator = AerSimulator(method="statevector")
 
-    def submit(self, circuit: QuantumCircuit, shots: int) -> str:
+    def submit(self, circuit: QuantumCircuit, shots: int) -> UUID:
         job = self.simulator.run(circuit, shots=shots)
-        self.jobs[job.job_id()] = job
-        return str(job.job_id())
+        job_id = UUID(hex=job.job_id())
+        self.jobs[job_id] = job
+        return job_id
 
-    def result(self, job_id: str) -> Dict[str, Any]:
+    def result(self, job_id: UUID) -> api_models.JobResponse:
         qiskit_result = self.jobs[job_id].result()
         counts = qiskit_result.data()["counts"]
         num_qubits = qiskit_result.results[0].header.n_qubits
@@ -323,16 +315,10 @@ class OfflineSimulatorResource(AQTResource):
             samples.extend(
                 [qubit_states_from_int(int(hex_state, 16), num_qubits) for _ in range(occurences)]
             )
-        return {
-            "job": {
-                "job_type": "quantum_circuit",
-                "label": "qiskit",
-                "job_id": job_id,
-                "resource_id": self._resource["id"],
-                "workspace_id": self._workspace,
-            },
-            "response": {
-                "status": "finished",
-                "result": samples,
-            },
-        }
+
+        return api_models.Response.finished(
+            job_id=job_id,
+            workspace_id=self._workspace,
+            resource_id=self._resource["id"],
+            samples=samples,
+        )

@@ -15,6 +15,7 @@
 This module is exposed as pytest plugin for this project.
 """
 
+import uuid
 from typing import List, Tuple
 
 import pytest
@@ -22,7 +23,7 @@ from qiskit.circuit import QuantumCircuit
 
 from qiskit_aqt_provider.aqt_provider import AQTProvider
 from qiskit_aqt_provider.aqt_resource import ApiResource, OfflineSimulatorResource
-from qiskit_aqt_provider.circuit_to_aqt import circuit_to_aqt
+from qiskit_aqt_provider.circuit_to_aqt import circuit_to_aqt_job
 
 
 class MockSimulator(OfflineSimulatorResource):
@@ -37,7 +38,7 @@ class MockSimulator(OfflineSimulatorResource):
 
         self.submit_call_args: List[Tuple[QuantumCircuit, int]] = []
 
-    def submit(self, circuit: QuantumCircuit, shots: int) -> str:
+    def submit(self, circuit: QuantumCircuit, shots: int) -> uuid.UUID:
         """Submit the circuit for shots executions on the backend.
 
         Record the passed arguments in `submit_call_args`.
@@ -52,7 +53,7 @@ class MockSimulator(OfflineSimulatorResource):
             ValueError: the circuit cannot be converted to the AQT JSON wire format.
         """
         try:
-            _ = circuit_to_aqt(circuit, shots=shots)
+            _ = circuit_to_aqt_job(circuit, shots=shots)
         except Exception as e:  # noqa: BLE001
             raise ValueError("Circuit cannot be converted to AQT JSON format:\n{circuit}") from e
 

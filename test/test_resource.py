@@ -20,6 +20,7 @@ from pytest_httpx import HTTPXMock
 from qiskit import QuantumCircuit
 from qiskit.providers.exceptions import JobTimeoutError
 
+from qiskit_aqt_provider import api_models
 from qiskit_aqt_provider.aqt_job import AQTJob
 from qiskit_aqt_provider.aqt_provider import AQTProvider
 from qiskit_aqt_provider.aqt_resource import (
@@ -146,7 +147,7 @@ def test_submit_valid_response(httpx_mock: HTTPXMock) -> None:
     """
     token = str(uuid.uuid4())
     backend = DummyResource(token)
-    expected_job_id = str(uuid.uuid4())
+    expected_job_id = uuid.uuid4()
 
     def handle_submit(request: httpx.Request) -> httpx.Response:
         assert request.headers["sdk"] == "qiskit"
@@ -154,16 +155,11 @@ def test_submit_valid_response(httpx_mock: HTTPXMock) -> None:
 
         return httpx.Response(
             status_code=httpx.codes.OK,
-            json={
-                "job": {
-                    "job_id": expected_job_id,
-                    "job_type": "quantum_circuit",
-                    "label": "Example computation",
-                    "resource_id": backend._resource["id"],
-                    "workspace_id": backend._workspace,
-                },
-                "response": {"status": "queued"},
-            },
+            json=api_models.Response.queued(
+                job_id=expected_job_id,
+                resource_id=backend._resource["id"],
+                workspace_id=backend._workspace,
+            ).json(),
         )
 
     httpx_mock.add_callback(handle_submit, method="POST")
@@ -183,52 +179,23 @@ def test_submit_bad_request(httpx_mock: HTTPXMock) -> None:
         backend.submit(empty_circuit(2), shots=10)
 
 
-def test_submit_bad_payload_no_job(httpx_mock: HTTPXMock) -> None:
-    """Check that AQTResource.submit raises a ValueError if the returned
-    payload does not contain a job field.
-    """
-    backend = DummyResource("")
-    httpx_mock.add_response(json={})
-
-    with pytest.raises(ValueError, match=r"^API response does not contain field"):
-        backend.submit(empty_circuit(2), shots=10)
-
-
-def test_submit_bad_payload_no_jobid(httpx_mock: HTTPXMock) -> None:
-    """Check that AQTResource.submit raises a ValueError if the returned
-    payload does not contain a job.job_id field.
-    """
-    backend = DummyResource("")
-    httpx_mock.add_response(json={"job": {}})
-
-    with pytest.raises(ValueError, match=r"^API response does not contain field"):
-        backend.submit(empty_circuit(2), shots=10)
-
-
 def test_result_valid_response(httpx_mock: HTTPXMock) -> None:
     """Check that AQTResource.result passes the authorization token
     and returns the raw response payload.
     """
     token = str(uuid.uuid4())
     backend = DummyResource(token)
-    job_id = str(uuid.uuid4())
+    job_id = uuid.uuid4()
 
-    payload = {
-        "job": {
-            "job_id": job_id,
-            "job_type": "quantum_circuit",
-            "label": "Example computation",
-            "resource_id": backend._resource["id"],
-            "workspace_id": backend._workspace,
-        },
-        "response": {"status": "cancelled"},
-    }
+    payload = api_models.Response.cancelled(
+        job_id=job_id, resource_id=backend._resource["id"], workspace_id=backend._workspace
+    )
 
     def handle_result(request: httpx.Request) -> httpx.Response:
         assert request.headers["sdk"] == "qiskit"
         assert request.headers["authorization"] == f"Bearer {token}"
 
-        return httpx.Response(status_code=httpx.codes.OK, json=payload)
+        return httpx.Response(status_code=httpx.codes.OK, json=payload.json())
 
     httpx_mock.add_callback(handle_result, method="GET")
 
@@ -244,7 +211,20 @@ def test_result_bad_request(httpx_mock: HTTPXMock) -> None:
     httpx_mock.add_response(status_code=httpx.codes.BAD_REQUEST)
 
     with pytest.raises(httpx.HTTPError):
-        backend.result(str(uuid.uuid4()))
+        backend.result(uuid.uuid4())
+
+
+def test_result_unknown_job(httpx_mock: HTTPXMock) -> None:
+    """Check that AQTResource.result raises UnknownJobError if the API
+    responds with an UnknownJob payload.
+    """
+    backend = DummyResource("")
+    job_id = uuid.uuid4()
+
+    httpx_mock.add_response(json=api_models.Response.unknown_job(job_id=job_id).json())
+
+    with pytest.raises(api_models.UnknownJobError, match=str(job_id)):
+        backend.result(job_id)
 
 
 def test_resource_fixture_detect_invalid_circuits(

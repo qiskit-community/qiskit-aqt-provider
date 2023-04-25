@@ -100,38 +100,6 @@ def test_cancelled_circuit() -> None:
     assert result.success is False
 
 
-def test_non_compliant_resource() -> None:
-    """Check that if the resource sends back ill-formed payloads, the job raises a
-    RuntimeError.
-    """
-    backend = TestResource(always_invalid=True)
-    backend.options.update_options(query_period_seconds=0.1)
-
-    qc = QuantumCircuit(1)
-    qc.measure_all()
-
-    with pytest.raises(RuntimeError) as excinfo:
-        qiskit.execute(qc, backend).result()
-
-    assert "Unexpected error while retrieving job status" in str(excinfo)
-
-
-def test_non_compliant_resource_invalid_status() -> None:
-    """Check that if the resource sends back a valid payload with an invalid status
-    name, the job raises a RuntimeError.
-    """
-    backend = TestResource(always_invalid_status=True)
-    backend.options.update_options(query_period_seconds=0.1)
-
-    qc = QuantumCircuit(1)
-    qc.measure_all()
-
-    with pytest.raises(RuntimeError) as excinfo:
-        qiskit.execute(qc, backend).result()
-
-    assert "Unexpected error while retrieving job status" in str(excinfo)
-
-
 @pytest.mark.parametrize("shots", [1, 100, 200])
 def test_simple_backend_run(shots: int, offline_simulator_no_noise: AQTResource) -> None:
     """Run a simple circuit with `backend.run`."""

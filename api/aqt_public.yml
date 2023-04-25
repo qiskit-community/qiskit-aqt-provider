@@ -1,0 +1,824 @@
+components:
+  schemas:
+    Circuit:
+      description: Json encoding of a quantum circuit.
+      example:
+      - operation: RZ
+        phi: 0.5
+        qubit: 0
+      - operation: R
+        phi: 0.25
+        qubit: 1
+        theta: 0.5
+      - operation: RXX
+        qubits:
+        - 0
+        - 1
+        theta: 0.5
+      - operation: MEASURE
+      items:
+        $ref: '#/components/schemas/OperationModel'
+      maxItems: 10000
+      minItems: 1
+      title: Circuit
+      type: array
+    GateR:
+      additionalProperties: false
+      description: "A single-qubit rotation of angle \u03B8 around axis \u03C6 in\
+        \ the equatorial plane\nof the Bloch sphere.\n\nAngles are expressed in units\
+        \ of \u03C0."
+      properties:
+        operation:
+          enum:
+          - R
+          title: Operation
+          type: string
+        phi:
+          maximum: 2.0
+          minimum: 0.0
+          title: Phi
+          type: number
+        qubit:
+          minimum: 0.0
+          title: Qubit
+          type: integer
+        theta:
+          maximum: 1.0
+          minimum: 0.0
+          title: Theta
+          type: number
+      required:
+      - qubit
+      - operation
+      - phi
+      - theta
+      title: GateR
+      type: object
+    GateRXX:
+      additionalProperties: false
+      description: "A parametric 2-qubits X\u2297X gate with angle \u03B8.\n\nThe\
+        \ angle is expressed in units of \u03C0. The gate is maximally entangling\n\
+        for \u03B8=0.5 (\u03C0/2)."
+      properties:
+        operation:
+          enum:
+          - RXX
+          title: Operation
+          type: string
+        qubits:
+          items:
+            minimum: 0.0
+            type: integer
+          maxItems: 2
+          minItems: 2
+          title: Qubits
+          type: array
+          uniqueItems: true
+        theta:
+          maximum: 0.5
+          minimum: 0.0
+          title: Theta
+          type: number
+      required:
+      - operation
+      - qubits
+      - theta
+      title: GateRXX
+      type: object
+    GateRZ:
+      additionalProperties: false
+      description: "A single-qubit rotation of angle \u03C6 around the Z axis of the\
+        \ Bloch sphere."
+      properties:
+        operation:
+          enum:
+          - RZ
+          title: Operation
+          type: string
+        phi:
+          title: Phi
+          type: number
+        qubit:
+          minimum: 0.0
+          title: Qubit
+          type: integer
+      required:
+      - qubit
+      - operation
+      - phi
+      title: GateRZ
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    JobResponse_RRCancelled_:
+      description: This class contains the data a uses is receiving at the "/result"
+        endpoint.
+      properties:
+        job:
+          $ref: '#/components/schemas/JobUser'
+        response:
+          $ref: '#/components/schemas/RRCancelled'
+      required:
+      - job
+      - response
+      title: JobResponse[RRCancelled]
+      type: object
+    JobResponse_RRError_:
+      description: This class contains the data a uses is receiving at the "/result"
+        endpoint.
+      properties:
+        job:
+          $ref: '#/components/schemas/JobUser'
+        response:
+          $ref: '#/components/schemas/RRError'
+      required:
+      - job
+      - response
+      title: JobResponse[RRError]
+      type: object
+    JobResponse_RRFinished_:
+      description: This class contains the data a uses is receiving at the "/result"
+        endpoint.
+      properties:
+        job:
+          $ref: '#/components/schemas/JobUser'
+        response:
+          $ref: '#/components/schemas/RRFinished'
+      required:
+      - job
+      - response
+      title: JobResponse[RRFinished]
+      type: object
+    JobResponse_RROngoing_:
+      description: This class contains the data a uses is receiving at the "/result"
+        endpoint.
+      properties:
+        job:
+          $ref: '#/components/schemas/JobUser'
+        response:
+          $ref: '#/components/schemas/RROngoing'
+      required:
+      - job
+      - response
+      title: JobResponse[RROngoing]
+      type: object
+    JobResponse_RRQueued_:
+      description: This class contains the data a uses is receiving at the "/result"
+        endpoint.
+      properties:
+        job:
+          $ref: '#/components/schemas/JobUser'
+        response:
+          $ref: '#/components/schemas/RRQueued'
+      required:
+      - job
+      - response
+      title: JobResponse[RRQueued]
+      type: object
+    JobSubmission:
+      description: Abstract job that can run on a computing resource.
+      example:
+        job_type: quantum_circuit
+        label: Example computation
+        payload:
+          number_of_qubits: 3
+          quantum_circuit:
+          - operation: RZ
+            phi: 0.5
+            qubit: 0
+          - operation: R
+            phi: 0.25
+            qubit: 1
+            theta: 0.5
+          - operation: RXX
+            qubits:
+            - 0
+            - 1
+            theta: 0.5
+          - operation: MEASURE
+          repetitions: 5
+      properties:
+        job_type:
+          default: quantum_circuit
+          enum:
+          - quantum_circuit
+          title: Job Type
+          type: string
+        label:
+          title: Label
+          type: string
+        payload:
+          $ref: '#/components/schemas/QuantumCircuit'
+      required:
+      - payload
+      title: JobSubmission
+      type: object
+    JobUser:
+      description: Abstract job that can run on a computing resource.
+      example:
+        job_id: ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450
+        job_type: quantum_circuit
+        label: Example computation
+        resource_id: ''
+        workspace_id: ''
+      properties:
+        job_id:
+          description: Id that uniquely identifies the job. This is used to request
+            results.
+          format: uuid
+          title: Job Id
+          type: string
+        job_type:
+          default: quantum_circuit
+          enum:
+          - quantum_circuit
+          title: Job Type
+          type: string
+        label:
+          title: Label
+          type: string
+        resource_id:
+          default: ''
+          title: Resource Id
+          type: string
+        workspace_id:
+          default: ''
+          title: Workspace Id
+          type: string
+      required:
+      - job_id
+      title: JobUser
+      type: object
+    Measure:
+      additionalProperties: false
+      description: 'Measurement operation.
+
+
+        The MEASURE operation instructs the resource
+
+        to perform a projective measurement of all qubits.'
+      properties:
+        operation:
+          enum:
+          - MEASURE
+          title: Operation
+          type: string
+      required:
+      - operation
+      title: Measure
+      type: object
+    OperationModel:
+      description: 'Model for the items in a Circuit.
+
+
+        This extra wrapper is introduced to leverage the pydantic
+
+        tagged-union parser.'
+      discriminator:
+        mapping:
+          MEASURE: '#/components/schemas/Measure'
+          R: '#/components/schemas/GateR'
+          RXX: '#/components/schemas/GateRXX'
+          RZ: '#/components/schemas/GateRZ'
+        propertyName: operation
+      oneOf:
+      - $ref: '#/components/schemas/GateRZ'
+      - $ref: '#/components/schemas/GateR'
+      - $ref: '#/components/schemas/GateRXX'
+      - $ref: '#/components/schemas/Measure'
+      title: OperationModel
+    QuantumCircuit:
+      description: A quantum circuit-type job that can run on a computing resource.
+      example:
+        number_of_qubits: 3
+        quantum_circuit:
+        - operation: RZ
+          phi: 0.5
+          qubit: 0
+        - operation: R
+          phi: 0.25
+          qubit: 1
+          theta: 0.5
+        - operation: RXX
+          qubits:
+          - 0
+          - 1
+          theta: 0.5
+        - operation: MEASURE
+        repetitions: 5
+      properties:
+        number_of_qubits:
+          exclusiveMinimum: 0.0
+          title: Number Of Qubits
+          type: integer
+        quantum_circuit:
+          $ref: '#/components/schemas/Circuit'
+        repetitions:
+          exclusiveMinimum: 0.0
+          title: Repetitions
+          type: integer
+      required:
+      - repetitions
+      - quantum_circuit
+      - number_of_qubits
+      title: QuantumCircuit
+      type: object
+    RRCancelled:
+      example:
+        status: cancelled
+      properties:
+        status:
+          default: cancelled
+          enum:
+          - cancelled
+          title: Status
+          type: string
+      title: RRCancelled
+      type: object
+    RRError:
+      example:
+        message: detailed error message
+        status: error
+      properties:
+        message:
+          title: Message
+          type: string
+        status:
+          default: error
+          enum:
+          - error
+          title: Status
+          type: string
+      required:
+      - message
+      title: RRError
+      type: object
+    RRFinished:
+      description: Contains the measurement data of a finished circuit.
+      example:
+        result:
+        - - 0
+          - 1
+          - 1
+        - - 1
+          - 1
+          - 1
+        - - 0
+          - 0
+          - 0
+        - - 1
+          - 1
+          - 0
+        - - 1
+          - 1
+          - 0
+        status: finished
+      properties:
+        result:
+          items:
+            items:
+              maximum: 1.0
+              minimum: 0.0
+              type: integer
+            type: array
+          title: Result
+          type: array
+        status:
+          default: finished
+          enum:
+          - finished
+          title: Status
+          type: string
+      required:
+      - result
+      title: RRFinished
+      type: object
+    RROngoing:
+      example:
+        status: ongoing
+      properties:
+        status:
+          default: ongoing
+          enum:
+          - ongoing
+          title: Status
+          type: string
+      title: RROngoing
+      type: object
+    RRQueued:
+      example:
+        status: queued
+      properties:
+        status:
+          default: queued
+          enum:
+          - queued
+          title: Status
+          type: string
+      title: RRQueued
+      type: object
+    Resource:
+      examples:
+        device:
+          description: Ion trapped quantum computer
+          summary: Quantum device
+          value:
+            id: simulator_noise
+            name: Simulator with noise
+            type: simulator
+        simulator:
+          description: Quantum computing simulator
+          summary: Simulator device
+          value:
+            id: simulator
+            name: Simulator without noise
+            type: simulator
+      properties:
+        id:
+          title: Id
+          type: string
+        name:
+          title: Name
+          type: string
+        type:
+          enum:
+          - simulator
+          - device
+          title: Type
+          type: string
+      required:
+      - name
+      - id
+      - type
+      title: Resource
+      type: object
+    ResultResponse:
+      anyOf:
+      - $ref: '#/components/schemas/JobResponse_RRQueued_'
+      - $ref: '#/components/schemas/JobResponse_RROngoing_'
+      - $ref: '#/components/schemas/JobResponse_RRFinished_'
+      - $ref: '#/components/schemas/JobResponse_RRError_'
+      - $ref: '#/components/schemas/JobResponse_RRCancelled_'
+      - $ref: '#/components/schemas/UnknownJob'
+      examples:
+        cancelled:
+          description: Job that has been cancelled by the user, before it could be
+            processed by the Quantum computer
+          summary: Cancelled Job
+          value:
+            job:
+              job_id: ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450
+              job_type: quantum_circuit
+              label: Example computation
+              resource_id: ''
+              workspace_id: ''
+            response:
+              status: cancelled
+        error:
+          description: Job that created an error while being processed by the Quantum
+            computer
+          summary: Failed Job
+          value:
+            job:
+              job_id: ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450
+              job_type: quantum_circuit
+              label: Example computation
+              resource_id: ''
+              workspace_id: ''
+            response:
+              message: detailed error message
+              status: error
+        finished:
+          description: Job that has been successfully processed by a quantum computer
+            or simulator
+          summary: Finished Job
+          value:
+            job:
+              job_id: ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450
+              job_type: quantum_circuit
+              label: Example computation
+              resource_id: ''
+              workspace_id: ''
+            response:
+              result:
+              - - 1
+                - 0
+                - 0
+              - - 1
+                - 1
+                - 0
+              - - 0
+                - 0
+                - 0
+              - - 1
+                - 1
+                - 0
+              - - 1
+                - 1
+                - 0
+              status: finished
+        ongoing:
+          description: Job that is currently being processed by the Quantum computer
+          summary: Ongoing Job
+          value:
+            job:
+              job_id: ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450
+              job_type: quantum_circuit
+              label: Example computation
+              resource_id: ''
+              workspace_id: ''
+            response:
+              status: ongoing
+        queued:
+          description: Job waiting in the queue to be picked up by the Quantum computer
+          summary: Queued Job
+          value:
+            job:
+              job_id: ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450
+              job_type: quantum_circuit
+              label: Example computation
+              resource_id: ''
+              workspace_id: ''
+            response:
+              status: cancelled
+        unknown:
+          description: The supplied job id could not be found
+          summary: Unknown Job
+          value:
+            job_id: 3aa8b827-4ff0-4a36-b1a6-f9ff6dee59ce
+            message: unknown job_id
+      title: ResultResponse
+    UnknownJob:
+      properties:
+        job_id:
+          format: uuid
+          title: Job Id
+          type: string
+        message:
+          default: unknown job_id
+          enum:
+          - unknown job_id
+          title: Message
+          type: string
+      required:
+      - job_id
+      title: UnknownJob
+      type: object
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    Workspace:
+      example:
+        id: default
+        resources:
+        - id: simulator
+          name: Simulator without noise
+          type: simulator
+        - id: simulator_noise
+          name: Simulator with noise
+          type: simulator
+      properties:
+        id:
+          title: Id
+          type: string
+        resources:
+          items:
+            $ref: '#/components/schemas/Resource'
+          title: Resources
+          type: array
+      required:
+      - id
+      - resources
+      title: Workspace
+      type: object
+info:
+  title: AQT Public API
+  version: 0.2.0
+openapi: 3.0.2
+paths:
+  /result/{job_id}:
+    get:
+      description: Request job results
+      operationId: request_result_result__job_id__get
+      parameters:
+      - in: path
+        name: job_id
+        required: true
+        schema:
+          format: uuid
+          title: Job Id
+          type: string
+      - description: AQT cloud access token
+        in: header
+        name: authorization
+        required: false
+        schema:
+          default: token
+          description: AQT cloud access token
+          title: Authorization
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                cancelled:
+                  description: Job that has been cancelled by the user, before it
+                    could be processed by the Quantum computer
+                  summary: Cancelled Job
+                  value:
+                    job:
+                      job_id: ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450
+                      job_type: quantum_circuit
+                      label: Example computation
+                      resource_id: ''
+                      workspace_id: ''
+                    response:
+                      status: cancelled
+                error:
+                  description: Job that created an error while being processed by
+                    the Quantum computer
+                  summary: Failed Job
+                  value:
+                    job:
+                      job_id: ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450
+                      job_type: quantum_circuit
+                      label: Example computation
+                      resource_id: ''
+                      workspace_id: ''
+                    response:
+                      message: detailed error message
+                      status: error
+                finished:
+                  description: Job that has been successfully processed by a quantum
+                    computer or simulator
+                  summary: Finished Job
+                  value:
+                    job:
+                      job_id: ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450
+                      job_type: quantum_circuit
+                      label: Example computation
+                      resource_id: ''
+                      workspace_id: ''
+                    response:
+                      result:
+                      - - 1
+                        - 0
+                        - 0
+                      - - 1
+                        - 1
+                        - 0
+                      - - 0
+                        - 0
+                        - 0
+                      - - 1
+                        - 1
+                        - 0
+                      - - 1
+                        - 1
+                        - 0
+                      status: finished
+                ongoing:
+                  description: Job that is currently being processed by the Quantum
+                    computer
+                  summary: Ongoing Job
+                  value:
+                    job:
+                      job_id: ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450
+                      job_type: quantum_circuit
+                      label: Example computation
+                      resource_id: ''
+                      workspace_id: ''
+                    response:
+                      status: ongoing
+                queued:
+                  description: Job waiting in the queue to be picked up by the Quantum
+                    computer
+                  summary: Queued Job
+                  value:
+                    job:
+                      job_id: ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450
+                      job_type: quantum_circuit
+                      label: Example computation
+                      resource_id: ''
+                      workspace_id: ''
+                    response:
+                      status: cancelled
+                unknown:
+                  description: The supplied job id could not be found
+                  summary: Unknown Job
+                  value:
+                    job_id: 3aa8b827-4ff0-4a36-b1a6-f9ff6dee59ce
+                    message: unknown job_id
+              schema:
+                $ref: '#/components/schemas/ResultResponse'
+          description: Success
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Request Result
+  /submit/{workspace}/{resource}:
+    post:
+      description: Submit a quantum circuit.
+      operationId: submit_job_submit__workspace___resource__post
+      parameters:
+      - in: path
+        name: workspace
+        required: true
+        schema:
+          title: Workspace
+          type: string
+      - in: path
+        name: resource
+        required: true
+        schema:
+          title: Resource
+          type: string
+      - description: AQT cloud access token
+        in: header
+        name: authorization
+        required: false
+        schema:
+          default: token
+          description: AQT cloud access token
+          title: Authorization
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobSubmission'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobResponse_RRQueued_'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Submit Job
+  /workspaces:
+    get:
+      description: List of available workspaces and devices
+      operationId: workspaces_workspaces_get
+      parameters:
+      - description: AQT cloud access token
+        in: header
+        name: authorization
+        required: false
+        schema:
+          default: token
+          description: AQT cloud access token
+          title: Authorization
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Workspace'
+                title: Response Workspaces Workspaces Get
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Workspaces
