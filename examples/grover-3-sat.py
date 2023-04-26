@@ -23,9 +23,9 @@ from typing import Final, Set, Tuple
 
 from qiskit.algorithms import AmplificationProblem, Grover
 from qiskit.circuit.library.phase_oracle import PhaseOracle
-from qiskit.primitives import BackendSampler
 
 from qiskit_aqt_provider import AQTProvider
+from qiskit_aqt_provider.primitives import AQTSampler
 
 
 class ThreeSatProblem:
@@ -80,8 +80,8 @@ if __name__ == "__main__":
     )
 
     # Select the sampling engine
-    backend = AQTProvider("").get_resource("default", "offline_simulator_no_noise")
-    sampler = BackendSampler(backend)
+    backend = AQTProvider("token").get_resource("default", "offline_simulator_no_noise")
+    sampler = AQTSampler(backend)
 
     # Map the problem to a Grover search
     problem = AmplificationProblem(sat_problem.oracle, is_good_state=sat_problem.is_solution)

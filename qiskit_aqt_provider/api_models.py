@@ -12,7 +12,7 @@
 
 """Thin convenience wrappers around generated API models."""
 
-from typing import List, Union
+from typing import Any, Dict, List, Union
 from uuid import UUID
 
 from qiskit.providers.exceptions import JobError
@@ -24,18 +24,18 @@ from qiskit_aqt_provider.api_models_generated import (
     JobSubmission,
     OperationModel,
     QuantumCircuit,
-    ResultResponse,
+    QuantumCircuits,
 )
 
 __all__ = [
     "Circuit",
+    "JobResponse",
+    "JobSubmission",
     "Operation",
     "OperationModel",
-    "JobSubmission",
     "QuantumCircuit",
-    "ResultResponse",
+    "QuantumCircuits",
     "Response",
-    "JobResponse",
 ]
 
 
@@ -85,12 +85,18 @@ JobResponse: TypeAlias = Union[
     api_models.JobResponseRRCancelled,
 ]
 
+JobFinalState: TypeAlias = Union[
+    api_models.JobResponseRRFinished,
+    api_models.JobResponseRRError,
+    api_models.JobResponseRRCancelled,
+]
+
 
 class Response:
     """Factories for API response payloads."""
 
     @staticmethod
-    def parse_raw(data: str) -> JobResponse:
+    def parse_obj(data: Any) -> JobResponse:
         """Parse an API response.
 
         Returns:
@@ -99,7 +105,7 @@ class Response:
         Raises:
             UnknownJobError: the server answered with an unknown job error.
         """
-        response = ResultResponse.parse_raw(data).__root__
+        response = api_models.ResultResponse.parse_obj(data).__root__
 
         if isinstance(response, api_models.UnknownJob):
             raise UnknownJobError(str(response.job_id))
@@ -117,20 +123,22 @@ class Response:
         )
 
     @staticmethod
-    def ongoing(*, job_id: UUID, workspace_id: str, resource_id: str) -> JobResponse:
+    def ongoing(
+        *, job_id: UUID, workspace_id: str, resource_id: str, finished_count: int
+    ) -> JobResponse:
         """Ongoing job."""
         return api_models.JobResponseRROngoing(
             job=api_models.JobUser(
                 job_id=job_id, label="qiskit", resource_id=resource_id, workspace_id=workspace_id
             ),
-            response=api_models.RROngoing(),
+            response=api_models.RROngoing(finished_count=finished_count),
         )
 
     @staticmethod
     def finished(
-        *, job_id: UUID, workspace_id: str, resource_id: str, samples: List[List[int]]
+        *, job_id: UUID, workspace_id: str, resource_id: str, results: Dict[str, List[List[int]]]
     ) -> JobResponse:
-        """Completed job with `samples` as result."""
+        """Completed job with the given results."""
         return api_models.JobResponseRRFinished(
             job=api_models.JobUser(
                 job_id=job_id,
@@ -139,9 +147,13 @@ class Response:
                 workspace_id=workspace_id,
             ),
             response=api_models.RRFinished(
-                result=[
-                    [api_models.ResultItem(__root__=state) for state in shot] for shot in samples
-                ]
+                result={
+                    circuit_index: [
+                        [api_models.ResultItem(__root__=state) for state in shot]
+                        for shot in samples
+                    ]
+                    for circuit_index, samples in results.items()
+                },
             ),
         )
 

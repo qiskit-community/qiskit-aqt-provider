@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import List, Literal, Optional, Union
+from typing import Dict, List, Literal, Optional, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Extra, Field
@@ -148,7 +148,7 @@ class RRFinished(BaseModel):
     class Config:
         allow_mutation = False
 
-    result: Annotated[List[List[ResultItem]], Field(title="Result")]
+    result: Annotated[Dict[str, List[List[ResultItem]]], Field(title="Result")]
     status: Annotated[Literal["finished"], Field(title="Status")] = "finished"
 
 
@@ -156,6 +156,7 @@ class RROngoing(BaseModel):
     class Config:
         allow_mutation = False
 
+    finished_count: Annotated[int, Field(ge=0, title="Finished Count")]
     status: Annotated[Literal["ongoing"], Field(title="Status")] = "ongoing"
 
 
@@ -312,6 +313,17 @@ class QuantumCircuit(BaseModel):
     repetitions: Annotated[int, Field(gt=0, title="Repetitions")]
 
 
+class QuantumCircuits(BaseModel):
+    """
+    A collection of quantum circuits representing a single job.
+    """
+
+    class Config:
+        allow_mutation = False
+
+    circuits: Annotated[List[QuantumCircuit], Field(min_items=1, title="Circuits")]
+
+
 class ResultResponse(BaseModel):
     class Config:
         allow_mutation = False
@@ -375,7 +387,7 @@ class ResultResponse(BaseModel):
                             "workspace_id": "",
                         },
                         "response": {
-                            "result": [[1, 0, 0], [1, 1, 0], [0, 0, 0], [1, 1, 0], [1, 1, 0]],
+                            "result": {0: [[1, 0], [1, 1], [0, 0], [1, 1], [1, 1]]},
                             "status": "finished",
                         },
                     },
@@ -391,7 +403,7 @@ class ResultResponse(BaseModel):
                             "resource_id": "",
                             "workspace_id": "",
                         },
-                        "response": {"status": "ongoing"},
+                        "response": {"finished_count": 0, "status": "ongoing"},
                     },
                 },
                 "queued": {
@@ -407,7 +419,7 @@ class ResultResponse(BaseModel):
                             "resource_id": "",
                             "workspace_id": "",
                         },
-                        "response": {"status": "cancelled"},
+                        "response": {"status": "queued"},
                     },
                 },
                 "unknown": {
@@ -434,4 +446,4 @@ class JobSubmission(BaseModel):
 
     job_type: Annotated[Literal["quantum_circuit"], Field(title="Job Type")] = "quantum_circuit"
     label: Annotated[Optional[str], Field(title="Label")] = None
-    payload: QuantumCircuit
+    payload: QuantumCircuits

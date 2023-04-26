@@ -94,7 +94,7 @@ automatically:
 
 .. jupyter-execute::
 
-    job = execute(qc, backend)
+    job = execute(qc, backend, with_progress_bar=False)
 
 
 To retrieve wait for a result to be available and retrieve it, use

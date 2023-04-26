@@ -62,10 +62,14 @@ class AQTSampler(BackendSampler):
             ]
         )
 
+        # if `with_progress_bar` is not explicitly set in the options, disable it
+        options_copy = (options or {}).copy()
+        options_copy.update(with_progress_bar=options_copy.get("with_progress_bar", False))
+
         super().__init__(
             mod_backend,
             bound_pass_manager=bound_pass_manager,
-            options=options,
+            options=options_copy,
             skip_transpilation=skip_transpilation,
         )
 

@@ -188,22 +188,23 @@ components:
         job_type: quantum_circuit
         label: Example computation
         payload:
-          number_of_qubits: 3
-          quantum_circuit:
-          - operation: RZ
-            phi: 0.5
-            qubit: 0
-          - operation: R
-            phi: 0.25
-            qubit: 1
-            theta: 0.5
-          - operation: RXX
-            qubits:
-            - 0
-            - 1
-            theta: 0.5
-          - operation: MEASURE
-          repetitions: 5
+          circuits:
+          - number_of_qubits: 2
+            quantum_circuit:
+            - operation: RZ
+              phi: 0.5
+              qubit: 0
+            - operation: R
+              phi: 0.25
+              qubit: 1
+              theta: 0.5
+            - operation: RXX
+              qubits:
+              - 0
+              - 1
+              theta: 0.5
+            - operation: MEASURE
+            repetitions: 5
       properties:
         job_type:
           default: quantum_circuit
@@ -215,7 +216,7 @@ components:
           title: Label
           type: string
         payload:
-          $ref: '#/components/schemas/QuantumCircuit'
+          $ref: '#/components/schemas/QuantumCircuits'
       required:
       - payload
       title: JobSubmission
@@ -330,6 +331,37 @@ components:
       - number_of_qubits
       title: QuantumCircuit
       type: object
+    QuantumCircuits:
+      description: A collection of quantum circuits representing a single job.
+      example:
+        circuits:
+        - number_of_qubits: 2
+          quantum_circuit:
+          - operation: RZ
+            phi: 0.5
+            qubit: 0
+          - operation: R
+            phi: 0.25
+            qubit: 1
+            theta: 0.5
+          - operation: RXX
+            qubits:
+            - 0
+            - 1
+            theta: 0.5
+          - operation: MEASURE
+          repetitions: 5
+      properties:
+        circuits:
+          items:
+            $ref: '#/components/schemas/QuantumCircuit'
+          minItems: 1
+          title: Circuits
+          type: array
+      required:
+      - circuits
+      title: QuantumCircuits
+      type: object
     RRCancelled:
       example:
         status: cancelled
@@ -364,32 +396,35 @@ components:
       description: Contains the measurement data of a finished circuit.
       example:
         result:
-        - - 0
-          - 1
-          - 1
-        - - 1
-          - 1
-          - 1
-        - - 0
-          - 0
-          - 0
-        - - 1
-          - 1
-          - 0
-        - - 1
-          - 1
-          - 0
+          0:
+          - - 0
+            - 1
+            - 1
+          - - 1
+            - 1
+            - 1
+          - - 0
+            - 0
+            - 0
+          - - 1
+            - 1
+            - 0
+          - - 1
+            - 1
+            - 0
         status: finished
       properties:
         result:
-          items:
+          additionalProperties:
             items:
-              maximum: 1.0
-              minimum: 0.0
-              type: integer
+              items:
+                maximum: 1.0
+                minimum: 0.0
+                type: integer
+              type: array
             type: array
           title: Result
-          type: array
+          type: object
         status:
           default: finished
           enum:
@@ -402,14 +437,21 @@ components:
       type: object
     RROngoing:
       example:
+        finished_count: 0
         status: ongoing
       properties:
+        finished_count:
+          minimum: 0.0
+          title: Finished Count
+          type: integer
         status:
           default: ongoing
           enum:
           - ongoing
           title: Status
           type: string
+      required:
+      - finished_count
       title: RROngoing
       type: object
     RRQueued:
@@ -508,21 +550,17 @@ components:
               workspace_id: ''
             response:
               result:
-              - - 1
-                - 0
-                - 0
-              - - 1
-                - 1
-                - 0
-              - - 0
-                - 0
-                - 0
-              - - 1
-                - 1
-                - 0
-              - - 1
-                - 1
-                - 0
+                0:
+                - - 1
+                  - 0
+                - - 1
+                  - 1
+                - - 0
+                  - 0
+                - - 1
+                  - 1
+                - - 1
+                  - 1
               status: finished
         ongoing:
           description: Job that is currently being processed by the Quantum computer
@@ -535,6 +573,7 @@ components:
               resource_id: ''
               workspace_id: ''
             response:
+              finished_count: 0
               status: ongoing
         queued:
           description: Job waiting in the queue to be picked up by the Quantum computer
@@ -547,7 +586,7 @@ components:
               resource_id: ''
               workspace_id: ''
             response:
-              status: cancelled
+              status: queued
         unknown:
           description: The supplied job id could not be found
           summary: Unknown Job
@@ -616,9 +655,14 @@ components:
       - resources
       title: Workspace
       type: object
+  securitySchemes:
+    Bearer Token:
+      description: To authenticate for the API provide a valid token (without 'Bearer')
+      scheme: bearer
+      type: http
 info:
   title: AQT Public API
-  version: 0.2.0
+  version: 0.3.0
 openapi: 3.0.2
 paths:
   /result/{job_id}:
@@ -632,15 +676,6 @@ paths:
         schema:
           format: uuid
           title: Job Id
-          type: string
-      - description: AQT cloud access token
-        in: header
-        name: authorization
-        required: false
-        schema:
-          default: token
-          description: AQT cloud access token
-          title: Authorization
           type: string
       responses:
         '200':
@@ -687,21 +722,17 @@ paths:
                       workspace_id: ''
                     response:
                       result:
-                      - - 1
-                        - 0
-                        - 0
-                      - - 1
-                        - 1
-                        - 0
-                      - - 0
-                        - 0
-                        - 0
-                      - - 1
-                        - 1
-                        - 0
-                      - - 1
-                        - 1
-                        - 0
+                        0:
+                        - - 1
+                          - 0
+                        - - 1
+                          - 1
+                        - - 0
+                          - 0
+                        - - 1
+                          - 1
+                        - - 1
+                          - 1
                       status: finished
                 ongoing:
                   description: Job that is currently being processed by the Quantum
@@ -715,6 +746,7 @@ paths:
                       resource_id: ''
                       workspace_id: ''
                     response:
+                      finished_count: 0
                       status: ongoing
                 queued:
                   description: Job waiting in the queue to be picked up by the Quantum
@@ -728,7 +760,7 @@ paths:
                       resource_id: ''
                       workspace_id: ''
                     response:
-                      status: cancelled
+                      status: queued
                 unknown:
                   description: The supplied job id could not be found
                   summary: Unknown Job
@@ -738,12 +770,16 @@ paths:
               schema:
                 $ref: '#/components/schemas/ResultResponse'
           description: Success
+        '401':
+          description: Unauthorized
         '422':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
           description: Validation Error
+      security:
+      - Bearer Token: []
       summary: Request Result
   /submit/{workspace}/{resource}:
     post:
@@ -762,15 +798,6 @@ paths:
         schema:
           title: Resource
           type: string
-      - description: AQT cloud access token
-        in: header
-        name: authorization
-        required: false
-        schema:
-          default: token
-          description: AQT cloud access token
-          title: Authorization
-          type: string
       requestBody:
         content:
           application/json:
@@ -784,27 +811,21 @@ paths:
               schema:
                 $ref: '#/components/schemas/JobResponse_RRQueued_'
           description: Successful Response
+        '401':
+          description: Unauthorized
         '422':
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
           description: Validation Error
+      security:
+      - Bearer Token: []
       summary: Submit Job
   /workspaces:
     get:
       description: List of available workspaces and devices
       operationId: workspaces_workspaces_get
-      parameters:
-      - description: AQT cloud access token
-        in: header
-        name: authorization
-        required: false
-        schema:
-          default: token
-          description: AQT cloud access token
-          title: Authorization
-          type: string
       responses:
         '200':
           content:
@@ -815,10 +836,8 @@ paths:
                 title: Response Workspaces Workspaces Get
                 type: array
           description: Successful Response
-        '422':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-          description: Validation Error
+        '401':
+          description: Unauthorized
+      security:
+      - Bearer Token: []
       summary: Workspaces
