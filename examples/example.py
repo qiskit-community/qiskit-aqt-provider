@@ -21,7 +21,7 @@ from qiskit_aqt_provider.aqt_provider import AQTProvider
 if __name__ == "__main__":
     # If no `access_token` is passed to the constructor it is read from
     # the AQT_TOKEN environment variable
-    provider = AQTProvider("")
+    provider = AQTProvider("token")
 
     # The workspaces method returns a list of available workspaces and resources
     print(provider.workspaces())
@@ -42,4 +42,4 @@ if __name__ == "__main__":
     if result.success:
         print(result.get_counts())
     else:  # pragma: no cover
-        print(result.to_dict()["errors"])
+        print(result.to_dict()["error"])

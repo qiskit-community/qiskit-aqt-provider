@@ -17,9 +17,10 @@ import random
 import time
 import uuid
 from dataclasses import dataclass, field
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from qiskit import QuantumCircuit
+from typing_extensions import assert_never
 
 from qiskit_aqt_provider import api_models
 from qiskit_aqt_provider.aqt_provider import AQTProvider
@@ -40,7 +41,7 @@ class JobStatus(enum.Enum):
 class TestJob:  # pylint: disable=too-many-instance-attributes
     """Job state holder for the TestResource."""
 
-    circuit: QuantumCircuit
+    circuits: List[QuantumCircuit]
     shots: int
     status: JobStatus = JobStatus.QUEUED
     job_id: uuid.UUID = field(default_factory=lambda: uuid.uuid4())
@@ -49,16 +50,19 @@ class TestJob:  # pylint: disable=too-many-instance-attributes
     time_finished: float = 0.0
     error_message: str = "error"
 
-    num_clbits: int = field(init=False)
-    samples: List[List[int]] = field(init=False)
+    results: Dict[str, List[List[int]]] = field(init=False)
 
     workspace: str = field(default="test-workspace", init=False)
     resource: str = field(default="test-resource", init=False)
 
     def __post_init__(self) -> None:
         """Calculate derived quantities."""
-        self.num_clbits = self.circuit.num_clbits
-        self.samples = [random.choices([0, 1], k=self.num_clbits) for _ in range(self.shots)]
+        self.results = {
+            str(circuit_index): [
+                random.choices([0, 1], k=circuit.num_clbits) for _ in range(self.shots)
+            ]
+            for circuit_index, circuit in enumerate(self.circuits)
+        }
 
     def submit(self) -> None:
         """Submit the job for execution."""
@@ -94,6 +98,7 @@ class TestJob:  # pylint: disable=too-many-instance-attributes
                 job_id=self.job_id,
                 workspace_id=self.workspace,
                 resource_id=self.resource,
+                finished_count=1,
             )
 
         if self.status is JobStatus.FINISHED:
@@ -101,7 +106,7 @@ class TestJob:  # pylint: disable=too-many-instance-attributes
                 job_id=self.job_id,
                 workspace_id=self.workspace,
                 resource_id=self.resource,
-                samples=self.samples,
+                results=self.results,
             )
 
         if self.status is JobStatus.ERROR:
@@ -117,7 +122,7 @@ class TestJob:  # pylint: disable=too-many-instance-attributes
                 job_id=self.job_id, workspace_id=self.workspace, resource_id=self.resource
             )
 
-        assert False, "unreachable"  # pragma: no cover  # noqa: PT015,S101
+        assert_never(self.status)  # pragma: no cover
 
 
 class TestResource(AQTResource):  # pylint: disable=too-many-instance-attributes
@@ -148,7 +153,8 @@ class TestResource(AQTResource):  # pylint: disable=too-many-instance-attributes
             "test-workspace",
             ApiResource(name="test-resource", id="test", type="simulator"),
         )
-        self.jobs: Dict[uuid.UUID, TestJob] = {}
+
+        self.job: Optional[TestJob] = None
 
         self.min_queued_duration = min_queued_duration
         self.min_running_duration = min_running_duration
@@ -156,32 +162,37 @@ class TestResource(AQTResource):  # pylint: disable=too-many-instance-attributes
         self.always_error = always_error or error_message
         self.error_message = error_message or str(uuid.uuid4())
 
-    def submit(self, circuit: QuantumCircuit, shots: int) -> uuid.UUID:
-        job = TestJob(circuit, shots, error_message=self.error_message)
+    def submit(self, circuits: List[QuantumCircuit], shots: int) -> uuid.UUID:
+        job = TestJob(circuits, shots, error_message=self.error_message)
 
         if self.always_cancel:
             job.cancel()
 
-        self.jobs[job.job_id] = job
+        self.job = job
         return job.job_id
 
     def result(self, job_id: uuid.UUID) -> api_models.JobResponse:
-        job = self.jobs[job_id]
+        if self.job is None or self.job.job_id != job_id:  # pragma: no cover
+            raise api_models.UnknownJobError(str(job_id))
+
         now = time.time()
 
-        if job.status is JobStatus.QUEUED and (now - job.time_queued) > self.min_queued_duration:
-            job.submit()
+        if (
+            self.job.status is JobStatus.QUEUED
+            and (now - self.job.time_queued) > self.min_queued_duration
+        ):
+            self.job.submit()
 
         if (
-            job.status is JobStatus.ONGOING
-            and (now - job.time_submitted) > self.min_running_duration
+            self.job.status is JobStatus.ONGOING
+            and (now - self.job.time_submitted) > self.min_running_duration
         ):
             if self.always_error:
-                job.error()
+                self.job.error()
             else:
-                job.finish()
+                self.job.finish()
 
-        return job.response_payload()
+        return self.job.response_payload()
 
 
 class DummyResource(AQTResource):

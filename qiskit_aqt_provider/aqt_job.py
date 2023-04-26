@@ -10,18 +10,16 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-import threading
 import uuid
 from collections import Counter, defaultdict, namedtuple
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
-    Any,
     ClassVar,
     DefaultDict,
     Dict,
     List,
+    NoReturn,
     Optional,
     Set,
     Union,
@@ -33,7 +31,8 @@ from qiskit.providers import JobV1
 from qiskit.providers.jobstatus import JobStatus
 from qiskit.result.result import Result
 from qiskit.utils.lazy_tester import contextlib
-from typing_extensions import assert_never
+from tqdm import tqdm
+from typing_extensions import Self, TypeAlias, assert_never
 
 from qiskit_aqt_provider import api_models_generated
 
@@ -49,7 +48,7 @@ class JobFinished:
     """The job finished successfully."""
 
     status: ClassVar = JobStatus.DONE
-    samples: List[List[int]]
+    results: Dict[int, List[List[int]]]
 
 
 @dataclass
@@ -66,16 +65,53 @@ class JobQueued:
     status: ClassVar = JobStatus.QUEUED
 
 
+@dataclass
 class JobOngoing:
     """The job is running."""
 
     status: ClassVar = JobStatus.RUNNING
+    finished_count: int
 
 
 class JobCancelled:
     """The job was cancelled."""
 
     status = ClassVar = JobStatus.CANCELLED
+
+
+JobStatusPayload: TypeAlias = Union[JobQueued, JobOngoing, JobFinished, JobFailed, JobCancelled]
+
+
+@dataclass(frozen=True)
+class Progress:
+    """Progress information of a job."""
+
+    finished_count: int
+    """Number of completed circuits."""
+
+    total_count: int
+    """Total number of circuits in the job."""
+
+
+@dataclass
+class _MockProgressBar:
+    """Minimal tqdm-compatible progress bar mock."""
+
+    total: int
+    """Total number of items in the job."""
+
+    n: int = 0
+    """Number of processed items."""
+
+    def update(self, n: int = 1) -> None:
+        """Update the number of processed items by `n`."""
+        self.n += n
+
+    def __enter__(self) -> Self:
+        return self
+
+    def __exit__(*args) -> None:
+        ...
 
 
 class AQTJob(JobV1):
@@ -86,99 +122,146 @@ class AQTJob(JobV1):
         backend: "AQTResource",
         circuits: List[QuantumCircuit],
         shots: int,
+        with_progress_bar: bool,
     ):
         """Initialize a job instance.
 
-        Parameters:
-            backend (BaseBackend): Backend that job was executed on.
-            circuits (List[QuantumCircuit]): List of circuits to execute.
-            shots (int): Number of repetitions per circuit.
+        Args:
+            backend: backend to run the job on
+            circuits: list of circuits to execute
+            shots: number of repetitions per circuit
+            with_progress_bar: whether to display a progress bar
+            when waiting for the job completion.
         """
-        super().__init__(backend, str(uuid.uuid4()))
+        super().__init__(backend, "")
 
-        self.shots = shots
+        self.with_progress_bar = with_progress_bar
         self.circuits = circuits
-
-        self._jobs: Dict[
-            uuid.UUID, Union[JobFinished, JobFailed, JobQueued, JobOngoing, JobCancelled]
-        ] = {}
-        self._jobs_lock = threading.Lock()
+        self.shots = shots
+        self.status_payload: JobStatusPayload = JobQueued()
 
     def submit(self) -> None:
-        """Submits a job for execution."""
-        # do not parallelize to guarantee that the order is preserved in the _jobs dict
-        for circuit in self.circuits:
-            self._submit_single(circuit, self.shots)
+        """Submit this job for execution.
+
+        Raises:
+            RuntimeError: this job was already submitted.
+        """
+        if self.job_id():
+            raise RuntimeError(f"Job already submitted (ID: {self.job_id()})")
+
+        job_id = self._backend.submit(self.circuits, self.shots)
+        self._job_id = str(job_id)
 
     def status(self) -> JobStatus:
         """Query the job's status.
 
-        The job status is aggregated from the status of the individual circuits running
-        on the AQT resource.
-
         Returns:
             JobStatus: aggregated job status for all the circuits in this job.
-
-        Raises:
-            RuntimeError: an unexpected error occurred while retrieving a circuit status.
         """
-        # update the local job cache
-        with ThreadPoolExecutor(thread_name_prefix="status_worker_") as pool:
-            futures = [pool.submit(self._status_single, job_id) for job_id in self._jobs]
+        payload = self._backend.result(uuid.UUID(self.job_id()))
 
-            for fut in as_completed(futures, timeout=10.0):
-                if (exc := fut.exception()) is not None:
-                    raise RuntimeError("Unexpected error while retrieving job status.") from exc
+        if isinstance(payload, api_models_generated.JobResponseRRQueued):
+            self.status_payload = JobQueued()
+        elif isinstance(payload, api_models_generated.JobResponseRROngoing):
+            self.status_payload = JobOngoing(finished_count=payload.response.finished_count)
+        elif isinstance(payload, api_models_generated.JobResponseRRFinished):
+            self.status_payload = JobFinished(
+                results={
+                    int(circuit_index): [[sample.__root__ for sample in shot] for shot in shots]
+                    for circuit_index, shots in payload.response.result.items()
+                }
+            )
+        elif isinstance(payload, api_models_generated.JobResponseRRError):
+            self.status_payload = JobFailed(error=payload.response.message)
+        elif isinstance(payload, api_models_generated.JobResponseRRCancelled):
+            self.status_payload = JobCancelled()
+        else:  # pragma: no cover
+            assert_never(payload)
 
-        return self._aggregate_status()
+        return self.status_payload.status
+
+    def progress(self) -> Progress:
+        """Progress information for this job."""
+        num_circuits = len(self.circuits)
+
+        if isinstance(self.status_payload, JobQueued):
+            return Progress(finished_count=0, total_count=num_circuits)
+
+        if isinstance(self.status_payload, JobOngoing):
+            return Progress(
+                finished_count=self.status_payload.finished_count, total_count=num_circuits
+            )
+
+        # if the circuit is finished, failed, or cancelled, it is completed
+        return Progress(finished_count=num_circuits, total_count=num_circuits)
+
+    @property
+    def error_message(self) -> Optional[str]:
+        """Error message for this job (if any)."""
+        if isinstance(self.status_payload, JobFailed):
+            return self.status_payload.error
+
+        return None
 
     def result(self) -> Result:
         """Block until all circuits have been evaluated and return the combined result.
 
         Success or error is signalled by the `success` field in the returned Result instance.
 
-        In case of error, use `AQTJobNew.failed_jobs` to access the error messages of the
-        failed circuit evaluations.
-
         Returns:
             The combined result of all circuit evaluations.
         """
-        # one of DONE; CANCELLED, ERROR
-        self.wait_for_final_state(
-            timeout=self._backend.options.query_timeout_seconds,
-            wait=self._backend.options.query_period_seconds,
-        )
+        if self.with_progress_bar:
+            context: Union[tqdm[NoReturn], _MockProgressBar] = tqdm(total=len(self.circuits))
+        else:
+            context = _MockProgressBar(total=len(self.circuits))
 
-        agg_status = self._aggregate_status()
+        with context as progress_bar:
+
+            def callback(
+                job_id: str,  # noqa: ARG001
+                status: JobStatus,  # noqa: ARG001
+                job: AQTJob,
+            ) -> None:
+                progress = job.progress()
+                progress_bar.update(progress.finished_count - progress_bar.n)
+
+            # one of DONE, CANCELLED, ERROR
+            self.wait_for_final_state(
+                timeout=self._backend.options.query_timeout_seconds,
+                wait=self._backend.options.query_period_seconds,
+                callback=callback,
+            )
+
+            # make sure the progress bar completes
+            progress_bar.update(self.progress().finished_count - progress_bar.n)
 
         results = []
 
-        # jobs order is submission order
-        for circuit, result in zip(self.circuits, self._jobs.values()):
-            data: Dict[str, Any] = {}
-
-            if isinstance(result, JobFinished):
+        if isinstance(self.status_payload, JobFinished):
+            for circuit_index, circuit in enumerate(self.circuits):
+                samples = self.status_payload.results[circuit_index]
                 meas_map = _build_memory_mapping(circuit)
-                data["counts"] = _format_counts(result.samples, meas_map)
-                data["memory"] = [
-                    "".join(str(x) for x in reversed(shots)) for shots in result.samples
-                ]
-
-            results.append(
-                {
-                    "shots": self.shots,
-                    "success": result.status is JobStatus.DONE,
-                    "status": result.status.value,
-                    "data": data,
-                    "header": {
-                        "memory_slots": circuit.num_clbits,
-                        "creg_sizes": [[reg.name, reg.size] for reg in circuit.cregs],
-                        "qreg_sizes": [[reg.name, reg.size] for reg in circuit.qregs],
-                        "name": circuit.name,
-                        "metadata": circuit.metadata or {},
-                    },
+                data = {
+                    "counts": _format_counts(samples, meas_map),
+                    "memory": ["".join(str(x) for x in reversed(states)) for states in samples],
                 }
-            )
+
+                results.append(
+                    {
+                        "shots": self.shots,
+                        "success": True,
+                        "status": JobStatus.DONE,
+                        "data": data,
+                        "header": {
+                            "memory_slots": circuit.num_clbits,
+                            "creg_sizes": [[reg.name, reg.size] for reg in circuit.cregs],
+                            "qreg_sizes": [[reg.name, reg.size] for reg in circuit.qregs],
+                            "name": circuit.name,
+                            "metadata": circuit.metadata or {},
+                        },
+                    }
+                )
 
         return Result.from_dict(
             {
@@ -186,89 +269,12 @@ class AQTJob(JobV1):
                 "backend_version": self._backend.version,
                 "qobj_id": id(self.circuits),
                 "job_id": self.job_id(),
-                "success": agg_status is JobStatus.DONE,
+                "success": self.status_payload.status is JobStatus.DONE,
                 "results": results,
-                # Pass individual circuit errors as metadata
-                "errors": self.failed_jobs,
+                # Pass error message as metadata
+                "error": self.error_message,
             }
         )
-
-    @property
-    def job_ids(self) -> Set[uuid.UUID]:
-        """The AQT API identifiers of all the circuits evaluated in this Qiskit job."""
-        return set(self._jobs)
-
-    @property
-    def failed_jobs(self) -> Dict[uuid.UUID, str]:
-        """Map of failed job ids to error reports from the API."""
-        with self._jobs_lock:
-            return {
-                job_id: payload.error
-                for job_id, payload in self._jobs.items()
-                if isinstance(payload, JobFailed)
-            }
-
-    def _submit_single(self, circuit: QuantumCircuit, shots: int) -> None:
-        """Submit a single quantum circuit for execution on the backend.
-
-        Parameters:
-            circuit (QuantumCircuit): The quantum circuit to execute
-            shots (int): Number of repetitions
-
-        Returns:
-            The AQT job identifier.
-        """
-        job_id = self._backend.submit(circuit, shots)
-        with self._jobs_lock:
-            self._jobs[job_id] = JobQueued()
-
-    def _status_single(self, job_id: uuid.UUID) -> None:
-        """Query the status of a single circuit execution.
-
-        This method updates the internal life-cycle tracker.
-        """
-        payload = self._backend.result(job_id)
-
-        with self._jobs_lock:
-            # TODO: why don't user-defined TypeGuards narrow the type properly?
-            if isinstance(payload, api_models_generated.JobResponseRRQueued):
-                self._jobs[job_id] = JobQueued()
-            elif isinstance(payload, api_models_generated.JobResponseRROngoing):
-                self._jobs[job_id] = JobOngoing()
-            elif isinstance(payload, api_models_generated.JobResponseRRFinished):
-                self._jobs[job_id] = JobFinished(
-                    samples=[[state.__root__ for state in shot] for shot in payload.response.result]
-                )
-            elif isinstance(payload, api_models_generated.JobResponseRRError):
-                self._jobs[job_id] = JobFailed(error=payload.response.message)
-            elif isinstance(payload, api_models_generated.JobResponseRRCancelled):
-                self._jobs[job_id] = JobCancelled()
-            else:  # pragma: no cover
-                assert_never(payload)
-
-    def _aggregate_status(self) -> JobStatus:
-        """Aggregate the Qiskit job status from the status of the individual circuit evaluations."""
-        # aggregate job status from individual circuits
-        with self._jobs_lock:
-            statuses = [payload.status for payload in self._jobs.values()]
-
-        if any(s is JobStatus.ERROR for s in statuses):
-            return JobStatus.ERROR
-
-        if any(s is JobStatus.CANCELLED for s in statuses):
-            return JobStatus.CANCELLED
-
-        if any(s is JobStatus.RUNNING for s in statuses):
-            return JobStatus.RUNNING
-
-        if all(s is JobStatus.QUEUED for s in statuses):
-            return JobStatus.QUEUED
-
-        if all(s is JobStatus.DONE for s in statuses):
-            return JobStatus.DONE
-
-        # TODO: check for completeness
-        return JobStatus.QUEUED
 
 
 def _build_memory_mapping(circuit: QuantumCircuit) -> Dict[int, Set[int]]:

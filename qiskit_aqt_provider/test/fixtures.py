@@ -23,7 +23,7 @@ from qiskit.circuit import QuantumCircuit
 
 from qiskit_aqt_provider.aqt_provider import AQTProvider
 from qiskit_aqt_provider.aqt_resource import ApiResource, OfflineSimulatorResource
-from qiskit_aqt_provider.circuit_to_aqt import circuit_to_aqt_job
+from qiskit_aqt_provider.circuit_to_aqt import _qiskit_to_aqt_circuit
 
 
 class MockSimulator(OfflineSimulatorResource):
@@ -36,33 +36,36 @@ class MockSimulator(OfflineSimulatorResource):
             ApiResource(name="mock_simulator", id="mock_simulator", type="offline_simulator"),
         )
 
-        self.submit_call_args: List[Tuple[QuantumCircuit, int]] = []
+        self.submit_call_args: List[Tuple[List[QuantumCircuit], int]] = []
 
-    def submit(self, circuit: QuantumCircuit, shots: int) -> uuid.UUID:
-        """Submit the circuit for shots executions on the backend.
+    def submit(self, circuits: List[QuantumCircuit], shots: int) -> uuid.UUID:
+        """Submit the circuits for execution on the backend.
 
         Record the passed arguments in `submit_call_args`.
 
-        Try to convert the circuit to the AQT JSON wire format.
+        Try to convert the circuits to the AQT JSON wire format.
 
         Args:
-            circuit: the circuit to execute on the simulator
+            circuits: the circuits to execute on the simulator
             shots: number of repetitions.
 
         Raises:
-            ValueError: the circuit cannot be converted to the AQT JSON wire format.
+            ValueError: at least one circuit cannot be converted to the AQT JSON wire format.
         """
-        try:
-            _ = circuit_to_aqt_job(circuit, shots=shots)
-        except Exception as e:  # noqa: BLE001
-            raise ValueError("Circuit cannot be converted to AQT JSON format:\n{circuit}") from e
+        for circuit in circuits:
+            try:
+                _ = _qiskit_to_aqt_circuit(circuit)
+            except Exception as e:  # noqa: BLE001
+                raise ValueError(
+                    f"Circuit cannot be converted to AQT JSON format:\n{circuit}"
+                ) from e
 
-        self.submit_call_args.append((circuit, shots))
-        return super().submit(circuit, shots)
+        self.submit_call_args.append((circuits, shots))
+        return super().submit(circuits, shots)
 
     @property
-    def submitted_circuits(self) -> List[QuantumCircuit]:
-        """Circuits passed to the resource for execution, in submission order."""
+    def submitted_circuits(self) -> List[List[QuantumCircuit]]:
+        """Circuit batches passed to the resource for execution, in submission order."""
         return [circuit for circuit, _ in self.submit_call_args]
 
 

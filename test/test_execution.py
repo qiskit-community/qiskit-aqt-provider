@@ -23,7 +23,6 @@ from typing import List
 import numpy as np
 import pytest
 import qiskit
-from dirty_equals import IsUUID
 from qiskit import ClassicalRegister, QuantumCircuit, QuantumRegister
 from qiskit.providers.jobstatus import JobStatus
 from qiskit.result import Counts
@@ -85,8 +84,7 @@ def test_error_circuit() -> None:
 
     result = qiskit.execute(qc, backend).result()
     assert result.success is False
-    errors = list(result._metadata["errors"].items())
-    assert errors == [(IsUUID, backend.error_message)]
+    assert backend.error_message == result._metadata["error"]
 
 
 def test_cancelled_circuit() -> None:

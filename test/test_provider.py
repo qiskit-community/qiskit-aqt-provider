@@ -24,7 +24,8 @@ from qiskit_aqt_provider.aqt_provider import AQTProvider
 
 def test_default_portal_url() -> None:
     """Check that by default, the portal url is that of the class variable."""
-    aqt = AQTProvider("my-token")
+    with mock.patch.object(os, "environ", {}):
+        aqt = AQTProvider("my-token")
 
     result = urlparse(aqt.portal_url)
     expected = urlparse(AQTProvider.DEFAULT_PORTAL_URL)
@@ -88,29 +89,13 @@ def test_autoload_env(tmp_path: Path) -> None:
     dotenv_path = tmp_path / "env"
     dotenv_path.write_text(f'AQT_TOKEN = "{env_token}"')
 
-    mocked_env = os.environ.copy()
-    with mock.patch.object(os, "environ", mocked_env):
+    with mock.patch.object(os, "environ", {}):
         aqt = AQTProvider(dotenv_path=dotenv_path)
         assert aqt.access_token == env_token
 
 
-def test_autoload_env_deactivated(tmp_path: Path) -> None:
+def test_autoload_env_deactivated() -> None:
     """Check that auto-loading the environment can be deactivated."""
-    env_token = str(uuid.uuid4())
-    dotenv_path = tmp_path / "env"
-    dotenv_path.write_text(f'AQT_TOKEN = "{env_token}"')
-
-    mocked_env = os.environ.copy()
-    with mock.patch.object(os, "environ", mocked_env):
-        with pytest.raises(ValueError) as excinfo:
+    with mock.patch.object(os, "environ", {}):
+        with pytest.raises(ValueError, match="No access token provided"):
             AQTProvider(load_dotenv=False)
-
-    assert "No access token provided" in str(excinfo)
-
-
-def test_access_token_missing() -> None:
-    """Check that it is an error to not set an access token."""
-    with pytest.raises(ValueError) as excinfo:
-        AQTProvider()
-
-    assert "No access token provided" in str(excinfo)

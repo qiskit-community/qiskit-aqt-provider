@@ -127,7 +127,7 @@ def test_aqt_sampler_transpilation(theta: float, offline_simulator_no_noise: Moc
     # the sampler was only called once
     assert len(offline_simulator_no_noise.submitted_circuits) == 1
     # get the circuit passed to the backend
-    (transpiled_circuit,) = offline_simulator_no_noise.submitted_circuits
+    ((transpiled_circuit,),) = offline_simulator_no_noise.submitted_circuits
 
     # compare to the circuit obtained by binding the parameters and transpiling at once
     expected = qc.assign_parameters({theta_param: theta})

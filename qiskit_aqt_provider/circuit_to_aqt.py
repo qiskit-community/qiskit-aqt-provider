@@ -72,7 +72,7 @@ def _qiskit_to_aqt_circuit(circuit: QuantumCircuit) -> api_models.Circuit:
         elif inst.name == "barrier":
             continue
         else:
-            raise ValueError(f"Operation '{inst.name}' outside of basis rz, r, rxx")
+            raise ValueError(f"Operation '{inst.name}' not in basis gate set: {{rz, r, rxx}}")
 
     if not num_measurements:
         raise ValueError("Circuit must have at least one measurement operation.")
@@ -81,24 +81,27 @@ def _qiskit_to_aqt_circuit(circuit: QuantumCircuit) -> api_models.Circuit:
     return api_models.Circuit(__root__=ops)
 
 
-def circuit_to_aqt_job(circuit: QuantumCircuit, shots: int) -> api_models.JobSubmission:
-    """Convert a Qiskit circuit to its JSON representation for the AQT API.
+def circuits_to_aqt_job(circuits: List[QuantumCircuit], shots: int) -> api_models.JobSubmission:
+    """Convert a list of circuits to the corresponding AQT API job request payload.
 
     Args:
-        circuit: the quantum circuit to convert
-        shots: number of repetitions.
+        circuits: circuits to execute
+        shots: number of repetitions per circuit.
 
     Returns:
-        The corresponding circuit execution request payload.
+        JobSubmission: AQT API payload for submitting the quantum circuits job.
     """
-    circuit_payload = _qiskit_to_aqt_circuit(circuit)
-
     return api_models.JobSubmission(
         job_type="quantum_circuit",
         label="qiskit",
-        payload=api_models.QuantumCircuit(
-            repetitions=shots,
-            quantum_circuit=circuit_payload,
-            number_of_qubits=circuit.num_qubits,
+        payload=api_models.QuantumCircuits(
+            circuits=[
+                api_models.QuantumCircuit(
+                    repetitions=shots,
+                    quantum_circuit=_qiskit_to_aqt_circuit(circuit),
+                    number_of_qubits=circuit.num_qubits,
+                )
+                for circuit in circuits
+            ]
         ),
     )
