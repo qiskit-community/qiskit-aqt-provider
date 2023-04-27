@@ -864,6 +864,21 @@ files = [
 tests = ["asttokens", "littleutils", "pytest", "rich"]
 
 [[package]]
+name = "faker"
+version = "18.5.1"
+description = "Faker is a Python package that generates fake data for you."
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "Faker-18.5.1-py3-none-any.whl", hash = "sha256:137c6667583b0b458599b11305eed5a486e3932a14cb792b2b5b82ad1ad1a430"},
+    {file = "Faker-18.5.1.tar.gz", hash = "sha256:64e9ab619d75684cc0593aa9f336170b0b58fa77c07fc0ebc7b2b1258e53b67d"},
+]
+
+[package.dependencies]
+python-dateutil = ">=2.4"
+
+[[package]]
 name = "fastjsonschema"
 version = "2.16.3"
 description = "Fastest Python implementation of JSON schema"
@@ -2336,6 +2351,27 @@ tomli = ">=1.2.2"
 
 [package.extras]
 poetry-plugin = ["poetry (>=1.0,<2.0)"]
+
+[[package]]
+name = "polyfactory"
+version = "2.0.0"
+description = "Mock data generation factories"
+category = "dev"
+optional = false
+python-versions = ">=3.8,<4.0"
+files = [
+    {file = "polyfactory-2.0.0-py3-none-any.whl", hash = "sha256:89ba4f6cfbe09a6c99dc2ea70a33727611f7b5042a57ff01209b6824bab4a251"},
+    {file = "polyfactory-2.0.0.tar.gz", hash = "sha256:cccf2b99e2c8d15e524050792a0a17e91286226fa4d61d1fc9300525a0f8f994"},
+]
+
+[package.dependencies]
+faker = "*"
+typing-extensions = "*"
+
+[package.extras]
+beanie = ["beanie[beanie]", "pydantic[beanie,odmantic,pydantic]"]
+odmantic = ["odmantic[odmantic]", "pydantic[beanie,odmantic,pydantic]"]
+pydantic = ["pydantic[beanie,odmantic,pydantic]"]
 
 [[package]]
 name = "prance"
@@ -4280,4 +4316,4 @@ examples = ["tweedledum"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "14b640c8afb1df2d77b5cb4989b3a9b644884d89a6cf93a199a7b031c589f7b6"
+content-hash = "cc8e5364dc4ac98d3d8118c0efdda4319198bae6f784ee67bd50a6ef512b6425"
