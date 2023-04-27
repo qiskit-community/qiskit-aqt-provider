@@ -14,31 +14,36 @@ import abc
 import warnings
 from copy import copy
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Type, TypeVar, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    List,
+    Literal,
+    Optional,
+    Type,
+    TypeVar,
+    Union,
+)
 from uuid import UUID
 
-import httpx
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import RXGate, RXXGate, RZGate
 from qiskit.circuit.measure import Measure
 from qiskit.circuit.parameter import Parameter
 from qiskit.providers import BackendV2 as Backend
-from qiskit.providers import Options, Provider
+from qiskit.providers import Options
 from qiskit.providers.models import BackendConfiguration
 from qiskit.transpiler import Target
 from qiskit_aer import AerJob, AerSimulator
-from typing_extensions import TypedDict
+from qiskit_aer.noise import NoiseModel
 
 from qiskit_aqt_provider import api_models
 from qiskit_aqt_provider.aqt_job import AQTJob
 from qiskit_aqt_provider.circuit_to_aqt import circuits_to_aqt_job
-from qiskit_aqt_provider.constants import REQUESTS_TIMEOUT
 
-
-class ApiResource(TypedDict):
-    name: str
-    id: str
-    type: str  # Literal["simulator", "device"]
+if TYPE_CHECKING:  # pragma: no cover
+    from qiskit_aqt_provider.aqt_provider import AQTProvider
 
 
 class OptionalFloat(metaclass=abc.ABCMeta):
@@ -119,21 +124,30 @@ def make_transpiler_target(target_cls: Type[TargetT], num_qubits: int) -> Target
 
 
 class AQTResource(Backend):
-    def __init__(self, provider: Provider, workspace: str, resource: ApiResource):
-        super().__init__(name="aqt_qasm_simulator", provider=provider)
-        self._resource = resource
-        self._workspace = workspace
-        self.url = provider.portal_url
-        self.headers = {
-            "Authorization": f"Bearer {self._provider.access_token}",
-            "SDK": "qiskit",
-        }
+    def __init__(
+        self,
+        provider: "AQTProvider",
+        *,
+        workspace_id: str,
+        resource_id: str,
+        resource_name: str,
+        resource_type: Literal["device", "simulator", "offline_simulator"],
+    ):
+        super().__init__(name=resource_id, provider=provider)
+
+        self.resource_id = resource_id
+        self.resource_name = resource_name
+        self.resource_type = resource_type
+        self.workspace_id = workspace_id
+
+        self._http_client = provider._http_client
+
         num_qubits = 20
         self._configuration = BackendConfiguration.from_dict(
             {
-                "backend_name": resource["name"],
+                "backend_name": resource_name,
                 "backend_version": 2,
-                "url": self.url,
+                "url": provider.portal_url,
                 "simulator": True,
                 "local": False,
                 "coupling_map": None,
@@ -171,11 +185,12 @@ class AQTResource(Backend):
         """
         payload = circuits_to_aqt_job(circuits, shots)
 
-        url = f"{self.url}/submit/{self._workspace}/{self._resource['id']}"
+        resp = self._http_client.post(
+            f"/submit/{self.workspace_id}/{self.resource_id}", json=payload.dict()
+        )
 
-        req = httpx.post(url, json=payload.dict(), headers=self.headers, timeout=REQUESTS_TIMEOUT)
-        req.raise_for_status()
-        return api_models.Response.parse_obj(req.json()).job.job_id
+        resp.raise_for_status()
+        return api_models.Response.parse_obj(resp.json()).job.job_id
 
     def result(self, job_id: UUID) -> api_models.JobResponse:
         """Query the result for a specific job.
@@ -186,10 +201,9 @@ class AQTResource(Backend):
         Returns:
             Full returned payload.
         """
-        url = f"{self.url}/result/{job_id}"
-        req = httpx.get(url, headers=self.headers, timeout=REQUESTS_TIMEOUT)
-        req.raise_for_status()
-        return api_models.Response.parse_obj(req.json())
+        resp = self._http_client.get(f"/result/{job_id}")
+        resp.raise_for_status()
+        return api_models.Response.parse_obj(resp.json())
 
     def configuration(self) -> BackendConfiguration:
         warnings.warn(
@@ -331,15 +345,27 @@ class SimulatorJob:
 class OfflineSimulatorResource(AQTResource):
     """AQT-compatible offline simulator resource that uses the Qiskit-Aer backend."""
 
-    def __init__(self, provider: Provider, workspace: str, resource: ApiResource) -> None:
-        if resource["type"] != "offline_simulator":
-            raise ValueError(f"Cannot instantiate an OfflineSimulatorResource for {resource=}")
-
-        # TODO: also support a noisy simulator
-        super().__init__(provider, workspace, resource)
+    def __init__(
+        self,
+        provider: "AQTProvider",
+        *,
+        workspace_id: str,
+        resource_id: str,
+        resource_name: str,
+        noisy: bool,
+    ) -> None:
+        super().__init__(
+            provider,
+            workspace_id=workspace_id,
+            resource_id=resource_id,
+            resource_name=resource_name,
+            resource_type="offline_simulator",
+        )
 
         self.job: Optional[SimulatorJob] = None
-        self.simulator = AerSimulator(method="statevector")
+
+        noise_model = NoiseModel.from_backend(self) if noisy else None
+        self.simulator = AerSimulator(method="statevector", noise_model=noise_model)
 
     def submit(self, circuits: List[QuantumCircuit], shots: int) -> UUID:
         """Submit circuits for execution on the simulator.
@@ -396,7 +422,7 @@ class OfflineSimulatorResource(AQTResource):
 
         return api_models.Response.finished(
             job_id=job_id,
-            workspace_id=self._workspace,
-            resource_id=self._resource["id"],
+            workspace_id=self.workspace_id,
+            resource_id=self.resource_id,
             results=results,
         )

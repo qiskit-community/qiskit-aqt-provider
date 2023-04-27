@@ -24,7 +24,7 @@ from typing_extensions import assert_never
 
 from qiskit_aqt_provider import api_models
 from qiskit_aqt_provider.aqt_provider import AQTProvider
-from qiskit_aqt_provider.aqt_resource import ApiResource, AQTResource
+from qiskit_aqt_provider.aqt_resource import AQTResource
 
 
 class JobStatus(enum.Enum):
@@ -150,8 +150,10 @@ class TestResource(AQTResource):  # pylint: disable=too-many-instance-attributes
         """
         super().__init__(
             AQTProvider(""),
-            "test-workspace",
-            ApiResource(name="test-resource", id="test", type="simulator"),
+            workspace_id="test-workspace",
+            resource_id="test",
+            resource_name="test-resource",
+            resource_type="simulator",
         )
 
         self.job: Optional[TestJob] = None
@@ -200,5 +202,9 @@ class DummyResource(AQTResource):
 
     def __init__(self, token: str) -> None:
         super().__init__(
-            AQTProvider(token), "dummy", ApiResource(name="dummy", id="dummy", type="simulator")
+            AQTProvider(token),
+            workspace_id="dummy",
+            resource_id="dummy",
+            resource_name="dummy",
+            resource_type="simulator",
         )

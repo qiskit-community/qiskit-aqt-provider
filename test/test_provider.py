@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 
 
+import json
 import os
 import uuid
 from pathlib import Path
@@ -18,8 +19,10 @@ from unittest import mock
 from urllib.parse import urlparse
 
 import pytest
+from pytest_httpx import HTTPXMock
 
-from qiskit_aqt_provider.aqt_provider import AQTProvider
+from qiskit_aqt_provider import api_models, api_models_generated
+from qiskit_aqt_provider.aqt_provider import OFFLINE_SIMULATORS, AQTProvider
 
 
 def test_default_portal_url() -> None:
@@ -99,3 +102,47 @@ def test_autoload_env_deactivated() -> None:
     with mock.patch.object(os, "environ", {}):
         with pytest.raises(ValueError, match="No access token provided"):
             AQTProvider(load_dotenv=False)
+
+
+def test_remote_workspaces_table(httpx_mock: HTTPXMock) -> None:
+    """Check that the AQTProvider.backends() methods can fetch a list of available
+    workspaces and associated resources over HTTP.
+
+    Check that the offline simulators are added if they match the search criteria.
+    """
+    remote_workspaces = [
+        api_models_generated.Workspace(
+            id="w1",
+            resources=[
+                api_models_generated.Resource(
+                    id="r1", name="r1", type=api_models_generated.Type.device
+                )
+            ],
+        )
+    ]
+
+    httpx_mock.add_response(
+        json=json.loads(api_models.Workspaces(__root__=remote_workspaces).json())
+    )
+
+    provider = AQTProvider("my-token")
+
+    # List all available backends
+    all_backends = provider.backends().by_workspace()
+    assert set(all_backends) == {"default", "w1"}
+    assert {backend.resource_id for backend in all_backends["w1"]} == {"r1"}
+    assert {backend.resource_id for backend in all_backends["default"]} == {
+        simulator.id for simulator in OFFLINE_SIMULATORS
+    }
+
+    # List only the devices
+    only_devices = provider.backends(backend_type="device").by_workspace()
+    assert set(only_devices) == {"w1"}
+    assert {backend.resource_id for backend in only_devices["w1"]} == {"r1"}
+
+    # List only the offline simulators
+    only_offline_simulators = provider.backends(backend_type="offline_simulator").by_workspace()
+    assert set(only_offline_simulators) == {"default"}
+    assert {backend.resource_id for backend in only_offline_simulators["default"]} == {
+        simulator.id for simulator in OFFLINE_SIMULATORS
+    }
