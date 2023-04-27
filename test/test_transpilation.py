@@ -20,13 +20,13 @@ from hypothesis import strategies as st
 from qiskit import QuantumCircuit, transpile
 from qiskit.circuit.library import RXGate, RYGate
 
-from qiskit_aqt_provider.aqt_provider import AQTProvider
 from qiskit_aqt_provider.aqt_resource import AQTResource
 from qiskit_aqt_provider.test.circuits import (
     assert_circuits_equal,
     assert_circuits_equivalent,
     qft_circuit,
 )
+from qiskit_aqt_provider.test.fixtures import MockSimulator
 from qiskit_aqt_provider.transpiler_plugin import rewrite_rx_as_r, wrap_rxx_angle
 
 
@@ -71,7 +71,7 @@ def test_rx_ry_rewrite_transpile(
     assume(abs(theta) > pi / 200)
 
     # we only need the backend's transpiler target for this test
-    backend = AQTProvider("").get_resource("default", "offline_simulator_no_noise")
+    backend = MockSimulator()
 
     qc = QuantumCircuit(1)
     qc.append(test_gate(theta), (0,))
@@ -211,7 +211,7 @@ def test_rxx_wrap_angle_transpile(angle: float, qubits: int, optimization_level:
     qc.rxx(angle, 0, 1)
 
     # we only need the backend's transpilation target for this test
-    backend = AQTProvider("").get_resource("default", "offline_simulator_no_noise")
+    backend = MockSimulator()
     trans_qc = transpile(qc, backend, optimization_level=optimization_level)
     assert isinstance(trans_qc, QuantumCircuit)
 

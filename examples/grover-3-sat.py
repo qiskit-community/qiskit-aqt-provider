@@ -80,7 +80,7 @@ if __name__ == "__main__":
     )
 
     # Select the sampling engine
-    backend = AQTProvider("token").get_resource("default", "offline_simulator_no_noise")
+    backend = AQTProvider("token").get_backend("offline_simulator_no_noise")
     sampler = AQTSampler(backend)
 
     # Map the problem to a Grover search

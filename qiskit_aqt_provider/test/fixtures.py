@@ -22,7 +22,7 @@ import pytest
 from qiskit.circuit import QuantumCircuit
 
 from qiskit_aqt_provider.aqt_provider import AQTProvider
-from qiskit_aqt_provider.aqt_resource import ApiResource, OfflineSimulatorResource
+from qiskit_aqt_provider.aqt_resource import OfflineSimulatorResource
 from qiskit_aqt_provider.circuit_to_aqt import _qiskit_to_aqt_circuit
 
 
@@ -32,8 +32,10 @@ class MockSimulator(OfflineSimulatorResource):
     def __init__(self) -> None:
         super().__init__(
             AQTProvider(""),
-            "default",
-            ApiResource(name="mock_simulator", id="mock_simulator", type="offline_simulator"),
+            workspace_id="default",
+            resource_id="mock_simulator",
+            resource_name="mock_simulator",
+            noisy=False,
         )
 
         self.submit_call_args: List[Tuple[List[QuantumCircuit], int]] = []

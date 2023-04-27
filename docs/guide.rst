@@ -21,19 +21,17 @@ or stored in the environment variable `AQT_TOKEN`:
     aqt = AQTProvider('MY_TOKEN')
 
 Once loaded with your credentials, the provider
-gives access certain workspaces. These, and their
-contained resources (computing backends) can be listed
-using
+gives access certain backends. To list these, use:
 
 .. jupyter-execute::
 
-    print(aqt.workspaces())
+    print(aqt.backends())
 
-To select a resource within a workspace, use
+To select a backend, add filtering criteria:
 
 .. jupyter-execute::
 
-    backend = aqt.get_resource("default", "offline_simulator_no_noise")
+    backend = aqt.get_backend("offline_simulator_no_noise", workspace="default")
 
 The default workspace is always present and contains at least an offline
 noiseless simulator (powered by Qiskit-Aer).

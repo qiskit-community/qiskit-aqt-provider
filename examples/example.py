@@ -23,11 +23,13 @@ if __name__ == "__main__":
     # the AQT_TOKEN environment variable
     provider = AQTProvider("token")
 
-    # The workspaces method returns a list of available workspaces and resources
-    print(provider.workspaces())
+    # The backends() method lists all available computing backends. Printing it
+    # renders it as a table that shows each backend's containing workspace.
+    print(provider.backends())
 
-    # Retrieve a backend by providing a `workspace` and `device_id`
-    backend = provider.get_resource("default", "offline_simulator_no_noise")
+    # Retrieve a backend by providing search criteria. The search must have a single
+    # match. For example:
+    backend = provider.get_backend("offline_simulator_no_noise", workspace="default")
 
     # Create a 4-qubit GHZ state
     qc = QuantumCircuit(4)

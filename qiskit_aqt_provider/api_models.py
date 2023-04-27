@@ -12,11 +12,14 @@
 
 """Thin convenience wrappers around generated API models."""
 
-from typing import Any, Dict, List, Union
+import re
+from typing import Any, Dict, List, Optional, Pattern, Union
 from uuid import UUID
 
+import httpx
+import pydantic as pdt
 from qiskit.providers.exceptions import JobError
-from typing_extensions import TypeAlias
+from typing_extensions import Self, TypeAlias
 
 from qiskit_aqt_provider import api_models_generated as api_models
 from qiskit_aqt_provider.api_models_generated import (
@@ -25,7 +28,10 @@ from qiskit_aqt_provider.api_models_generated import (
     OperationModel,
     QuantumCircuit,
     QuantumCircuits,
+    Resource,
 )
+from qiskit_aqt_provider.api_models_generated import Type as ResourceType
+from qiskit_aqt_provider.versions import USER_AGENT
 
 __all__ = [
     "Circuit",
@@ -36,11 +42,76 @@ __all__ = [
     "QuantumCircuit",
     "QuantumCircuits",
     "Response",
+    "Resource",
+    "ResourceType",
 ]
 
 
 class UnknownJobError(JobError):
     """Requested an unknown job to the AQT API."""
+
+
+def http_client(*, base_url: str, token: str) -> httpx.Client:
+    """A pre-configured httpx Client.
+
+    Args:
+        base_url: base URL of the server
+        token: access token for the remote service.
+    """
+    headers = {"Authorization": f"Bearer {token}", "User-Agent": USER_AGENT}
+    return httpx.Client(headers=headers, base_url=base_url, timeout=10.0)
+
+
+class Workspaces(pdt.BaseModel, extra=pdt.Extra.forbid, frozen=True):
+    """List of available workspaces and devices."""
+
+    __root__: List[api_models.Workspace]
+
+    def filter(
+        self,
+        *,
+        workspace_pattern: Optional[Union[str, Pattern[str]]] = None,
+        name_pattern: Optional[Union[str, Pattern[str]]] = None,
+        backend_type: Optional[ResourceType] = None,
+    ) -> Self:
+        """Filtered copy of the list of available workspaces and devices.
+
+        All regular expression matches are case insensitive.
+        Omitted criteria match any entry in the respective field.
+
+        Args:
+            workspace_pattern: pattern for the workspace ID to match
+            name_pattern: pattern for the resource ID to match
+            backend_type: backend type to select.
+
+        Returns:
+            Workspaces model that only contains matching resources.
+        """
+        filtered_workspaces = []
+        for workspace in self.__root__:
+            if workspace_pattern is not None and not re.match(
+                workspace_pattern, workspace.id, re.IGNORECASE
+            ):
+                continue
+
+            filtered_resources = []
+
+            for resource in workspace.resources:
+                if backend_type is not None and resource.type is not backend_type:
+                    continue
+
+                if name_pattern is not None and not re.match(
+                    name_pattern, resource.id, re.IGNORECASE
+                ):
+                    continue
+
+                filtered_resources.append(resource)
+
+            filtered_workspaces.append(
+                api_models.Workspace(id=workspace.id, resources=filtered_resources)
+            )
+
+        return self.__class__(__root__=filtered_workspaces)
 
 
 class Operation:
