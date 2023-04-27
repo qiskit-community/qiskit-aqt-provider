@@ -16,6 +16,7 @@ This tests whether the circuit pre-conditioning and results formatting works as
 expected.
 """
 
+import re
 from fractions import Fraction
 from math import pi
 from typing import List
@@ -23,7 +24,7 @@ from typing import List
 import numpy as np
 import pytest
 import qiskit
-from qiskit import ClassicalRegister, QuantumCircuit, QuantumRegister
+from qiskit import ClassicalRegister, QiskitError, QuantumCircuit, QuantumRegister
 from qiskit.providers.jobstatus import JobStatus
 from qiskit.result import Counts
 from qiskit_aer import AerSimulator
@@ -174,7 +175,7 @@ def test_get_memory_simple(
     """Check that the raw bitstrings can be accessed for each shot via the
     get_memory() method in Qiskit's Result.
 
-    The memory option has no effect (raw memory is always accessible).
+    The memory is only accessible if the `memory` option is set.
     """
     qc = QuantumCircuit(2)
     qc.h(0)
@@ -182,10 +183,15 @@ def test_get_memory_simple(
     qc.measure_all()
 
     result = qiskit.execute(qc, offline_simulator_no_noise, shots=shots, memory=memory_opt).result()
-    memory = result.get_memory()
 
-    assert set(memory) == {"11", "00"}
-    assert len(memory) == shots
+    if memory_opt:
+        memory = result.get_memory()
+
+        assert set(memory) == {"11", "00"}
+        assert len(memory) == shots
+    else:
+        with pytest.raises(QiskitError, match=re.compile("no memory", re.IGNORECASE)):
+            result.get_memory()
 
 
 @pytest.mark.parametrize("shots", [123])
@@ -203,7 +209,7 @@ def test_get_memory_ancilla_qubits(shots: int, offline_simulator_no_noise: AQTRe
     qc.rxx(pi / 2, qr_aux[0], qr_aux[1])
     qc.measure(qr, memory)
 
-    job = qiskit.execute(qc, offline_simulator_no_noise, shots=shots)
+    job = qiskit.execute(qc, offline_simulator_no_noise, shots=shots, memory=True)
     memory = job.result().get_memory()
 
     assert set(memory) == {"11"}
@@ -222,7 +228,11 @@ def test_get_memory_bit_ordering(shots: int, offline_simulator_no_noise: AQTReso
     qc.rx(pi, 1)
     qc.measure_all()
 
-    aqt_memory = qiskit.execute(qc, offline_simulator_no_noise, shots=shots).result().get_memory()
+    aqt_memory = (
+        qiskit.execute(qc, offline_simulator_no_noise, shots=shots, memory=True)
+        .result()
+        .get_memory()
+    )
     sim_memory = qiskit.execute(qc, sim, shots=shots, memory=True).result().get_memory()
 
     assert set(sim_memory) == set(aqt_memory)

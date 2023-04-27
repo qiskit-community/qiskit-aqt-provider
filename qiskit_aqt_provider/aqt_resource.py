@@ -10,9 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-import abc
 import warnings
-from copy import copy
 from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
@@ -32,7 +30,7 @@ from qiskit.circuit.library import RXGate, RXXGate, RZGate
 from qiskit.circuit.measure import Measure
 from qiskit.circuit.parameter import Parameter
 from qiskit.providers import BackendV2 as Backend
-from qiskit.providers import Options
+from qiskit.providers import Options as QiskitOptions
 from qiskit.providers.models import BackendConfiguration
 from qiskit.transpiler import Target
 from qiskit_aer import AerJob, AerSimulator
@@ -40,59 +38,11 @@ from qiskit_aer.noise import NoiseModel
 
 from qiskit_aqt_provider import api_models
 from qiskit_aqt_provider.aqt_job import AQTJob
+from qiskit_aqt_provider.aqt_options import AQTOptions
 from qiskit_aqt_provider.circuit_to_aqt import circuits_to_aqt_job
 
 if TYPE_CHECKING:  # pragma: no cover
     from qiskit_aqt_provider.aqt_provider import AQTProvider
-
-
-class OptionalFloat(metaclass=abc.ABCMeta):
-    """Runtime type for optional floating-point numbers.
-
-    The type is permissive: integers are also allowed.
-
-    Runtime type checking can be done with the `isinstance` builtin.
-    See PEP-3119 for details.
-
-    Examples:
-        >>> isinstance(3.5, OptionalFloat)
-        True
-        >>> isinstance(3, OptionalFloat)
-        True
-        >>> isinstance(None, OptionalFloat)
-        True
-        >>> isinstance("abc", OptionalFloat)
-        False
-    """
-
-
-OptionalFloat.register(int)
-OptionalFloat.register(float)
-OptionalFloat.register(type(None))
-
-
-class Float(metaclass=abc.ABCMeta):
-    """Permissive runtime type for floating-point numbers.
-
-    The type is permissive: integers are also allowed.
-
-    Runtime type checking can be done with the `isinstance` builtin.
-    See PEP-3119 for details.
-
-    Examples:
-        >>> isinstance(3.5, Float)
-        True
-        >>> isinstance(3, Float)
-        True
-        >>> isinstance(None, Float)
-        False
-        >>> isinstance("abc", Float)
-        False
-    """
-
-
-Float.register(int)
-Float.register(float)
 
 
 TargetT = TypeVar("TargetT", bound=Target)
@@ -168,10 +118,7 @@ class AQTResource(Backend):
         )
         self._target = make_transpiler_target(Target, num_qubits)
 
-        self.options.set_validator("shots", (1, 200))
-        self.options.set_validator("query_timeout_seconds", OptionalFloat)
-        self.options.set_validator("query_period_seconds", Float)
-        self.options.set_validator("with_progress_bar", bool)
+        self._options = AQTOptions()
 
     def submit(self, circuits: List[QuantumCircuit], shots: int) -> UUID:
         """Submit a quantum circuits job to the AQT backend.
@@ -239,13 +186,12 @@ class AQTResource(Backend):
         return self._target
 
     @classmethod
-    def _default_options(cls) -> Options:
-        return Options(
-            shots=100,  # number of repetitions per circuit
-            query_timeout_seconds=None,  # timeout for job status queries
-            query_period_seconds=1,  # interval between job status queries
-            with_progress_bar=True,  # show a progress bar when waiting for job results
-        )
+    def _default_options(cls) -> QiskitOptions:
+        return QiskitOptions()
+
+    @property
+    def options(self) -> AQTOptions:
+        return self._options
 
     def get_scheduling_stage_plugin(self) -> str:
         return "aqt"
@@ -269,9 +215,7 @@ class AQTResource(Backend):
         if not isinstance(circuits, list):
             circuits = [circuits]
 
-        valid_options = {
-            key: value for key, value in options.items() if key in self.options.__dict__
-        }
+        valid_options = {key: value for key, value in options.items() if key in self.options}
         unknown_options = set(options) - set(valid_options)
 
         if unknown_options:
@@ -282,14 +226,13 @@ class AQTResource(Backend):
                     stacklevel=2,
                 )
 
-        options_copy = copy(self.options)
+        options_copy = self.options.copy()
         options_copy.update_options(**valid_options)
 
         job = AQTJob(
             self,
             circuits,
-            options_copy.shots,
-            with_progress_bar=options_copy.with_progress_bar,
+            options_copy,
         )
         job.submit()
         return job

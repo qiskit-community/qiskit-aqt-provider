@@ -16,13 +16,16 @@ import uuid
 from unittest import mock
 
 import httpx
+import pydantic as pdt
 import pytest
+from polyfactory.factories.pydantic_factory import ModelFactory
 from pytest_httpx import HTTPXMock
 from qiskit import QuantumCircuit
 from qiskit.providers.exceptions import JobTimeoutError
 
 from qiskit_aqt_provider import api_models
 from qiskit_aqt_provider.aqt_job import AQTJob
+from qiskit_aqt_provider.aqt_options import AQTOptions
 from qiskit_aqt_provider.aqt_resource import AQTResource
 from qiskit_aqt_provider.test.circuits import assert_circuits_equal, empty_circuit
 from qiskit_aqt_provider.test.fixtures import MockSimulator
@@ -30,9 +33,19 @@ from qiskit_aqt_provider.test.resources import DummyResource, TestResource
 from qiskit_aqt_provider.versions import USER_AGENT
 
 
+class OptionsFactory(ModelFactory[AQTOptions]):
+    __model__ = AQTOptions
+
+    query_timeout_seconds = 10.0
+
+
 def test_options_set_query_timeout(offline_simulator_no_noise: AQTResource) -> None:
     """Set the query timeout for job status queries with different values."""
     backend = offline_simulator_no_noise
+
+    # doesn't work with str
+    with pytest.raises(pdt.ValidationError):
+        backend.options.update_options(query_timeout_seconds="abc")
 
     # works with integers
     backend.options.update_options(query_timeout_seconds=123)
@@ -45,10 +58,6 @@ def test_options_set_query_timeout(offline_simulator_no_noise: AQTResource) -> N
     # works with None (no timeout)
     backend.options.update_options(query_timeout_seconds=None)
     assert backend.options.query_timeout_seconds is None
-
-    # doesn't work with str
-    with pytest.raises(TypeError):
-        backend.options.update_options(query_timeout_seconds="abc")
 
 
 def test_options_set_query_period(offline_simulator_no_noise: AQTResource) -> None:
@@ -64,11 +73,11 @@ def test_options_set_query_period(offline_simulator_no_noise: AQTResource) -> No
     assert backend.options.query_period_seconds == 123.45
 
     # doesn't work with None
-    with pytest.raises(TypeError):
+    with pytest.raises(pdt.ValidationError):
         backend.options.update_options(query_period_seconds=None)
 
     # doesn't work with str
-    with pytest.raises(TypeError):
+    with pytest.raises(pdt.ValidationError):
         backend.options.update_options(query_period_seconds="abc")
 
 
@@ -124,6 +133,53 @@ def test_query_period_propagation() -> None:
     lower_bound = math.floor(response_delay / period_seconds)
     upper_bound = math.ceil(response_delay / period_seconds) + 1
     assert lower_bound <= mocked_status.call_count <= upper_bound
+
+
+def test_run_options_propagation(offline_simulator_no_noise: MockSimulator) -> None:
+    """Check that options passed to AQTResource.run are propagated to the corresponding job."""
+    default = offline_simulator_no_noise.options.copy()
+
+    while True:
+        overrides = OptionsFactory.build()
+        if overrides != default:
+            break
+
+    qc = QuantumCircuit(1)
+    qc.measure_all()
+
+    # don't submit the circuit to the simulator
+    with mock.patch.object(AQTJob, "submit") as mocked_submit:
+        job = offline_simulator_no_noise.run(qc, **overrides.dict())
+        assert job.options == overrides
+
+    mocked_submit.assert_called_once()
+
+
+def test_run_options_unknown(offline_simulator_no_noise: MockSimulator) -> None:
+    """Check that AQTResource.run accepts but warns about unknown options."""
+    default = offline_simulator_no_noise.options.copy()
+    overrides = {"shots": 123, "unknown_option": True}
+    assert set(overrides) - set(default) == {"unknown_option"}
+
+    qc = QuantumCircuit(1)
+    qc.measure_all()
+
+    with mock.patch.object(AQTJob, "submit") as mocked_submit:
+        with pytest.warns(UserWarning, match="not used"):
+            job = offline_simulator_no_noise.run(qc, **overrides)
+
+        assert job.options.shots == 123
+
+    mocked_submit.assert_called_once()
+
+
+def test_run_options_invalid(offline_simulator_no_noise: MockSimulator) -> None:
+    """Check that AQTResource.run reject valid option names with invalid values."""
+    qc = QuantumCircuit(1)
+    qc.measure_all()
+
+    with pytest.raises(pdt.ValidationError, match="shots"):
+        offline_simulator_no_noise.run(qc, shots=-123)
 
 
 def test_double_job_submission(offline_simulator_no_noise: MockSimulator) -> None:

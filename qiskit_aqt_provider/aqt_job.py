@@ -15,6 +15,7 @@ from collections import Counter, defaultdict, namedtuple
 from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
+    Any,
     ClassVar,
     DefaultDict,
     Dict,
@@ -35,6 +36,7 @@ from tqdm import tqdm
 from typing_extensions import Self, TypeAlias, assert_never
 
 from qiskit_aqt_provider import api_models_generated
+from qiskit_aqt_provider.aqt_options import AQTOptions
 
 if TYPE_CHECKING:  # pragma: no cover
     from qiskit_aqt_provider.aqt_resource import AQTResource
@@ -121,23 +123,19 @@ class AQTJob(JobV1):
         self,
         backend: "AQTResource",
         circuits: List[QuantumCircuit],
-        shots: int,
-        with_progress_bar: bool,
+        options: AQTOptions,
     ):
         """Initialize a job instance.
 
         Args:
             backend: backend to run the job on
             circuits: list of circuits to execute
-            shots: number of repetitions per circuit
-            with_progress_bar: whether to display a progress bar
-            when waiting for the job completion.
+            options: overridden resource options for this job.
         """
         super().__init__(backend, "")
 
-        self.with_progress_bar = with_progress_bar
         self.circuits = circuits
-        self.shots = shots
+        self.options = options
         self.status_payload: JobStatusPayload = JobQueued()
 
     def submit(self) -> None:
@@ -149,7 +147,7 @@ class AQTJob(JobV1):
         if self.job_id():
             raise RuntimeError(f"Job already submitted (ID: {self.job_id()})")
 
-        job_id = self._backend.submit(self.circuits, self.shots)
+        job_id = self._backend.submit(self.circuits, self.options.shots)
         self._job_id = str(job_id)
 
     def status(self) -> JobStatus:
@@ -211,7 +209,7 @@ class AQTJob(JobV1):
         Returns:
             The combined result of all circuit evaluations.
         """
-        if self.with_progress_bar:
+        if self.options.with_progress_bar:
             context: Union[tqdm[NoReturn], _MockProgressBar] = tqdm(total=len(self.circuits))
         else:
             context = _MockProgressBar(total=len(self.circuits))
@@ -228,8 +226,8 @@ class AQTJob(JobV1):
 
             # one of DONE, CANCELLED, ERROR
             self.wait_for_final_state(
-                timeout=self._backend.options.query_timeout_seconds,
-                wait=self._backend.options.query_period_seconds,
+                timeout=self.options.query_timeout_seconds,
+                wait=self.options.query_period_seconds,
                 callback=callback,
             )
 
@@ -242,14 +240,18 @@ class AQTJob(JobV1):
             for circuit_index, circuit in enumerate(self.circuits):
                 samples = self.status_payload.results[circuit_index]
                 meas_map = _build_memory_mapping(circuit)
-                data = {
+                data: Dict[str, Any] = {
                     "counts": _format_counts(samples, meas_map),
-                    "memory": ["".join(str(x) for x in reversed(states)) for states in samples],
                 }
+
+                if self.options.memory:
+                    data["memory"] = [
+                        "".join(str(x) for x in reversed(states)) for states in samples
+                    ]
 
                 results.append(
                     {
-                        "shots": self.shots,
+                        "shots": self.options.shots,
                         "success": True,
                         "status": JobStatus.DONE,
                         "data": data,
