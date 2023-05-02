@@ -11,6 +11,7 @@
 * Only return raw memory data when the `memory` option is set #64
 * Implement the `ProviderV1` interface for `AQTProvider` #65
 * Set User-Agent with package and platform information for HTTP requests #65
+* Add py.typed marker file #66
 
 ## qiskit-aqt-provider v0.12.0
 
