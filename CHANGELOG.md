@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## qiskit-aqt-provider v0.13.0
+
 * Always raise `TranspilerError` on errors in the custom transpilation passes #57
 * Add `AQTSampler`, a specialized implementation of the `Sampler` primitive #60
 * Auto-generate and use Pydantic models for the API requests payloads #62
@@ -12,6 +14,7 @@
 * Implement the `ProviderV1` interface for `AQTProvider` #65
 * Set User-Agent with package and platform information for HTTP requests #65
 * Add py.typed marker file #66
+* Rename package to `qiskit-aqt-provider-rc` #67
 
 ## qiskit-aqt-provider v0.12.0
 

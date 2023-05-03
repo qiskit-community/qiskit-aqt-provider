@@ -1,9 +1,9 @@
 [tool.poetry]
-name = "qiskit-aqt-provider-internal"
-version = "0.12.0"
+name = "qiskit-aqt-provider-rc"
+version = "0.13.0"
 description = "Qiskit provider for AQT backends"
 authors = ["Qiskit Development Team", "Alpine Quantum Technologies GmbH"]
-repository = "https://github.com/alpine-quantum-technologies/qiskit-aqt-provider-internal/"
+repository = "https://github.com/alpine-quantum-technologies/qiskit-aqt-provider-rc/"
 readme = "README.md"
 license = "Apache-2.0"
 classifiers=[

@@ -15,13 +15,13 @@ import platform
 from typing import Final
 
 QISKIT_TERRA_VERSION: Final = importlib.metadata.version("qiskit-terra")
-QISKIT_AQT_PROVIDER_VERSION: Final = importlib.metadata.version("qiskit-aqt-provider-internal")
+QISKIT_AQT_PROVIDER_VERSION: Final = importlib.metadata.version("qiskit-aqt-provider-rc")
 
 __version__: Final = QISKIT_AQT_PROVIDER_VERSION
 
 USER_AGENT: Final = " ".join(
     [
-        f"qiskit-aqt-provider-internal/{QISKIT_AQT_PROVIDER_VERSION}",
+        f"qiskit-aqt-provider/{QISKIT_AQT_PROVIDER_VERSION}",
         f"({platform.system()}; {platform.python_implementation()}/{platform.python_version()})",
         f"qiskit-terra/{QISKIT_TERRA_VERSION}",
     ]
