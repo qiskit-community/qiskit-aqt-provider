@@ -4316,4 +4316,4 @@ examples = ["tweedledum"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "cc8e5364dc4ac98d3d8118c0efdda4319198bae6f784ee67bd50a6ef512b6425"
+content-hash = "6037efe4646e0467d4aa5b959891e4fe0cc254d17d3ff92bc0faeda46e453c8d"
