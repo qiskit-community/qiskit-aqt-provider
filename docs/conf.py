@@ -33,6 +33,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.extlinks',
     'jupyter_sphinx',
+    "qiskit_sphinx_theme",
 ]
 templates_path = ["_templates"]
 html_static_path = ['_static']
