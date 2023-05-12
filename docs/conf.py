@@ -33,10 +33,9 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.extlinks',
     'jupyter_sphinx',
+    "qiskit_sphinx_theme",
 ]
 templates_path = ["_templates"]
-html_static_path = ['_static']
-html_css_files = []
 
 autosummary_generate = True
 autosummary_generate_overwrite = False
