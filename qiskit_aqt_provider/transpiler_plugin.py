@@ -23,6 +23,7 @@ from qiskit.dagcircuit import DAGCircuit
 from qiskit.transpiler import Target
 from qiskit.transpiler.basepasses import BasePass, TransformationPass
 from qiskit.transpiler.exceptions import TranspilerError
+from qiskit.transpiler.passes import Decompose, Optimize1qGatesDecomposition
 from qiskit.transpiler.passmanager import PassManager
 from qiskit.transpiler.passmanager_config import PassManagerConfig
 from qiskit.transpiler.preset_passmanagers import common
@@ -33,6 +34,29 @@ from qiskit_aqt_provider.utils import map_exceptions
 
 class UnboundParametersTarget(Target):
     """Target that disables passes that require bound parameters."""
+
+
+def bound_pass_manager(target: Target) -> PassManager:
+    """Transpilation passes to apply on circuits after the parameters are bound.
+
+    This assumes that a preset pass manager was applied to the unbound circuits
+    (by setting the target to an instance of `UnboundParametersTarget`).
+
+    Args:
+        target: transpilation target.
+    """
+    return PassManager(
+        [
+            # wrap the Rxx angles
+            WrapRxxAngles(),
+            # decompose the substituted Rxx gates
+            Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]),
+            # collapse the single qubit runs as ZXZ
+            Optimize1qGatesDecomposition(target=target),
+            # wrap the Rx angles, rewrite as R
+            RewriteRxAsR(),
+        ]
+    )
 
 
 def rewrite_rx_as_r(theta: float) -> Instruction:
