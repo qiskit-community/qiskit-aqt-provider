@@ -11,18 +11,21 @@
 # that they have been altered from the originals.
 
 import importlib.metadata
-from math import pi
+from math import isclose, pi
 from typing import Callable
 
 import pytest
 import qiskit
 from qiskit.circuit import Parameter, QuantumCircuit
-from qiskit.primitives import BackendSampler, BaseSampler, Sampler
+from qiskit.circuit.library import RealAmplitudes, TwoLocal
+from qiskit.primitives import BackendEstimator, BackendSampler, BaseSampler, Sampler
 from qiskit.providers import Backend
+from qiskit.quantum_info import SparsePauliOp
 from qiskit.transpiler.exceptions import TranspilerError
 
 from qiskit_aqt_provider.aqt_resource import AQTResource
 from qiskit_aqt_provider.primitives import AQTSampler
+from qiskit_aqt_provider.primitives.estimator import AQTEstimator
 from qiskit_aqt_provider.test.circuits import assert_circuits_equal
 from qiskit_aqt_provider.test.fixtures import MockSimulator
 
@@ -89,6 +92,61 @@ def test_circuit_sampling_primitive(
     sampler = get_sampler(offline_simulator_no_noise)
     sampled = sampler.run(qc, [pi]).result().quasi_dists
     assert sampled == [{3: 1.0}]
+
+
+@pytest.mark.parametrize("theta", [0.0, pi])
+def test_operator_estimator_primitive_trivial_pauli_x(
+    theta: float, offline_simulator_no_noise: MockSimulator
+) -> None:
+    """Use the Estimator primitive to verify that <0|X|0> = <1|X|1> = 0.
+
+    Define the parametrized circuit that consists of the single gate Rx(θ) with
+    θ=0,π. Applied to |0>, this creates the states |0>,|1>. The Estimator primitive
+    is then used to evaluate the expectation value of the Pauli X operator on the
+    state produced by the circuit.
+    """
+    offline_simulator_no_noise.simulator.options.seed_simulator = 0
+
+    estimator = AQTEstimator(offline_simulator_no_noise, options={"shots": 200})
+
+    qc = QuantumCircuit(1)
+    qc.rx(theta, 0)
+
+    op = SparsePauliOp("X")
+    result = estimator.run(qc, op).result()
+
+    assert abs(result.values[0]) < 0.1
+
+
+def test_operator_estimator_primitive_trivial_pauli_z(
+    offline_simulator_no_noise: MockSimulator,
+) -> None:
+    """Use the Estimator primitive to verify that:
+    <0|Z|0> = 1
+    <1|Z|1> = -1
+    <ψ|Z|ψ> = 0 with |ψ> = (|0> + |1>)/√2
+
+    The sampled circuit is always Rx(θ) with θ=0,π,π/2 respectively.
+
+    The θ values are passed into a single call to the estimator, thus also checking
+    that the AQTEstimator can deal with parametrized circuits.
+    """
+    offline_simulator_no_noise.simulator.options.seed_simulator = 0
+
+    estimator = AQTEstimator(offline_simulator_no_noise, options={"shots": 200})
+
+    theta = Parameter("θ")
+    qc = QuantumCircuit(1)
+    qc.rx(theta, 0)
+
+    op = SparsePauliOp("Z")
+    result = estimator.run([qc] * 3, [op] * 3, [[0], [pi], [pi / 2]]).result()
+
+    z0, z1, z01 = result.values
+
+    assert isclose(z0, 1.0)  # <0|Z|0>
+    assert isclose(z1, -1.0)  # <1|Z|1>
+    assert abs(z01) < 0.1  # <ψ|Z|ψ>, |ψ> = (|0> + |1>)/√2
 
 
 @pytest.mark.parametrize(

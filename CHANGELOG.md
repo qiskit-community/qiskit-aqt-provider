@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+* Add `AQTEstimator`, a specialized implementation of the `Estimator` primitive #71
+* Add simple VQE example #71
+
 ## qiskit-aqt-provider v0.13.0
 
 * Always raise `TranspilerError` on errors in the custom transpilation passes #57

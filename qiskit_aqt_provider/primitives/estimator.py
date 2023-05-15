@@ -13,14 +13,14 @@
 from copy import copy
 from typing import Any, Dict, Optional
 
-from qiskit.primitives import BackendSampler
+from qiskit.primitives import BackendEstimator
 
 from qiskit_aqt_provider import transpiler_plugin
 from qiskit_aqt_provider.aqt_resource import AQTResource, make_transpiler_target
 
 
-class AQTSampler(BackendSampler):
-    """Sampler primitive for AQT backends."""
+class AQTEstimator(BackendEstimator):
+    """Estimator primitive for AQT backends."""
 
     _backend: AQTResource
 
@@ -28,13 +28,15 @@ class AQTSampler(BackendSampler):
         self,
         backend: AQTResource,
         options: Optional[Dict[str, Any]] = None,
+        abelian_grouping: bool = True,
         skip_transpilation: bool = False,
     ):
-        """Initialize a Sampler primitive for AQT resources.
+        """Initialize an Estimator primitive for AQT resources.
 
         Args:
             backend: AQT resource to evaluate circuits on
             options: options passed to the base sampler
+            abelian_grouping:  whether the observable should be grouped into commuting parts
             skip_transpilation: if true, pass circuits unchanged to the backend.
         """
         # Signal the transpiler to disable passes that require bound
@@ -54,6 +56,7 @@ class AQTSampler(BackendSampler):
             mod_backend,
             bound_pass_manager=transpiler_plugin.bound_pass_manager(mod_backend.target),
             options=options_copy,
+            abelian_grouping=abelian_grouping,
             skip_transpilation=skip_transpilation,
         )
 
