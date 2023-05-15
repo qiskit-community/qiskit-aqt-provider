@@ -17,8 +17,7 @@ from typing import Callable
 import pytest
 import qiskit
 from qiskit.circuit import Parameter, QuantumCircuit
-from qiskit.circuit.library import RealAmplitudes, TwoLocal
-from qiskit.primitives import BackendEstimator, BackendSampler, BaseSampler, Sampler
+from qiskit.primitives import BackendSampler, BaseSampler, Sampler
 from qiskit.providers import Backend
 from qiskit.quantum_info import SparsePauliOp
 from qiskit.transpiler.exceptions import TranspilerError
@@ -124,7 +123,7 @@ def test_operator_estimator_primitive_trivial_pauli_z(
     """Use the Estimator primitive to verify that:
     <0|Z|0> = 1
     <1|Z|1> = -1
-    <ψ|Z|ψ> = 0 with |ψ> = (|0> + |1>)/√2
+    <ψ|Z|ψ> = 0 with |ψ> = (|0> + |1>)/√2.
 
     The sampled circuit is always Rx(θ) with θ=0,π,π/2 respectively.
 

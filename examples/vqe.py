@@ -28,7 +28,7 @@ RANDOM_SEED: Final = 0
 
 if __name__ == "__main__":
     backend = AQTProvider("token").get_backend("offline_simulator_no_noise")
-    assert isinstance(backend, OfflineSimulatorResource)
+    assert isinstance(backend, OfflineSimulatorResource)  # noqa: S101
     estimator = AQTEstimator(backend)
 
     # fix the random seeds such that the example is reproducible
@@ -44,7 +44,7 @@ if __name__ == "__main__":
     optimizer = COBYLA(maxiter=100, tol=0.01)
     vqe = VQE(estimator, ansatz, optimizer)
     result = vqe.compute_minimum_eigenvalue(operator=hamiltonian)
-    assert result.eigenvalue is not None
+    assert result.eigenvalue is not None  # noqa: S101
 
     print(f"Optimizer run time: {result.optimizer_time:.2f} s")
     print("Cost function evaluations:", result.cost_function_evals)
