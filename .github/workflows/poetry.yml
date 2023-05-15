@@ -51,7 +51,7 @@ jobs:
       - name: Docs
         run: poetry run poe docs
       - name: Generate HTML coverage report
-        run: poetry run coverage html
+        run: poetry run coverage html --show-contexts
       - name: Upload HTML coverage report
         uses: actions/upload-artifact@v3
         with:

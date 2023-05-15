@@ -200,6 +200,9 @@ extend-exclude = [
 [tool.ruff.pydocstyle]
 convention = "google"
 
+[tool.coverage.run]
+dynamic_context = "test_function"
+
 [tool.coverage.report]
 fail_under = 98
 
