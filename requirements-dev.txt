@@ -1,7 +1,7 @@
 stestr>=2.5.0
 numpy>=1.17
 Sphinx>=5
-qiskit-sphinx-theme~=1.11.1
+qiskit-sphinx-theme~=1.12.0
 jupyter
 jupyter-sphinx
 qiskit-terra[visualization]
