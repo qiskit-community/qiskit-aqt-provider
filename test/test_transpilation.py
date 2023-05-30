@@ -71,7 +71,7 @@ def test_rx_ry_rewrite_transpile(
     assume(abs(theta) > pi / 200)
 
     # we only need the backend's transpiler target for this test
-    backend = MockSimulator()
+    backend = MockSimulator(noisy=False)
 
     qc = QuantumCircuit(1)
     qc.append(test_gate(theta), (0,))
@@ -211,7 +211,7 @@ def test_rxx_wrap_angle_transpile(angle: float, qubits: int, optimization_level:
     qc.rxx(angle, 0, 1)
 
     # we only need the backend's transpilation target for this test
-    backend = MockSimulator()
+    backend = MockSimulator(noisy=False)
     trans_qc = transpile(qc, backend, optimization_level=optimization_level)
     assert isinstance(trans_qc, QuantumCircuit)
 

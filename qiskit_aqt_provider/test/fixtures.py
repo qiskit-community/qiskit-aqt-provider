@@ -29,13 +29,13 @@ from qiskit_aqt_provider.circuit_to_aqt import _qiskit_to_aqt_circuit
 class MockSimulator(OfflineSimulatorResource):
     """Offline simulator that keeps track of the submitted circuits."""
 
-    def __init__(self) -> None:
+    def __init__(self, *, noisy: bool) -> None:
         super().__init__(
             AQTProvider(""),
             workspace_id="default",
             resource_id="mock_simulator",
             resource_name="mock_simulator",
-            noisy=False,
+            noisy=noisy,
         )
 
         self.submit_call_args: List[Tuple[List[QuantumCircuit], int]] = []
@@ -74,4 +74,4 @@ class MockSimulator(OfflineSimulatorResource):
 @pytest.fixture(name="offline_simulator_no_noise")
 def fixture_offline_simulator_no_noise() -> MockSimulator:
     """Noiseless offline simulator resource."""
-    return MockSimulator()
+    return MockSimulator(noisy=False)

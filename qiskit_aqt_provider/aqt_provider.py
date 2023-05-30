@@ -60,6 +60,7 @@ class OfflineSimulator:
 
 OFFLINE_SIMULATORS: Final = [
     OfflineSimulator(id="offline_simulator_no_noise", name="Offline ideal simulator", noisy=False),
+    OfflineSimulator(id="offline_simulator_noise", name="Offline noisy simulator", noisy=True),
 ]
 
 

@@ -5,6 +5,7 @@
 * Add `AQTEstimator`, a specialized implementation of the `Estimator` primitive #71
 * Add simple VQE example #71
 * Update pinned dependencies #72
+* Add `offline_simulator_noise` resource with basic noise model #73
 
 ## qiskit-aqt-provider v0.13.0
 
