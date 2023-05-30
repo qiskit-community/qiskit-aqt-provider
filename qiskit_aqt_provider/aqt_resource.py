@@ -33,8 +33,7 @@ from qiskit.providers import BackendV2 as Backend
 from qiskit.providers import Options as QiskitOptions
 from qiskit.providers.models import BackendConfiguration
 from qiskit.transpiler import Target
-from qiskit_aer import AerJob, AerSimulator
-from qiskit_aer.noise import NoiseModel
+from qiskit_aer import AerJob, AerSimulator, noise
 
 from qiskit_aqt_provider import api_models
 from qiskit_aqt_provider.aqt_job import AQTJob
@@ -307,8 +306,20 @@ class OfflineSimulatorResource(AQTResource):
 
         self.job: Optional[SimulatorJob] = None
 
-        noise_model = NoiseModel.from_backend(self) if noisy else None
+        if not noisy:
+            noise_model = None
+        else:
+            # the transpiler lowers all operations to the gate set supported by the AQT API,
+            # not to the resource target's one.
+            noise_model = noise.NoiseModel(basis_gates=["r", "rz", "rxx"])
+            noise_model.add_all_qubit_quantum_error(noise.depolarizing_error(0.003, 1), ["r"])
+            noise_model.add_all_qubit_quantum_error(noise.depolarizing_error(0.01, 2), ["rxx"])
+
         self.simulator = AerSimulator(method="statevector", noise_model=noise_model)
+
+    @property
+    def noisy(self) -> bool:
+        return self.simulator.options.noise_model is not None
 
     def submit(self, circuits: List[QuantumCircuit], shots: int) -> UUID:
         """Submit circuits for execution on the simulator.

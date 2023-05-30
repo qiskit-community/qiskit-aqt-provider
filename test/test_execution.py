@@ -17,6 +17,8 @@ expected.
 """
 
 import re
+import typing
+from collections import Counter
 from fractions import Fraction
 from math import pi
 from typing import List
@@ -32,6 +34,7 @@ from qiskit_experiments.library import QuantumVolume
 
 from qiskit_aqt_provider.aqt_resource import AQTResource
 from qiskit_aqt_provider.test.circuits import qft_circuit
+from qiskit_aqt_provider.test.fixtures import MockSimulator
 from qiskit_aqt_provider.test.resources import TestResource
 from qiskit_aqt_provider.test.timeout import timeout
 
@@ -126,6 +129,35 @@ def test_simple_backend_execute(shots: int, offline_simulator_no_noise: AQTResou
     # qiskit.execute calls the transpiler automatically
     job = qiskit.execute([qc0, qc1], backend=offline_simulator_no_noise, shots=shots)
     assert job.result().get_counts() == [{"01": shots}, {"10": shots}]
+
+
+@pytest.mark.parametrize("backend", [MockSimulator(noisy=False), MockSimulator(noisy=True)])
+def test_simple_backend_execute_noisy(backend: MockSimulator) -> None:
+    """Execute a simple circuit on a noisy and noiseless backend. Check that the noisy backend
+    is indeed noisy.
+    """
+    qc = QuantumCircuit(1)
+    qc.rx(pi, 0)
+    qc.measure_all()
+
+    # the single qubit error is around 0.1% so to see at least one error, we need to do more than
+    # 1000 shots.
+    total_shots = 4000  # take some margin
+    shots = 200  # maximum shots per submission
+    assert total_shots % shots == 0
+
+    counts: typing.Counter[str] = Counter()
+    for _ in range(total_shots // shots):
+        job = qiskit.execute(qc, backend=backend, shots=shots)
+        counts += Counter(job.result().get_counts())
+
+    assert sum(counts.values()) == total_shots
+
+    if backend.noisy:
+        assert set(counts.keys()) == {"0", "1"}
+        assert counts["0"] < 0.1 * counts["1"]  # very crude
+    else:
+        assert set(counts.keys()) == {"1"}
 
 
 @pytest.mark.parametrize("shots", [100])
