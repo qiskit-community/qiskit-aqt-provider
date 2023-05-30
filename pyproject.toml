@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qiskit-aqt-provider-rc"
-version = "0.13.0"
+version = "0.14.0"
 description = "Qiskit provider for AQT backends"
 authors = ["Qiskit Development Team", "Alpine Quantum Technologies GmbH"]
 repository = "https://github.com/alpine-quantum-technologies/qiskit-aqt-provider-rc/"
