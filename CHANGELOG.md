@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## qiskit-aqt-provider v0.14.0
+
 * Add `AQTEstimator`, a specialized implementation of the `Estimator` primitive #71
 * Add simple VQE example #71
 * Update pinned dependencies #72
