@@ -33,7 +33,9 @@ from qiskit_aqt_provider.test.fixtures import MockSimulator
     importlib.metadata.version("qiskit-terra") >= "0.24.0",
     reason="qiskit.opflow is deprecated in qiskit-terra>=0.24",
 )
-def test_circuit_sampling_opflow(offline_simulator_no_noise: AQTResource) -> None:
+def test_circuit_sampling_opflow(
+    offline_simulator_no_noise: AQTResource,
+) -> None:  # pragma: no cover
     """Check that an `AQTResource` can be used as backend for the legacy
     `opflow.CircuitSampler` with parametric circuits.
     """

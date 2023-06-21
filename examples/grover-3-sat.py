@@ -15,8 +15,6 @@
 This is a modified version of the corresponding
 [Qiskit tutorial](https://qiskit.org/documentation/tutorials/algorithms/07_grover_examples.html).
 """
-
-
 import tempfile
 import textwrap
 from typing import Final, Set, Tuple
@@ -63,7 +61,13 @@ def format_bitstring(bits: str) -> Tuple[bool, ...]:
 
 
 if __name__ == "__main__":
-    import tweedledum
+    import sys
+
+    try:
+        import tweedledum
+    except ImportError:
+        print("Tweedledum not available: example not supported.", file=sys.stderr)
+        sys.exit(0)  # not a critical error
 
     # Problem definition
     sat_problem = ThreeSatProblem(
