@@ -13,8 +13,8 @@ jobs:
         # TODO: restore full test matrix before merging into public repository
         # python-version: [3.7, 3.8, 3.9, '3.10']
         # os: ["macOS-latest", "ubuntu-latest", "windows-latest"]
-        python-version: [3.8, '3.10']
-        poetry-version: [1.4.1]
+        python-version: ['3.8', '3.10', '3.11']
+        poetry-version: [1.5.1]
         os: ["ubuntu-latest"]
     steps:
       - uses: actions/checkout@v3
@@ -34,12 +34,17 @@ jobs:
       - name: Install main dependencies
         run: |
           poetry run pip install coverage[toml]
+          poetry install --only main
+      - name: Install examples dependencies
+        run: |
           poetry install --only main --extras examples
+        # tweedledum has no wheel for Python3.11 and the build errors
+        if: matrix.python-version != '3.11'
       - name: Run examples
         run: |
           poetry run examples/run_all.sh -c
       - name: Install all dependencies
-        run: poetry install --all-extras --sync
+        run: poetry install --sync
       - name: Check formatting
         run: poetry run poe format_check
       - name: Linting
