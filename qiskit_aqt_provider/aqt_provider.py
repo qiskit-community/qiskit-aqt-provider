@@ -142,7 +142,7 @@ class AQTProvider(ProviderV1):
     """
 
     # Set AQT_PORTAL_URL environment variable to override
-    DEFAULT_PORTAL_URL: Final = "http://arnica.internal.aqt.eu"
+    DEFAULT_PORTAL_URL: Final = "https://arnica-stage.aqt.eu"
 
     def __init__(
         self,
