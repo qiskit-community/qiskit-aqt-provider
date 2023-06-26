@@ -14,6 +14,7 @@
 import contextlib
 import os
 import re
+import warnings
 from collections import defaultdict
 from dataclasses import dataclass
 from operator import attrgetter
@@ -42,6 +43,10 @@ from qiskit_aqt_provider import api_models
 from .aqt_resource import AQTResource, OfflineSimulatorResource
 
 StrPath: TypeAlias = Union[str, Path]
+
+
+class NoTokenWarning(UserWarning):
+    """Warning emitted when a provider is initialized with no access token."""
 
 
 @dataclass(frozen=True)
@@ -176,12 +181,16 @@ class AQTProvider(ProviderV1):
         self.portal_url = f"{portal_base_url}/api/v1"
 
         if access_token is None:
-            env_token = os.environ.get("AQT_TOKEN")
-            if env_token is None:
-                raise ValueError("No access token provided. Use 'AQT_TOKEN' environment variable.")
-            self.access_token = env_token
+            self.access_token = os.environ.get("AQT_TOKEN", "")
         else:
             self.access_token = access_token
+
+        if not self.access_token:
+            warnings.warn(
+                "No access token provided: access is restricted to the 'default' workspace.",
+                NoTokenWarning,
+            )
+
         self.name = "aqt_provider"
 
     @property

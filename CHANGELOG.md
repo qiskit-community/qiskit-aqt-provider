@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* Make the access token optional #80
+
 ## qiskit-aqt-provider v0.15.0
 
 * Set default portal url to `https://arnica-stage.aqt.eu` #79
