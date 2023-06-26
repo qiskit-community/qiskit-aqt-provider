@@ -65,7 +65,7 @@ if __name__ == "__main__":
 
     try:
         import tweedledum
-    except ImportError:
+    except ImportError:  # pragma: no cover
         print("Tweedledum not available: example not supported.", file=sys.stderr)
         sys.exit(0)  # not a critical error
 

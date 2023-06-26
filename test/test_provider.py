@@ -22,7 +22,7 @@ import pytest
 from pytest_httpx import HTTPXMock
 
 from qiskit_aqt_provider import api_models, api_models_generated
-from qiskit_aqt_provider.aqt_provider import OFFLINE_SIMULATORS, AQTProvider
+from qiskit_aqt_provider.aqt_provider import OFFLINE_SIMULATORS, AQTProvider, NoTokenWarning
 
 
 def test_default_portal_url() -> None:
@@ -97,11 +97,19 @@ def test_autoload_env(tmp_path: Path) -> None:
         assert aqt.access_token == env_token
 
 
-def test_autoload_env_deactivated() -> None:
-    """Check that auto-loading the environment can be deactivated."""
+def test_default_to_empty_token() -> None:
+    """Check that if no token is passed and AQT_TOKEN is not found in the environment,
+    the access token is set to an empty string.
+
+    In this case, the only accessible workspace is the default workspace.
+    """
     with mock.patch.object(os, "environ", {}):
-        with pytest.raises(ValueError, match="No access token provided"):
-            AQTProvider(load_dotenv=False)
+        with pytest.warns(NoTokenWarning, match="No access token provided"):
+            aqt = AQTProvider(load_dotenv=False)
+
+        assert aqt.access_token == ""
+
+    assert list(aqt.backends().by_workspace()) == ["default"]
 
 
 def test_remote_workspaces_table(httpx_mock: HTTPXMock) -> None:
