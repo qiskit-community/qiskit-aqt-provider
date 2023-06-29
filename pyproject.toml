@@ -48,6 +48,7 @@ httpx = ">=0.24.0"
 pydantic = ">=1.10.8,<2"
 python-dotenv = ">=1"
 qiskit-aer = ">=0.11"
+qiskit-optimization = { version = ">=0.5.0", optional = true }
 qiskit-terra = ">=0.23.3,!=0.24.0"
 tabulate = ">=0.9.0"
 tqdm = ">=4"
@@ -84,8 +85,12 @@ types-tabulate = "^0.9.0.1"
 types-tqdm = "^4.65.0.1"
 
 [tool.poetry.extras]
-examples = [
+# dependencies for examples that are not compatible with recent Python versions
+examples-problematic = [
     "tweedledum"
+]
+examples = [
+    "qiskit-optimization"
 ]
 
 [build-system]

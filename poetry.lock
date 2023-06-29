@@ -765,6 +765,19 @@ trio = ["trio (>=0.14,<0.23)"]
 wmi = ["wmi (>=1.5.1,<2.0.0)"]
 
 [[package]]
+name = "docplex"
+version = "2.25.236"
+description = "The IBM Decision Optimization CPLEX Modeling for Python"
+optional = true
+python-versions = "*"
+files = [
+    {file = "docplex-2.25.236.tar.gz", hash = "sha256:256914b4c0113a4e1c78f32ea20c7d76dc8efe286fe890270e75cfad50fe510f"},
+]
+
+[package.dependencies]
+six = "*"
+
+[[package]]
 name = "docutils"
 version = "0.19"
 description = "Docutils -- Python Documentation Utilities"
@@ -820,13 +833,13 @@ tests = ["asttokens", "littleutils", "pytest", "rich"]
 
 [[package]]
 name = "faker"
-version = "18.11.1"
+version = "18.11.2"
 description = "Faker is a Python package that generates fake data for you."
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "Faker-18.11.1-py3-none-any.whl", hash = "sha256:02980fe15acd58861305568bae0a277680792a505a5a45a309d352f79c452dd1"},
-    {file = "Faker-18.11.1.tar.gz", hash = "sha256:df4ee36d058a6a96de9d5e645571ef8536946a0b62db841494f8a3bc3bcdc5af"},
+    {file = "Faker-18.11.2-py3-none-any.whl", hash = "sha256:21c2c29638e98502f3bba9ad6a4f07a4b09c5e2150bb491ff02411a5888f6955"},
+    {file = "Faker-18.11.2.tar.gz", hash = "sha256:ec6e2824bb1d3546b36c156324b9df6bca5a3d6d03adf991e6a5586756dcab9d"},
 ]
 
 [package.dependencies]
@@ -995,13 +1008,13 @@ socks = ["socksio (==1.*)"]
 
 [[package]]
 name = "hypothesis"
-version = "6.79.1"
+version = "6.80.0"
 description = "A library for property-based testing"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "hypothesis-6.79.1-py3-none-any.whl", hash = "sha256:7a0b8ca178f16720e96f11e96b71b6139db0e30727e9cf8bd8e3059710393fc7"},
-    {file = "hypothesis-6.79.1.tar.gz", hash = "sha256:de8fb599fc855d3006236ab58cd0edafd099d63837225aad848dac22e239475b"},
+    {file = "hypothesis-6.80.0-py3-none-any.whl", hash = "sha256:63dc6b094b52da6180ca50edd63bf08184bc96810f8624fdbe66578aaf377993"},
+    {file = "hypothesis-6.80.0.tar.gz", hash = "sha256:75d74da36fd3837b5b3fe15211dabc7389e78d882bf2c91bab2184ccf91fe64c"},
 ]
 
 [package.dependencies]
@@ -1010,7 +1023,7 @@ exceptiongroup = {version = ">=1.0.0", markers = "python_version < \"3.11\""}
 sortedcontainers = ">=2.1.0,<3.0.0"
 
 [package.extras]
-all = ["backports.zoneinfo (>=0.2.1)", "black (>=19.10b0)", "click (>=7.0)", "django (>=3.2)", "dpcontracts (>=0.4)", "importlib-metadata (>=3.6)", "lark (>=0.10.1)", "libcst (>=0.3.16)", "numpy (>=1.16.0)", "pandas (>=1.1)", "pytest (>=4.6)", "python-dateutil (>=1.4)", "pytz (>=2014.1)", "redis (>=3.0.0)", "rich (>=9.0.0)", "tzdata (>=2023.3)"]
+all = ["backports.zoneinfo (>=0.2.1)", "black (>=19.10b0)", "click (>=7.0)", "django (>=3.2)", "dpcontracts (>=0.4)", "lark (>=0.10.1)", "libcst (>=0.3.16)", "numpy (>=1.17.3)", "pandas (>=1.1)", "pytest (>=4.6)", "python-dateutil (>=1.4)", "pytz (>=2014.1)", "redis (>=3.0.0)", "rich (>=9.0.0)", "tzdata (>=2023.3)"]
 cli = ["black (>=19.10b0)", "click (>=7.0)", "rich (>=9.0.0)"]
 codemods = ["libcst (>=0.3.16)"]
 dateutil = ["python-dateutil (>=1.4)"]
@@ -1018,7 +1031,7 @@ django = ["django (>=3.2)"]
 dpcontracts = ["dpcontracts (>=0.4)"]
 ghostwriter = ["black (>=19.10b0)"]
 lark = ["lark (>=0.10.1)"]
-numpy = ["numpy (>=1.16.0)"]
+numpy = ["numpy (>=1.17.3)"]
 pandas = ["pandas (>=1.1)"]
 pytest = ["pytest (>=4.6)"]
 pytz = ["pytz (>=2014.1)"]
@@ -1126,13 +1139,13 @@ files = [
 
 [[package]]
 name = "ipykernel"
-version = "6.23.2"
+version = "6.23.3"
 description = "IPython Kernel for Jupyter"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "ipykernel-6.23.2-py3-none-any.whl", hash = "sha256:7ccb6e2d32fd958c21453db494c914f3474908a2fdefd99ab548a5375b548d1f"},
-    {file = "ipykernel-6.23.2.tar.gz", hash = "sha256:fcfb67c5b504aa1bfcda1c5b3716636239e0f7b9290958f1c558c79b4c0e7ed5"},
+    {file = "ipykernel-6.23.3-py3-none-any.whl", hash = "sha256:bc00662dc44d4975b668cdb5fefb725e38e9d8d6e28441a519d043f38994922d"},
+    {file = "ipykernel-6.23.3.tar.gz", hash = "sha256:dd4e18116357f36a1e459b3768412371bee764c51844cbf25c4ed1eb9cae4a54"},
 ]
 
 [package.dependencies]
@@ -1310,13 +1323,13 @@ requests = ">=2.31.0,<3.0.0"
 
 [[package]]
 name = "jupyter-client"
-version = "8.2.0"
+version = "8.3.0"
 description = "Jupyter protocol implementation and client libraries"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "jupyter_client-8.2.0-py3-none-any.whl", hash = "sha256:b18219aa695d39e2ad570533e0d71fb7881d35a873051054a84ee2a17c4b7389"},
-    {file = "jupyter_client-8.2.0.tar.gz", hash = "sha256:9fe233834edd0e6c0aa5f05ca2ab4bdea1842bfd2d8a932878212fc5301ddaf0"},
+    {file = "jupyter_client-8.3.0-py3-none-any.whl", hash = "sha256:7441af0c0672edc5d28035e92ba5e32fadcfa8a4e608a434c228836a89df6158"},
+    {file = "jupyter_client-8.3.0.tar.gz", hash = "sha256:3af69921fe99617be1670399a0b857ad67275eefcfa291e2c81a160b7b650f5f"},
 ]
 
 [package.dependencies]
@@ -1860,6 +1873,24 @@ files = [
 ]
 
 [[package]]
+name = "networkx"
+version = "3.1"
+description = "Python package for creating and manipulating graphs and networks"
+optional = true
+python-versions = ">=3.8"
+files = [
+    {file = "networkx-3.1-py3-none-any.whl", hash = "sha256:4f33f68cb2afcf86f28a45f43efc27a9386b535d567d2127f8f61d51dec58d36"},
+    {file = "networkx-3.1.tar.gz", hash = "sha256:de346335408f84de0eada6ff9fafafff9bcda11f0a0dfaa931133debb146ab61"},
+]
+
+[package.extras]
+default = ["matplotlib (>=3.4)", "numpy (>=1.20)", "pandas (>=1.3)", "scipy (>=1.8)"]
+developer = ["mypy (>=1.1)", "pre-commit (>=3.2)"]
+doc = ["nb2plots (>=0.6)", "numpydoc (>=1.5)", "pillow (>=9.4)", "pydata-sphinx-theme (>=0.13)", "sphinx (>=6.1)", "sphinx-gallery (>=0.12)", "texext (>=0.6.7)"]
+extra = ["lxml (>=4.6)", "pydot (>=1.4.2)", "pygraphviz (>=1.10)", "sympy (>=1.10)"]
+test = ["codecov (>=2.1)", "pytest (>=7.2)", "pytest-cov (>=4.0)"]
+
+[[package]]
 name = "nodeenv"
 version = "1.8.0"
 description = "Node.js virtual environment builder"
@@ -2217,13 +2248,13 @@ files = [
 
 [[package]]
 name = "platformdirs"
-version = "3.7.0"
+version = "3.8.0"
 description = "A small Python package for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "platformdirs-3.7.0-py3-none-any.whl", hash = "sha256:cfd065ba43133ff103ab3bd10aecb095c2a0035fcd1f07217c9376900d94ba07"},
-    {file = "platformdirs-3.7.0.tar.gz", hash = "sha256:87fbf6473e87c078d536980ba970a472422e94f17b752cfad17024c18876d481"},
+    {file = "platformdirs-3.8.0-py3-none-any.whl", hash = "sha256:ca9ed98ce73076ba72e092b23d3c93ea6c4e186b3f1c3dad6edd98ff6ffcca2e"},
+    {file = "platformdirs-3.8.0.tar.gz", hash = "sha256:b0cabcb11063d21a0b261d557acb0a9d2126350e63b70cdf7db6347baea456dc"},
 ]
 
 [package.extras]
@@ -2276,13 +2307,13 @@ poetry-plugin = ["poetry (>=1.0,<2.0)"]
 
 [[package]]
 name = "polyfactory"
-version = "2.3.2"
+version = "2.4.0"
 description = "Mock data generation factories"
 optional = false
 python-versions = ">=3.8,<4.0"
 files = [
-    {file = "polyfactory-2.3.2-py3-none-any.whl", hash = "sha256:00d8fa88b24287f11ca3dfd91a483e32d2a0326ff7a70544a3d28bf9b432cd1e"},
-    {file = "polyfactory-2.3.2.tar.gz", hash = "sha256:7285080fced78480983005a713e36601874d7259af6738c3aa10b5e13160b2e7"},
+    {file = "polyfactory-2.4.0-py3-none-any.whl", hash = "sha256:fbd43844d052d124b46fe23f6fd19b73ffd21a08080c387bce56533925b19fd3"},
+    {file = "polyfactory-2.4.0.tar.gz", hash = "sha256:561a6e2d551492431e5ded760763b76c904176cdf6a36f48e33f1611fdff5b26"},
 ]
 
 [package.dependencies]
@@ -2637,13 +2668,13 @@ yaml = ["ruamel.yaml"]
 
 [[package]]
 name = "pytest"
-version = "7.3.2"
+version = "7.4.0"
 description = "pytest: simple powerful testing with Python"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pytest-7.3.2-py3-none-any.whl", hash = "sha256:cdcbd012c9312258922f8cd3f1b62a6580fdced17db6014896053d47cddf9295"},
-    {file = "pytest-7.3.2.tar.gz", hash = "sha256:ee990a3cc55ba808b80795a79944756f315c67c12b56abd3ac993a7b8c17030b"},
+    {file = "pytest-7.4.0-py3-none-any.whl", hash = "sha256:78bf16451a2eb8c7a2ea98e32dc119fd2aa758f1d5d66dbf0a59d69a3969df32"},
+    {file = "pytest-7.4.0.tar.gz", hash = "sha256:b4bf8c45bd59934ed84001ad51e11b4ee40d40a1229d2c79f9c592b0a3f6bd8a"},
 ]
 
 [package.dependencies]
@@ -3015,6 +3046,31 @@ websockets = {version = ">=10.0", markers = "python_version >= \"3.7\""}
 
 [package.extras]
 visualization = ["ipython (>=5.0.0)", "ipyvue (>=1.4.1)", "ipyvuetify (>=1.1)", "ipywidgets (<=7.7.2)", "matplotlib (>=2.1)", "plotly (>=4.4)", "pyperclip (>=1.7)", "seaborn (>=0.9.0)", "traitlets (!=5.0.5)"]
+
+[[package]]
+name = "qiskit-optimization"
+version = "0.5.0"
+description = "Qiskit Optimization: A library of quantum computing optimizations"
+optional = true
+python-versions = ">=3.7"
+files = [
+    {file = "qiskit-optimization-0.5.0.tar.gz", hash = "sha256:4804831e590a7159c2bd2be71750cde0c95a3b06e14a4843346e2ebcc7231e01"},
+    {file = "qiskit_optimization-0.5.0-py3-none-any.whl", hash = "sha256:eb9d8788d197d2812dcf6bea69a8af49c4c044b947f4b15a169fdf4c4fe5ab7a"},
+]
+
+[package.dependencies]
+docplex = ">=2.21.207,<2.24.231 || >2.24.231"
+networkx = ">=2.6.3"
+numpy = ">=1.17"
+qiskit-terra = ">=0.22.4"
+scipy = ">=1.4"
+setuptools = ">=40.1.0"
+
+[package.extras]
+cplex = ["cplex"]
+cvx = ["cvxpy"]
+gurobi = ["gurobipy"]
+matplotlib = ["matplotlib"]
 
 [[package]]
 name = "qiskit-sphinx-theme"
@@ -4170,9 +4226,10 @@ docs = ["furo", "jaraco.packaging (>=9)", "jaraco.tidelift (>=1.4)", "rst.linker
 testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=1.3)", "pytest-flake8", "pytest-mypy (>=0.9.1)"]
 
 [extras]
-examples = ["tweedledum"]
+examples = ["qiskit-optimization"]
+examples-problematic = ["tweedledum"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.12"
-content-hash = "0708bcd7db2275912b8078449a996b58e5395b086abb92e6911f1f130f0aef77"
+content-hash = "56baff0186bc6c50cf3dc55ca42e0c5191f65eb84897868753671de683cb832d"
