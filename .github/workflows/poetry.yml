@@ -31,14 +31,17 @@ jobs:
         run: poetry lock --check
       - name: Check shell scripts
         uses: ludeeus/action-shellcheck@2.0.0
-      - name: Install main dependencies
+      - name: Install coverage tool
         run: |
           poetry run pip install coverage[toml]
-          poetry install --only main
-      - name: Install examples dependencies
+      - name: Install examples dependencies (Py3.11)
         run: |
           poetry install --only main --extras examples
-        # tweedledum has no wheel for Python3.11 and the build errors
+          # tweedledum has no wheel for Python3.11 and the build errors
+        if: matrix.python-version == '3.11'
+      - name: Install examples dependencies (~Py3.11)
+        run: |
+          poetry install --only main --all-extras
         if: matrix.python-version != '3.11'
       - name: Run examples
         run: |

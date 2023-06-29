@@ -10,6 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+from .estimator import AQTEstimator
 from .sampler import AQTSampler
 
-__all__ = ["AQTSampler"]
+__all__ = ["AQTEstimator", "AQTSampler"]
