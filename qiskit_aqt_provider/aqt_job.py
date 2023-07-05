@@ -165,7 +165,7 @@ class AQTJob(JobV1):
         elif isinstance(payload, api_models_generated.JobResponseRRFinished):
             self.status_payload = JobFinished(
                 results={
-                    int(circuit_index): [[sample.__root__ for sample in shot] for shot in shots]
+                    int(circuit_index): [[sample.root for sample in shot] for shot in shots]
                     for circuit_index, shots in payload.response.result.items()
                 }
             )

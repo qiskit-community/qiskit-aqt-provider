@@ -7,7 +7,7 @@ from enum import Enum
 from typing import Dict, List, Literal, Optional, Set, Union
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, RootModel, ConfigDict, Field
 from typing_extensions import Annotated
 
 
@@ -100,7 +100,7 @@ class Measure(BaseModel):
     operation: Annotated[Literal["MEASURE"], Field(title="Operation")]
 
 
-class OperationModel(BaseModel):
+class OperationModel(RootModel):
     model_config = ConfigDict(
         frozen=True,
     )
@@ -131,7 +131,7 @@ class RRError(BaseModel):
     status: Annotated[Literal["error"], Field(title="Status")] = "error"
 
 
-class ResultItem(BaseModel):
+class ResultItem(RootModel):
     model_config = ConfigDict(
         frozen=True,
     )
@@ -204,7 +204,7 @@ class Workspace(BaseModel):
     resources: Annotated[List[Resource], Field(title="Resources")]
 
 
-class Circuit(BaseModel):
+class Circuit(RootModel):
     """
     Json encoding of a quantum circuit.
     """
@@ -215,12 +215,14 @@ class Circuit(BaseModel):
     root: Annotated[
         List[OperationModel],
         Field(
-            example=[
-                {"operation": "RZ", "phi": 0.5, "qubit": 0},
-                {"operation": "R", "phi": 0.25, "qubit": 1, "theta": 0.5},
-                {"operation": "RXX", "qubits": [0, 1], "theta": 0.5},
-                {"operation": "MEASURE"},
-            ],
+            json_schema_extra={
+                "example": [
+                    {"operation": "RZ", "phi": 0.5, "qubit": 0},
+                    {"operation": "R", "phi": 0.25, "qubit": 1, "theta": 0.5},
+                    {"operation": "RXX", "qubits": [0, 1], "theta": 0.5},
+                    {"operation": "MEASURE"},
+                ]
+            },
             max_length=10000,
             min_length=1,
             title="Circuit",
@@ -336,98 +338,103 @@ class ResultResponse(BaseModel):
             UnknownJob,
         ],
         Field(
-            examples={
-                "cancelled": {
-                    "description": (
-                        "Job that has been cancelled by the user, before it could be processed by"
-                        " the Quantum computer"
-                    ),
-                    "summary": "Cancelled Job",
-                    "value": {
-                        "job": {
-                            "job_id": "ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450",
-                            "job_type": "quantum_circuit",
-                            "label": "Example computation",
-                            "resource_id": "",
-                            "workspace_id": "",
-                        },
-                        "response": {"status": "cancelled"},
-                    },
-                },
-                "error": {
-                    "description": (
-                        "Job that created an error while being processed by the Quantum computer"
-                    ),
-                    "summary": "Failed Job",
-                    "value": {
-                        "job": {
-                            "job_id": "ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450",
-                            "job_type": "quantum_circuit",
-                            "label": "Example computation",
-                            "resource_id": "",
-                            "workspace_id": "",
-                        },
-                        "response": {"message": "detailed error message", "status": "error"},
-                    },
-                },
-                "finished": {
-                    "description": (
-                        "Job that has been successfully processed by a quantum computer or"
-                        " simulator"
-                    ),
-                    "summary": "Finished Job",
-                    "value": {
-                        "job": {
-                            "job_id": "ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450",
-                            "job_type": "quantum_circuit",
-                            "label": "Example computation",
-                            "resource_id": "",
-                            "workspace_id": "",
-                        },
-                        "response": {
-                            "result": {0: [[1, 0], [1, 1], [0, 0], [1, 1], [1, 1]]},
-                            "status": "finished",
+            json_schema_extra={
+                "examples": {
+                    "cancelled": {
+                        "description": (
+                            "Job that has been cancelled by the user, before it could be processed"
+                            " by the Quantum computer"
+                        ),
+                        "summary": "Cancelled Job",
+                        "value": {
+                            "job": {
+                                "job_id": "ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450",
+                                "job_type": "quantum_circuit",
+                                "label": "Example computation",
+                                "resource_id": "",
+                                "workspace_id": "",
+                            },
+                            "response": {"status": "cancelled"},
                         },
                     },
-                },
-                "ongoing": {
-                    "description": "Job that is currently being processed by the Quantum computer",
-                    "summary": "Ongoing Job",
-                    "value": {
-                        "job": {
-                            "job_id": "ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450",
-                            "job_type": "quantum_circuit",
-                            "label": "Example computation",
-                            "resource_id": "",
-                            "workspace_id": "",
+                    "error": {
+                        "description": (
+                            "Job that created an error while being processed by the Quantum"
+                            " computer"
+                        ),
+                        "summary": "Failed Job",
+                        "value": {
+                            "job": {
+                                "job_id": "ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450",
+                                "job_type": "quantum_circuit",
+                                "label": "Example computation",
+                                "resource_id": "",
+                                "workspace_id": "",
+                            },
+                            "response": {"message": "detailed error message", "status": "error"},
                         },
-                        "response": {"finished_count": 0, "status": "ongoing"},
                     },
-                },
-                "queued": {
-                    "description": (
-                        "Job waiting in the queue to be picked up by the Quantum computer"
-                    ),
-                    "summary": "Queued Job",
-                    "value": {
-                        "job": {
-                            "job_id": "ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450",
-                            "job_type": "quantum_circuit",
-                            "label": "Example computation",
-                            "resource_id": "",
-                            "workspace_id": "",
+                    "finished": {
+                        "description": (
+                            "Job that has been successfully processed by a quantum computer or"
+                            " simulator"
+                        ),
+                        "summary": "Finished Job",
+                        "value": {
+                            "job": {
+                                "job_id": "ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450",
+                                "job_type": "quantum_circuit",
+                                "label": "Example computation",
+                                "resource_id": "",
+                                "workspace_id": "",
+                            },
+                            "response": {
+                                "result": {0: [[1, 0], [1, 1], [0, 0], [1, 1], [1, 1]]},
+                                "status": "finished",
+                            },
                         },
-                        "response": {"status": "queued"},
                     },
-                },
-                "unknown": {
-                    "description": "The supplied job id could not be found",
-                    "summary": "Unknown Job",
-                    "value": {
-                        "job_id": "3aa8b827-4ff0-4a36-b1a6-f9ff6dee59ce",
-                        "message": "unknown job_id",
+                    "ongoing": {
+                        "description": (
+                            "Job that is currently being processed by the Quantum computer"
+                        ),
+                        "summary": "Ongoing Job",
+                        "value": {
+                            "job": {
+                                "job_id": "ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450",
+                                "job_type": "quantum_circuit",
+                                "label": "Example computation",
+                                "resource_id": "",
+                                "workspace_id": "",
+                            },
+                            "response": {"finished_count": 0, "status": "ongoing"},
+                        },
                     },
-                },
+                    "queued": {
+                        "description": (
+                            "Job waiting in the queue to be picked up by the Quantum computer"
+                        ),
+                        "summary": "Queued Job",
+                        "value": {
+                            "job": {
+                                "job_id": "ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450",
+                                "job_type": "quantum_circuit",
+                                "label": "Example computation",
+                                "resource_id": "",
+                                "workspace_id": "",
+                            },
+                            "response": {"status": "queued"},
+                        },
+                    },
+                    "unknown": {
+                        "description": "The supplied job id could not be found",
+                        "summary": "Unknown Job",
+                        "value": {
+                            "job_id": "3aa8b827-4ff0-4a36-b1a6-f9ff6dee59ce",
+                            "message": "unknown job_id",
+                        },
+                    },
+                }
             },
             title="ResultResponse",
         ),

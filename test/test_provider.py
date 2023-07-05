@@ -129,9 +129,7 @@ def test_remote_workspaces_table(httpx_mock: HTTPXMock) -> None:
         )
     ]
 
-    httpx_mock.add_response(
-        json=json.loads(api_models.Workspaces(__root__=remote_workspaces).json())
-    )
+    httpx_mock.add_response(json=json.loads(api_models.Workspaces(root=remote_workspaces).json()))
 
     provider = AQTProvider("my-token")
 

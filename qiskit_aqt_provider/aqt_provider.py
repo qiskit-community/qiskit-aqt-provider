@@ -219,7 +219,7 @@ class AQTProvider(ProviderV1):
             List of backends accessible with the given access token that match the
             given criteria.
         """
-        remote_workspaces = api_models.Workspaces(__root__=[])
+        remote_workspaces = api_models.Workspaces(root=[])
 
         if backend_type != "offline_simulator":
             with contextlib.suppress(httpx.HTTPError, httpx.NetworkError):
@@ -253,7 +253,7 @@ class AQTProvider(ProviderV1):
                 )
 
         # add (filtered) remote resources
-        for _workspace in remote_workspaces.__root__:
+        for _workspace in remote_workspaces.root:
             for resource in _workspace.resources:
                 backends.append(
                     AQTResource(

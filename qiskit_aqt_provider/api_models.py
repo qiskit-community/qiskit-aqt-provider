@@ -62,10 +62,10 @@ def http_client(*, base_url: str, token: str) -> httpx.Client:
     return httpx.Client(headers=headers, base_url=base_url, timeout=10.0)
 
 
-class Workspaces(pdt.BaseModel, extra=pdt.Extra.forbid, frozen=True):
+class Workspaces(pdt.RootModel[List[api_models.Workspace]], extra=pdt.Extra.forbid):
     """List of available workspaces and devices."""
 
-    __root__: List[api_models.Workspace]
+    root: List[api_models.Workspace]
 
     def filter(
         self,
@@ -88,7 +88,7 @@ class Workspaces(pdt.BaseModel, extra=pdt.Extra.forbid, frozen=True):
             Workspaces model that only contains matching resources.
         """
         filtered_workspaces = []
-        for workspace in self.__root__:
+        for workspace in self.root:
             if workspace_pattern is not None and not re.match(
                 workspace_pattern, workspace.id, re.IGNORECASE
             ):
@@ -111,7 +111,7 @@ class Workspaces(pdt.BaseModel, extra=pdt.Extra.forbid, frozen=True):
                 api_models.Workspace(id=workspace.id, resources=filtered_resources)
             )
 
-        return self.__class__(__root__=filtered_workspaces)
+        return self.__class__(root=filtered_workspaces)
 
 
 class Operation:
@@ -121,31 +121,31 @@ class Operation:
     def rz(*, phi: float, qubit: int) -> api_models.OperationModel:
         """RZ gate."""
         return api_models.OperationModel(
-            __root__=api_models.GateRZ(operation="RZ", phi=phi, qubit=qubit)
+            root=api_models.GateRZ(operation="RZ", phi=phi, qubit=qubit)
         )
 
     @staticmethod
     def r(*, phi: float, theta: float, qubit: int) -> api_models.OperationModel:
         """R gate."""
         return api_models.OperationModel(
-            __root__=api_models.GateR(operation="R", phi=phi, theta=theta, qubit=qubit)
+            root=api_models.GateR(operation="R", phi=phi, theta=theta, qubit=qubit)
         )
 
     @staticmethod
     def rxx(*, theta: float, qubits: List[int]) -> api_models.OperationModel:
         """RXX gate."""
         return api_models.OperationModel(
-            __root__=api_models.GateRXX(
+            root=api_models.GateRXX(
                 operation="RXX",
                 theta=theta,
-                qubits=[api_models.Qubit(__root__=qubit) for qubit in qubits],
+                qubits={api_models.Qubit(root=qubit) for qubit in qubits},
             )
         )
 
     @staticmethod
     def measure() -> api_models.OperationModel:
         """MEASURE operation."""
-        return api_models.OperationModel(__root__=api_models.Measure(operation="MEASURE"))
+        return api_models.OperationModel(root=api_models.Measure(operation="MEASURE"))
 
 
 JobResponse: TypeAlias = Union[
@@ -176,7 +176,7 @@ class Response:
         Raises:
             UnknownJobError: the server answered with an unknown job error.
         """
-        response = api_models.ResultResponse.parse_obj(data).__root__
+        response = api_models.ResultResponse.model_validate(data).root
 
         if isinstance(response, api_models.UnknownJob):
             raise UnknownJobError(str(response.job_id))
@@ -220,8 +220,7 @@ class Response:
             response=api_models.RRFinished(
                 result={
                     circuit_index: [
-                        [api_models.ResultItem(__root__=state) for state in shot]
-                        for shot in samples
+                        [api_models.ResultItem(root=state) for state in shot] for shot in samples
                     ]
                     for circuit_index, samples in results.items()
                 },

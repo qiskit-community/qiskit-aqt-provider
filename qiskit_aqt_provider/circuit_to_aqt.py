@@ -78,7 +78,7 @@ def _qiskit_to_aqt_circuit(circuit: QuantumCircuit) -> api_models.Circuit:
         raise ValueError("Circuit must have at least one measurement operation.")
 
     ops.append(api_models.Operation.measure())
-    return api_models.Circuit(__root__=ops)
+    return api_models.Circuit(root=ops)
 
 
 def circuits_to_aqt_job(circuits: List[QuantumCircuit], shots: int) -> api_models.JobSubmission:
