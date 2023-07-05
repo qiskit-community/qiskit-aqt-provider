@@ -324,7 +324,7 @@ class QuantumCircuits(BaseModel):
     circuits: Annotated[List[QuantumCircuit], Field(min_length=1, title="Circuits")]
 
 
-class ResultResponse(BaseModel):
+class ResultResponse(RootModel):
     model_config = ConfigDict(
         frozen=True,
     )

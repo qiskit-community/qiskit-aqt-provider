@@ -61,7 +61,7 @@ class AQTOptions(
         update = self.dict()
         update.update(kwargs)
 
-        for key, value in self.validate(update).dict().items():
+        for key, value in self.model_validate(update).model_dump().items():
             setattr(self, key, value)
 
         return self

@@ -132,7 +132,7 @@ class AQTResource(Backend):
         payload = circuits_to_aqt_job(circuits, shots)
 
         resp = self._http_client.post(
-            f"/submit/{self.workspace_id}/{self.resource_id}", json=payload.dict()
+            f"/submit/{self.workspace_id}/{self.resource_id}", json=payload.model_dump()
         )
 
         resp.raise_for_status()
@@ -225,7 +225,7 @@ class AQTResource(Backend):
                     stacklevel=2,
                 )
 
-        options_copy = self.options.copy()
+        options_copy = self.options.model_copy()
         options_copy.update_options(**valid_options)
 
         job = AQTJob(

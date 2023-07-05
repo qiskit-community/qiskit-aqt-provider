@@ -157,7 +157,7 @@ def test_run_options_propagation(offline_simulator_no_noise: MockSimulator) -> N
 
 def test_run_options_unknown(offline_simulator_no_noise: MockSimulator) -> None:
     """Check that AQTResource.run accepts but warns about unknown options."""
-    default = offline_simulator_no_noise.options.copy()
+    default = offline_simulator_no_noise.options.model_copy()
     overrides = {"shots": 123, "unknown_option": True}
     assert set(overrides) - set(default) == {"unknown_option"}
 
