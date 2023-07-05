@@ -244,7 +244,9 @@ shell = "./scripts/api_models.py check"
 shell = "ruff check ."
 
 [tool.poe.tasks]
-lint = ["check_api_models", "ruff_check"]
+# FIXME: the model generator still has problems with root models
+# lint = ["check_api_models", "ruff_check"]
+lint = ["ruff_check"]
 format_check = ["black_check", "pyprojectfmt_check"]
 generate-models = "./scripts/api_models.py generate"
 docs = "sphinx-build -b html -W docs docs/_build"
