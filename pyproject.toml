@@ -104,12 +104,13 @@ disable-timestamp = true
 enable-faux-immutability = true
 enum-field-as-literal = "one"
 field-constraints = true
+output-model-type = "pydantic_v2.BaseModel"
 strict-nullable = true
 target-python-version = '3.8'
 use-annotated = true
 use-double-quotes = true
-use-schema-description = true
 use-field-description = true
+use-schema-description = true
 wrap-string-literal = true
 
 [tool.black]

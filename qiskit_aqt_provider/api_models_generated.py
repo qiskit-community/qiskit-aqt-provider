@@ -4,10 +4,10 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Dict, List, Literal, Optional, Union
+from typing import Dict, List, Literal, Optional, Set, Union
 from uuid import UUID
 
-from pydantic import BaseModel, Extra, Field
+from pydantic import BaseModel, ConfigDict, Field
 from typing_extensions import Annotated
 
 
@@ -19,10 +19,10 @@ class GateR(BaseModel):
     Angles are expressed in units of π.
     """
 
-    class Config:
-        extra = Extra.forbid
-        allow_mutation = False
-
+    model_config = ConfigDict(
+        extra="forbid",
+        frozen=True,
+    )
     operation: Annotated[Literal["R"], Field(title="Operation")]
     phi: Annotated[float, Field(ge=0.0, le=2.0, title="Phi")]
     qubit: Annotated[int, Field(ge=0, title="Qubit")]
@@ -30,10 +30,10 @@ class GateR(BaseModel):
 
 
 class Qubit(BaseModel):
-    class Config:
-        allow_mutation = False
-
-    __root__: Annotated[int, Field(ge=0)]
+    model_config = ConfigDict(
+        frozen=True,
+    )
+    root: Annotated[int, Field(ge=0)]
 
 
 class GateRXX(BaseModel):
@@ -44,14 +44,12 @@ class GateRXX(BaseModel):
     for θ=0.5 (π/2).
     """
 
-    class Config:
-        extra = Extra.forbid
-        allow_mutation = False
-
+    model_config = ConfigDict(
+        extra="forbid",
+        frozen=True,
+    )
     operation: Annotated[Literal["RXX"], Field(title="Operation")]
-    qubits: Annotated[
-        List[Qubit], Field(max_items=2, min_items=2, title="Qubits", unique_items=True)
-    ]
+    qubits: Annotated[Set[Qubit], Field(max_length=2, min_length=2, title="Qubits")]
     theta: Annotated[float, Field(ge=0.0, le=0.5, title="Theta")]
 
 
@@ -60,10 +58,10 @@ class GateRZ(BaseModel):
     A single-qubit rotation of angle φ around the Z axis of the Bloch sphere.
     """
 
-    class Config:
-        extra = Extra.forbid
-        allow_mutation = False
-
+    model_config = ConfigDict(
+        extra="forbid",
+        frozen=True,
+    )
     operation: Annotated[Literal["RZ"], Field(title="Operation")]
     phi: Annotated[float, Field(title="Phi")]
     qubit: Annotated[int, Field(ge=0, title="Qubit")]
@@ -74,9 +72,9 @@ class JobUser(BaseModel):
     Abstract job that can run on a computing resource.
     """
 
-    class Config:
-        allow_mutation = False
-
+    model_config = ConfigDict(
+        frozen=True,
+    )
     job_id: Annotated[UUID, Field(title="Job Id")]
     """
     Id that uniquely identifies the job. This is used to request results.
@@ -95,18 +93,18 @@ class Measure(BaseModel):
     to perform a projective measurement of all qubits.
     """
 
-    class Config:
-        extra = Extra.forbid
-        allow_mutation = False
-
+    model_config = ConfigDict(
+        extra="forbid",
+        frozen=True,
+    )
     operation: Annotated[Literal["MEASURE"], Field(title="Operation")]
 
 
 class OperationModel(BaseModel):
-    class Config:
-        allow_mutation = False
-
-    __root__: Annotated[
+    model_config = ConfigDict(
+        frozen=True,
+    )
+    root: Annotated[
         Union[GateRZ, GateR, GateRXX, Measure],
         Field(discriminator="operation", title="OperationModel"),
     ]
@@ -119,25 +117,25 @@ class OperationModel(BaseModel):
 
 
 class RRCancelled(BaseModel):
-    class Config:
-        allow_mutation = False
-
+    model_config = ConfigDict(
+        frozen=True,
+    )
     status: Annotated[Literal["cancelled"], Field(title="Status")] = "cancelled"
 
 
 class RRError(BaseModel):
-    class Config:
-        allow_mutation = False
-
+    model_config = ConfigDict(
+        frozen=True,
+    )
     message: Annotated[str, Field(title="Message")]
     status: Annotated[Literal["error"], Field(title="Status")] = "error"
 
 
 class ResultItem(BaseModel):
-    class Config:
-        allow_mutation = False
-
-    __root__: Annotated[int, Field(ge=0, le=1)]
+    model_config = ConfigDict(
+        frozen=True,
+    )
+    root: Annotated[int, Field(ge=0, le=1)]
 
 
 class RRFinished(BaseModel):
@@ -145,25 +143,25 @@ class RRFinished(BaseModel):
     Contains the measurement data of a finished circuit.
     """
 
-    class Config:
-        allow_mutation = False
-
+    model_config = ConfigDict(
+        frozen=True,
+    )
     result: Annotated[Dict[str, List[List[ResultItem]]], Field(title="Result")]
     status: Annotated[Literal["finished"], Field(title="Status")] = "finished"
 
 
 class RROngoing(BaseModel):
-    class Config:
-        allow_mutation = False
-
+    model_config = ConfigDict(
+        frozen=True,
+    )
     finished_count: Annotated[int, Field(ge=0, title="Finished Count")]
     status: Annotated[Literal["ongoing"], Field(title="Status")] = "ongoing"
 
 
 class RRQueued(BaseModel):
-    class Config:
-        allow_mutation = False
-
+    model_config = ConfigDict(
+        frozen=True,
+    )
     status: Annotated[Literal["queued"], Field(title="Status")] = "queued"
 
 
@@ -173,35 +171,35 @@ class Type(Enum):
 
 
 class Resource(BaseModel):
-    class Config:
-        allow_mutation = False
-
+    model_config = ConfigDict(
+        frozen=True,
+    )
     id: Annotated[str, Field(title="Id")]
     name: Annotated[str, Field(title="Name")]
     type: Annotated[Type, Field(title="Type")]
 
 
 class UnknownJob(BaseModel):
-    class Config:
-        allow_mutation = False
-
+    model_config = ConfigDict(
+        frozen=True,
+    )
     job_id: Annotated[UUID, Field(title="Job Id")]
     message: Annotated[Literal["unknown job_id"], Field(title="Message")] = "unknown job_id"
 
 
 class ValidationError(BaseModel):
-    class Config:
-        allow_mutation = False
-
+    model_config = ConfigDict(
+        frozen=True,
+    )
     loc: Annotated[List[Union[str, int]], Field(title="Location")]
     msg: Annotated[str, Field(title="Message")]
     type: Annotated[str, Field(title="Error Type")]
 
 
 class Workspace(BaseModel):
-    class Config:
-        allow_mutation = False
-
+    model_config = ConfigDict(
+        frozen=True,
+    )
     id: Annotated[str, Field(title="Id")]
     resources: Annotated[List[Resource], Field(title="Resources")]
 
@@ -211,10 +209,10 @@ class Circuit(BaseModel):
     Json encoding of a quantum circuit.
     """
 
-    class Config:
-        allow_mutation = False
-
-    __root__: Annotated[
+    model_config = ConfigDict(
+        frozen=True,
+    )
+    root: Annotated[
         List[OperationModel],
         Field(
             example=[
@@ -223,8 +221,8 @@ class Circuit(BaseModel):
                 {"operation": "RXX", "qubits": [0, 1], "theta": 0.5},
                 {"operation": "MEASURE"},
             ],
-            max_items=10000,
-            min_items=1,
+            max_length=10000,
+            min_length=1,
             title="Circuit",
         ),
     ]
@@ -234,9 +232,9 @@ class Circuit(BaseModel):
 
 
 class HTTPValidationError(BaseModel):
-    class Config:
-        allow_mutation = False
-
+    model_config = ConfigDict(
+        frozen=True,
+    )
     detail: Annotated[Optional[List[ValidationError]], Field(title="Detail")] = None
 
 
@@ -245,9 +243,9 @@ class JobResponseRRCancelled(BaseModel):
     This class contains the data a uses is receiving at the "/result" endpoint.
     """
 
-    class Config:
-        allow_mutation = False
-
+    model_config = ConfigDict(
+        frozen=True,
+    )
     job: JobUser
     response: RRCancelled
 
@@ -257,9 +255,9 @@ class JobResponseRRError(BaseModel):
     This class contains the data a uses is receiving at the "/result" endpoint.
     """
 
-    class Config:
-        allow_mutation = False
-
+    model_config = ConfigDict(
+        frozen=True,
+    )
     job: JobUser
     response: RRError
 
@@ -269,9 +267,9 @@ class JobResponseRRFinished(BaseModel):
     This class contains the data a uses is receiving at the "/result" endpoint.
     """
 
-    class Config:
-        allow_mutation = False
-
+    model_config = ConfigDict(
+        frozen=True,
+    )
     job: JobUser
     response: RRFinished
 
@@ -281,9 +279,9 @@ class JobResponseRROngoing(BaseModel):
     This class contains the data a uses is receiving at the "/result" endpoint.
     """
 
-    class Config:
-        allow_mutation = False
-
+    model_config = ConfigDict(
+        frozen=True,
+    )
     job: JobUser
     response: RROngoing
 
@@ -293,9 +291,9 @@ class JobResponseRRQueued(BaseModel):
     This class contains the data a uses is receiving at the "/result" endpoint.
     """
 
-    class Config:
-        allow_mutation = False
-
+    model_config = ConfigDict(
+        frozen=True,
+    )
     job: JobUser
     response: RRQueued
 
@@ -305,9 +303,9 @@ class QuantumCircuit(BaseModel):
     A quantum circuit-type job that can run on a computing resource.
     """
 
-    class Config:
-        allow_mutation = False
-
+    model_config = ConfigDict(
+        frozen=True,
+    )
     number_of_qubits: Annotated[int, Field(gt=0, title="Number Of Qubits")]
     quantum_circuit: Circuit
     repetitions: Annotated[int, Field(gt=0, title="Repetitions")]
@@ -318,17 +316,17 @@ class QuantumCircuits(BaseModel):
     A collection of quantum circuits representing a single job.
     """
 
-    class Config:
-        allow_mutation = False
-
-    circuits: Annotated[List[QuantumCircuit], Field(min_items=1, title="Circuits")]
+    model_config = ConfigDict(
+        frozen=True,
+    )
+    circuits: Annotated[List[QuantumCircuit], Field(min_length=1, title="Circuits")]
 
 
 class ResultResponse(BaseModel):
-    class Config:
-        allow_mutation = False
-
-    __root__: Annotated[
+    model_config = ConfigDict(
+        frozen=True,
+    )
+    root: Annotated[
         Union[
             JobResponseRRQueued,
             JobResponseRROngoing,
@@ -441,9 +439,9 @@ class JobSubmission(BaseModel):
     Abstract job that can run on a computing resource.
     """
 
-    class Config:
-        allow_mutation = False
-
+    model_config = ConfigDict(
+        frozen=True,
+    )
     job_type: Annotated[Literal["quantum_circuit"], Field(title="Job Type")] = "quantum_circuit"
     label: Annotated[Optional[str], Field(title="Label")] = None
     payload: QuantumCircuits
