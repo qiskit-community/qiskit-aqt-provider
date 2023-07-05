@@ -58,7 +58,7 @@ class AQTOptions(
         The preferred way of updating options is by direct (validated)
         assignment.
         """
-        update = self.dict()
+        update = self.model_dump()
         update.update(kwargs)
 
         for key, value in self.model_validate(update).model_dump().items():
@@ -70,11 +70,11 @@ class AQTOptions(
 
     def __len__(self) -> int:
         """Number of options."""
-        return len(self.__fields__)
+        return len(self.model_fields)
 
     def __iter__(self) -> Iterator[Any]:  # type: ignore[override]
         """Iterate over option names."""
-        return iter(self.__fields__)
+        return iter(self.model_fields)
 
     def __getitem__(self, name: str) -> Any:
         """Get the value for a given option."""

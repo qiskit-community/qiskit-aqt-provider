@@ -137,7 +137,7 @@ def test_query_period_propagation() -> None:
 
 def test_run_options_propagation(offline_simulator_no_noise: MockSimulator) -> None:
     """Check that options passed to AQTResource.run are propagated to the corresponding job."""
-    default = offline_simulator_no_noise.options.copy()
+    default = offline_simulator_no_noise.options.model_copy()
 
     while True:
         overrides = OptionsFactory.build()
@@ -149,7 +149,7 @@ def test_run_options_propagation(offline_simulator_no_noise: MockSimulator) -> N
 
     # don't submit the circuit to the simulator
     with mock.patch.object(AQTJob, "submit") as mocked_submit:
-        job = offline_simulator_no_noise.run(qc, **overrides.dict())
+        job = offline_simulator_no_noise.run(qc, **overrides.model_dump())
         assert job.options == overrides
 
     mocked_submit.assert_called_once()
@@ -238,7 +238,7 @@ def test_submit_valid_response(httpx_mock: HTTPXMock) -> None:
                     job_id=expected_job_id,
                     resource_id=backend.resource_id,
                     workspace_id=backend.workspace_id,
-                ).json()
+                ).model_dump_json()
             ),
         )
 
@@ -275,7 +275,9 @@ def test_result_valid_response(httpx_mock: HTTPXMock) -> None:
         assert request.headers["user-agent"] == USER_AGENT
         assert request.headers["authorization"] == f"Bearer {token}"
 
-        return httpx.Response(status_code=httpx.codes.OK, json=json.loads(payload.json()))
+        return httpx.Response(
+            status_code=httpx.codes.OK, json=json.loads(payload.model_dump_json())
+        )
 
     httpx_mock.add_callback(handle_result, method="GET")
 
@@ -301,7 +303,9 @@ def test_result_unknown_job(httpx_mock: HTTPXMock) -> None:
     backend = DummyResource("")
     job_id = uuid.uuid4()
 
-    httpx_mock.add_response(json=json.loads(api_models.Response.unknown_job(job_id=job_id).json()))
+    httpx_mock.add_response(
+        json=json.loads(api_models.Response.unknown_job(job_id=job_id).model_dump_json())
+    )
 
     with pytest.raises(api_models.UnknownJobError, match=str(job_id)):
         backend.result(job_id)

@@ -100,7 +100,7 @@ class Measure(BaseModel):
     operation: Annotated[Literal["MEASURE"], Field(title="Operation")]
 
 
-class OperationModel(RootModel):
+class OperationModel(RootModel[Union[GateRZ, GateR, GateRXX, Measure]]):
     model_config = ConfigDict(
         frozen=True,
     )
@@ -131,7 +131,7 @@ class RRError(BaseModel):
     status: Annotated[Literal["error"], Field(title="Status")] = "error"
 
 
-class ResultItem(RootModel):
+class ResultItem(RootModel[int]):
     model_config = ConfigDict(
         frozen=True,
     )
@@ -204,7 +204,7 @@ class Workspace(BaseModel):
     resources: Annotated[List[Resource], Field(title="Resources")]
 
 
-class Circuit(RootModel):
+class Circuit(RootModel[List[OperationModel]]):
     """
     Json encoding of a quantum circuit.
     """
@@ -324,7 +324,18 @@ class QuantumCircuits(BaseModel):
     circuits: Annotated[List[QuantumCircuit], Field(min_length=1, title="Circuits")]
 
 
-class ResultResponse(RootModel):
+class ResultResponse(
+    RootModel[
+        Union[
+            JobResponseRRQueued,
+            JobResponseRROngoing,
+            JobResponseRRFinished,
+            JobResponseRRError,
+            JobResponseRRCancelled,
+            UnknownJob,
+        ]
+    ]
+):
     model_config = ConfigDict(
         frozen=True,
     )

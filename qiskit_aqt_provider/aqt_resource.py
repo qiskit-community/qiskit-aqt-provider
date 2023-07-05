@@ -136,7 +136,7 @@ class AQTResource(Backend):
         )
 
         resp.raise_for_status()
-        return api_models.Response.parse_obj(resp.json()).job.job_id
+        return api_models.Response.model_validate(resp.json()).job.job_id
 
     def result(self, job_id: UUID) -> api_models.JobResponse:
         """Query the result for a specific job.
@@ -149,7 +149,7 @@ class AQTResource(Backend):
         """
         resp = self._http_client.get(f"/result/{job_id}")
         resp.raise_for_status()
-        return api_models.Response.parse_obj(resp.json())
+        return api_models.Response.model_validate(resp.json())
 
     def configuration(self) -> BackendConfiguration:
         warnings.warn(

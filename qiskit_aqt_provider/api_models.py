@@ -167,7 +167,7 @@ class Response:
     """Factories for API response payloads."""
 
     @staticmethod
-    def parse_obj(data: Any) -> JobResponse:
+    def model_validate(data: Any) -> JobResponse:
         """Parse an API response.
 
         Returns:

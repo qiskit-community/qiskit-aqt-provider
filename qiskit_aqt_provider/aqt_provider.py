@@ -227,7 +227,7 @@ class AQTProvider(ProviderV1):
                     resp = client.get("/workspaces")
                     resp.raise_for_status()
 
-                remote_workspaces = api_models.Workspaces.parse_obj(resp.json()).filter(
+                remote_workspaces = api_models.Workspaces.model_validate(resp.json()).filter(
                     name_pattern=name,
                     backend_type=api_models.ResourceType(backend_type) if backend_type else None,
                     workspace_pattern=workspace,
