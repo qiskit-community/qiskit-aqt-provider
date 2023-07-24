@@ -214,7 +214,8 @@ fail_under = 98
 
 [tool.poe.tasks.test]
 shell = """
-coverage run ${cov_opts} -m pytest
+set -eu
+coverage run ${cov_opts} -m pytest --hypothesis-profile=ci
 coverage report
 """
 
