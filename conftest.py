@@ -12,11 +12,13 @@
 
 """Pytest dynamic configuration."""
 
+from datetime import timedelta
+
 import hypothesis
 
 hypothesis.settings.register_profile(
-    "default",
-    deadline=None,  # Account for slower CI workers
+    "ci",
+    deadline=timedelta(seconds=1),  # Account for slower CI workers
     print_blob=True,  # Always print code to use with @reproduce_failure
 )
 
