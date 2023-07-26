@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## qiskit-aqt-provider v0.16.0
+
 * Make the access token optional #80
 * Add simple QAOA examples #81
 
