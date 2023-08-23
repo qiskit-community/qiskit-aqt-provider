@@ -62,7 +62,7 @@ def http_client(*, base_url: str, token: str) -> httpx.Client:
     return httpx.Client(headers=headers, base_url=base_url, timeout=10.0)
 
 
-class Workspaces(pdt.RootModel[List[api_models.Workspace]], extra=pdt.Extra.forbid):
+class Workspaces(pdt.RootModel[List[api_models.Workspace]]):
     """List of available workspaces and devices."""
 
     root: List[api_models.Workspace]
