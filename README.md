@@ -13,6 +13,16 @@
 This project contains a provider that allows access to [AQT](https://www.aqt.eu/) ion-trap quantum computing
 systems.
 
+## Installation
+
+We encourage installing released packages using the [`pip`](https://pip.pypa.io/en/stable/) tool:
+
+```
+pip install [--update] qiskit-aqt-provider-rc
+```
+
+Please note that this command should always be executed in a vanilla virtual environment, such that dependencies correctly respect the bounds set in the [pyproject.toml](https://github.com/alpine-quantum-technologies/qiskit-aqt-provider-internal/blob/master/pyproject.toml) file.
+
 ## Usage
 
 See the [user guide](https://github.com/alpine-quantum-technologies/qiskit-aqt-provider-internal/blob/master/docs/guide.rst) and the [examples](https://github.com/alpine-quantum-technologies/qiskit-aqt-provider-internal/tree/master/examples).

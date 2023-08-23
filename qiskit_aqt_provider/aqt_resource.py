@@ -153,26 +153,22 @@ class AQTResource(Backend):
 
     def configuration(self) -> BackendConfiguration:
         warnings.warn(
-            (
-                "The configuration() method is deprecated and will be removed in a "
-                "future release. Instead you should access these attributes directly "
-                "off the object or via the .target attribute. You can refer to qiskit "
-                "backend interface transition guide for the exact changes: "
-                "https://qiskit.org/documentation/apidoc/providers.html#backendv1-backendv2"
-            ),
+            "The configuration() method is deprecated and will be removed in a "
+            "future release. Instead you should access these attributes directly "
+            "off the object or via the .target attribute. You can refer to qiskit "
+            "backend interface transition guide for the exact changes: "
+            "https://qiskit.org/documentation/apidoc/providers.html#backendv1-backendv2",
             DeprecationWarning,
         )
         return self._configuration
 
     def properties(self) -> None:
         warnings.warn(  # pragma: no cover
-            (
-                "The properties() method is deprecated and will be removed in a "
-                "future release. Instead you should access these attributes directly "
-                "off the object or via the .target attribute. You can refer to qiskit "
-                "backend interface transition guide for the exact changes: "
-                "https://qiskit.org/documentation/apidoc/providers.html#backendv1-backendv2"
-            ),
+            "The properties() method is deprecated and will be removed in a "
+            "future release. Instead you should access these attributes directly "
+            "off the object or via the .target attribute. You can refer to qiskit "
+            "backend interface transition guide for the exact changes: "
+            "https://qiskit.org/documentation/apidoc/providers.html#backendv1-backendv2",
             DeprecationWarning,
         )
 
