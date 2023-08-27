@@ -51,7 +51,7 @@ def make_transpiler_target(target_cls: Type[TargetT], num_qubits: int) -> Target
     """Factory for transpilation targets of AQT resources.
 
     Args:
-        target_cls: base class to use for the returned instance
+        target_cls: base class to use for the returned instance.
         num_qubits: maximum number of qubits supported by the resource.
 
     Returns:
@@ -73,6 +73,8 @@ def make_transpiler_target(target_cls: Type[TargetT], num_qubits: int) -> Target
 
 
 class AQTResource(Backend):
+    """Qiskit backend for AQT quantum computing resources."""
+
     def __init__(
         self,
         provider: "AQTProvider",
@@ -82,6 +84,15 @@ class AQTResource(Backend):
         resource_name: str,
         resource_type: Literal["device", "simulator", "offline_simulator"],
     ):
+        """Initialize the backend.
+
+        Args:
+            provider: Qiskit provider that owns this backend.
+            workspace_id: name of the AQT workspace the mapped resource belongs to.
+            resource_id: name of the resource in the AQT cloud portal.
+            resource_name: pretty name of the resource in the AQT cloud portal.
+            resource_type: resource class.
+        """
         super().__init__(name=resource_id, provider=provider)
 
         self.resource_id = resource_id
@@ -120,10 +131,14 @@ class AQTResource(Backend):
         self._options = AQTOptions()
 
     def submit(self, circuits: List[QuantumCircuit], shots: int) -> UUID:
-        """Submit a quantum circuits job to the AQT backend.
+        """Submit a quantum circuits job to the AQT resource.
+
+        .. hint:: This is a low-level method. Use the :meth:`run` method to submit
+            a job and retrieve a :class:`AQTJob <qiskit_aqt_provider.aqt_job.AQTJob>`
+            handle.
 
         Args:
-            circuits: circuits to execute
+            circuits: circuits to execute.
             shots: number of repetitions per circuit.
 
         Returns:
@@ -141,11 +156,16 @@ class AQTResource(Backend):
     def result(self, job_id: UUID) -> api_models.JobResponse:
         """Query the result for a specific job.
 
+        .. hint:: This is a low-level method. Use the
+            :meth:`AQTJob.result <qiskit_aqt_provider.aqt_job.AQTJob.result>`
+            method to retrieve the result of a job described by a
+            :class:`AQTJob <qiskit_aqt_provider.aqt_job.AQTJob>` handle.
+
         Parameters:
             job_id: The unique identifier for the target job.
 
         Returns:
-            Full returned payload.
+            AQT API payload with the job results.
         """
         resp = self._http_client.get(f"/result/{job_id}")
         resp.raise_for_status()
@@ -315,10 +335,13 @@ class OfflineSimulatorResource(AQTResource):
 
     @property
     def noisy(self) -> bool:
+        """Whether the simulator includes a noise model."""
         return self.simulator.options.noise_model is not None
 
     def submit(self, circuits: List[QuantumCircuit], shots: int) -> UUID:
         """Submit circuits for execution on the simulator.
+
+        .. hint:: This is a low-level method. Use :meth:`AQTResource.run()` instead.
 
         Args:
             circuits: circuits to execute
@@ -337,6 +360,9 @@ class OfflineSimulatorResource(AQTResource):
     def result(self, job_id: UUID) -> api_models.JobResponse:
         """Query results for a simulator job.
 
+        .. hint:: This is a low-level method. Use
+            :meth:`AQTJob.result() <qiskit_aqt_provider.aqt_job.AQTJob.result>` instead.
+
         Args:
             job_id: identifier of the job to retrieve results for.
 
@@ -344,8 +370,7 @@ class OfflineSimulatorResource(AQTResource):
             AQT API payload with the job results.
 
         Raises:
-            UnknownJobError: the passed identifier doesn't correspond to a simulator job
-            on this resource.
+            UnknownJobError: ``job_id`` doesn't correspond to a simulator job on this resource.
         """
         if self.job is None or job_id != self.job.job_id:
             raise api_models.UnknownJobError(str(job_id))

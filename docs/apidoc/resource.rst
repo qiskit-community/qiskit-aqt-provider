@@ -9,3 +9,4 @@ AQTResource
 
 .. autoclass:: qiskit_aqt_provider.aqt_resource.OfflineSimulatorResource
    :members:
+   :show-inheritance:

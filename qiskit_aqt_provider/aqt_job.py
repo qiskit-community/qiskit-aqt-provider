@@ -128,8 +128,8 @@ class AQTJob(JobV1):
         """Initialize a job instance.
 
         Args:
-            backend: backend to run the job on
-            circuits: list of circuits to execute
+            backend: backend to run the job on.
+            circuits: list of circuits to execute.
             options: overridden resource options for this job.
         """
         super().__init__(backend, "")
@@ -154,7 +154,7 @@ class AQTJob(JobV1):
         """Query the job's status.
 
         Returns:
-            JobStatus: aggregated job status for all the circuits in this job.
+            Aggregated job status for all the circuits in this job.
         """
         payload = self._backend.result(uuid.UUID(self.job_id()))
 
@@ -204,7 +204,8 @@ class AQTJob(JobV1):
     def result(self) -> Result:
         """Block until all circuits have been evaluated and return the combined result.
 
-        Success or error is signalled by the `success` field in the returned Result instance.
+        Success or error is signalled by the `success` field in the returned
+        :class:`Result <qiskit.result.Result>` instance.
 
         Returns:
             The combined result of all circuit evaluations.

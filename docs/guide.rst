@@ -10,9 +10,9 @@ Users guide
 Setting up the provider
 =======================
 
-To begin, the `AQTProvider` must be instantiated.
+To begin, the :class:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider>` must be instantiated.
 The authentication token can either be passed explcitly
-or stored in the environment variable `AQT_TOKEN`:
+or stored in the environment variable ``AQT_TOKEN``:
 
 .. jupyter-execute::
 
@@ -21,7 +21,7 @@ or stored in the environment variable `AQT_TOKEN`:
     aqt = AQTProvider('MY_TOKEN')
 
 Once loaded with your credentials, the provider
-gives access certain backends. To list these, use:
+gives access certain backends. To list these, use the :meth:`AQTProvider.backends() <qiskit_aqt_provider.aqt_provider.AQTProvider.backends>` method:
 
 .. jupyter-execute::
 

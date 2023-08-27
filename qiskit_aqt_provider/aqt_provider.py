@@ -130,21 +130,7 @@ class BackendsTable(Sequence[AQTResource]):
 
 
 class AQTProvider(ProviderV1):
-    """Provider for backends from Alpine Quantum Technologies (AQT).
-
-    Typical usage is:
-
-    .. code-block:: python
-
-        >>> from qiskit_aqt_provider import AQTProvider
-        ...
-        >>> aqt = AQTProvider('MY_TOKEN')
-        >>> backend = aqt.get_backend("offline_simulator_no_noise")
-
-    where `'MY_TOKEN'` is the access token provided by AQT.
-
-    If no token is given, it is read from the `AQT_TOKEN` environment variable.
-    """
+    """Provider for backends from Alpine Quantum Technologies (AQT)."""
 
     # Set AQT_PORTAL_URL environment variable to override
     DEFAULT_PORTAL_URL: Final = "https://arnica-stage.aqt.eu"
@@ -159,20 +145,26 @@ class AQTProvider(ProviderV1):
         """Initialize the AQT provider.
 
         The access token for the AQT cloud can be provided either through the
-        `access_token` argument or the `AQT_TOKEN` environment variable.
+        ``access_token`` argument or the ``AQT_TOKEN`` environment variable.
 
-        The AQT cloud portal URL can be configured using the `AQT_PORTAL_URL`
+        .. hint:: If no token is set (neither through the ``access_token`` argument nor
+            through the ``AQT_TOKEN`` environment variable), the provider is initialized
+            with access to the offline simulators only and :class:`NoTokenWarning` is
+            emitted.
+
+        The AQT cloud portal URL can be configured using the ``AQT_PORTAL_URL``
         environment variable.
 
-        If `load_dotenv`, environment variables are loaded from a file, by default
-        any `.env` file in the working directory or above it in the directory tree.
-        The `dotenv_path` argument allows to pass a specific file to load environment
+        If ``load_dotenv`` is true, environment variables are loaded from a file,
+        by default any ``.env`` file in the working directory or above it in the
+        directory tree.
+        The ``dotenv_path`` argument allows to pass a specific file to load environment
         variables from.
 
         Args:
-            access_token: AQT cloud access token
-            load_dotenv: whether to load environment variables from a .env file
-            dotenv_path: path to the environment file. This implies `load_dotenv`.
+            access_token: AQT cloud access token.
+            load_dotenv: whether to load environment variables from a ``.env`` file.
+            dotenv_path: path to the environment file. This implies ``load_dotenv``.
         """
         if load_dotenv or dotenv_path is not None:
             dotenv.load_dotenv(dotenv_path)
@@ -211,8 +203,8 @@ class AQTProvider(ProviderV1):
         access token.
 
         Args:
-            name: regular expression pattern for the resource ID
-            backend_type: whether to search for simulators or hardware devices
+            name: regular expression pattern for the resource ID.
+            backend_type: whether to search for simulators or hardware devices.
             workspace: regular expression for the workspace ID.
 
         Returns:
