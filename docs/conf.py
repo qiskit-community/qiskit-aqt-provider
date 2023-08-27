@@ -29,6 +29,7 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.viewcode",
     "sphinx.ext.extlinks",
+    "sphinx.ext.intersphinx",
     "jupyter_sphinx",
 ]
 templates_path = ["_templates"]
@@ -59,4 +60,9 @@ html_theme_options = {
     "display_version": True,
     "prev_next_buttons_location": "bottom",
     "style_external_links": True,
+}
+
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "qiskit": ("https://qiskit.org/documentation/", None),
 }
