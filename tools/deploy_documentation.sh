@@ -27,6 +27,10 @@ echo "show current dir: "
 pwd
 
 # Push to qiskit.org/ecosystem
-openssl aes-256-cbc -K $encrypted_rclone_key -iv $encrypted_rclone_iv -in tools/rclone.conf.enc -out $RCLONE_CONFIG_PATH -d
+
+# $encrypted_rclone_key and $encrypted_rclone_iv are provided by the action's environment:
+# shellcheck disable=SC2154
+openssl aes-256-cbc -K "$encrypted_rclone_key" -iv "$encrypted_rclone_iv" -in tools/rclone.conf.enc -out "$RCLONE_CONFIG_PATH" -d
+
 echo "Pushing built docs to qiskit.org/ecosystem"
 rclone sync --progress ./docs/_build IBMCOS:qiskit-org-web-resources/ecosystem/aqt-provider
