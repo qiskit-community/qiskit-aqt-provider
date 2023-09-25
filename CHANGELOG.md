@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## qiskit-aqt-provider v0.17.0
+
+* Merge community and AQT versions (#61)
+
 ## qiskit-aqt-provider v0.16.0
 
 * Make the access token optional (alpine-quantum-technologies/qiskit-aqt-provider-rc#80)
