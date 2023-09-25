@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 import uuid
-from collections import Counter, defaultdict, namedtuple
+from collections import Counter, defaultdict
 from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
@@ -20,6 +20,7 @@ from typing import (
     DefaultDict,
     Dict,
     List,
+    NamedTuple,
     NoReturn,
     Optional,
     Set,
@@ -112,8 +113,7 @@ class _MockProgressBar:
     def __enter__(self) -> Self:
         return self
 
-    def __exit__(*args) -> None:
-        ...
+    def __exit__(*args) -> None: ...
 
 
 class AQTJob(JobV1):
@@ -348,20 +348,23 @@ def _build_memory_mapping(circuit: QuantumCircuit) -> Dict[int, Set[int]]:
         >>> _build_memory_mapping(qc)
         {0: {0, 2}, 1: {1}}
     """
-    field = namedtuple("field", "offset,size")
+
+    class Field(NamedTuple):
+        offset: int
+        size: int
 
     # quantum memory map
     qregs = {}
     offset = 0
     for qreg in circuit.qregs:
-        qregs[qreg] = field(offset, qreg.size)
+        qregs[qreg] = Field(offset, qreg.size)
         offset += qreg.size
 
     # classical memory map
     clregs = {}
     offset = 0
     for creg in circuit.cregs:
-        clregs[creg] = field(offset, creg.size)
+        clregs[creg] = Field(offset, creg.size)
         offset += creg.size
 
     qu2cl: DefaultDict[int, Set[int]] = defaultdict(set)
