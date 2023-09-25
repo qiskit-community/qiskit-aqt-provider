@@ -2,29 +2,41 @@ name: Release Artifacts
 on:
   push:
     tags:
-      - '*'
+      - 'v*'
 jobs:
   wheel-build:
     name: Build and Publish Release Artifacts
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        name: Install Python
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Install Python
+        uses: actions/setup-python@v4
         with:
           python-version: '3.8'
-      - name: Install Deps
-        run: pip install -U twine wheel
-      - name: Build Artifacts
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2
+        with:
+          poetry-version: '1.5.1'
+      - name: Install release dependencies
+        run: pip install -U twine wheel typer mistletoe
+      - name: Build packages
         run: |
-          python setup.py sdist
-          python setup.py bdist_wheel
+          poetry build
         shell: bash
-      - uses: actions/upload-artifact@v2
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
         with:
           path: ./dist/qiskit*
-      - name: Publish to PyPi
+      - name: Extract changelog
+        run: python scripts/extract-changelog.py ${{ github.ref_name }} | tee ${{ github.workspace }}-CHANGELOG.txt
+      - name: Create Github release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ./dist/qiskit*
+          body_path: ${{ github.workspace }}-CHANGELOG.txt
+      - name: Publish to PyPI
         env:
-          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
-          TWINE_USERNAME: qiskit
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+          TWINE_USERNAME: __token__
         run: twine upload dist/qiskit*

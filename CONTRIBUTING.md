@@ -158,7 +158,7 @@ understand & review the patch for correctness. Less is not more.
 
 ### Installing Qiskit AQT Provider from source
 
-To install the AQT provider from a local git checkout you should 
+To install the AQT provider from a local git checkout you should
 run:
 
 ```bash

@@ -1,68 +1,18 @@
 # Qiskit AQT Provider
 
-[![License](https://img.shields.io/github/license/Qiskit-Partners/qiskit-aqt-provider.svg?style=popout-square)](https://opensource.org/licenses/Apache-2.0)
-![Build Status](https://github.com/Qiskit-Partners/qiskit-aqt-provider/actions/workflows/main.yml/badge.svg?branch=master)
-[![](https://img.shields.io/github/release/Qiskit-Partners/qiskit-aqt-provider.svg?style=popout-square)](https://github.com/Qiskit-Partners/qiskit-aqt-provider/releases)
-[![](https://img.shields.io/pypi/dm/qiskit-aqt-provider.svg?style=popout-square)](https://pypi.org/project/qiskit-aqt-provider/)
+[![Latest release](https://img.shields.io/pypi/v/qiskit-aqt-provider-rc.svg)](https://pypi.python.org/pypi/qiskit-aqt-provider-rc)
+[![License](https://img.shields.io/pypi/l/qiskit-aqt-provider-rc.svg)](https://pypi.python.org/pypi/qiskit-aqt-provider-rc)
+[![Supported Python versions](https://img.shields.io/pypi/pyversions/qiskit-aqt-provider-rc.svg)](https://pypi.python.org/pypi/qiskit-aqt-provider-rc)
+![Build Status](https://github.com/alpine-quantum-technologies/qiskit-aqt-provider-rc/actions/workflows/poetry.yml/badge.svg?branch=master)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v1.json)](https://github.com/charliermarsh/ruff)
+[![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 
-**Qiskit** is an open-source SDK for working with quantum computers at the level of circuits, algorithms, and application modules.
+[Qiskit](https://qiskit.org/) is an open-source SDK for working with quantum computers at the level of circuits, algorithms, and application modules.
 
+This project contains a provider that allows access to [AQT](https://www.aqt.eu/) ion-trap quantum computing
+systems.
 
-This project contains a provider that allows access to **[AQT]** ion-trap quantum
-system.
+## Usage
 
-## Installation
-
-You can install the provider using pip tool:
-
-```bash
-pip install qiskit-aqt-provider
-```
-
-`pip` will handle installing all the python dependencies automatically and you
-will always install the  latest (and well-tested) version.
-
-## Setting up the AQT Provider
-
-Once the package is installed, you can use it to access the provider from
-qiskit.
-
-### Use your AQT credentials
-
-You can initialize an AQT provider using your token locally with:
-
-```python
-from qiskit_aqt_provider import AQTProvider
-aqt = AQTProvider('MY_TOKEN')
-```
-
-Where `MY_TOKEN` is your access token for the AQT device. Then you can access
-the backends from that provider:
-
-```python
-print(aqt.backends())
-backend = aqt.backends.aqt_qasm_simulator
-```
-
-You can then use that backend like you would use any other qiskit backend. For
-example, running a bell state:
-
-```python
-from qiskit import QuantumCircuit, transpile
-qc = QuantumCircuit(2, 2)
-qc.h(0)
-qc.cx(0, 1)
-qc.measure([0,1], [0,1])
-trans_qc = transpile(qc, backend)
-job = backend.run(trans_qc)
-print(job.get_counts())
-```
-
-For running the quantum circuit on the ion-trap quantum device you need to use `aqt_innsbruck` as backend, which needs a different access token.
-
-## License
-
-[Apache License 2.0].
-
-[AQT]: https://www.aqt.eu/
-[Apache License 2.0]: https://github.com/qiskit-community/qiskit-aqt-provider/blob/master/LICENSE.txt
+See the [user guide](https://github.com/alpine-quantum-technologies/qiskit-aqt-provider-internal/blob/master/docs/guide.rst) and the [examples](https://github.com/alpine-quantum-technologies/qiskit-aqt-provider-internal/tree/master/examples).

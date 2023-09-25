@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
-
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2019.
+# (C) Copyright IBM 2019, Alpine Quantum Technologies GmbH 2022.
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,80 +10,98 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-import json
+from typing import List
 
 from numpy import pi
+from qiskit import QuantumCircuit
+
+from qiskit_aqt_provider import api_models
 
 
-def _experiment_to_seq(circuit):
+def _qiskit_to_aqt_circuit(circuit: QuantumCircuit) -> api_models.Circuit:
+    """Convert a Qiskit `QuantumCircuit` into a payload for AQT's quantum_circuit job type.
+
+    Args:
+        circuit: Qiskit circuit to convert.
+
+    Returns:
+        AQT API circuit payload.
+    """
     count = 0
     qubit_map = {}
     for bit in circuit.qubits:
         qubit_map[bit] = count
         count += 1
-    ops = []
-    meas = 0
+    ops: List[api_models.OperationModel] = []
+
+    num_measurements = 0
+
     for instruction in circuit.data:
         inst = instruction[0]
         qubits = [qubit_map[bit] for bit in instruction[1]]
-        if inst.name == 'rx':
-            name = 'X'
-        elif inst.name == 'ry':
-            name = 'Y'
-        elif inst.name == 'rz':
-            name = 'Z'
-        elif inst.name == 'r':
-            name = 'R'
-        elif inst.name == 'rxx':
-            name = 'MS'
-        elif inst.name == 'ms':
-            name = 'MS'
-            qubits = []
-        elif inst.name == 'measure':
-            meas += 1
-            continue
-        elif inst.name == 'barrier':
+
+        if inst.name != "measure" and num_measurements > 0:
+            raise ValueError(
+                "Measurement operations can only be located at the end of the circuit."
+            )
+
+        if inst.name == "rz":
+            ops.append(
+                api_models.Operation.rz(
+                    phi=float(inst.params[0]) / pi,
+                    qubit=qubits[0],
+                )
+            )
+        elif inst.name == "r":
+            ops.append(
+                api_models.Operation.r(
+                    phi=float(inst.params[1]) / pi,
+                    theta=float(inst.params[0]) / pi,
+                    qubit=qubits[0],
+                )
+            )
+        elif inst.name == "rxx":
+            ops.append(
+                api_models.Operation.rxx(
+                    theta=float(inst.params[0]) / pi,
+                    qubits=qubits[:2],
+                )
+            )
+        elif inst.name == "measure":
+            num_measurements += 1
+        elif inst.name == "barrier":
             continue
         else:
-            raise Exception("Operation '%s' outside of basis rx, ry, rxx" %
-                            inst.name)
-        exponent = inst.params[0] / pi
-        # hack: split X into X**0.5 . X**0.5
-        if name == 'X' and exponent == 1.0:
-            ops.append((name, float(0.5), qubits))
-            ops.append((name, float(0.5), qubits))
-        else:
-            # (op name, exponent, [qubit index])
-            ops.append((name, float(exponent), qubits))
-    if not meas:
-        raise ValueError('Circuit must have at least one measurements.')
-    return json.dumps(ops)
+            raise ValueError(f"Operation '{inst.name}' not in basis gate set: {{rz, r, rxx}}")
+
+    if not num_measurements:
+        raise ValueError("Circuit must have at least one measurement operation.")
+
+    ops.append(api_models.Operation.measure())
+    return api_models.Circuit(__root__=ops)
 
 
-def circuit_to_aqt(circuits, access_token, shots=100):
-    """Return a list of json payload strings for each experiment in a qobj
+def circuits_to_aqt_job(circuits: List[QuantumCircuit], shots: int) -> api_models.JobSubmission:
+    """Convert a list of circuits to the corresponding AQT API job request payload.
 
-    The output json format of an experiment is defined as follows:
-        [[op_string, gate_exponent, qubits]]
+    Args:
+        circuits: circuits to execute
+        shots: number of repetitions per circuit.
 
-    which is a list of sequential quantum operations, each operation defined
-    by:
-
-    op_string: str that specifies the operation type, either "X","Y","MS"
-    gate_exponent: float that specifies the gate_exponent of the operation
-    qubits: list of qubits where the operation acts on.
+    Returns:
+        JobSubmission: AQT API payload for submitting the quantum circuits job.
     """
-    out_json = []
-    if isinstance(circuits, list):
-        if len(circuits) > 1:
-            raise Exception
-        circuits = circuits[0]
-    seqs = _experiment_to_seq(circuits)
-    out_dict = {
-        'data': seqs,
-        'access_token': access_token,
-        'repetitions': shots,
-        'no_qubits': circuits.num_qubits,
-    }
-    out_json.append(out_dict)
-    return out_json
+    return api_models.JobSubmission(
+        job_type="quantum_circuit",
+        label="qiskit",
+        payload=api_models.QuantumCircuits(
+            circuits=[
+                api_models.QuantumCircuit(
+                    repetitions=shots,
+                    quantum_circuit=_qiskit_to_aqt_circuit(circuit),
+                    number_of_qubits=circuit.num_qubits,
+                )
+                for circuit in circuits
+            ]
+        ),
+    )

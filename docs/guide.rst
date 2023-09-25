@@ -10,8 +10,9 @@ Users guide
 Setting up the provider
 =======================
 
-To begin, the `AQTProvider` must be instantiated with
-an AQT access token:
+To begin, the :class:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider>` must be instantiated.
+The authentication token can either be passed explcitly
+or stored in the environment variable ``AQT_TOKEN``:
 
 .. jupyter-execute::
 
@@ -20,30 +21,26 @@ an AQT access token:
     aqt = AQTProvider('MY_TOKEN')
 
 Once loaded with your credentials, the provider
-gives access to the available AQT backend. These
-backends can be listed using
+gives access certain backends. To list these, use the :meth:`AQTProvider.backends() <qiskit_aqt_provider.aqt_provider.AQTProvider.backends>` method:
 
 .. jupyter-execute::
 
     print(aqt.backends())
 
-and selected using autocomplete
+To select a backend, add filtering criteria:
 
 .. jupyter-execute::
 
-    backend = aqt.backends.aqt_qasm_simulator
+    backend = aqt.get_backend("offline_simulator_no_noise", workspace="default")
 
-One can also query a specific backend by name:
-
-.. jupyter-execute::
-
-    backend = aqt.get_backend('aqt_qasm_simulator')
+The default workspace is always present and contains at least an offline
+noiseless simulator (powered by Qiskit-Aer).
 
 
 Compiling circuits for AQT backends
 ===================================
 
-Although one may right a quantum circuit using any
+Although one may write a quantum circuit using any
 selection of quantum gates, the AQT backends can only
 run a subset of these operations.  The gates a given
 backend supports can be found from the configuration
@@ -90,8 +87,22 @@ method to retrieve a job:
 
 
 A circuit can also be sent to a backend using the
-Qiskit `execute` function:
+Qiskit `execute` function, which calls the transpiler
+automatically:
 
-.. code-block:: python3
+.. jupyter-execute::
 
-    job = execute(trans_qc, backend)
+    job = execute(qc, backend, with_progress_bar=False)
+
+
+To retrieve wait for a result to be available and retrieve it, use
+
+.. jupyter-execute::
+
+    result = job.result()
+
+The Qiskit `Result` object contains the outcome of all circuit samples:
+
+.. jupyter-execute::
+
+    print(result.get_counts())

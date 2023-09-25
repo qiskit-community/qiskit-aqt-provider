@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2019.
+# (C) Alpine Quantum Technologies GmbH 2023
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -10,6 +10,18 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-from qiskit_aqt_provider.aqt_provider import AQTProvider
+"""Pytest dynamic configuration."""
 
-__all__ = ["AQTProvider"]
+from datetime import timedelta
+
+import hypothesis
+
+hypothesis.settings.register_profile(
+    "ci",
+    deadline=timedelta(seconds=1),  # Account for slower CI workers
+    print_blob=True,  # Always print code to use with @reproduce_failure
+)
+
+pytest_plugins = [
+    "pytest_qiskit_aqt",
+]

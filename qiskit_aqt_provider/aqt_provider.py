@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
-
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2019.
+# (C) Copyright IBM 2019, Alpine Quantum Technologies 2020
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -13,105 +11,250 @@
 # that they have been altered from the originals.
 
 
-from qiskit.providers.providerutils import filter_backends
-from qiskit.providers.exceptions import QiskitBackendNotFoundError
-from .aqt_backend import AQTSimulator, AQTSimulatorNoise1, AQTDevice
+import contextlib
+import os
+import re
+import warnings
+from collections import defaultdict
+from dataclasses import dataclass
+from operator import attrgetter
+from pathlib import Path
+from typing import (
+    DefaultDict,
+    Dict,
+    Final,
+    List,
+    Literal,
+    Optional,
+    Pattern,
+    Sequence,
+    Union,
+    overload,
+)
+
+import dotenv
+import httpx
+from qiskit.providers import ProviderV1
+from tabulate import tabulate
+from typing_extensions import TypeAlias
+
+from qiskit_aqt_provider import api_models
+
+from .aqt_resource import AQTResource, OfflineSimulatorResource
+
+StrPath: TypeAlias = Union[str, Path]
 
 
-class AQTProvider():
-    """Provider for backends from Alpine Quantum Technologies (AQT).
+class NoTokenWarning(UserWarning):
+    """Warning emitted when a provider is initialized with no access token."""
 
-    Typical usage is:
 
-    .. code-block:: python
+@dataclass(frozen=True)
+class OfflineSimulator:
+    """Description of an offline simulator."""
 
-        from qiskit_aqt_provider import AQTProvider
+    id: str
+    """Unique identifier of the simulator."""
 
-        aqt = AQTProvider('MY_TOKEN')
+    name: str
+    """Free-text description of the simulator."""
 
-        backend = aqt.backends.aqt_qasm_simulator
+    noisy: bool
+    """Whether the simulator uses a noise model."""
 
-    where `'MY_TOKEN'` is the access token provided by AQT.
 
-    Attributes:
-        access_token (str): The access token.
-        name (str): Name of the provider instance.
-        backends (BackendService): A service instance that allows
-                                   for grabbing backends.
-    """
+OFFLINE_SIMULATORS: Final = [
+    OfflineSimulator(id="offline_simulator_no_noise", name="Offline ideal simulator", noisy=False),
+    OfflineSimulator(id="offline_simulator_noise", name="Offline noisy simulator", noisy=True),
+]
 
-    def __init__(self, access_token):
-        super().__init__()
 
-        self.access_token = access_token
-        self.name = 'aqt_provider'
-        # Populate the list of AQT backends
-        self.backends = BackendService([AQTSimulator(provider=self),
-                                        AQTSimulatorNoise1(provider=self),
-                                        AQTDevice(provider=self)])
+class BackendsTable(Sequence[AQTResource]):
+    """Pretty-printable list of AQT backends."""
 
-    def __str__(self):
-        return "<AQTProvider(name={})>".format(self.name)
+    def __init__(self, backends: List[AQTResource]):
+        self.backends = backends
+        self.headers = ["Workspace ID", "Resource ID", "Description", "Resource type"]
 
-    def __repr__(self):
-        return self.__str__()
+    @overload
+    def __getitem__(self, index: int) -> AQTResource:
+        ...  # pragma: no cover
 
-    def get_backend(self, name=None, **kwargs):
-        """Return a single backend matching the specified filtering.
+    @overload
+    def __getitem__(self, index: slice) -> Sequence[AQTResource]:
+        ...  # pragma: no cover
+
+    def __getitem__(self, index: Union[slice, int]) -> Union[AQTResource, Sequence[AQTResource]]:
+        """Retrieve a backend by index."""
+        return self.backends[index]
+
+    def __len__(self) -> int:
+        """Number of backends."""
+        return len(self.backends)
+
+    def __str__(self) -> str:
+        """Text table representation."""
+        return tabulate(self.table(), headers=self.headers, tablefmt="fancy_grid")
+
+    def _repr_html_(self) -> str:
+        """HTML representation (for IPython)."""
+        return tabulate(self.table(), headers=self.headers, tablefmt="html")  # pragma: no cover
+
+    def by_workspace(self) -> Dict[str, List[AQTResource]]:
+        """Aggregate backends by workspace."""
+        data: DefaultDict[str, List[AQTResource]] = defaultdict(list)
+
+        for backend in self:
+            data[backend.workspace_id].append(backend)
+
+        return dict(data)
+
+    def table(self) -> List[List[str]]:
+        """Assemble the data for the printable table."""
+        table = []
+        for workspace_id, resources in self.by_workspace().items():
+            for count, resource in enumerate(sorted(resources, key=attrgetter("resource_id"))):
+                line = [
+                    workspace_id,
+                    resource.resource_id,
+                    resource.resource_name,
+                    resource.resource_type,
+                ]
+                if count != 0:
+                    # don't repeat the workspace id
+                    line[0] = ""
+
+                table.append(line)
+
+        return table
+
+
+class AQTProvider(ProviderV1):
+    """Provider for backends from Alpine Quantum Technologies (AQT)."""
+
+    # Set AQT_PORTAL_URL environment variable to override
+    DEFAULT_PORTAL_URL: Final = "https://arnica-stage.aqt.eu"
+
+    def __init__(
+        self,
+        access_token: Optional[str] = None,
+        *,
+        load_dotenv: bool = True,
+        dotenv_path: Optional[StrPath] = None,
+    ):
+        """Initialize the AQT provider.
+
+        The access token for the AQT cloud can be provided either through the
+        ``access_token`` argument or the ``AQT_TOKEN`` environment variable.
+
+        .. hint:: If no token is set (neither through the ``access_token`` argument nor
+            through the ``AQT_TOKEN`` environment variable), the provider is initialized
+            with access to the offline simulators only and :class:`NoTokenWarning` is
+            emitted.
+
+        The AQT cloud portal URL can be configured using the ``AQT_PORTAL_URL``
+        environment variable.
+
+        If ``load_dotenv`` is true, environment variables are loaded from a file,
+        by default any ``.env`` file in the working directory or above it in the
+        directory tree.
+        The ``dotenv_path`` argument allows to pass a specific file to load environment
+        variables from.
+
         Args:
-            name (str): name of the backend.
-            **kwargs: dict used for filtering.
+            access_token: AQT cloud access token.
+            load_dotenv: whether to load environment variables from a ``.env`` file.
+            dotenv_path: path to the environment file. This implies ``load_dotenv``.
+        """
+        if load_dotenv or dotenv_path is not None:
+            dotenv.load_dotenv(dotenv_path)
+
+        portal_base_url = os.environ.get("AQT_PORTAL_URL", AQTProvider.DEFAULT_PORTAL_URL)
+        self.portal_url = f"{portal_base_url}/api/v1"
+
+        if access_token is None:
+            self.access_token = os.environ.get("AQT_TOKEN", "")
+        else:
+            self.access_token = access_token
+
+        if not self.access_token:
+            warnings.warn(
+                "No access token provided: access is restricted to the 'default' workspace.",
+                NoTokenWarning,
+            )
+
+        self.name = "aqt_provider"
+
+    @property
+    def _http_client(self) -> httpx.Client:
+        """HTTP client for communicating with the AQT cloud service."""
+        return api_models.http_client(base_url=self.portal_url, token=self.access_token)
+
+    def backends(
+        self,
+        name: Optional[Union[str, Pattern[str]]] = None,
+        *,
+        backend_type: Optional[Literal["device", "simulator", "offline_simulator"]] = None,
+        workspace: Optional[Union[str, Pattern[str]]] = None,
+    ) -> BackendsTable:
+        """Search for backends matching given criteria.
+
+        With no arguments, return all backends accessible with the configured
+        access token.
+
+        Args:
+            name: regular expression pattern for the resource ID.
+            backend_type: whether to search for simulators or hardware devices.
+            workspace: regular expression for the workspace ID.
+
         Returns:
-            Backend: a backend matching the filtering.
-        Raises:
-            QiskitBackendNotFoundError: if no backend could be found or
-                more than one backend matches the filtering criteria.
+            List of backends accessible with the given access token that match the
+            given criteria.
         """
-        backends = self.backends(name, **kwargs)
-        if len(backends) > 1:
-            raise QiskitBackendNotFoundError('More than one backend matches criteria.')
-        if not backends:
-            raise QiskitBackendNotFoundError('No backend matches criteria.')
+        remote_workspaces = api_models.Workspaces(__root__=[])
 
-        return backends[0]
+        if backend_type != "offline_simulator":
+            with contextlib.suppress(httpx.HTTPError, httpx.NetworkError):
+                with self._http_client as client:
+                    resp = client.get("/workspaces")
+                    resp.raise_for_status()
 
-    def __eq__(self, other):
-        """Equality comparison.
-        By default, it is assumed that two `Providers` from the same class are
-        equal. Subclassed providers can override this behavior.
-        """
-        return type(self).__name__ == type(other).__name__
+                remote_workspaces = api_models.Workspaces.parse_obj(resp.json()).filter(
+                    name_pattern=name,
+                    backend_type=api_models.ResourceType(backend_type) if backend_type else None,
+                    workspace_pattern=workspace,
+                )
 
+        backends: List[AQTResource] = []
 
-class BackendService():
-    """A service class that allows for autocompletion
-    of backends from provider.
-    """
+        # add offline simulators in the default workspace
+        if (not workspace or re.match(workspace, "default", re.IGNORECASE)) and (
+            not backend_type or backend_type == "offline_simulator"
+        ):
+            for simulator in OFFLINE_SIMULATORS:
+                if name and not re.match(name, simulator.id, re.IGNORECASE):
+                    continue
+                backends.append(
+                    OfflineSimulatorResource(
+                        self,
+                        workspace_id="default",
+                        resource_id=simulator.id,
+                        resource_name=simulator.name,
+                        noisy=simulator.noisy,
+                    )
+                )
 
-    def __init__(self, backends):
-        """Initialize service
+        # add (filtered) remote resources
+        for _workspace in remote_workspaces.__root__:
+            for resource in _workspace.resources:
+                backends.append(
+                    AQTResource(
+                        self,
+                        workspace_id=_workspace.id,
+                        resource_id=resource.id,
+                        resource_name=resource.name,
+                        resource_type=resource.type.value,
+                    )
+                )
 
-        Parameters:
-            backends (list): List of backend instances.
-        """
-        self._backends = backends
-        for backend in backends:
-            setattr(self, backend.name, backend)
-
-    def __call__(self, name=None, filters=None, **kwargs):
-        """A listing of all backends from this provider.
-
-        Parameters:
-            name (str): The name of a given backend.
-            filters (callable): A filter function.
-
-        Returns:
-            list: A list of backends, if any.
-        """
-        # pylint: disable=arguments-differ
-        backends = self._backends
-        if name:
-            backends = [
-                backend for backend in backends if backend.name == name]
-
-        return filter_backends(backends, filters=filters, **kwargs)
+        return BackendsTable(backends)
