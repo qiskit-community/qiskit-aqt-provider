@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # This code is part of Qiskit.
 #
 # (C) Copyright Alpine Quantum Technologies GmbH 2023

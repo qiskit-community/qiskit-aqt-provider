@@ -248,5 +248,6 @@ shell = "ruff check ."
 lint = ["check_api_models", "ruff_check"]
 format_check = ["black_check", "pyprojectfmt_check"]
 generate-models = "./scripts/api_models.py generate"
+version_check = "./scripts/package_version.py --verbose check"
 docs = "sphinx-build -j auto -b html -W docs docs/_build"
-all = ["format_check", "lint", "typecheck", "test", "docs"]
+all = ["version_check", "format_check", "lint", "typecheck", "test", "docs"]
