@@ -24,8 +24,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: "poetry"
-      - name: Check version numbers consistency
-        run: poetry run poe version_check
       - name: Check Poetry lock file status
         run: poetry lock --check
       - name: Check shell scripts
@@ -47,6 +45,8 @@ jobs:
           poetry run examples/run_all.sh -c
       - name: Install all dependencies
         run: poetry install --sync
+      - name: Check version numbers consistency
+        run: poetry run poe version_check
       - name: Check formatting
         run: poetry run poe format_check
       - name: Linting
