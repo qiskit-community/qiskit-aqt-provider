@@ -37,6 +37,6 @@ jobs:
           body_path: ${{ github.workspace }}-CHANGELOG.txt
       - name: Publish to PyPI
         env:
-          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
           TWINE_USERNAME: __token__
         run: twine upload dist/qiskit*

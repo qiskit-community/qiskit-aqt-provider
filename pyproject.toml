@@ -1,9 +1,9 @@
 [tool.poetry]
-name = "qiskit-aqt-provider-rc"
-version = "0.16.0"
+name = "qiskit-aqt-provider"
+version = "0.17.0"
 description = "Qiskit provider for AQT backends"
 authors = ["Qiskit Development Team", "Alpine Quantum Technologies GmbH"]
-repository = "https://github.com/alpine-quantum-technologies/qiskit-aqt-provider-rc/"
+repository = "https://github.com/qiskit-community/qiskit-aqt-provider"
 readme = "README.md"
 license = "Apache-2.0"
 classifiers=[
@@ -74,9 +74,11 @@ pytest-sugar = "^0.9.6"
 qiskit-experiments = "^0.4.0"
 qiskit-sphinx-theme = ">=1.7.0"
 qiskit-terra = {version = ">=0.23.2", extras = ["visualization"]}
+rich = "^13.5.3"
 ruff = "^0.0.291"
 sphinx = "^6"
 sympy = "^1.11.1"
+tomlkit = "^0.12.1"
 typer = "^0.7.0"
 types-requests = "^2.28.11"
 types-setuptools = "^65.7.0"
@@ -246,5 +248,6 @@ shell = "ruff check ."
 lint = ["check_api_models", "ruff_check"]
 format_check = ["black_check", "pyprojectfmt_check"]
 generate-models = "./scripts/api_models.py generate"
-docs = "sphinx-build -b html -W docs docs/_build"
-all = ["format_check", "lint", "typecheck", "test", "docs"]
+version_check = "./scripts/package_version.py --verbose check"
+docs = "sphinx-build -j auto -b html -W docs docs/_build"
+all = ["version_check", "format_check", "lint", "typecheck", "test", "docs"]
