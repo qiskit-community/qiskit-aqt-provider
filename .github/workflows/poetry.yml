@@ -64,8 +64,8 @@ jobs:
         with:
           name: html-coverage
           path: htmlcov/
-      - name: Generate XML coverage report
-        run: poetry run coverage xml -o coverage.xml
+      # - name: Generate XML coverage report
+      #   run: poetry run coverage xml -o coverage.xml
       # - name: Read global coverage target
       #   id: coverage-target
       #   run: echo "fail-under=$(poetry run python scripts/read-target-coverage.py)" >> $GITHUB_OUTPUT
