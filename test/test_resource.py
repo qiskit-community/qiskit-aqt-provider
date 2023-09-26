@@ -24,15 +24,15 @@ from pytest_httpx import HTTPXMock
 from qiskit import QuantumCircuit
 from qiskit.providers.exceptions import JobTimeoutError
 
-from qiskit_aqt_provider import api_models, api_models_generated
+from qiskit_aqt_provider import api_models
 from qiskit_aqt_provider.aqt_job import AQTJob
 from qiskit_aqt_provider.aqt_options import AQTOptions
 from qiskit_aqt_provider.aqt_resource import AQTResource
+from qiskit_aqt_provider.circuit_to_aqt import circuits_to_aqt_job
 from qiskit_aqt_provider.test.circuits import assert_circuits_equal, empty_circuit, random_circuit
 from qiskit_aqt_provider.test.fixtures import MockSimulator
 from qiskit_aqt_provider.test.resources import DummyResource, TestResource
 from qiskit_aqt_provider.versions import USER_AGENT
-from qiskit_aqt_provider.circuit_to_aqt import _qiskit_to_aqt_circuit, circuits_to_aqt_job
 
 
 class OptionsFactory(ModelFactory[AQTOptions]):

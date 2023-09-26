@@ -15,12 +15,12 @@
 This module is exposed as pytest plugin for this project.
 """
 
-from typing_extensions import override
 import uuid
 from typing import List, Tuple
 
 import pytest
 from qiskit.circuit import QuantumCircuit
+from typing_extensions import override
 
 from qiskit_aqt_provider.aqt_job import AQTJob
 from qiskit_aqt_provider.aqt_provider import AQTProvider

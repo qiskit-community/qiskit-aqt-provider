@@ -14,8 +14,8 @@
 
 import math
 
-from qiskit import QuantumCircuit
 import qiskit.circuit.random
+from qiskit import QuantumCircuit
 from qiskit.quantum_info.operators import Operator
 
 
