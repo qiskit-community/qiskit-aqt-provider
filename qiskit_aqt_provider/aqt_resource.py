@@ -10,6 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+from typing_extensions import override
 import warnings
 from dataclasses import dataclass
 from typing import (
@@ -334,6 +335,7 @@ class OfflineSimulatorResource(AQTResource):
         """Whether the simulator includes a noise model."""
         return self.simulator.options.noise_model is not None
 
+    @override
     def submit(self, job: AQTJob) -> UUID:
         """Submit circuits for execution on the simulator.
 
@@ -352,6 +354,7 @@ class OfflineSimulatorResource(AQTResource):
         )
         return self.job.job_id
 
+    @override
     def result(self, job_id: UUID) -> api_models.JobResponse:
         """Query results for a simulator job.
 

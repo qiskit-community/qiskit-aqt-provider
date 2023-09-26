@@ -15,6 +15,7 @@
 This module is exposed as pytest plugin for this project.
 """
 
+from typing_extensions import override
 import uuid
 from typing import List, Tuple
 
@@ -40,6 +41,7 @@ class MockSimulator(OfflineSimulatorResource):
 
         self.submit_call_args: List[Tuple[List[QuantumCircuit], int]] = []
 
+    @override
     def submit(self, job: AQTJob) -> uuid.UUID:
         """Submit the circuits for execution on the backend.
 

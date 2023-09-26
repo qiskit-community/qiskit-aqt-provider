@@ -13,7 +13,7 @@
 from typing import Any, Iterator, Mapping, Optional
 
 import pydantic as pdt
-from typing_extensions import Annotated, Self
+from typing_extensions import Annotated, Self, override
 
 
 class AQTOptions(
@@ -68,14 +68,17 @@ class AQTOptions(
 
     # Mapping[str, Any] implementationm, for compatibility with qiskit.providers.Options
 
+    @override
     def __len__(self) -> int:
         """Number of options."""
         return len(self.__fields__)
 
+    @override
     def __iter__(self) -> Iterator[Any]:  # type: ignore[override]
         """Iterate over option names."""
         return iter(self.__fields__)
 
+    @override
     def __getitem__(self, name: str) -> Any:
         """Get the value for a given option."""
         return self.__dict__[name]

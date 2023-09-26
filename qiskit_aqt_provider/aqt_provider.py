@@ -36,7 +36,7 @@ import dotenv
 import httpx
 from qiskit.providers import ProviderV1
 from tabulate import tabulate
-from typing_extensions import TypeAlias
+from typing_extensions import TypeAlias, override
 
 from qiskit_aqt_provider import api_models
 
@@ -82,14 +82,17 @@ class BackendsTable(Sequence[AQTResource]):
     @overload
     def __getitem__(self, index: slice) -> Sequence[AQTResource]: ...  # pragma: no cover
 
+    @override
     def __getitem__(self, index: Union[slice, int]) -> Union[AQTResource, Sequence[AQTResource]]:
         """Retrieve a backend by index."""
         return self.backends[index]
 
+    @override
     def __len__(self) -> int:
         """Number of backends."""
         return len(self.backends)
 
+    @override
     def __str__(self) -> str:
         """Text table representation."""
         return tabulate(self.table(), headers=self.headers, tablefmt="fancy_grid")
