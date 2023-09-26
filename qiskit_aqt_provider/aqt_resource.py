@@ -34,11 +34,11 @@ from qiskit.providers import Options as QiskitOptions
 from qiskit.providers.models import BackendConfiguration
 from qiskit.transpiler import Target
 from qiskit_aer import AerJob, AerSimulator, noise
+from typing_extensions import override
 
 from qiskit_aqt_provider import api_models
 from qiskit_aqt_provider.aqt_job import AQTJob
 from qiskit_aqt_provider.aqt_options import AQTOptions
-from qiskit_aqt_provider.circuit_to_aqt import circuits_to_aqt_job
 
 if TYPE_CHECKING:  # pragma: no cover
     from qiskit_aqt_provider.aqt_provider import AQTProvider
@@ -130,7 +130,7 @@ class AQTResource(Backend):
 
         self._options = AQTOptions()
 
-    def submit(self, circuits: List[QuantumCircuit], shots: int) -> UUID:
+    def submit(self, job: AQTJob) -> UUID:
         """Submit a quantum circuits job to the AQT resource.
 
         .. hint:: This is a low-level method. Use the :meth:`run` method to submit
@@ -138,16 +138,13 @@ class AQTResource(Backend):
             handle.
 
         Args:
-            circuits: circuits to execute.
-            shots: number of repetitions per circuit.
+            job: the quantum circuits job to submit to the resource for execution.
 
         Returns:
             The unique identifier of the submitted job.
         """
-        payload = circuits_to_aqt_job(circuits, shots)
-
         resp = self._http_client.post(
-            f"/submit/{self.workspace_id}/{self.resource_id}", json=payload.dict()
+            f"/submit/{self.workspace_id}/{self.resource_id}", json=job.api_submit_payload.dict()
         )
 
         resp.raise_for_status()
@@ -338,25 +335,26 @@ class OfflineSimulatorResource(AQTResource):
         """Whether the simulator includes a noise model."""
         return self.simulator.options.noise_model is not None
 
-    def submit(self, circuits: List[QuantumCircuit], shots: int) -> UUID:
+    @override
+    def submit(self, job: AQTJob) -> UUID:
         """Submit circuits for execution on the simulator.
 
         .. hint:: This is a low-level method. Use :meth:`AQTResource.run()` instead.
 
         Args:
-            circuits: circuits to execute
-            shots: number of repetitions per circuit.
+            job: quantum circuits job to submit to the simulator.
 
         Returns:
             Unique identifier of the simulator job.
         """
         self.job = SimulatorJob(
-            job=self.simulator.run(circuits, shots=shots),
-            circuits=circuits,
-            shots=shots,
+            job=self.simulator.run(job.circuits, shots=job.options.shots),
+            circuits=job.circuits,
+            shots=job.options.shots,
         )
         return self.job.job_id
 
+    @override
     def result(self, job_id: UUID) -> api_models.JobResponse:
         """Query results for a simulator job.
 
