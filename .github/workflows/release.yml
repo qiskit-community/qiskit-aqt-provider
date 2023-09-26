@@ -38,5 +38,5 @@ jobs:
       - name: Publish to PyPI
         env:
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
-          TWINE_USERNAME: __token__
+          TWINE_USERNAME: qiskit
         run: twine upload dist/qiskit*
