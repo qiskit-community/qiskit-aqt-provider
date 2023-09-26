@@ -1,4 +1,4 @@
-name: Examples and unit tests
+name: Tests
 on:
   push:
     branches: [ master, 'stable/*' ]
