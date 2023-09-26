@@ -15,7 +15,7 @@ import platform
 from typing import Final
 
 QISKIT_TERRA_VERSION: Final = importlib.metadata.version("qiskit-terra")
-QISKIT_AQT_PROVIDER_VERSION: Final = importlib.metadata.version("qiskit-aqt-provider-rc")
+QISKIT_AQT_PROVIDER_VERSION: Final = importlib.metadata.version("qiskit-aqt-provider")
 
 __version__: Final = QISKIT_AQT_PROVIDER_VERSION
 

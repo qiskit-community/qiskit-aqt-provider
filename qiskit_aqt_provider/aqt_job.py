@@ -112,8 +112,7 @@ class _MockProgressBar:
     def __enter__(self) -> Self:
         return self
 
-    def __exit__(*args) -> None:
-        ...
+    def __exit__(*args) -> None: ...
 
 
 class AQTJob(JobV1):
@@ -128,8 +127,8 @@ class AQTJob(JobV1):
         """Initialize a job instance.
 
         Args:
-            backend: backend to run the job on
-            circuits: list of circuits to execute
+            backend: backend to run the job on.
+            circuits: list of circuits to execute.
             options: overridden resource options for this job.
         """
         super().__init__(backend, "")
@@ -154,7 +153,7 @@ class AQTJob(JobV1):
         """Query the job's status.
 
         Returns:
-            JobStatus: aggregated job status for all the circuits in this job.
+            Aggregated job status for all the circuits in this job.
         """
         payload = self._backend.result(uuid.UUID(self.job_id()))
 

@@ -18,6 +18,7 @@ hardware.
   AQTProvider <apidoc/provider>
   AQTResource <apidoc/resource>
   AQTJob <apidoc/job>
+  AQTOptions <apidoc/options>
 
 .. Hiding - Indices and tables
    :ref:`genindex`

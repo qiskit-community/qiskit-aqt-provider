@@ -21,7 +21,7 @@ class AQTOptions(
 ):
     """Options for AQT resources.
 
-    This is a typed drop-in replacement for `qiskit.providers.Options`.
+    This is a typed drop-in replacement for :class:`qiskit.providers.Options`.
     """
 
     # Qiskit generic:
@@ -54,7 +54,7 @@ class AQTOptions(
     def update_options(self, **kwargs: Any) -> Self:
         """Update options by name.
 
-        This is exposed for compatibility with `qiskit.providers.Options`.
+        This is exposed for compatibility with :class:`qiskit.providers.Options`.
         The preferred way of updating options is by direct (validated)
         assignment.
         """

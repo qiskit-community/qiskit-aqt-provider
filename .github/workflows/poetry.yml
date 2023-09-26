@@ -1,4 +1,4 @@
-name: Tests
+name: Examples and unit tests
 on:
   push:
     branches: [ master, 'stable/*' ]
@@ -45,6 +45,8 @@ jobs:
           poetry run examples/run_all.sh -c
       - name: Install all dependencies
         run: poetry install --sync
+      - name: Check version numbers consistency
+        run: poetry run poe version_check
       - name: Check formatting
         run: poetry run poe format_check
       - name: Linting
@@ -62,17 +64,17 @@ jobs:
         with:
           name: html-coverage
           path: htmlcov/
-      - name: Generate XML coverage report
-        run: poetry run coverage xml -o coverage.xml
-      - name: Read global coverage target
-        id: coverage-target
-        run: echo "fail-under=$(poetry run python scripts/read-target-coverage.py)" >> $GITHUB_OUTPUT
-      - name: Post coverage comment
-        if: ${{ github.event_name == 'pull_request' }}
-        uses: orgoro/coverage@v3
-        with:
-          coverageFile: coverage.xml
-          token: ${{ secrets.GITHUB_TOKEN }}
-          thresholdAll: ${{ steps.coverage-target.outputs.fail-under }}
-          thresholdNew: 0
-          thresholdModified: 0
+      # - name: Generate XML coverage report
+      #   run: poetry run coverage xml -o coverage.xml
+      # - name: Read global coverage target
+      #   id: coverage-target
+      #   run: echo "fail-under=$(poetry run python scripts/read-target-coverage.py)" >> $GITHUB_OUTPUT
+      # - name: Post coverage comment
+      #   if: ${{ github.event_name == 'pull_request' }}
+      #   uses: orgoro/coverage@v3
+      #   with:
+      #     coverageFile: coverage.xml
+      #     token: ${{ secrets.GITHUB_TOKEN }}
+      #     thresholdAll: ${{ steps.coverage-target.outputs.fail-under }}
+      #     thresholdNew: 0
+      #     thresholdModified: 0
