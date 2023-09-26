@@ -21,9 +21,9 @@ from typing import List, Tuple
 import pytest
 from qiskit.circuit import QuantumCircuit
 
+from qiskit_aqt_provider.aqt_job import AQTJob
 from qiskit_aqt_provider.aqt_provider import AQTProvider
 from qiskit_aqt_provider.aqt_resource import OfflineSimulatorResource
-from qiskit_aqt_provider.circuit_to_aqt import _qiskit_to_aqt_circuit
 
 
 class MockSimulator(OfflineSimulatorResource):
@@ -40,30 +40,16 @@ class MockSimulator(OfflineSimulatorResource):
 
         self.submit_call_args: List[Tuple[List[QuantumCircuit], int]] = []
 
-    def submit(self, circuits: List[QuantumCircuit], shots: int) -> uuid.UUID:
+    def submit(self, job: AQTJob) -> uuid.UUID:
         """Submit the circuits for execution on the backend.
 
         Record the passed arguments in `submit_call_args`.
 
-        Try to convert the circuits to the AQT JSON wire format.
-
         Args:
-            circuits: the circuits to execute on the simulator
-            shots: number of repetitions.
-
-        Raises:
-            ValueError: at least one circuit cannot be converted to the AQT JSON wire format.
+            job: AQTJob to submit to the mock simulator.
         """
-        for circuit in circuits:
-            try:
-                _ = _qiskit_to_aqt_circuit(circuit)
-            except Exception as e:  # noqa: BLE001
-                raise ValueError(
-                    f"Circuit cannot be converted to AQT JSON format:\n{circuit}"
-                ) from e
-
-        self.submit_call_args.append((circuits, shots))
-        return super().submit(circuits, shots)
+        self.submit_call_args.append((job.circuits, job.options.shots))
+        return super().submit(job)
 
     @property
     def submitted_circuits(self) -> List[List[QuantumCircuit]]:

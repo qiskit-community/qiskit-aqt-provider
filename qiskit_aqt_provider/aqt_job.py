@@ -38,6 +38,7 @@ from typing_extensions import Self, TypeAlias, assert_never
 
 from qiskit_aqt_provider import api_models_generated
 from qiskit_aqt_provider.aqt_options import AQTOptions
+from qiskit_aqt_provider.circuit_to_aqt import circuits_to_aqt_job
 
 if TYPE_CHECKING:  # pragma: no cover
     from qiskit_aqt_provider.aqt_resource import AQTResource
@@ -136,6 +137,8 @@ class AQTJob(JobV1):
 
         self.circuits = circuits
         self.options = options
+        self.api_submit_payload = circuits_to_aqt_job(circuits, options.shots)
+
         self.status_payload: JobStatusPayload = JobQueued()
 
     def submit(self) -> None:
@@ -147,7 +150,7 @@ class AQTJob(JobV1):
         if self.job_id():
             raise RuntimeError(f"Job already submitted (ID: {self.job_id()})")
 
-        job_id = self._backend.submit(self.circuits, self.options.shots)
+        job_id = self._backend.submit(self)
         self._job_id = str(job_id)
 
     def status(self) -> JobStatus:

@@ -18,19 +18,21 @@ from unittest import mock
 import httpx
 import pydantic as pdt
 import pytest
+import qiskit
 from polyfactory.factories.pydantic_factory import ModelFactory
 from pytest_httpx import HTTPXMock
 from qiskit import QuantumCircuit
 from qiskit.providers.exceptions import JobTimeoutError
 
-from qiskit_aqt_provider import api_models
+from qiskit_aqt_provider import api_models, api_models_generated
 from qiskit_aqt_provider.aqt_job import AQTJob
 from qiskit_aqt_provider.aqt_options import AQTOptions
 from qiskit_aqt_provider.aqt_resource import AQTResource
-from qiskit_aqt_provider.test.circuits import assert_circuits_equal, empty_circuit
+from qiskit_aqt_provider.test.circuits import assert_circuits_equal, empty_circuit, random_circuit
 from qiskit_aqt_provider.test.fixtures import MockSimulator
 from qiskit_aqt_provider.test.resources import DummyResource, TestResource
 from qiskit_aqt_provider.versions import USER_AGENT
+from qiskit_aqt_provider.circuit_to_aqt import _qiskit_to_aqt_circuit, circuits_to_aqt_job
 
 
 class OptionsFactory(ModelFactory[AQTOptions]):
@@ -97,8 +99,9 @@ def test_query_timeout_propagation() -> None:
 
     qc = QuantumCircuit(1)
     qc.rx(3.14, 0)
+    qc.measure_all()
 
-    job = backend.run(qc)
+    job = backend.run(qiskit.transpile(qc, backend))
 
     with pytest.raises(JobTimeoutError):
         job.result()
@@ -125,7 +128,7 @@ def test_query_period_propagation() -> None:
     qc.rx(3.14, 0)
     qc.measure_all()
 
-    job = backend.run(qc)
+    job = backend.run(qiskit.transpile(qc, backend))
 
     with mock.patch.object(AQTJob, "status", wraps=job.status) as mocked_status:
         job.result()
@@ -244,8 +247,42 @@ def test_submit_valid_response(httpx_mock: HTTPXMock) -> None:
 
     httpx_mock.add_callback(handle_submit, method="POST")
 
-    job_id = backend.submit([empty_circuit(2)], shots=10)
-    assert job_id == expected_job_id
+    job = AQTJob(backend, circuits=[empty_circuit(2)], options=AQTOptions(shots=10))
+    job.submit()
+    assert job.job_id() == str(expected_job_id)
+
+
+def test_submit_payload_matches(httpx_mock: HTTPXMock) -> None:
+    """Check that the quantum circuits jobs payload is correctly submitted to the API endpoint."""
+    backend = DummyResource("")
+    shots = 123
+    qc = qiskit.transpile(random_circuit(2), backend)
+    expected_job_payload = circuits_to_aqt_job([qc], shots=shots)
+    expected_job_id = uuid.uuid4()
+
+    def handle_submit(request: httpx.Request) -> httpx.Response:
+        assert request.headers["user-agent"] == USER_AGENT
+
+        data = api_models.JobSubmission.parse_raw(request.content.decode("utf-8"))
+        assert data == expected_job_payload
+
+        return httpx.Response(
+            status_code=httpx.codes.OK,
+            json=json.loads(
+                api_models.Response.queued(
+                    job_id=expected_job_id,
+                    resource_id=backend.resource_id,
+                    workspace_id=backend.workspace_id,
+                ).json()
+            ),
+        )
+
+    httpx_mock.add_callback(handle_submit, method="POST")
+
+    qc = qiskit.transpile(random_circuit(2), backend)
+    job = AQTJob(backend, circuits=[qc], options=AQTOptions(shots=shots))
+    job.submit()
+    assert job.job_id() == str(expected_job_id)
 
 
 def test_submit_bad_request(httpx_mock: HTTPXMock) -> None:
@@ -255,8 +292,9 @@ def test_submit_bad_request(httpx_mock: HTTPXMock) -> None:
     backend = DummyResource("")
     httpx_mock.add_response(status_code=httpx.codes.BAD_REQUEST)
 
+    job = AQTJob(backend, circuits=[empty_circuit(2)], options=AQTOptions(shots=10))
     with pytest.raises(httpx.HTTPError):
-        backend.submit([empty_circuit(2)], shots=10)
+        job.submit()
 
 
 def test_result_valid_response(httpx_mock: HTTPXMock) -> None:
@@ -307,10 +345,10 @@ def test_result_unknown_job(httpx_mock: HTTPXMock) -> None:
         backend.result(job_id)
 
 
-def test_resource_fixture_detect_invalid_circuits(
+def test_offline_simulator_detects_invalid_circuits(
     offline_simulator_no_noise: MockSimulator,
 ) -> None:
-    """Pass a circuit that cannot be converted to the AQT API to the mock simulator.
+    """Pass a circuit that cannot be converted to the AQT API to the offline simulator.
     This must fail.
     """
     qc = QuantumCircuit(2)
@@ -318,5 +356,5 @@ def test_resource_fixture_detect_invalid_circuits(
     qc.cnot(0, 1)
     qc.measure_all()
 
-    with pytest.raises(ValueError, match="^Circuit cannot be converted"):
+    with pytest.raises(ValueError, match="^Operation 'h' not in basis gate set"):
         offline_simulator_no_noise.run(qc)
