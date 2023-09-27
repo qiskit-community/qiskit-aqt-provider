@@ -7,3 +7,4 @@ AQTOptions
 .. autoclass:: qiskit_aqt_provider.aqt_options.AQTOptions
    :members:
    :show-inheritance:
+   :exclude-members: update_options

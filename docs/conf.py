@@ -46,6 +46,18 @@ pygments_style = "emacs"
 language = "en"
 exclude_patterns = ["_build", "**.ipynb_checkpoints"]
 
+# check that all links are valid, with some exceptions
+nitpicky = True
+nitpick_ignore = [
+    ("py:class", "pydantic.main.BaseModel"),
+    ("py:class", "Backend"),
+    ("py:class", "Target"),
+    ("py:exc", "QiskitBackendNotFoundError"),
+]
+nitpick_ignore_regex = [
+    ("py:class", r"qiskit_aqt_provider\.api_models_generated.*"),
+]
+
 # show fully qualified names
 add_module_names = True
 

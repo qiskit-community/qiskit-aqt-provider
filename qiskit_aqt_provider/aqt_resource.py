@@ -47,6 +47,10 @@ if TYPE_CHECKING:  # pragma: no cover
 TargetT = TypeVar("TargetT", bound=Target)
 
 
+class UnknownOptionWarning(UserWarning):
+    """An unknown option was passed to a backend's :meth:`run <AQTResource.run>` method."""
+
+
 def make_transpiler_target(target_cls: Type[TargetT], num_qubits: int) -> TargetT:
     """Factory for transpilation targets of AQT resources.
 
@@ -133,7 +137,7 @@ class AQTResource(Backend):
     def submit(self, job: AQTJob) -> UUID:
         """Submit a quantum circuits job to the AQT resource.
 
-        .. hint:: This is a low-level method. Use the :meth:`run` method to submit
+        .. tip:: This is a low-level method. Use the :meth:`run` method to submit
             a job and retrieve a :class:`AQTJob <qiskit_aqt_provider.aqt_job.AQTJob>`
             handle.
 
@@ -153,7 +157,7 @@ class AQTResource(Backend):
     def result(self, job_id: UUID) -> api_models.JobResponse:
         """Query the result for a specific job.
 
-        .. hint:: This is a low-level method. Use the
+        .. tip:: This is a low-level method. Use the
             :meth:`AQTJob.result <qiskit_aqt_provider.aqt_job.AQTJob.result>`
             method to retrieve the result of a job described by a
             :class:`AQTJob <qiskit_aqt_provider.aqt_job.AQTJob>` handle.
@@ -214,15 +218,14 @@ class AQTResource(Backend):
     def run(self, circuits: Union[QuantumCircuit, List[QuantumCircuit]], **options: Any) -> AQTJob:
         """Submit circuits for execution on this resource.
 
-        Additional keywork arguments are treated as overrides for this resource's options.
-        Keywords that are not valid options for this resource are ignored with a warning.
-
         Args:
             circuits: circuits to execute
-            options: overrides for this resource's options.
+            options: overrides for this resource's options. Elements should be valid fields
+              of the :class:`AQTOptions <qiskit_aqt_provider.aqt_options.AQTOptions>` model.
+              Unknown fields are ignored with a :class:`UnknownOptionWarning`.
 
         Returns:
-            A job handle.
+            A handle to the submitted job.
         """
         if not isinstance(circuits, list):
             circuits = [circuits]
@@ -234,7 +237,7 @@ class AQTResource(Backend):
             for unknown_option in unknown_options:
                 warnings.warn(
                     f"Option {unknown_option} is not used by this backend",
-                    UserWarning,
+                    UnknownOptionWarning,
                     stacklevel=2,
                 )
 
@@ -298,7 +301,16 @@ class SimulatorJob:
 
 
 class OfflineSimulatorResource(AQTResource):
-    """AQT-compatible offline simulator resource that uses the Qiskit-Aer backend."""
+    """AQT-compatible offline simulator resource.
+
+    Offline simulators expose the same interface and restrictions are hardware backends. If
+    `noisy` is true, a noise model approximating that of AQT hardware backends is used.
+
+    .. tip::
+      The simulator backend is provided by `Qiskit Aer <https://qiskit.org/ecosystem/aer/>`_. The
+      Qiskit Aer resource is exposed for detailed detuning as the
+      ``OfflineSimulatorResource.simulator`` attribute.
+    """
 
     def __init__(
         self,
@@ -309,6 +321,15 @@ class OfflineSimulatorResource(AQTResource):
         resource_name: str,
         noisy: bool,
     ) -> None:
+        """Initialize an offline simulator resource.
+
+        Args:
+            provider: Qiskit provider that owns this backend.
+            workspace_id: name of the AQT workspace the mapped resource belongs to.
+            resource_id: name of the resource in the AQT cloud portal.
+            resource_name: pretty name of the resource in the AQT cloud portal.
+            noisy: whether to configure a noise model in the simulator backend.
+        """
         super().__init__(
             provider,
             workspace_id=workspace_id,
@@ -337,9 +358,11 @@ class OfflineSimulatorResource(AQTResource):
 
     @override
     def submit(self, job: AQTJob) -> UUID:
-        """Submit circuits for execution on the simulator.
+        """Submit a job for execution on the simulator.
 
-        .. hint:: This is a low-level method. Use :meth:`AQTResource.run()` instead.
+        .. tip:: This is a low-level method. Use the :meth:`AQTResource.run()` method
+            to submit a job and retrieve a :class:`AQTJob <qiskit_aqt_provider.aqt_job.AQTJob>`
+            handle.
 
         Args:
             job: quantum circuits job to submit to the simulator.
@@ -358,7 +381,7 @@ class OfflineSimulatorResource(AQTResource):
     def result(self, job_id: UUID) -> api_models.JobResponse:
         """Query results for a simulator job.
 
-        .. hint:: This is a low-level method. Use
+        .. tip:: This is a low-level method. Use
             :meth:`AQTJob.result() <qiskit_aqt_provider.aqt_job.AQTJob.result>` instead.
 
         Args:
