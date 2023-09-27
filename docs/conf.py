@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018.
+# (C) Copyright IBM, Alpine Quantum Technologies GmbH, 2023
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,9 +12,8 @@
 
 """Sphinx documentation builder."""
 
-
 project = "Qiskit AQT Provider"
-copyright = "2021, Qiskit and AQT development teams"
+copyright = "2023, Qiskit and AQT development teams"
 author = "Qiskit and AQT development teams"
 
 # The short X.Y version
@@ -25,42 +24,41 @@ release = "0.17.0"
 extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.autodoc",
-    "sphinx.ext.autosummary",
     "sphinx.ext.mathjax",
     "sphinx.ext.viewcode",
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
     "jupyter_sphinx",
+    "qiskit_sphinx_theme",
 ]
-templates_path = ["_templates"]
-html_static_path = ["_static"]
-html_css_files = []
 
-autosummary_generate = True
-autosummary_generate_overwrite = False
-autoclass_content = "both"
+# --------------------
+# Theme
+# --------------------
 
-numfig = True
+html_theme = "qiskit-ecosystem"
+pygments_style = "emacs"
 
-numfig_format = {"table": "Table %s"}
+# --------------------
+# General options
+# --------------------
+
 language = "en"
-
 exclude_patterns = ["_build", "**.ipynb_checkpoints"]
 
-pygments_style = "colorful"
+# show fully qualified names
+add_module_names = True
 
-add_module_names = False
+# --------------------
+# Autodoc options
+# --------------------
 
-modindex_common_prefix = ["qiskit_aqt."]
+# separate the class docstring from the __init__ signature.
+autodoc_class_signature = "separated"
 
-html_theme = "qiskit_sphinx_theme"
-html_last_updated_fmt = "%Y/%m/%d"
-html_theme_options = {
-    "logo_only": True,
-    "display_version": True,
-    "prev_next_buttons_location": "bottom",
-    "style_external_links": True,
-}
+# ------------------------------
+# Intersphinx configuration
+# ------------------------------
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
