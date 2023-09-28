@@ -39,6 +39,7 @@ extensions = [
 
 html_theme = "qiskit-ecosystem"
 pygments_style = "emacs"
+html_title = f"{project} {release}"
 
 # --------------------
 # General options
