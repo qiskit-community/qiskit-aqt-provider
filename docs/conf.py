@@ -28,6 +28,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
+    "sphinxcontrib.autodoc_pydantic",
     "jupyter_sphinx",
     "qiskit_sphinx_theme",
 ]
@@ -67,6 +68,9 @@ add_module_names = True
 
 # separate the class docstring from the __init__ signature.
 autodoc_class_signature = "separated"
+
+# do not list the Pydantic validators in the field documentation.
+autodoc_pydantic_field_list_validators = False
 
 # ------------------------------
 # Intersphinx configuration
