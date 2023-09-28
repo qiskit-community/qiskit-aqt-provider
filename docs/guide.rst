@@ -41,7 +41,7 @@ Available backends
 
 A configured provider can be used to list available quantum computing backends.
 
-Each backend is identified by a *workspace* it belongs to, and a unique *resource* identifier within that workspace. The *resource type* helps distinguising between real hardware (``device``), hosted simulators (``simulator``) and offline simulators (``offline_simulator``).
+Each backend is identified by a *workspace* it belongs to, and a unique *resource* identifier within that workspace. The *resource type* helps distinguishing between real hardware (``device``), hosted simulators (``simulator``) and offline simulators (``offline_simulator``).
 
 The :meth:`AQTProvider.backends <qiskit_aqt_provider.aqt_provider.AQTProvider.backends>` method returns a pretty-printable collection of available backends and their associated metadata:
 
@@ -138,7 +138,7 @@ The result of a batch job is also a standard Qiskit :class:`Result <qiskit.resul
    else:
        raise RuntimeError
 
-.. warning:: In a batch job, the execution order of circuits is not guaranteed. In the :class:`Result <qiskit.result.Result>` instance however, results are listed in submission order.
+.. warning:: In a batch job, the execution order of circuits is not guaranteed. In the :class:`Result <qiskit.result.Result>` instance, however, results are listed in submission order.
 
 Quantum circuit transpilation
 =============================
@@ -151,7 +151,7 @@ AQT backends only natively implement a limited but complete set of quantum gates
 
    print(list(backend.target.operation_names))
 
-.. warning:: For implementation reasons, the transpilation target declares :class:`RXGate <qiskit.circuit.library.RXGate>` as basis gate. The AQT API however only accepts the more general :class:`RGate <qiskit.circuit.library.RGate>`, in addition to :class:`RZGate <qiskit.circuit.library.RZGate>`, the entangling :class:`RXXGate <qiskit.circuit.library.RXXGate>`, and the :class:`Measure <qiskit.circuit.library.Measure>` operation.
+.. warning:: For implementation reasons, the transpilation target declares :class:`RXGate <qiskit.circuit.library.RXGate>` as basis gate. The AQT API, however, only accepts the more general :class:`RGate <qiskit.circuit.library.RGate>`, in addition to :class:`RZGate <qiskit.circuit.library.RZGate>`, the entangling :class:`RXXGate <qiskit.circuit.library.RXXGate>`, and the :class:`Measure <qiskit.circuit.library.Measure>` operation.
 
 Circuit transpilation targeting the AQT backends is automatically performed when using the :func:`qiskit.execute <qiskit.execute_function.execute>` function. The optimization level can be tuned using the ``optimization_level=0,1,2,3`` argument.
 
