@@ -4,6 +4,7 @@ version = "0.17.0"
 description = "Qiskit provider for AQT backends"
 authors = ["Qiskit Development Team", "Alpine Quantum Technologies GmbH"]
 repository = "https://github.com/qiskit-community/qiskit-aqt-provider"
+documentation = "https://qiskit-community.github.io/qiskit-aqt-provider"
 readme = "README.md"
 license = "Apache-2.0"
 classifiers=[
@@ -56,6 +57,7 @@ tweedledum = { version = ">=1", optional = true }
 typing-extensions = ">=4.0.0"
 
 [tool.poetry.group.dev.dependencies]
+autodoc-pydantic = "<2.0.0"
 black = "^23.9.1"
 coverage = "^7.2.1"
 datamodel-code-generator = "^0.21.2"
@@ -72,11 +74,11 @@ pytest = ">=7"
 pytest-httpx = "^0.22.0"
 pytest-sugar = "^0.9.6"
 qiskit-experiments = "^0.4.0"
-qiskit-sphinx-theme = ">=1.7.0"
+qiskit-sphinx-theme = ">=1.16.0"
 qiskit-terra = {version = ">=0.23.2", extras = ["visualization"]}
 rich = "^13.5.3"
 ruff = "^0.0.291"
-sphinx = "^6"
+sphinx = "^7"
 sympy = "^1.11.1"
 tomlkit = "^0.12.1"
 typer = "^0.7.0"

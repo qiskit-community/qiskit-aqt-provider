@@ -70,7 +70,12 @@ OFFLINE_SIMULATORS: Final = [
 
 
 class BackendsTable(Sequence[AQTResource]):
-    """Pretty-printable list of AQT backends."""
+    """Pretty-printable collection of AQT backends.
+
+    The :meth:`__str__` method returns a plain text table reprensentation of the available backends.
+    The :meth:`_repr_html_` method returns an HTML representation that is automatically used
+    in IPython/Jupyter notebooks.
+    """
 
     def __init__(self, backends: List[AQTResource]):
         self.backends = backends
@@ -94,15 +99,15 @@ class BackendsTable(Sequence[AQTResource]):
 
     @override
     def __str__(self) -> str:
-        """Text table representation."""
+        """Plain-text table representation."""
         return tabulate(self.table(), headers=self.headers, tablefmt="fancy_grid")
 
     def _repr_html_(self) -> str:
-        """HTML representation (for IPython)."""
+        """HTML table representation (for IPython/Jupyter)."""
         return tabulate(self.table(), headers=self.headers, tablefmt="html")  # pragma: no cover
 
     def by_workspace(self) -> Dict[str, List[AQTResource]]:
-        """Aggregate backends by workspace."""
+        """Backends grouped by workspace ID."""
         data: DefaultDict[str, List[AQTResource]] = defaultdict(list)
 
         for backend in self:
@@ -205,11 +210,11 @@ class AQTProvider(ProviderV1):
 
         Args:
             name: regular expression pattern for the resource ID.
-            backend_type: whether to search for simulators or hardware devices.
+            backend_type: if given, restrict the search to the given backend type.
             workspace: regular expression for the workspace ID.
 
         Returns:
-            List of backends accessible with the given access token that match the
+            Collection of backends accessible with the given access token that match the
             given criteria.
         """
         remote_workspaces = api_models.Workspaces(__root__=[])

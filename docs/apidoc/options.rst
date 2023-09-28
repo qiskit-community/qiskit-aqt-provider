@@ -4,6 +4,11 @@
 AQTOptions
 ==========
 
-.. autoclass:: qiskit_aqt_provider.aqt_options.AQTOptions
-   :members:
+.. autopydantic_model:: qiskit_aqt_provider.aqt_options.AQTOptions
+   :exclude-members: update_options
+   :model-show-json: False
+   :model-show-validator-members: False
+   :model-show-validator-summary: False
+   :model-show-field-summary: False
+   :member-order: bysource
    :show-inheritance:
