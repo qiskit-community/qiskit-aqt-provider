@@ -3,6 +3,7 @@
 ## Unreleased
 
 * Check that the circuits submitted to the offline simulators can be converted to the AQT API (#68)
+* Add quickstart examples for the Qiskit.org homepage (#73)
 
 ## qiskit-aqt-provider v0.17.0
 
