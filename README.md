@@ -15,4 +15,4 @@ systems.
 
 ## Usage
 
-See the [user guide](https://github.com/qiskit-community/qiskit-aqt-provider/blob/master/docs/guide.rst) and the [examples](https://github.com/qiskit-community/qiskit-aqt-provider/tree/master/examples).
+See the [documentation](https://qiskit-community.github.io/qiskit-aqt-provider/) and the [examples](https://github.com/qiskit-community/qiskit-aqt-provider/tree/master/examples).
