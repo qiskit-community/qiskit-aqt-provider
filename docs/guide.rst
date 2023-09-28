@@ -15,7 +15,7 @@ This guide covers usage of the Qiskit AQT provider package with the AQT cloud po
 Provider configuration
 ======================
 
-The primary interface to the AQT cloud portal exposed by this package is the :class:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider>` class. Instances of it are able to authenticate to the AQT cloud with an access token, list available resources and retrieve handles to resources for executing quantum circuits jobs.
+The primary interface to the AQT cloud portal exposed by this package is the :class:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider>` class. Instances of it are able to authenticate to the AQT cloud with an access token, list available resources, and retrieve handles to resources for executing quantum circuits jobs.
 
 .. tip:: If no access token to the AQT cloud is available, the :class:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider>` can nevertheless provide access to AQT-compatible simulators running on the local machine. This is the default behavior if the ``access_token`` argument to :meth:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider.__init__>` is empty or invalid.
 
@@ -32,7 +32,7 @@ Alternatively, the access token can be provided by the environment variable ``AQ
 
 .. code-block::
 
-   AQT_TOKEN=MY_TOKEN
+   AQT_TOKEN=ACCESS_TOKEN
 
 Loading a local environment override file can be controlled by further arguments to :meth:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider.__init__>`.
 

@@ -303,7 +303,7 @@ class SimulatorJob:
 class OfflineSimulatorResource(AQTResource):
     """AQT-compatible offline simulator resource.
 
-    Offline simulators expose the same interface and restrictions are hardware backends. If
+    Offline simulators expose the same interface and restrictions as hardware backends. If
     `noisy` is true, a noise model approximating that of AQT hardware backends is used.
 
     .. tip::
