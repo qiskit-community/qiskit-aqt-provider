@@ -200,11 +200,11 @@ Transpiler plugin
 
 The built-in transpiler largely leverages the :mod:`qiskit.transpiler`. Custom passes are registered in addition to the presets, irrespective of the optimization level, to ensure that the transpiled circuit is compatible with the restricted parameter ranges accepted by the `AQT API <https://arnica-stage.aqt.eu/api/v1/docs>`_:
 
-* in the translation stage, the :class:`WrapRxxAngles <qiskit_aqt_provider.transpiler_plugin.WrapRxxAngles>` pass exploits the periodicity of the :class:`RXXGate <qiskit.circuit.library.RXXGate>` to wrap its angle θ to the [0, π/2] range. This may come at the expense of extra single-qubit rotations.
-* in the scheduling stage, the :class:`RewriteRxAsR <qiskit_aqt_provider.transpiler_plugin.RewriteRxAsR>` pass rewrites :class:`RXGate <qiskit.circuit.library.RXGate>` operations as :class:`RGate <qiskit.circuit.library.RGate>` and wraps the angles θ∈[0, π] and φ∈[0, 2π]. This does not restrict the generality of quantum circuits and enables efficient native implementations.
+* in the translation stage, the :class:`WrapRxxAngles <qiskit_aqt_provider.transpiler_plugin.WrapRxxAngles>` pass exploits the periodicity of the :class:`RXXGate <qiskit.circuit.library.RXXGate>` to wrap its angle :math:`\theta` to the :math:`[0,\,\pi/2]` range. This may come at the expense of extra single-qubit rotations.
+* in the scheduling stage, the :class:`RewriteRxAsR <qiskit_aqt_provider.transpiler_plugin.RewriteRxAsR>` pass rewrites :class:`RXGate <qiskit.circuit.library.RXGate>` operations as :class:`RGate <qiskit.circuit.library.RGate>` and wraps the angles :math:`\theta\in[0,\,\pi]` and :math:`\phi\in[0,\,2\pi]`. This does not restrict the generality of quantum circuits and enables efficient native implementations.
 
-.. warning:: Circuits accepted by the AQT API are executed after applying one further transformation. Small-angle θ instances of :class:`RGate <qiskit.circuit.library.RGate>` are substituted as
+.. warning:: Circuits accepted by the AQT API are executed after applying one further transformation. Small-angle :math:`\theta` instances of :class:`RGate <qiskit.circuit.library.RGate>` are substituted as
 
-  R(θ, φ) → R(π, π)·R(θ+π, φ)
+  :math:`R(\theta,\,\phi)\ \to\  R(\pi, \pi)\cdot R(\theta+\pi,\,\phi)`.
 
-  The threshold for triggering this transformation is an implementation detail, typically around θ=π/5. Please contact AQT for details.
+  The threshold for triggering this transformation is an implementation detail, typically around :math:`\theta=\pi/5`. Please contact AQT for details.
