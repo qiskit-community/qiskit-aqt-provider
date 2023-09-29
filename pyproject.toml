@@ -46,6 +46,7 @@ pytest_qiskit_aqt = "qiskit_aqt_provider.test.fixtures"
 python = ">=3.8,<3.12"
 
 httpx = ">=0.24.0"
+platformdirs = ">=3"
 pydantic = ">=1.10.8,<2"
 python-dotenv = ">=1"
 qiskit-aer = ">=0.11"
