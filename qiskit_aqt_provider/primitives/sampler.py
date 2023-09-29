@@ -20,7 +20,7 @@ from qiskit_aqt_provider.aqt_resource import AQTResource, make_transpiler_target
 
 
 class AQTSampler(BackendSampler):
-    """Sampler primitive for AQT backends."""
+    """:class:`Sampler <qiskit.primitives.Sampler>` primitive for AQT backends."""
 
     _backend: AQTResource
 
@@ -30,12 +30,14 @@ class AQTSampler(BackendSampler):
         options: Optional[Dict[str, Any]] = None,
         skip_transpilation: bool = False,
     ):
-        """Initialize a Sampler primitive for AQT resources.
+        """Initialize a ``Sampler`` primitive using an AQT backend.
 
         Args:
-            backend: AQT resource to evaluate circuits on
-            options: options passed to the base sampler
-            skip_transpilation: if true, pass circuits unchanged to the backend.
+            backend: AQT resource to evaluate circuits on.
+            options: options passed through to the underlying
+              :class:`BackendSampler <qiskit.primitives.BackendSampler>`.
+            skip_transpilation: if :data:`True`, do not transpile circuits
+              before passing them to the execution backend.
         """
         # Signal the transpiler to disable passes that require bound
         # parameters.
