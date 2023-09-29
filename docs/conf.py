@@ -58,6 +58,7 @@ nitpick_ignore = [
 ]
 nitpick_ignore_regex = [
     ("py:class", r"qiskit_aqt_provider\.api_models_generated.*"),
+    ("py:class", r"typing_extensions.*"),
 ]
 
 # show fully qualified names
