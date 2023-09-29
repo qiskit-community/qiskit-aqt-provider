@@ -151,10 +151,12 @@ class TestResource(AQTResource):  # pylint: disable=too-many-instance-attributes
         """
         super().__init__(
             AQTProvider(""),
-            workspace_id="test-workspace",
-            resource_id="test",
-            resource_name="test-resource",
-            resource_type="simulator",
+            resource_id=api_models.ResourceId(
+                workspace_id="test-workspace",
+                resource_id="test",
+                resource_name="test-resource",
+                resource_type="simulator",
+            ),
         )
 
         self.job: Optional[TestJob] = None
@@ -206,8 +208,10 @@ class DummyResource(AQTResource):
     def __init__(self, token: str) -> None:
         super().__init__(
             AQTProvider(token),
-            workspace_id="dummy",
-            resource_id="dummy",
-            resource_name="dummy",
-            resource_type="simulator",
+            resource_id=api_models.ResourceId(
+                workspace_id="dummy",
+                resource_id="dummy",
+                resource_name="dummy",
+                resource_type="simulator",
+            ),
         )

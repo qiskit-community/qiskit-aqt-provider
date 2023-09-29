@@ -111,7 +111,7 @@ class BackendsTable(Sequence[AQTResource]):
         data: DefaultDict[str, List[AQTResource]] = defaultdict(list)
 
         for backend in self:
-            data[backend.workspace_id].append(backend)
+            data[backend.resource_id.workspace_id].append(backend)
 
         return dict(data)
 
@@ -119,12 +119,14 @@ class BackendsTable(Sequence[AQTResource]):
         """Assemble the data for the printable table."""
         table = []
         for workspace_id, resources in self.by_workspace().items():
-            for count, resource in enumerate(sorted(resources, key=attrgetter("resource_id"))):
+            for count, resource in enumerate(
+                sorted(resources, key=attrgetter("resource_id.resource_id"))
+            ):
                 line = [
                     workspace_id,
-                    resource.resource_id,
-                    resource.resource_name,
-                    resource.resource_type,
+                    resource.resource_id.resource_id,
+                    resource.resource_id.resource_name,
+                    resource.resource_id.resource_type,
                 ]
                 if count != 0:
                     # don't repeat the workspace id
@@ -243,10 +245,13 @@ class AQTProvider(ProviderV1):
                 backends.append(
                     OfflineSimulatorResource(
                         self,
-                        workspace_id="default",
-                        resource_id=simulator.id,
-                        resource_name=simulator.name,
-                        noisy=simulator.noisy,
+                        resource_id=api_models.ResourceId(
+                            workspace_id="default",
+                            resource_id=simulator.id,
+                            resource_name=simulator.name,
+                            resource_type="offline_simulator",
+                        ),
+                        with_noise_model=simulator.noisy,
                     )
                 )
 
@@ -256,10 +261,12 @@ class AQTProvider(ProviderV1):
                 backends.append(
                     AQTResource(
                         self,
-                        workspace_id=_workspace.id,
-                        resource_id=resource.id,
-                        resource_name=resource.name,
-                        resource_type=resource.type.value,
+                        resource_id=api_models.ResourceId(
+                            workspace_id=_workspace.id,
+                            resource_id=resource.id,
+                            resource_name=resource.name,
+                            resource_type=resource.type.value,
+                        ),
                     )
                 )
 

@@ -17,7 +17,6 @@ from typing import (
     Any,
     Dict,
     List,
-    Literal,
     Optional,
     Type,
     TypeVar,
@@ -82,34 +81,24 @@ class AQTResource(Backend):
     def __init__(
         self,
         provider: "AQTProvider",
-        *,
-        workspace_id: str,
-        resource_id: str,
-        resource_name: str,
-        resource_type: Literal["device", "simulator", "offline_simulator"],
+        resource_id: api_models.ResourceId,
     ):
         """Initialize the backend.
 
         Args:
             provider: Qiskit provider that owns this backend.
-            workspace_id: name of the AQT workspace the mapped resource belongs to.
-            resource_id: name of the resource in the AQT cloud portal.
-            resource_name: pretty name of the resource in the AQT cloud portal.
-            resource_type: resource class.
+            resource_id: description of resource to target.
         """
-        super().__init__(name=resource_id, provider=provider)
+        super().__init__(name=resource_id.resource_id, provider=provider)
 
         self.resource_id = resource_id
-        self.resource_name = resource_name
-        self.resource_type = resource_type
-        self.workspace_id = workspace_id
 
         self._http_client = provider._http_client
 
         num_qubits = 20
         self._configuration = BackendConfiguration.from_dict(
             {
-                "backend_name": resource_name,
+                "backend_name": resource_id.resource_name,
                 "backend_version": 2,
                 "url": provider.portal_url,
                 "simulator": True,
@@ -148,7 +137,8 @@ class AQTResource(Backend):
             The unique identifier of the submitted job.
         """
         resp = self._http_client.post(
-            f"/submit/{self.workspace_id}/{self.resource_id}", json=job.api_submit_payload.dict()
+            f"/submit/{self.resource_id.workspace_id}/{self.resource_id.resource_id}",
+            json=job.api_submit_payload.dict(),
         )
 
         resp.raise_for_status()
@@ -304,7 +294,7 @@ class OfflineSimulatorResource(AQTResource):
     """AQT-compatible offline simulator resource.
 
     Offline simulators expose the same interface and restrictions as hardware backends. If
-    `noisy` is true, a noise model approximating that of AQT hardware backends is used.
+    `with_noise_model` is true, a noise model approximating that of AQT hardware backends is used.
 
     .. tip::
       The simulator backend is provided by `Qiskit Aer <https://qiskit.org/ecosystem/aer/>`_. The
@@ -315,32 +305,26 @@ class OfflineSimulatorResource(AQTResource):
     def __init__(
         self,
         provider: "AQTProvider",
-        *,
-        workspace_id: str,
-        resource_id: str,
-        resource_name: str,
-        noisy: bool,
+        resource_id: api_models.ResourceId,
+        with_noise_model: bool,
     ) -> None:
         """Initialize an offline simulator resource.
 
         Args:
             provider: Qiskit provider that owns this backend.
-            workspace_id: name of the AQT workspace the mapped resource belongs to.
-            resource_id: name of the resource in the AQT cloud portal.
-            resource_name: pretty name of the resource in the AQT cloud portal.
-            noisy: whether to configure a noise model in the simulator backend.
+            resource_id: identification of the offline simulator resource.
+            with_noise_model: whether to configure a noise model in the simulator backend.
         """
+        assert resource_id.resource_type == "offline_simulator"  # noqa: S101
+
         super().__init__(
             provider,
-            workspace_id=workspace_id,
             resource_id=resource_id,
-            resource_name=resource_name,
-            resource_type="offline_simulator",
         )
 
         self.job: Optional[SimulatorJob] = None
 
-        if not noisy:
+        if not with_noise_model:
             noise_model = None
         else:
             # the transpiler lowers all operations to the gate set supported by the AQT API,
@@ -352,7 +336,7 @@ class OfflineSimulatorResource(AQTResource):
         self.simulator = AerSimulator(method="statevector", noise_model=noise_model)
 
     @property
-    def noisy(self) -> bool:
+    def with_noise_model(self) -> bool:
         """Whether the simulator includes a noise model."""
         return self.simulator.options.noise_model is not None
 
@@ -418,7 +402,7 @@ class OfflineSimulatorResource(AQTResource):
 
         return api_models.Response.finished(
             job_id=job_id,
-            workspace_id=self.workspace_id,
-            resource_id=self.resource_id,
+            workspace_id=self.resource_id.workspace_id,
+            resource_id=self.resource_id.resource_id,
             results=results,
         )

@@ -239,8 +239,8 @@ def test_submit_valid_response(httpx_mock: HTTPXMock) -> None:
             json=json.loads(
                 api_models.Response.queued(
                     job_id=expected_job_id,
-                    resource_id=backend.resource_id,
-                    workspace_id=backend.workspace_id,
+                    resource_id=backend.resource_id.resource_id,
+                    workspace_id=backend.resource_id.workspace_id,
                 ).json()
             ),
         )
@@ -262,6 +262,9 @@ def test_submit_payload_matches(httpx_mock: HTTPXMock) -> None:
 
     def handle_submit(request: httpx.Request) -> httpx.Response:
         assert request.headers["user-agent"] == USER_AGENT
+        assert request.url.path.endswith(
+            f"submit/{backend.resource_id.workspace_id}/{backend.resource_id.resource_id}"
+        )
 
         data = api_models.JobSubmission.parse_raw(request.content.decode("utf-8"))
         assert data == expected_job_payload
@@ -271,8 +274,8 @@ def test_submit_payload_matches(httpx_mock: HTTPXMock) -> None:
             json=json.loads(
                 api_models.Response.queued(
                     job_id=expected_job_id,
-                    resource_id=backend.resource_id,
-                    workspace_id=backend.workspace_id,
+                    resource_id=backend.resource_id.resource_id,
+                    workspace_id=backend.resource_id.workspace_id,
                 ).json()
             ),
         )
@@ -306,12 +309,15 @@ def test_result_valid_response(httpx_mock: HTTPXMock) -> None:
     job_id = uuid.uuid4()
 
     payload = api_models.Response.cancelled(
-        job_id=job_id, resource_id=backend.resource_id, workspace_id=backend.workspace_id
+        job_id=job_id,
+        resource_id=backend.resource_id.resource_id,
+        workspace_id=backend.resource_id.workspace_id,
     )
 
     def handle_result(request: httpx.Request) -> httpx.Response:
         assert request.headers["user-agent"] == USER_AGENT
         assert request.headers["authorization"] == f"Bearer {token}"
+        assert request.url.path.endswith(f"result/{job_id}")
 
         return httpx.Response(status_code=httpx.codes.OK, json=json.loads(payload.json()))
 
