@@ -49,3 +49,10 @@ For more details see the :ref:`user guide <user-guide>`, a selection of `example
   AQTJob <apidoc/job>
   AQTOptions <apidoc/options>
   Transpiler plugin <apidoc/transpiler_plugin>
+
+.. toctree::
+  :hidden:
+  :caption: External links
+
+  Repository <https://github.com/qiskit-community/qiskit-aqt-provider>
+  AQT <https://www.aqt.eu/qc-systems>
