@@ -42,7 +42,7 @@ aqt = "qiskit_aqt_provider.transpiler_plugin:AQTTranslationPlugin"
 pytest_qiskit_aqt = "qiskit_aqt_provider.test.fixtures"
 
 [tool.poetry.dependencies]
-python = ">=3.8,<3.12"
+python = ">=3.8,<3.13"
 
 httpx = ">=0.24.0"
 pydantic = ">=1.10.8,<2"
