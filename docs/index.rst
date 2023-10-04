@@ -20,20 +20,21 @@ Define a circuit that generates 2-qubit Bell state and sample it on a simulator 
    from qiskit_aqt_provider import AQTProvider
    from qiskit_aqt_provider.primitives import AQTSampler
 
-   # Define a circuit
+   # Define a circuit.
    circuit = QuantumCircuit(2)
    circuit.h(0)
    circuit.cnot(0, 1)
    circuit.measure_all()
 
-   # Select an execution backend
+   # Select an execution backend.
+   # Any token (even invalid ones) give access to the offline simulation backends.
    provider = AQTProvider("ACCESS_TOKEN")
    backend = provider.get_backend("offline_simulator_no_noise")
 
-   # Instantiate a sampler on the execution backend
+   # Instantiate a sampler on the execution backend.
    sampler = AQTSampler(backend)
 
-   # Sample the circuit on the execution backend
+   # Sample the circuit on the execution backend.
    result = sampler.run(circuit).result()
 
    quasi_dist = result.quasi_dists[0]
