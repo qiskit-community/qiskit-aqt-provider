@@ -20,7 +20,7 @@ from qiskit_aqt_provider.aqt_resource import AQTResource, make_transpiler_target
 
 
 class AQTEstimator(BackendEstimator):
-    """Estimator primitive for AQT backends."""
+    """:class:`Estimator <qiskit.primitives.Estimator>` primitive for AQT backends."""
 
     _backend: AQTResource
 
@@ -31,13 +31,15 @@ class AQTEstimator(BackendEstimator):
         abelian_grouping: bool = True,
         skip_transpilation: bool = False,
     ):
-        """Initialize an Estimator primitive for AQT resources.
+        """Initialize an ``Estimator`` primitive using an AQT backend.
 
         Args:
-            backend: AQT resource to evaluate circuits on
-            options: options passed to the base sampler
-            abelian_grouping:  whether the observable should be grouped into commuting parts
-            skip_transpilation: if true, pass circuits unchanged to the backend.
+            backend: AQT resource to evaluate circuits on.
+            options: options passed to through to the underlying
+              :class:`BackendEstimator <qiskit.primitives.BackendEstimator>`.
+            abelian_grouping:  whether the observable should be grouped into commuting parts.
+            skip_transpilation: if :data:`True`, do not transpile circuits
+              before passing them to the execution backend.
         """
         # Signal the transpiler to disable passes that require bound
         # parameters.

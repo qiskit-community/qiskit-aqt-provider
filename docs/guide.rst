@@ -80,6 +80,7 @@ If the filtering criteria correspond to multiple or no backends, a :class:`Qiski
    :hide-code:
 
    backend.options.with_progress_bar = False
+   backend.simulator.options.seed_simulator = 1000
 
 Quantum circuit evaluation
 ==========================
@@ -88,6 +89,8 @@ Single circuit evaluation
 -------------------------
 
 Basic quantum circuit execution follows the regular Qiskit workflow. A quantum circuit is defined by a :class:`QuantumCircuit <qiskit.circuit.QuantumCircuit>` instance:
+
+.. _bell-state-circuit:
 
 .. jupyter-execute::
 
@@ -140,6 +143,45 @@ The result of a batch job is also a standard Qiskit :class:`Result <qiskit.resul
 
 .. warning:: In a batch job, the execution order of circuits is not guaranteed. In the :class:`Result <qiskit.result.Result>` instance, however, results are listed in submission order.
 
+Using Qiskit primitives
+-----------------------
+
+Circuit evaluation can also be performed using :mod:`Qiskit primitives <qiskit.primitives>` through their specialized implementations for AQT backends :class:`AQTSampler <qiskit_aqt_provider.primitives.sampler.AQTSampler>` and :class:`AQTEstimator <qiskit_aqt_provider.primitives.estimator.AQTEstimator>`.
+
+.. warning:: The generic implementations :class:`BackendSampler <qiskit.primitives.BackendSampler>` and :class:`BackendEstimator <qiskit.primitives.BackendEstimator>` are **not** compatible with backends retrieved from the :class:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider>`. Please use the specialized implementations :class:`AQTSampler <qiskit_aqt_provider.primitives.sampler.AQTSampler>` and :class:`AQTEstimator <qiskit_aqt_provider.primitives.estimator.AQTEstimator>` instead.
+
+For example, the :class:`AQTSampler <qiskit_aqt_provider.primitives.sampler.AQTSampler>` can evaluate bitstring quasi-probabilities for a given circuit. Using the :ref:`Bell state circuit <bell-state-circuit>` defined above, we see that the states :math:`|00\rangle` and :math:`|11\rangle` roughly have the same quasi-probability:
+
+.. jupyter-execute::
+
+   from qiskit.visualization import plot_distribution
+   from qiskit_aqt_provider.primitives import AQTSampler
+
+   sampler = AQTSampler(backend)
+   result = sampler.run(circuit, shots=200).result()
+   data = {f"{b:02b}": p for b, p in result.quasi_dists[0].items()}
+   plot_distribution(data, figsize=(5, 4), color="#d1e0e0")
+
+
+In this Bell state, the expectation value of the the :math:`\sigma_z\otimes\sigma_z` operator is :math:`1`. This expectation value can be evaluated by applying the :class:`AQTEstimator <qiskit_aqt_provider.primitives.estimator.AQTEstimator>`:
+
+.. jupyter-execute::
+
+   from qiskit.quantum_info import SparsePauliOp
+   from qiskit_aqt_provider.primitives import AQTEstimator
+
+   estimator = AQTEstimator(backend)
+
+   bell_circuit = qiskit.QuantumCircuit(2)
+   bell_circuit.h(0)
+   bell_circuit.cnot(0, 1)
+
+   observable = SparsePauliOp.from_list([("ZZ", 1)])
+   result = estimator.run(bell_circuit, observable).result()
+   print(result.values[0])
+
+.. tip:: The circuit passed to estimator's :meth:`run <qiskit.primitives.BaseEstimator.run>` method is used to prepare the state the observable is evaluated in. Therefore, it must not contain unconditional measurement operations.
+
 Quantum circuit transpilation
 =============================
 
@@ -160,14 +202,14 @@ Transpilation can also be triggered separately from job submission using the :fu
 .. jupyter-execute::
    :hide-code:
 
-   circuit.draw("mpl")
+   circuit.draw("mpl", style="bw")
 
 to the transpiled one:
 
 .. jupyter-execute::
 
    transpiled_circuit = qiskit.transpile(circuit, backend, optimization_level=2)
-   transpiled_circuit.draw("mpl")
+   transpiled_circuit.draw("mpl", style="bw")
 
 
 Transpiler bypass
@@ -195,6 +237,8 @@ If a circuit is already defined in terms of the :ref:`native gates set <basis-ga
 
 Circuits that do not satisfy the AQT API restrictions are rejected by raising a :class:`ValueError` exception.
 
+.. _transpiler-plugin:
+
 Transpiler plugin
 -----------------
 
@@ -208,3 +252,10 @@ The built-in transpiler largely leverages the :mod:`qiskit.transpiler`. Custom p
   :math:`R(\theta,\,\phi)\ \to\  R(\pi, \pi)\cdot R(\theta+\pi,\,\phi)`.
 
   The threshold for triggering this transformation is an implementation detail, typically around :math:`\theta=\pi/5`. Please contact AQT for details.
+
+Transpilation in Qiskit primitives
+----------------------------------
+
+The generic implementations of the Qiskit primitives :class:`Sampler <qiskit.primitives.BaseSampler>` and :class:`Estimator <qiskit.primitives.BaseEstimator>` cache transpilation results to improve their runtime performance. This is particularly effective when evaluating batches of circuits that differ only in their parametrization.
+
+However, some passes registered by the AQT :ref:`transpiler plugin <transpiler-plugin>` require knowledge of the bound parameter values. The specialized implementations :class:`AQTSampler <qiskit_aqt_provider.primitives.sampler.AQTSampler>` and :class:`AQTEstimator <qiskit_aqt_provider.primitives.estimator.AQTEstimator>` use a hybrid approach, where the transpilation results of passes that do not require bound parameters are cached, while the small subset of passes that require fixed parameter values is executed before each circuit submission to the execution backend.
