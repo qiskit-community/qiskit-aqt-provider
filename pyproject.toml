@@ -55,7 +55,11 @@ tabulate = ">=0.9.0"
 tqdm = ">=4"
 tweedledum = { version = ">=1", optional = true }
 typing-extensions = ">=4.0.0"
-rustworkx = "<0.13.2"
+
+# Transitive qiskit dependencies that we need to look to specific
+# versions to get dependency resolution to work with all supported
+# python versions. (Ideally this should be done by qiskit itself).
+rustworkx = "<0.13.2" # Version 0.13.2 fails to install using poetry
 numpy = [
     { version = "<=1.25", python = "~3.8" },
     { version = ">=1.25.0", python = ">=3.9" }

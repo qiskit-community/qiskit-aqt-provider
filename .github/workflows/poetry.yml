@@ -14,6 +14,8 @@ jobs:
         poetry-version: [1.6.1]
         os: ["ubuntu-latest"]
     steps:
+      - name: install build system
+        run: apt install build-essential
       - uses: actions/checkout@v3
       - name: Install poetry
         uses: abatilo/actions-poetry@v2
