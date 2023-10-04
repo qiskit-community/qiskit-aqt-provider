@@ -3,7 +3,7 @@
 ## Unreleased
 
 * Check that the circuits submitted to the offline simulators can be converted to the AQT API (#68)
-* Update the user guide and improve the API reference consistency (#72)
+* Update the user guide and improve the API reference consistency (#72, #75)
 * Add quickstart examples for the Qiskit.org homepage (#73)
 * Add persistence mechanism for `AQTJob` instances (#77)
 * Rename `OfflineSimulatorResource.noisy` to `OfflineSimulatorResource.with_noise_model` (#77)

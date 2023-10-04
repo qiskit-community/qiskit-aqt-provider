@@ -11,24 +11,34 @@ hardware.
 Quick start
 -----------
 
-Define a circuit that generates 2-qubit Bell state and execute it on a simulator backend:
+Define a circuit that generates 2-qubit Bell state and sample it on a simulator backend running on the local machine:
 
 .. jupyter-execute::
 
-   import qiskit
    from qiskit import QuantumCircuit
+
    from qiskit_aqt_provider import AQTProvider
+   from qiskit_aqt_provider.primitives import AQTSampler
 
-   backend = AQTProvider("ACCESS_TOKEN").get_backend("offline_simulator_no_noise")
+   # Define a circuit.
+   circuit = QuantumCircuit(2)
+   circuit.h(0)
+   circuit.cnot(0, 1)
+   circuit.measure_all()
 
-   qc = QuantumCircuit(2)
-   qc.h(0)
-   qc.cnot(0, 1)
-   qc.measure_all()
+   # Select an execution backend.
+   # Any token (even invalid) gives access to the offline simulation backends.
+   provider = AQTProvider("ACCESS_TOKEN")
+   backend = provider.get_backend("offline_simulator_no_noise")
 
-   result = qiskit.execute(qc, backend, with_progress_bar=False).result()
-   print(result.get_counts())
+   # Instantiate a sampler on the execution backend.
+   sampler = AQTSampler(backend)
 
+   # Sample the circuit on the execution backend.
+   result = sampler.run(circuit).result()
+
+   quasi_dist = result.quasi_dists[0]
+   print(quasi_dist)
 
 For more details see the :ref:`user guide <user-guide>`, a selection of `examples <https://github.com/qiskit-community/qiskit-aqt-provider/tree/master/examples>`_, or the API reference.
 
@@ -48,4 +58,12 @@ For more details see the :ref:`user guide <user-guide>`, a selection of `example
   AQTResource <apidoc/resource>
   AQTJob <apidoc/job>
   AQTOptions <apidoc/options>
+  Qiskit primitives <apidoc/primitives>
   Transpiler plugin <apidoc/transpiler_plugin>
+
+.. toctree::
+  :hidden:
+  :caption: External links
+
+  Repository <https://github.com/qiskit-community/qiskit-aqt-provider>
+  AQT <https://www.aqt.eu/qc-systems>
