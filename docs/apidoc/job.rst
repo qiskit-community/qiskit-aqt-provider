@@ -9,3 +9,4 @@ AQTJob
 
 .. autoclass:: qiskit_aqt_provider.aqt_job.Progress
    :members:
+   :exclude-members: __init__

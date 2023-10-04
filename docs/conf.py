@@ -1,6 +1,6 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright IBM 2018.
+# (C) Copyright IBM 2018, Alpine Quantum Technologies GmbH 2023
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
@@ -12,9 +12,8 @@
 
 """Sphinx documentation builder."""
 
-
 project = "Qiskit AQT Provider"
-copyright = "2021, Qiskit and AQT development teams"
+copyright = "2023, Qiskit and AQT development teams"
 author = "Qiskit and AQT development teams"
 
 # The short X.Y version
@@ -25,42 +24,58 @@ release = "0.17.0"
 extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.autodoc",
-    "sphinx.ext.autosummary",
     "sphinx.ext.mathjax",
     "sphinx.ext.viewcode",
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
+    "sphinxcontrib.autodoc_pydantic",
     "jupyter_sphinx",
+    "qiskit_sphinx_theme",
 ]
-templates_path = ["_templates"]
-html_static_path = ["_static"]
-html_css_files = []
 
-autosummary_generate = True
-autosummary_generate_overwrite = False
-autoclass_content = "both"
+# --------------------
+# Theme
+# --------------------
 
-numfig = True
+html_theme = "qiskit-ecosystem"
+pygments_style = "emacs"
+html_title = f"{project} {release}"
 
-numfig_format = {"table": "Table %s"}
+# --------------------
+# General options
+# --------------------
+
 language = "en"
-
 exclude_patterns = ["_build", "**.ipynb_checkpoints"]
 
-pygments_style = "colorful"
+# check that all links are valid, with some exceptions
+nitpicky = True
+nitpick_ignore = [
+    ("py:class", "pydantic.main.BaseModel"),
+    ("py:class", "Backend"),
+    ("py:class", "Target"),
+    ("py:exc", "QiskitBackendNotFoundError"),
+]
+nitpick_ignore_regex = [
+    ("py:class", r"qiskit_aqt_provider\.api_models_generated.*"),
+]
 
-add_module_names = False
+# show fully qualified names
+add_module_names = True
 
-modindex_common_prefix = ["qiskit_aqt."]
+# --------------------
+# Autodoc options
+# --------------------
 
-html_theme = "qiskit_sphinx_theme"
-html_last_updated_fmt = "%Y/%m/%d"
-html_theme_options = {
-    "logo_only": True,
-    "display_version": True,
-    "prev_next_buttons_location": "bottom",
-    "style_external_links": True,
-}
+# separate the class docstring from the __init__ signature.
+autodoc_class_signature = "separated"
+
+# do not list the Pydantic validators in the field documentation.
+autodoc_pydantic_field_list_validators = False
+
+# ------------------------------
+# Intersphinx configuration
+# ------------------------------
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),

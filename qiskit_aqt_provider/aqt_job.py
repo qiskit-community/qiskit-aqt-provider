@@ -38,6 +38,7 @@ from typing_extensions import Self, TypeAlias, assert_never
 
 from qiskit_aqt_provider import api_models_generated
 from qiskit_aqt_provider.aqt_options import AQTOptions
+from qiskit_aqt_provider.circuit_to_aqt import circuits_to_aqt_job
 
 if TYPE_CHECKING:  # pragma: no cover
     from qiskit_aqt_provider.aqt_resource import AQTResource
@@ -117,6 +118,37 @@ class _MockProgressBar:
 
 
 class AQTJob(JobV1):
+    """Handle for quantum circuits jobs running on AQT backends.
+
+    Jobs contain one or more quantum circuits that are executed with a common
+    set of options (see :class:`AQTOptions <qiskit_aqt_provider.aqt_options.AQTOptions>`).
+
+    Job handles should be retrieved from calls to
+    :func:`qiskit.execute <qiskit.execute_function.execute>`
+    or :meth:`AQTResource.run <qiskit_aqt_provider.aqt_resource.AQTResource.run>`, both of which
+    immediately submit the job for execution. The :meth:`result` method allows blocking until a job
+    completes:
+
+    >>> import qiskit
+    >>> from qiskit.providers import JobStatus
+    >>> from qiskit_aqt_provider import AQTProvider
+    ...
+    >>> backend = AQTProvider("").get_backend("offline_simulator_no_noise")
+    ...
+    >>> qc = qiskit.QuantumCircuit(1)
+    >>> _ = qc.rx(3.14, 0)
+    >>> _ = qc.measure_all()
+    ...
+    >>> job = qiskit.execute(qc, backend, shots=100)
+    >>> result = job.result()
+    >>> job.status() is JobStatus.DONE
+    True
+    >>> result.success
+    True
+    >>> result.get_counts()
+    {'1': 100}
+    """
+
     _backend: "AQTResource"
 
     def __init__(
@@ -125,7 +157,11 @@ class AQTJob(JobV1):
         circuits: List[QuantumCircuit],
         options: AQTOptions,
     ):
-        """Initialize a job instance.
+        """Initialize an :class:`AQTJob` instance.
+
+        .. tip:: :class:`AQTJob` instances should not be created directly. Use
+          :meth:`AQTResource.run <qiskit_aqt_provider.aqt_resource.AQTResource.run>`
+          to submit circuits for execution and retrieve a job handle.
 
         Args:
             backend: backend to run the job on.
@@ -136,10 +172,15 @@ class AQTJob(JobV1):
 
         self.circuits = circuits
         self.options = options
+        self.api_submit_payload = circuits_to_aqt_job(circuits, options.shots)
+
         self.status_payload: JobStatusPayload = JobQueued()
 
     def submit(self) -> None:
         """Submit this job for execution.
+
+        This operation is not blocking. Use :meth:`result()` to block until
+        the job completes.
 
         Raises:
             RuntimeError: this job was already submitted.
@@ -147,7 +188,7 @@ class AQTJob(JobV1):
         if self.job_id():
             raise RuntimeError(f"Job already submitted (ID: {self.job_id()})")
 
-        job_id = self._backend.submit(self.circuits, self.options.shots)
+        job_id = self._backend.submit(self)
         self._job_id = str(job_id)
 
     def status(self) -> JobStatus:

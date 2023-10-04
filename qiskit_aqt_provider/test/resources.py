@@ -20,9 +20,10 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
 from qiskit import QuantumCircuit
-from typing_extensions import assert_never
+from typing_extensions import assert_never, override
 
 from qiskit_aqt_provider import api_models
+from qiskit_aqt_provider.aqt_job import AQTJob
 from qiskit_aqt_provider.aqt_provider import AQTProvider
 from qiskit_aqt_provider.aqt_resource import AQTResource
 
@@ -164,15 +165,17 @@ class TestResource(AQTResource):  # pylint: disable=too-many-instance-attributes
         self.always_error = always_error or error_message
         self.error_message = error_message or str(uuid.uuid4())
 
-    def submit(self, circuits: List[QuantumCircuit], shots: int) -> uuid.UUID:
-        job = TestJob(circuits, shots, error_message=self.error_message)
+    @override
+    def submit(self, job: AQTJob) -> uuid.UUID:
+        test_job = TestJob(job.circuits, job.options.shots, error_message=self.error_message)
 
         if self.always_cancel:
-            job.cancel()
+            test_job.cancel()
 
-        self.job = job
-        return job.job_id
+        self.job = test_job
+        return test_job.job_id
 
+    @override
     def result(self, job_id: uuid.UUID) -> api_models.JobResponse:
         if self.job is None or self.job.job_id != job_id:  # pragma: no cover
             raise api_models.UnknownJobError(str(job_id))

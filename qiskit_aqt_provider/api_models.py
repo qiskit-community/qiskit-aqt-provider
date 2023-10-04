@@ -48,7 +48,7 @@ __all__ = [
 
 
 class UnknownJobError(JobError):
-    """Requested an unknown job to the AQT API."""
+    """An unknown job was requested from the AQT cloud portal."""
 
 
 def http_client(*, base_url: str, token: str) -> httpx.Client:

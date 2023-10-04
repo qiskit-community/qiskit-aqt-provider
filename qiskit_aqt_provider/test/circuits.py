@@ -14,6 +14,7 @@
 
 import math
 
+import qiskit.circuit.random
 from qiskit import QuantumCircuit
 from qiskit.quantum_info.operators import Operator
 
@@ -33,6 +34,17 @@ def assert_circuits_equivalent(result: QuantumCircuit, expected: QuantumCircuit)
 def empty_circuit(num_qubits: int) -> QuantumCircuit:
     """An empty circuit, with the given number of qubits."""
     qc = QuantumCircuit(num_qubits)
+    qc.measure_all()
+    return qc
+
+
+def random_circuit(num_qubits: int, *, seed: int = 1234) -> QuantumCircuit:
+    """A random circuit, with depth equal to the number of qubits."""
+    qc = qiskit.circuit.random.random_circuit(
+        num_qubits,
+        num_qubits,
+        seed=seed,
+    )
     qc.measure_all()
     return qc
 
