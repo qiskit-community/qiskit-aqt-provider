@@ -212,9 +212,10 @@ convention = "google"
 
 [tool.coverage.run]
 dynamic_context = "test_function"
+relative_files = true
 
 [tool.coverage.report]
-fail_under = 98
+fail_under = 99
 
 [tool.poe.tasks.test]
 shell = """
