@@ -153,7 +153,7 @@ def test_simple_backend_execute_noisy(backend: MockSimulator) -> None:
 
     assert sum(counts.values()) == total_shots
 
-    if backend.noisy:
+    if backend.with_noise_model:
         assert set(counts.keys()) == {"0", "1"}
         assert counts["0"] < 0.1 * counts["1"]  # very crude
     else:

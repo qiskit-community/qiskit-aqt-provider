@@ -143,6 +143,32 @@ The result of a batch job is also a standard Qiskit :class:`Result <qiskit.resul
 
 .. warning:: In a batch job, the execution order of circuits is not guaranteed. In the :class:`Result <qiskit.result.Result>` instance, however, results are listed in submission order.
 
+Job handle persistence
+----------------------
+
+Due to the limited availability of quantum computing resources, a job may have to wait a significant amount of time in the AQT cloud portal scheduling queues. To ease up writing resilient programs, job handles can be persisted to disk on the local machine and retrieved at a later point:
+
+.. jupyter-execute::
+
+   job_ids = set()
+
+   job = qiskit.execute(circuit, backend)
+   job.persist()
+   job_ids.add(job.job_id())
+
+   print(job_ids)
+
+   # possible interruptions of the program, including full shutdown of the local machine
+
+   from qiskit_aqt_provider.aqt_job import AQTJob
+   job_id, = job_ids
+   restored_job = AQTJob.restore(job_id, access_token="ACCESS_TOKEN")
+   print(restored_job.result().get_counts())
+
+By default, persisted job handles can only be retrieved once, as the stored data is removed from the local storage upon retrieval. This ensures that the local storage does not grow unbounded in the common uses cases. This behavior can be altered by passing ``remove_from_store=False`` to :meth:`AQTJob.restore <qiskit_aqt_provider.aqt_job.AQTJob.restore>`.
+
+.. warning:: Job handle persistence is also implemented for jobs running on offline simulators, which allows to seamlessly switch to such backends for testing purposes. However, since the state of the local simulator backend cannot be persisted, offline simulator jobs are re-submitted when restored, leading to the assignment of a new identifier and varying results.
+
 Using Qiskit primitives
 -----------------------
 

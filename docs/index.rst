@@ -27,7 +27,7 @@ Define a circuit that generates 2-qubit Bell state and sample it on a simulator 
    circuit.measure_all()
 
    # Select an execution backend.
-   # Any token (even invalid ones) give access to the offline simulation backends.
+   # Any token (even invalid) gives access to the offline simulation backends.
    provider = AQTProvider("ACCESS_TOKEN")
    backend = provider.get_backend("offline_simulator_no_noise")
 
