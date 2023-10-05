@@ -63,6 +63,7 @@ black = "^23.9.1"
 coverage = "^7.2.1"
 datamodel-code-generator = "^0.21.2"
 hypothesis = "^6.82.0"
+interrogate = "^1.5.0"
 ipykernel = "^6.22.0"
 jupyter-sphinx = "^0.4.0"
 mistletoe = "^1.1.0"
@@ -217,6 +218,12 @@ relative_files = true
 [tool.coverage.report]
 fail_under = 99
 
+[tool.interrogate]
+ignore-module = true
+ignore-nested-functions = true
+exclude = ["qiskit_aqt_provider/api_models_generated.py"]
+fail-under = 86
+
 [tool.poe.tasks.test]
 shell = """
 set -eu
@@ -249,8 +256,11 @@ shell = "./scripts/api_models.py check"
 [tool.poe.tasks.ruff_check]
 shell = "ruff check ."
 
+[tool.poe.tasks.docstring_coverage]
+shell = "interrogate -v qiskit_aqt_provider test"
+
 [tool.poe.tasks]
-lint = ["check_api_models", "ruff_check"]
+lint = ["check_api_models", "docstring_coverage", "ruff_check"]
 format_check = ["black_check", "pyprojectfmt_check"]
 generate-models = "./scripts/api_models.py generate"
 version_check = "./scripts/package_version.py --verbose check"
