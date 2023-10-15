@@ -7,6 +7,9 @@ jobs:
   wheel-build:
     name: Build and Publish Release Artifacts
     runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      id-token: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -19,7 +22,7 @@ jobs:
         with:
           poetry-version: '1.5.1'
       - name: Install release dependencies
-        run: pip install -U twine wheel typer mistletoe
+        run: pip install -U typer mistletoe
       - name: Build packages
         run: |
           poetry build
@@ -36,7 +39,4 @@ jobs:
           files: ./dist/qiskit*
           body_path: ${{ github.workspace }}-CHANGELOG.txt
       - name: Publish to PyPI
-        env:
-          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
-          TWINE_USERNAME: qiskit
-        run: twine upload dist/qiskit*
+        uses: pypa/gh-action-pypi-publish@release/v1
