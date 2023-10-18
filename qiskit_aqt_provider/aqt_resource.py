@@ -36,7 +36,7 @@ from qiskit_aer import AerJob, AerSimulator, noise
 from typing_extensions import override
 
 from qiskit_aqt_provider import api_models
-from qiskit_aqt_provider.aqt_job import AQTJob
+from qiskit_aqt_provider.aqt_job import AQTJob, _build_memory_mapping
 from qiskit_aqt_provider.aqt_options import AQTOptions
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -243,12 +243,15 @@ class AQTResource(Backend):
         return job
 
 
-def qubit_states_from_int(state: int, num_qubits: int) -> List[int]:
+def qubit_states_from_int(
+    state: int, num_qubits: int, rev_memory_map: Optional[Dict[int, int]] = None
+) -> List[int]:
     """Convert the Qiskit state representation to the AQT states samples one.
 
     Args:
         state: Qiskit quantum register state representation
         num_qubits: number of qubits in the register.
+        rev_memory_map: classical to quantum memory map.
 
     Returns:
         AQT qubit states representation.
@@ -263,6 +266,9 @@ def qubit_states_from_int(state: int, num_qubits: int) -> List[int]:
         >>> qubit_states_from_int(0b11, 3)
         [1, 1, 0]
 
+        >>> qubit_states_from_int(0b11, 3, {2: 1, 1: 2})
+        [1, 0, 1]
+
         >>> qubit_states_from_int(0b01, 3)
         [1, 0, 0]
 
@@ -276,7 +282,16 @@ def qubit_states_from_int(state: int, num_qubits: int) -> List[int]:
     """
     if state.bit_length() > num_qubits:
         raise ValueError(f"Cannot represent {state=} on {num_qubits=}.")
-    return [(state >> qubit) & 1 for qubit in range(num_qubits)]
+
+    states = [(state >> qubit) & 1 for qubit in range(num_qubits)]
+    if not rev_memory_map:
+        return states
+
+    tr_states = states.copy()
+    for src, dest in rev_memory_map.items():
+        tr_states[dest] = states[src]
+
+    return tr_states
 
 
 @dataclass(frozen=True)
@@ -384,16 +399,20 @@ class OfflineSimulatorResource(AQTResource):
 
         results: Dict[str, List[List[int]]] = {}
         for circuit_index, circuit in enumerate(self.job.circuits):
-            samples: List[List[int]] = []
+            # build reverse memory map
+            # This silently ignores errors from non-surjective quantum to classical memory maps.
+            qu2cl = _build_memory_mapping(circuit)
+            cl2qu = {next(iter(dest)): src for src, dest in qu2cl.items()}
 
             # Use data()["counts"] instead of get_counts() to access the raw counts
-            # instead of the classical memory-mapped ones.
+            # in hex form.
             counts: Dict[str, int] = qiskit_result.data(circuit_index)["counts"]
 
+            samples: List[List[int]] = []
             for hex_state, occurences in counts.items():
                 samples.extend(
                     [
-                        qubit_states_from_int(int(hex_state, 16), circuit.num_qubits)
+                        qubit_states_from_int(int(hex_state, 16), circuit.num_qubits, cl2qu)
                         for _ in range(occurences)
                     ]
                 )
