@@ -13,6 +13,7 @@
 
 import json
 import os
+import re
 import uuid
 from pathlib import Path
 from unittest import mock
@@ -130,7 +131,8 @@ def test_remote_workspaces_table(httpx_mock: HTTPXMock) -> None:
     ]
 
     httpx_mock.add_response(
-        json=json.loads(api_models.Workspaces(__root__=remote_workspaces).json())
+        url=re.compile(".+/workspaces$"),
+        json=json.loads(api_models.Workspaces(__root__=remote_workspaces).json()),
     )
 
     provider = AQTProvider("my-token")
@@ -154,3 +156,75 @@ def test_remote_workspaces_table(httpx_mock: HTTPXMock) -> None:
     assert {backend.resource_id.resource_id for backend in only_offline_simulators["default"]} == {
         simulator.id for simulator in OFFLINE_SIMULATORS
     }
+
+
+def test_remote_workspaces_filtering_prefix_collision(httpx_mock: HTTPXMock) -> None:
+    """Check the string and pattern variants of filters in AQTProvider.backends.
+
+    Use two workspaces with one device each, where both workspaces and devices have
+    the same prefix. Check that passing a string as filter requires an exact match,
+    while passing a pattern matches according to the pattern.
+    """
+    remote_workspaces = [
+        api_models_generated.Workspace(
+            id="workspace",
+            resources=[
+                api_models_generated.Resource(
+                    id="foo", name="foo", type=api_models_generated.Type.device
+                ),
+            ],
+        ),
+        api_models_generated.Workspace(
+            id="workspace_extra",
+            resources=[
+                api_models_generated.Resource(
+                    id="foo-extra", name="foo-extra", type=api_models_generated.Type.device
+                ),
+            ],
+        ),
+    ]
+
+    httpx_mock.add_response(
+        url=re.compile(".+/workspaces$"),
+        json=json.loads(api_models.Workspaces(__root__=remote_workspaces).json()),
+    )
+
+    provider = AQTProvider("my-token")
+
+    # with exact match on workspace
+    only_base = provider.backends(workspace="workspace").by_workspace()
+    assert set(only_base) == {"workspace"}
+    assert {backend.resource_id.resource_id for backend in only_base["workspace"]} == {"foo"}
+
+    # with strict pattern on workspace
+    only_base = provider.backends(workspace=re.compile("^workspace$")).by_workspace()
+    assert set(only_base) == {"workspace"}
+    assert {backend.resource_id.resource_id for backend in only_base["workspace"]} == {"foo"}
+
+    # with permissive pattern on workspace
+    both_ws = provider.backends(workspace=re.compile("workspace")).by_workspace()
+    assert set(both_ws) == {"workspace", "workspace_extra"}
+    assert {
+        backend.resource_id.resource_id
+        for workspace in ("workspace", "workspace_extra")
+        for backend in both_ws[workspace]
+    } == {"foo", "foo-extra"}
+
+    # with extra match on name
+    only_base = provider.backends(name="foo").by_workspace()
+    assert set(only_base) == {"workspace"}
+    assert {backend.resource_id.resource_id for backend in only_base["workspace"]} == {"foo"}
+
+    # with strict pattern on name
+    only_base = provider.backends(name=re.compile("^foo$")).by_workspace()
+    assert set(only_base) == {"workspace"}
+    assert {backend.resource_id.resource_id for backend in only_base["workspace"]} == {"foo"}
+
+    # with permissive pattern on name
+    both_ws = provider.backends(name=re.compile("foo")).by_workspace()
+    assert set(both_ws) == {"workspace", "workspace_extra"}
+    assert {
+        backend.resource_id.resource_id
+        for workspace in ("workspace", "workspace_extra")
+        for backend in both_ws[workspace]
+    } == {"foo", "foo-extra"}

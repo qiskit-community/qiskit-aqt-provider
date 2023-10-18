@@ -210,15 +210,24 @@ class AQTProvider(ProviderV1):
         With no arguments, return all backends accessible with the configured
         access token.
 
+        Filters can be either strings or regular expression patterns. Strings filter by
+        exact match.
+
         Args:
-            name: regular expression pattern for the resource ID.
+            name: filter for the backend name.
             backend_type: if given, restrict the search to the given backend type.
-            workspace: regular expression for the workspace ID.
+            workspace: filter for the workspace ID.
 
         Returns:
             Collection of backends accessible with the given access token that match the
             given criteria.
         """
+        if isinstance(name, str):
+            name = re.compile(f"^{name}$")
+
+        if isinstance(workspace, str):
+            workspace = re.compile(f"^{workspace}$")
+
         remote_workspaces = api_models.Workspaces(__root__=[])
 
         if backend_type != "offline_simulator":
@@ -236,11 +245,11 @@ class AQTProvider(ProviderV1):
         backends: List[AQTResource] = []
 
         # add offline simulators in the default workspace
-        if (not workspace or re.match(workspace, "default", re.IGNORECASE)) and (
+        if (not workspace or workspace.match("default")) and (
             not backend_type or backend_type == "offline_simulator"
         ):
             for simulator in OFFLINE_SIMULATORS:
-                if name and not re.match(name, simulator.id, re.IGNORECASE):
+                if name and not name.match(simulator.id):
                     continue
                 backends.append(
                     OfflineSimulatorResource(
