@@ -210,7 +210,7 @@ def test_remote_workspaces_filtering_prefix_collision(httpx_mock: HTTPXMock) -> 
         for backend in both_ws[workspace]
     } == {"foo", "foo-extra"}
 
-    # with extra match on name
+    # with exact match on name
     only_base = provider.backends(name="foo").by_workspace()
     assert set(only_base) == {"workspace"}
     assert {backend.resource_id.resource_id for backend in only_base["workspace"]} == {"foo"}
