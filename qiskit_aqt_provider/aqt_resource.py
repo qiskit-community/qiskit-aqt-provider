@@ -38,6 +38,7 @@ from typing_extensions import override
 from qiskit_aqt_provider import api_models
 from qiskit_aqt_provider.aqt_job import AQTJob
 from qiskit_aqt_provider.aqt_options import AQTOptions
+from qiskit_aqt_provider.circuit_to_aqt import aqt_to_qiskit_circuit
 
 if TYPE_CHECKING:  # pragma: no cover
     from qiskit_aqt_provider.aqt_provider import AQTProvider
@@ -354,8 +355,15 @@ class OfflineSimulatorResource(AQTResource):
         Returns:
             Unique identifier of the simulator job.
         """
+        # Use the API payload such that the memory map is the same as that
+        # of the remote devices.
+        circuits = [
+            aqt_to_qiskit_circuit(circuit.quantum_circuit, circuit.number_of_qubits)
+            for circuit in job.api_submit_payload.payload.circuits
+        ]
+
         self.job = SimulatorJob(
-            job=self.simulator.run(job.circuits, shots=job.options.shots),
+            job=self.simulator.run(circuits, shots=job.options.shots),
             circuits=job.circuits,
             shots=job.options.shots,
         )
@@ -387,7 +395,7 @@ class OfflineSimulatorResource(AQTResource):
             samples: List[List[int]] = []
 
             # Use data()["counts"] instead of get_counts() to access the raw counts
-            # instead of the classical memory-mapped ones.
+            # in hexadecimal format.
             counts: Dict[str, int] = qiskit_result.data(circuit_index)["counts"]
 
             for hex_state, occurences in counts.items():
