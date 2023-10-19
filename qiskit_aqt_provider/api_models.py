@@ -74,7 +74,6 @@ class Workspaces(pdt.BaseModel, extra=pdt.Extra.forbid, frozen=True):
     ) -> Self:
         """Filtered copy of the list of available workspaces and devices.
 
-        All regular expression matches are case insensitive.
         Omitted criteria match any entry in the respective field.
 
         Args:
@@ -87,9 +86,7 @@ class Workspaces(pdt.BaseModel, extra=pdt.Extra.forbid, frozen=True):
         """
         filtered_workspaces = []
         for workspace in self.__root__:
-            if workspace_pattern is not None and not re.match(
-                workspace_pattern, workspace.id, re.IGNORECASE
-            ):
+            if workspace_pattern is not None and not re.match(workspace_pattern, workspace.id):
                 continue
 
             filtered_resources = []
@@ -98,9 +95,7 @@ class Workspaces(pdt.BaseModel, extra=pdt.Extra.forbid, frozen=True):
                 if backend_type is not None and resource.type is not backend_type:
                     continue
 
-                if name_pattern is not None and not re.match(
-                    name_pattern, resource.id, re.IGNORECASE
-                ):
+                if name_pattern is not None and not re.match(name_pattern, resource.id):
                     continue
 
                 filtered_resources.append(resource)

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* Interprete string filters in `AQTProvider.get_backend()` as exact matches, not patterns (#90)
+
 ## qiskit-aqt-provider v0.18.0
 
 * Check that the circuits submitted to the offline simulators can be converted to the AQT API (#68)
