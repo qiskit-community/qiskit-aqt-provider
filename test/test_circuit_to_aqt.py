@@ -14,11 +14,23 @@
 from math import pi
 
 import pytest
+import qiskit
 from pydantic import ValidationError
 from qiskit import QuantumCircuit
 
 from qiskit_aqt_provider import api_models
-from qiskit_aqt_provider.circuit_to_aqt import circuits_to_aqt_job
+from qiskit_aqt_provider.aqt_resource import AQTResource
+from qiskit_aqt_provider.circuit_to_aqt import (
+    aqt_to_qiskit_circuit,
+    circuits_to_aqt_job,
+    qiskit_to_aqt_circuit,
+)
+from qiskit_aqt_provider.test.circuits import (
+    assert_circuits_equal_ignore_global_phase,
+    assert_circuits_equivalent,
+    empty_circuit,
+    random_circuit,
+)
 
 
 def test_no_circuit() -> None:
@@ -192,3 +204,32 @@ def test_convert_multiple_circuits() -> None:
     )
 
     assert result == expected
+
+
+@pytest.mark.parametrize(
+    "circuit",
+    [
+        empty_circuit(2, with_final_measurement=False),
+        random_circuit(2, with_final_measurement=False),
+        random_circuit(3, with_final_measurement=False),
+        random_circuit(5, with_final_measurement=False),
+    ],
+)
+def test_convert_circuit_round_trip(
+    circuit: QuantumCircuit, offline_simulator_no_noise: AQTResource
+) -> None:
+    """Check that transpiled qiskit circuits can be round-tripped through the API format."""
+    trans_qc = qiskit.transpile(circuit, offline_simulator_no_noise)
+    # There's no measurement in the circuit, so unitary operator equality
+    # can be used to check the transpilation result.
+    assert_circuits_equivalent(trans_qc, circuit)
+
+    # Add the measurement operation to allow conversion to the AQT API format.
+    trans_qc.measure_all()
+
+    aqt_circuit = qiskit_to_aqt_circuit(trans_qc)
+    trans_qc_back = aqt_to_qiskit_circuit(aqt_circuit, trans_qc.num_qubits)
+
+    # transpiled circuits can be exactly reconstructed, up to the global
+    # phase which is irrelevant for execution
+    assert_circuits_equal_ignore_global_phase(trans_qc_back, trans_qc)
