@@ -4,6 +4,7 @@
 
 * Interprete string filters in `AQTProvider.get_backend()` as exact matches, not patterns (#90)
 * Fix incorrect handling of qubit/clbit permutations by offline simulators (#93)
+* Depend on [qiskit](https://pypi.org/project/qiskit/) instead of [qiskit-terra](https://pypi.org/project/qiskit-terra) (#95)
 
 ## qiskit-aqt-provider v0.18.0
 
