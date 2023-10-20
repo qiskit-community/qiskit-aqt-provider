@@ -29,6 +29,7 @@ from qiskit_aqt_provider.test.circuits import (
     assert_circuits_equal_ignore_global_phase,
     assert_circuits_equivalent,
     empty_circuit,
+    qft_circuit,
     random_circuit,
 )
 
@@ -209,10 +210,11 @@ def test_convert_multiple_circuits() -> None:
 @pytest.mark.parametrize(
     "circuit",
     [
-        empty_circuit(2, with_final_measurement=False),
-        random_circuit(2, with_final_measurement=False),
-        random_circuit(3, with_final_measurement=False),
-        random_circuit(5, with_final_measurement=False),
+        pytest.param(empty_circuit(2, with_final_measurement=False), id="empty-2"),
+        pytest.param(random_circuit(2, with_final_measurement=False), id="random-2"),
+        pytest.param(random_circuit(3, with_final_measurement=False), id="random-3"),
+        pytest.param(random_circuit(5, with_final_measurement=False), id="random-5"),
+        pytest.param(qft_circuit(5), id="qft-5"),
     ],
 )
 def test_convert_circuit_round_trip(
