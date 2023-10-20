@@ -27,11 +27,13 @@ import numpy as np
 import pytest
 import qiskit
 from qiskit import ClassicalRegister, QiskitError, QuantumCircuit, QuantumRegister
+from qiskit.providers import Backend
 from qiskit.providers.jobstatus import JobStatus
 from qiskit.result import Counts
-from qiskit_aer import AerSimulator
+from qiskit_aer import AerProvider, AerSimulator
 from qiskit_experiments.library import QuantumVolume
 
+from qiskit_aqt_provider import AQTProvider
 from qiskit_aqt_provider.aqt_resource import AQTResource
 from qiskit_aqt_provider.test.circuits import qft_circuit
 from qiskit_aqt_provider.test.fixtures import MockSimulator
@@ -271,6 +273,41 @@ def test_get_memory_bit_ordering(shots: int, offline_simulator_no_noise: AQTReso
 
     # sanity check: bitstrings are no palindromes
     assert not any(bitstring == bitstring[::-1] for bitstring in sim_memory)
+
+
+@pytest.mark.parametrize(
+    "backend",
+    [
+        pytest.param(
+            AQTProvider("token").get_backend("offline_simulator_no_noise"), id="offline-simulator"
+        ),
+        pytest.param(AerProvider().get_backend("aer_simulator"), id="aer-simulator"),
+    ],
+)
+def test_regression_issue_85(backend: Backend) -> None:
+    """Check that qubit and clbit permutations are properly handled by the offline simulators.
+
+    This is a regression test for #85. Check that executing circuits with qubit/clbit
+    permutations outputs the same bitstrings on noiseless offline simulators from this
+    package and straight from Aer.
+    """
+    empty_3 = QuantumCircuit(3)
+    base = QuantumCircuit(3)
+    base.h(0)
+    base.cx(0, 2)
+    base.measure_all()
+
+    perm_qubits = empty_3.compose(base, qubits=[0, 2, 1])
+    perm_all = empty_3.compose(base, qubits=[0, 2, 1], clbits=[0, 2, 1])
+
+    base_bitstrings = set(qiskit.execute(base, backend).result().get_counts())
+    assert base_bitstrings == {"000", "101"}
+
+    perm_qubits_bitstrings = set(qiskit.execute(perm_qubits, backend).result().get_counts())
+    assert perm_qubits_bitstrings == {"000", "101"}
+
+    perm_all_bitstrings = set(qiskit.execute(perm_all, backend).result().get_counts())
+    assert perm_all_bitstrings == {"000", "011"}
 
 
 @pytest.mark.parametrize(("shots", "qubits"), [(100, 5), (100, 8)])
