@@ -110,7 +110,7 @@ def aqt_to_qiskit_circuit(circuit: api_models.Circuit, number_of_qubits: int) ->
         elif isinstance(operation.__root__, api_models_generated.Measure):
             qiskit_circuit.measure_all()
         else:
-            assert_never(operation.__root__)
+            assert_never(operation.__root__)  # pragma: no cover
 
     return qiskit_circuit
 
