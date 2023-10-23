@@ -23,7 +23,7 @@ from qiskit_aqt_provider.primitives import AQTSampler
 # Define a circuit
 circuit = QuantumCircuit(2)
 circuit.h(0)
-circuit.cnot(0, 1)
+circuit.cx(0, 1)
 circuit.measure_all()
 
 # Select an execution backend
