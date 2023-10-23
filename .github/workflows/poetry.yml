@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.8', '3.9', '3.10', '3.11']
-        poetry-version: [1.5.1]
+        poetry-version: [1.6.1]
         os: ["ubuntu-latest"]
     steps:
       - uses: actions/checkout@v3
@@ -24,10 +24,13 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: "poetry"
-      - name: Check Poetry lock file status
-        run: poetry lock --check
       - name: Check shell scripts
         uses: ludeeus/action-shellcheck@2.0.0
+      - name: Check Poetry lock file status
+        run: poetry lock --check
+      - name: Check Setuptools requirements files
+        run: |
+          ./scripts/setuptools_requirements.sh -c
       - name: Install coverage tool
         run: |
           poetry run pip install coverage[toml]
