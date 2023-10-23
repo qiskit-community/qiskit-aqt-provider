@@ -96,7 +96,7 @@ Basic quantum circuit execution follows the regular Qiskit workflow. A quantum c
 
    circuit = qiskit.QuantumCircuit(2)
    circuit.h(0)
-   circuit.cnot(0, 1)
+   circuit.cx(0, 1)
    circuit.measure_all()
 
 .. warning:: AQT backends currently require a single projective measurement as last operation in a circuit. The hardware implementation always targets all the qubits in the quantum register, even if the circuit defines a partial measurement.
@@ -200,7 +200,7 @@ In this Bell state, the expectation value of the the :math:`\sigma_z\otimes\sigm
 
    bell_circuit = qiskit.QuantumCircuit(2)
    bell_circuit.h(0)
-   bell_circuit.cnot(0, 1)
+   bell_circuit.cx(0, 1)
 
    observable = SparsePauliOp.from_list([("ZZ", 1)])
    result = estimator.run(bell_circuit, observable).result()

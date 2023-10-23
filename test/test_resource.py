@@ -361,7 +361,7 @@ def test_offline_simulator_detects_invalid_circuits(
     """
     qc = QuantumCircuit(2)
     qc.h(0)
-    qc.cnot(0, 1)
+    qc.cx(0, 1)
     qc.measure_all()
 
     with pytest.raises(ValueError, match="^Operation 'h' not in basis gate set"):

@@ -23,7 +23,7 @@ Define a circuit that generates 2-qubit Bell state and sample it on a simulator 
    # Define a circuit.
    circuit = QuantumCircuit(2)
    circuit.h(0)
-   circuit.cnot(0, 1)
+   circuit.cx(0, 1)
    circuit.measure_all()
 
    # Select an execution backend.
