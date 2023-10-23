@@ -11,6 +11,12 @@ hardware.
 Quick start
 -----------
 
+Install the latest release from the `PyPI <https://pypi.org/project/qiskit-aqt-provider>`_:
+
+.. code-block:: bash
+
+  pip install qiskit-aqt-provider
+
 Define a circuit that generates 2-qubit Bell state and sample it on a simulator backend running on the local machine:
 
 .. jupyter-execute::
