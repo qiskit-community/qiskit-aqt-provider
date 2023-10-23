@@ -21,7 +21,6 @@ from typing import (
     DefaultDict,
     Dict,
     List,
-    NamedTuple,
     NoReturn,
     Optional,
     Set,
@@ -479,34 +478,12 @@ def _build_memory_mapping(circuit: QuantumCircuit) -> Dict[int, Set[int]]:
         >>> _build_memory_mapping(qc)
         {0: {0, 2}, 1: {1}}
     """
-
-    class Field(NamedTuple):
-        offset: int
-        size: int
-
-    # quantum memory map
-    qregs = {}
-    offset = 0
-    for qreg in circuit.qregs:
-        qregs[qreg] = Field(offset, qreg.size)
-        offset += qreg.size
-
-    # classical memory map
-    clregs = {}
-    offset = 0
-    for creg in circuit.cregs:
-        clregs[creg] = Field(offset, creg.size)
-        offset += creg.size
-
     qu2cl: DefaultDict[int, Set[int]] = defaultdict(set)
 
     for instruction in circuit.data:
-        operation = instruction.operation
-        if operation.name == "measure":
+        if instruction.operation.name == "measure":
             for qubit, clbit in zip(instruction.qubits, instruction.clbits):
-                qubit_index = qregs[qubit.register].offset + qubit.index
-                clbit_index = clregs[clbit.register].offset + clbit.index
-                qu2cl[qubit_index].add(clbit_index)
+                qu2cl[circuit.find_bit(qubit).index].add(circuit.find_bit(clbit).index)
 
     return dict(qu2cl)
 
