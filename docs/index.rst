@@ -40,7 +40,7 @@ Define a circuit that generates 2-qubit Bell state and sample it on a simulator 
    quasi_dist = result.quasi_dists[0]
    print(quasi_dist)
 
-For more details see the :ref:`user guide <user-guide>`, a selection of `examples <https://github.com/qiskit-community/qiskit-aqt-provider/tree/master/examples>`_, or the API reference.
+For more details see the :ref:`user guide <user-guide>`, a selection of `examples <https://github.com/qiskit-community/qiskit-aqt-provider/tree/master/examples>`_, or the reference documentation.
 
 .. toctree::
   :maxdepth: 1
@@ -51,7 +51,7 @@ For more details see the :ref:`user guide <user-guide>`, a selection of `example
 
 .. toctree::
   :maxdepth: 1
-  :caption: API Reference
+  :caption: Reference
   :hidden:
 
   AQTProvider <apidoc/provider>
@@ -67,3 +67,4 @@ For more details see the :ref:`user guide <user-guide>`, a selection of `example
 
   Repository <https://github.com/qiskit-community/qiskit-aqt-provider>
   AQT <https://www.aqt.eu/qc-systems>
+  API reference <https://arnica-stage.aqt.eu/api/v1/docs>
