@@ -285,7 +285,7 @@ However, some passes registered by the AQT :ref:`transpiler plugin <transpiler-p
 Circuit modifications behind the remote API
 -------------------------------------------
 
-Circuits accepted by the AQT API are executed after applying a single further transformation: small-angle :math:`\theta` instances of :class:`RGate <qiskit.circuit.library.RGate>` are substituted as
+Circuits accepted by the AQT API are executed exactly as they were transmitted, with the only exception that small-angle :math:`\theta` instances of :class:`RGate <qiskit.circuit.library.RGate>` are substituted with
 
   :math:`R(\theta,\,\phi)\ \to\  R(\pi, \pi)\cdot R(\theta+\pi,\,\phi)`.
 
