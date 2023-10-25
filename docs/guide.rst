@@ -273,11 +273,7 @@ The built-in transpiler largely leverages the :mod:`qiskit.transpiler`. Custom p
 * in the translation stage, the :class:`WrapRxxAngles <qiskit_aqt_provider.transpiler_plugin.WrapRxxAngles>` pass exploits the periodicity of the :class:`RXXGate <qiskit.circuit.library.RXXGate>` to wrap its angle :math:`\theta` to the :math:`[0,\,\pi/2]` range. This may come at the expense of extra single-qubit rotations.
 * in the scheduling stage, the :class:`RewriteRxAsR <qiskit_aqt_provider.transpiler_plugin.RewriteRxAsR>` pass rewrites :class:`RXGate <qiskit.circuit.library.RXGate>` operations as :class:`RGate <qiskit.circuit.library.RGate>` and wraps the angles :math:`\theta\in[0,\,\pi]` and :math:`\phi\in[0,\,2\pi]`. This does not restrict the generality of quantum circuits and enables efficient native implementations.
 
-.. warning:: Circuits accepted by the AQT API are executed after applying one further transformation. Small-angle :math:`\theta` instances of :class:`RGate <qiskit.circuit.library.RGate>` are substituted as
-
-  :math:`R(\theta,\,\phi)\ \to\  R(\pi, \pi)\cdot R(\theta+\pi,\,\phi)`.
-
-  The threshold for triggering this transformation is an implementation detail, typically around :math:`\theta=\pi/5`. Please contact AQT for details.
+.. tip:: AQT computing resources natively implement :class:`RXXGate <qiskit.circuit.library.RXXGate>` with :math:`\theta` continuously varying in :math:`(0,\,\pi/2]`. For optimal performance, the transpiler output should be inspected to make sure :class:`RXXGate <qiskit.circuit.library.RXXGate>` instances are not transpiled to unified angles (often :math:`\theta=\pi/2`).
 
 Transpilation in Qiskit primitives
 ----------------------------------
@@ -285,3 +281,12 @@ Transpilation in Qiskit primitives
 The generic implementations of the Qiskit primitives :class:`Sampler <qiskit.primitives.BaseSampler>` and :class:`Estimator <qiskit.primitives.BaseEstimator>` cache transpilation results to improve their runtime performance. This is particularly effective when evaluating batches of circuits that differ only in their parametrization.
 
 However, some passes registered by the AQT :ref:`transpiler plugin <transpiler-plugin>` require knowledge of the bound parameter values. The specialized implementations :class:`AQTSampler <qiskit_aqt_provider.primitives.sampler.AQTSampler>` and :class:`AQTEstimator <qiskit_aqt_provider.primitives.estimator.AQTEstimator>` use a hybrid approach, where the transpilation results of passes that do not require bound parameters are cached, while the small subset of passes that require fixed parameter values is executed before each circuit submission to the execution backend.
+
+Circuit modifications behind the remote API
+-------------------------------------------
+
+Circuits accepted by the AQT API are executed exactly as they were transmitted, with the only exception that small-angle :math:`\theta` instances of :class:`RGate <qiskit.circuit.library.RGate>` are substituted with
+
+  :math:`R(\theta,\,\phi)\ \to\  R(\pi, \pi)\cdot R(\theta+\pi,\,\phi)`.
+
+The threshold for triggering this transformation is an implementation detail, typically around :math:`\theta=\pi/5`. Please contact AQT for details.
