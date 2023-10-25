@@ -81,7 +81,9 @@ class JobUser(BaseModel):
     """
     Id that uniquely identifies the job. This is used to request results.
     """
-    job_type: Annotated[Literal["quantum_circuit"], Field(title="Job Type")] = "quantum_circuit"
+    job_type: Annotated[
+        Literal["quantum_circuit"], Field(title="Job Type")
+    ] = "quantum_circuit"
     label: Annotated[Optional[str], Field(title="Label")] = None
     resource_id: Annotated[str, Field(title="Resource Id")] = ""
     workspace_id: Annotated[str, Field(title="Workspace Id")] = ""
@@ -186,7 +188,9 @@ class UnknownJob(BaseModel):
         allow_mutation = False
 
     job_id: Annotated[UUID, Field(title="Job Id")]
-    message: Annotated[Literal["unknown job_id"], Field(title="Message")] = "unknown job_id"
+    message: Annotated[
+        Literal["unknown job_id"], Field(title="Message")
+    ] = "unknown job_id"
 
 
 class ValidationError(BaseModel):
@@ -341,8 +345,8 @@ class ResultResponse(BaseModel):
             examples={
                 "cancelled": {
                     "description": (
-                        "Job that has been cancelled by the user, before it could be processed by"
-                        " the Quantum computer"
+                        "Job that has been cancelled by the user, before it could be"
+                        " processed by the Quantum computer"
                     ),
                     "summary": "Cancelled Job",
                     "value": {
@@ -358,7 +362,8 @@ class ResultResponse(BaseModel):
                 },
                 "error": {
                     "description": (
-                        "Job that created an error while being processed by the Quantum computer"
+                        "Job that created an error while being processed by the Quantum"
+                        " computer"
                     ),
                     "summary": "Failed Job",
                     "value": {
@@ -369,13 +374,16 @@ class ResultResponse(BaseModel):
                             "resource_id": "",
                             "workspace_id": "",
                         },
-                        "response": {"message": "detailed error message", "status": "error"},
+                        "response": {
+                            "message": "detailed error message",
+                            "status": "error",
+                        },
                     },
                 },
                 "finished": {
                     "description": (
-                        "Job that has been successfully processed by a quantum computer or"
-                        " simulator"
+                        "Job that has been successfully processed by a quantum computer"
+                        " or simulator"
                     ),
                     "summary": "Finished Job",
                     "value": {
@@ -393,7 +401,9 @@ class ResultResponse(BaseModel):
                     },
                 },
                 "ongoing": {
-                    "description": "Job that is currently being processed by the Quantum computer",
+                    "description": (
+                        "Job that is currently being processed by the Quantum computer"
+                    ),
                     "summary": "Ongoing Job",
                     "value": {
                         "job": {
@@ -408,7 +418,8 @@ class ResultResponse(BaseModel):
                 },
                 "queued": {
                     "description": (
-                        "Job waiting in the queue to be picked up by the Quantum computer"
+                        "Job waiting in the queue to be picked up by the Quantum"
+                        " computer"
                     ),
                     "summary": "Queued Job",
                     "value": {
@@ -444,6 +455,8 @@ class JobSubmission(BaseModel):
     class Config:
         allow_mutation = False
 
-    job_type: Annotated[Literal["quantum_circuit"], Field(title="Job Type")] = "quantum_circuit"
+    job_type: Annotated[
+        Literal["quantum_circuit"], Field(title="Job Type")
+    ] = "quantum_circuit"
     label: Annotated[Optional[str], Field(title="Label")] = None
     payload: QuantumCircuits
