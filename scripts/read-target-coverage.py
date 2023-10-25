@@ -17,7 +17,8 @@ def default_pyproject_path() -> Path:
     """Path to the 'pyproject.toml' file at the repository root."""
     repo_root = Path(
         subprocess.run(
-            shlex.split("git rev-parse --show-toplevel"), capture_output=True  # noqa: S603
+            shlex.split("git rev-parse --show-toplevel"),  # noqa: S603
+            capture_output=True,
         )
         .stdout.strip()
         .decode("utf-8")

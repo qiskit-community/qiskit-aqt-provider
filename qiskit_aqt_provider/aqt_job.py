@@ -114,7 +114,8 @@ class _MockProgressBar:
     def __enter__(self) -> Self:
         return self
 
-    def __exit__(*args) -> None: ...
+    def __exit__(*args) -> None:
+        ...
 
 
 class AQTJob(JobV1):
