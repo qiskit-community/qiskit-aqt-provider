@@ -2,6 +2,8 @@
 
 [![Latest release](https://img.shields.io/pypi/v/qiskit-aqt-provider.svg)](https://pypi.python.org/pypi/qiskit-aqt-provider)
 [![License](https://img.shields.io/pypi/l/qiskit-aqt-provider.svg)](https://pypi.python.org/pypi/qiskit-aqt-provider)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10069282.svg)](https://doi.org/10.5281/zenodo.10069282)
+
 [![Supported Python versions](https://img.shields.io/pypi/pyversions/qiskit-aqt-provider.svg)](https://pypi.python.org/pypi/qiskit-aqt-provider)
 ![Build Status](https://github.com/qiskit-community/qiskit-aqt-provider/actions/workflows/poetry.yml/badge.svg?branch=master)
 [![Coverage Status](https://coveralls.io/repos/github/qiskit-community/qiskit-aqt-provider/badge.svg?branch=master)](https://coveralls.io/github/qiskit-community/qiskit-aqt-provider?branch=master)
