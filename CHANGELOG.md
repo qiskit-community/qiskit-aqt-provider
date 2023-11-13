@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* Set minimal required `qiskit` version to 0.45.0 (#108)
+
 ## qiskit-aqt-provider v0.19.0
 
 * Interprete string filters in `AQTProvider.get_backend()` as exact matches, not patterns (#90)
