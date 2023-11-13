@@ -14,11 +14,11 @@
 
 from typing import Final
 
-from qiskit.algorithms.minimum_eigensolvers import VQE
-from qiskit.algorithms.optimizers import COBYLA
 from qiskit.circuit.library import TwoLocal
 from qiskit.quantum_info import SparsePauliOp
 from qiskit.utils import algorithm_globals
+from qiskit_algorithms.minimum_eigensolvers import VQE
+from qiskit_algorithms.optimizers import COBYLA
 
 from qiskit_aqt_provider import AQTProvider
 from qiskit_aqt_provider.aqt_resource import OfflineSimulatorResource

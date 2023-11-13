@@ -19,8 +19,8 @@ import tempfile
 import textwrap
 from typing import Final, Set, Tuple
 
-from qiskit.algorithms import AmplificationProblem, Grover
 from qiskit.circuit.library.phase_oracle import PhaseOracle
+from qiskit_algorithms import AmplificationProblem, Grover
 
 from qiskit_aqt_provider import AQTProvider
 from qiskit_aqt_provider.primitives import AQTSampler

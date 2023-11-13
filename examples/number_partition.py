@@ -22,9 +22,9 @@ it can be split into two non-overlapping sets that have the same sum.
 from dataclasses import dataclass
 from typing import Final, List, Set, Union
 
-from qiskit.algorithms.minimum_eigensolvers import QAOA
-from qiskit.algorithms.optimizers import COBYLA
 from qiskit.utils import algorithm_globals
+from qiskit_algorithms.minimum_eigensolvers import QAOA
+from qiskit_algorithms.optimizers import COBYLA
 from qiskit_optimization.algorithms import MinimumEigenOptimizer, OptimizationResultStatus
 from qiskit_optimization.applications import NumberPartition
 
