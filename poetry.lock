@@ -3247,21 +3247,22 @@ visualization = ["ipython (>=5.0.0)", "ipyvue (>=1.4.1)", "ipyvuetify (>=1.1)", 
 
 [[package]]
 name = "qiskit-optimization"
-version = "0.5.0"
-description = "Qiskit Optimization: A library of quantum computing optimizations"
+version = "0.6.0"
+description = "Qiskit Optimization: A library for optimization applications using quantum computing"
 optional = true
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 files = [
-    {file = "qiskit-optimization-0.5.0.tar.gz", hash = "sha256:4804831e590a7159c2bd2be71750cde0c95a3b06e14a4843346e2ebcc7231e01"},
-    {file = "qiskit_optimization-0.5.0-py3-none-any.whl", hash = "sha256:eb9d8788d197d2812dcf6bea69a8af49c4c044b947f4b15a169fdf4c4fe5ab7a"},
+    {file = "qiskit-optimization-0.6.0.tar.gz", hash = "sha256:a37816ec5dbd7d3048b2f6c6d77c3e0eb8af0aa3ede3ff0f1b7dd0e7648ab4f0"},
+    {file = "qiskit_optimization-0.6.0-py3-none-any.whl", hash = "sha256:9e560cac6f9e63089fe4ec98253a47553aa698f32cc67a3c64dc8ca841f302d1"},
 ]
 
 [package.dependencies]
 docplex = ">=2.21.207,<2.24.231 || >2.24.231"
 networkx = ">=2.6.3"
 numpy = ">=1.17"
-qiskit-terra = ">=0.22.4"
-scipy = ">=1.4"
+qiskit = ">=0.44"
+qiskit-algorithms = ">=0.2.0"
+scipy = ">=1.9.0"
 setuptools = ">=40.1.0"
 
 [package.extras]
@@ -4629,4 +4630,4 @@ examples-problematic = ["tweedledum"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.12"
-content-hash = "c50647ad7500b9fc9bd6a04321850187130c93863147563db827e9567332b2ab"
+content-hash = "f562fe1c258f7a8b5206a9bcf7aee00074595d3873573ad31043330f60294aba"
