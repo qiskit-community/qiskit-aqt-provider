@@ -22,7 +22,7 @@ it can be split into two non-overlapping sets that have the same sum.
 from dataclasses import dataclass
 from typing import Final, List, Set, Union
 
-from qiskit.utils import algorithm_globals
+import qiskit_algorithms
 from qiskit_algorithms.minimum_eigensolvers import QAOA
 from qiskit_algorithms.optimizers import COBYLA
 from qiskit_optimization.algorithms import MinimumEigenOptimizer, OptimizationResultStatus
@@ -81,7 +81,7 @@ if __name__ == "__main__":
     backend = AQTProvider("token").get_backend("offline_simulator_no_noise")
 
     # fix the random seeds such that the example is reproducible
-    algorithm_globals.random_seed = RANDOM_SEED
+    qiskit_algorithms.utils.algorithm_globals.random_seed = RANDOM_SEED
     backend.simulator.options.seed_simulator = RANDOM_SEED
 
     num_set = {1, 3, 4}

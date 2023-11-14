@@ -14,9 +14,9 @@
 
 from typing import Final
 
+import qiskit_algorithms
 from qiskit.circuit.library import TwoLocal
 from qiskit.quantum_info import SparsePauliOp
-from qiskit.utils import algorithm_globals
 from qiskit_algorithms.minimum_eigensolvers import VQE
 from qiskit_algorithms.optimizers import COBYLA
 
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     estimator = AQTEstimator(backend)
 
     # fix the random seeds such that the example is reproducible
-    algorithm_globals.random_seed = RANDOM_SEED
+    qiskit_algorithms.utils.algorithm_globals.random_seed = RANDOM_SEED
     backend.simulator.options.seed_simulator = RANDOM_SEED
 
     # Hamiltonian: Ising model on two spin 1/2 without external field
