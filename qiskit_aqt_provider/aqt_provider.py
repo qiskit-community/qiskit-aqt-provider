@@ -143,7 +143,7 @@ class AQTProvider(ProviderV1):
     """Provider for backends from Alpine Quantum Technologies (AQT)."""
 
     # Set AQT_PORTAL_URL environment variable to override
-    DEFAULT_PORTAL_URL: Final = "https://arnica-stage.aqt.eu"
+    DEFAULT_PORTAL_URL: Final = "https://arnica.aqt.eu"
 
     def __init__(
         self,

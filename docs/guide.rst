@@ -241,7 +241,7 @@ to the transpiled one:
 Transpiler bypass
 -----------------
 
-.. warning:: We highly recommend to always use the built-in transpiler, at least with ``optimization_level=0``. This guarantees that the quantum circuit is valid for submission to the AQT cloud. In particular, it wraps the gate parameters to fit in the restricted ranges accepted by the `AQT API <https://arnica-stage.aqt.eu/api/v1/docs>`_. In addition, higher optimization levels may significantly improve the circuit execution speed.
+.. warning:: We highly recommend to always use the built-in transpiler, at least with ``optimization_level=0``. This guarantees that the quantum circuit is valid for submission to the AQT cloud. In particular, it wraps the gate parameters to fit in the restricted ranges accepted by the `AQT API <https://arnica.aqt.eu/api/v1/docs>`_. In addition, higher optimization levels may significantly improve the circuit execution speed.
 
 If a circuit is already defined in terms of the :ref:`native gates set <basis-gates>` with their restricted parameter ranges and no optimization is wanted, it can be submitted for execution without any additional transformation using the :meth:`AQTResource.run <qiskit_aqt_provider.aqt_resource.AQTResource.run>` method:
 
@@ -268,7 +268,7 @@ Circuits that do not satisfy the AQT API restrictions are rejected by raising a 
 Transpiler plugin
 -----------------
 
-The built-in transpiler largely leverages the :mod:`qiskit.transpiler`. Custom passes are registered in addition to the presets, irrespective of the optimization level, to ensure that the transpiled circuit is compatible with the restricted parameter ranges accepted by the `AQT API <https://arnica-stage.aqt.eu/api/v1/docs>`_:
+The built-in transpiler largely leverages the :mod:`qiskit.transpiler`. Custom passes are registered in addition to the presets, irrespective of the optimization level, to ensure that the transpiled circuit is compatible with the restricted parameter ranges accepted by the `AQT API <https://arnica.aqt.eu/api/v1/docs>`_:
 
 * in the translation stage, the :class:`WrapRxxAngles <qiskit_aqt_provider.transpiler_plugin.WrapRxxAngles>` pass exploits the periodicity of the :class:`RXXGate <qiskit.circuit.library.RXXGate>` to wrap its angle :math:`\theta` to the :math:`[0,\,\pi/2]` range. This may come at the expense of extra single-qubit rotations.
 * in the scheduling stage, the :class:`RewriteRxAsR <qiskit_aqt_provider.transpiler_plugin.RewriteRxAsR>` pass rewrites :class:`RXGate <qiskit.circuit.library.RXGate>` operations as :class:`RGate <qiskit.circuit.library.RGate>` and wraps the angles :math:`\theta\in[0,\,\pi]` and :math:`\phi\in[0,\,2\pi]`. This does not restrict the generality of quantum circuits and enables efficient native implementations.

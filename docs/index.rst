@@ -75,4 +75,4 @@ For more details see the :ref:`user guide <user-guide>`, a selection of `example
 
   Repository <https://github.com/qiskit-community/qiskit-aqt-provider>
   AQT <https://www.aqt.eu/qc-systems>
-  API reference <https://arnica-stage.aqt.eu/api/v1/docs>
+  API reference <https://arnica.aqt.eu/api/v1/docs>
