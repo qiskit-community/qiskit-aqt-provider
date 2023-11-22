@@ -21,12 +21,12 @@ import typing
 from collections import Counter
 from fractions import Fraction
 from math import pi
-from typing import List
+from typing import List, Union
 
 import numpy as np
 import pytest
 import qiskit
-from qiskit import ClassicalRegister, QiskitError, QuantumCircuit, QuantumRegister
+from qiskit import ClassicalRegister, QiskitError, QuantumCircuit, QuantumRegister, quantum_info
 from qiskit.providers import Backend
 from qiskit.providers.jobstatus import JobStatus
 from qiskit.result import Counts
@@ -324,6 +324,58 @@ def test_bell_states(shots: int, qubits: int, offline_simulator_no_noise: AQTRes
 
     assert set(counts.keys()) == {"0" * qubits, "1" * qubits}
     assert sum(counts.values()) == shots
+
+
+@pytest.mark.parametrize(
+    "target_state",
+    [
+        quantum_info.Statevector.from_label("01"),
+        "01",
+        1,
+        [0, 1, 0, 0],
+    ],
+)
+@pytest.mark.parametrize("optimization_level", range(4))
+def test_state_preparation(
+    target_state: Union[int, str, quantum_info.Statevector, List[complex]],
+    optimization_level: int,
+    offline_simulator_no_noise: AQTResource,
+) -> None:
+    """Test the state preparation unitary factory.
+
+    Prepare the state |01> using the different formats accepted by
+    :meth:`QuantumCircuit.prepare_state`.
+    """
+    qc = QuantumCircuit(2)
+    qc.prepare_state(target_state)
+    qc.measure_all()
+
+    shots = 100
+    job = qiskit.execute(
+        qc, offline_simulator_no_noise, shots=shots, optimization_level=optimization_level
+    )
+    counts = job.result().get_counts()
+
+    assert counts == {"01": shots}
+
+
+@pytest.mark.parametrize("optimization_level", range(4))
+def test_state_preparation_single_qubit(
+    optimization_level: int, offline_simulator_no_noise: AQTResource
+) -> None:
+    """Test the state preparation unitary factory, targeting a single qubit in the register."""
+    qreg = QuantumRegister(4)
+    qc = QuantumCircuit(qreg)
+    qc.prepare_state(1, qreg[2])
+    qc.measure_all()
+
+    shots = 100
+    job = qiskit.execute(
+        qc, offline_simulator_no_noise, shots=shots, optimization_level=optimization_level
+    )
+    counts = job.result().get_counts()
+
+    assert counts == {"0100": shots}
 
 
 @pytest.mark.parametrize(("shots", "qubits"), [(100, 3)])
