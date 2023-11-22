@@ -290,3 +290,33 @@ Circuits accepted by the AQT API are executed exactly as they were transmitted, 
   :math:`R(\theta,\,\phi)\ \to\  R(\pi, \pi)\cdot R(\theta+\pi,\,\phi)`.
 
 The threshold for triggering this transformation is an implementation detail, typically around :math:`\theta=\pi/5`. Please contact AQT for details.
+
+Common limitations
+==================
+
+Reset operations are not supported
+----------------------------------
+
+Because AQT backends do not support in-circuit state reinitialization of specific qubits, the :class:`Reset <qiskit.circuit.library.Reset>` operation is not supported. The Qiskit transpiler will fail synthesis for circuits using it (e.g. through :meth:`QuantumCircuit.initialize <qiskit.circuit.QuantumCircuit.initialize>`) when targeting AQT backends.
+
+AQT backends always prepare the quantum register in the :math:`|0>\otimes...\otimes|0>` state. Thus, :meth:`QuantumCircuit.prepare_state <qiskit.circuit.QuantumCircuit.prepare_state>` is an alternative to :meth:`QuantumCircuit.initialize <qiskit.circuit.QuantumCircuit.initialize>` as first instruction in the circuit:
+
+.. jupyter-execute::
+
+   from qiskit import QuantumCircuit
+
+   qc = QuantumCircuit(2)
+   qc.initialize("01")
+   # ...
+   qc.measure_all()
+
+is equivalent to:
+
+.. jupyter-execute::
+
+   from qiskit import QuantumCircuit
+
+   qc = QuantumCircuit(2)
+   qc.prepare_state("01")
+   # ...
+   qc.measure_all()
