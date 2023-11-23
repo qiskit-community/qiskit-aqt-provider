@@ -30,6 +30,7 @@ from qiskit import ClassicalRegister, QiskitError, QuantumCircuit, QuantumRegist
 from qiskit.providers import Backend
 from qiskit.providers.jobstatus import JobStatus
 from qiskit.result import Counts
+from qiskit.transpiler import TranspilerError
 from qiskit_aer import AerProvider, AerSimulator
 from qiskit_experiments.library import QuantumVolume
 
@@ -344,7 +345,7 @@ def test_state_preparation(
     """Test the state preparation unitary factory.
 
     Prepare the state |01> using the different formats accepted by
-    :meth:`QuantumCircuit.prepare_state`.
+    `QuantumCircuit.prepare_state`.
     """
     qc = QuantumCircuit(2)
     qc.prepare_state(target_state)
@@ -376,6 +377,26 @@ def test_state_preparation_single_qubit(
     counts = job.result().get_counts()
 
     assert counts == {"0100": shots}
+
+
+def test_initialize_not_supported(offline_simulator_no_noise: AQTResource) -> None:
+    """Verify that `QuantumCircuit.initialize` is not supported.
+
+    #112 adds a note to the user guide indicating that `QuantumCircuit.initialize`
+    is not supported. Remove the note if this test fails.
+    """
+    qc = QuantumCircuit(2)
+    qc.x(0)
+    qc.initialize("01")
+    qc.measure_all()
+
+    with pytest.raises(
+        TranspilerError,
+        match=re.compile(
+            r"high\s?level\s?synthesis was unable to synthesize instruction", re.IGNORECASE
+        ),
+    ):
+        qiskit.transpile(qc, offline_simulator_no_noise)
 
 
 @pytest.mark.parametrize(("shots", "qubits"), [(100, 3)])
