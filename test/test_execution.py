@@ -36,7 +36,7 @@ from qiskit_experiments.library import QuantumVolume
 
 from qiskit_aqt_provider import AQTProvider
 from qiskit_aqt_provider.aqt_resource import AQTResource
-from qiskit_aqt_provider.test.circuits import qft_circuit
+from qiskit_aqt_provider.test.circuits import assert_circuits_equivalent, qft_circuit
 from qiskit_aqt_provider.test.fixtures import MockSimulator
 from qiskit_aqt_provider.test.resources import TestResource
 from qiskit_aqt_provider.test.timeout import timeout
@@ -397,6 +397,28 @@ def test_initialize_not_supported(offline_simulator_no_noise: AQTResource) -> No
         ),
     ):
         qiskit.transpile(qc, offline_simulator_no_noise)
+
+
+@pytest.mark.parametrize("optimization_level", range(4))
+def test_cswap(optimization_level: int, offline_simulator_no_noise: AQTResource) -> None:
+    """Verify that CSWAP (Fredkin) gates can be transpiled and executed (in a trivial case)."""
+    qc = QuantumCircuit(3)
+    qc.prepare_state("101")
+    qc.cswap(0, 1, 2)
+
+    trans_qc = qiskit.transpile(
+        qc, offline_simulator_no_noise, optimization_level=optimization_level
+    )
+    assert_circuits_equivalent(qc, trans_qc)
+
+    qc.measure_all()
+    shots = 200
+    job = qiskit.execute(
+        qc, offline_simulator_no_noise, optimization_level=optimization_level, shots=shots
+    )
+    counts = job.result().get_counts()
+
+    assert counts == {"011": shots}
 
 
 @pytest.mark.parametrize(("shots", "qubits"), [(100, 3)])
