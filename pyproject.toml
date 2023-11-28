@@ -76,7 +76,7 @@ pytest = ">=7"
 pytest-httpx = "^0.22.0"
 pytest-mock = "^3.11.1"
 pytest-sugar = "^0.9.6"
-qiskit-experiments = "^0.4.0"
+qiskit-experiments = "^0.5.4"
 qiskit-sphinx-theme = ">=1.16.0"
 qiskit-terra = {version = ">=0.23.2", extras = ["visualization"]}
 rich = "^13.5.3"
