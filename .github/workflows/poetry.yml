@@ -33,15 +33,15 @@ jobs:
       - name: Install coverage tool
         run: |
           poetry run pip install coverage[toml]
-      - name: Install examples dependencies (Py3.11)
+      - name: Install examples dependencies (Python >= 3.11)
         run: |
           poetry install --only main --extras examples
-          # tweedledum has no wheel for Python3.11 and the build errors
-        if: matrix.python-version == '3.11'
-      - name: Install examples dependencies (~Py3.11)
+          # tweedledum has no wheel for Python >= 3.11 and the build errors
+        if: matrix.python-version >= '3.11'
+      - name: Install examples dependencies (Python < 3.11)
         run: |
           poetry install --only main --all-extras
-        if: matrix.python-version != '3.11'
+        if: matrix.python-version < '3.11'
       - name: Run examples
         run: |
           poetry run examples/run_all.sh -c
