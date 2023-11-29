@@ -49,7 +49,7 @@ httpx = ">=0.24.0"
 platformdirs = ">=3"
 pydantic = ">=1.10.8,<2"
 python-dotenv = ">=1"
-qiskit = ">=0.45.0"
+qiskit = ">=0.45.1"
 qiskit-aer = ">=0.11"
 qiskit-algorithms = { version = ">=0.2.1", optional = true }
 qiskit-optimization = { version = ">=0.6.0", optional = true }
@@ -57,19 +57,6 @@ tabulate = ">=0.9.0"
 tqdm = ">=4"
 tweedledum = { version = ">=1", optional = true }
 typing-extensions = ">=4.0.0"
-
-# Transitive qiskit dependencies that we need to look to specific
-# versions to get dependency resolution to work with all supported
-# python versions. (Ideally this should be done by qiskit itself).
-rustworkx = "<0.13.2" # Version 0.13.2 fails to install using poetry
-numpy = [
-    { version = "<=1.25", python = "~3.8" },
-    { version = ">=1.25.0", python = ">=3.9" }
-]
-scipy = [
-    { version = "<=1.6.1", python = "~3.8" },
-    { version = ">=1.10.1", python = ">=3.9" },
-]
 
 [tool.poetry.group.dev.dependencies]
 autodoc-pydantic = "<2.0.0"

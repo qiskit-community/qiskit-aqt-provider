@@ -4620,4 +4620,4 @@ examples-problematic = ["tweedledum"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.8,<3.13"
-content-hash = "a84eae2810cce43d6607f4e998c52ef75dc559628626dd6a906fb9ab811c51dc"
+content-hash = "4b1c2a368de2e953350633128446f2072dc90aa303d84e2cc568cceeed5a6785"
