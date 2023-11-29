@@ -12,6 +12,14 @@ AQTResource
    :members:
    :show-inheritance:
 
+.. autopydantic_model:: qiskit_aqt_provider.api_models.ResourceId
+   :model-show-json: False
+   :model-show-validator-members: False
+   :model-show-validator-summary: False
+   :model-show-field-summary: False
+   :member-order: bysource
+   :show-inheritance:
+
 .. autoclass:: qiskit_aqt_provider.aqt_resource.UnknownOptionWarning
    :exclude-members: __init__, __new__
    :show-inheritance:

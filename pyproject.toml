@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qiskit-aqt-provider"
-version = "0.17.0"
+version = "0.19.0"
 description = "Qiskit provider for AQT backends"
 authors = ["Qiskit Development Team", "Alpine Quantum Technologies GmbH"]
 repository = "https://github.com/qiskit-community/qiskit-aqt-provider"
@@ -46,11 +46,13 @@ pytest_qiskit_aqt = "qiskit_aqt_provider.test.fixtures"
 python = ">=3.8,<3.13"
 
 httpx = ">=0.24.0"
+platformdirs = ">=3"
 pydantic = ">=1.10.8,<2"
 python-dotenv = ">=1"
+qiskit = ">=0.45.0"
 qiskit-aer = ">=0.11"
-qiskit-optimization = { version = ">=0.5.0", optional = true }
-qiskit-terra = ">=0.23.3,!=0.24.0,<0.25.0"
+qiskit-algorithms = { version = ">=0.2.1", optional = true }
+qiskit-optimization = { version = ">=0.6.0", optional = true }
 tabulate = ">=0.9.0"
 tqdm = ">=4"
 tweedledum = { version = ">=1", optional = true }
@@ -71,28 +73,28 @@ scipy = [
 
 [tool.poetry.group.dev.dependencies]
 autodoc-pydantic = "<2.0.0"
-black = "^23.9.1"
 coverage = "^7.2.1"
 datamodel-code-generator = "^0.21.2"
 hypothesis = "^6.82.0"
+interrogate = "^1.5.0"
 ipykernel = "^6.22.0"
 jupyter-sphinx = "^0.4.0"
 mistletoe = "^1.1.0"
-mypy = "=1.5.1"
+mypy = "=1.7.1"
 poethepoet = "^0.18.1"
 polyfactory = "^2.0.0"
 pre-commit = "^3.1.1"
-pyproject-fmt = "^1.1.0"
+pyproject-fmt = "^1.2.0"
 pytest = ">=7"
 pytest-httpx = "^0.22.0"
+pytest-mock = "^3.11.1"
 pytest-sugar = "^0.9.6"
-qiskit-experiments = "^0.4.0"
+qiskit-experiments = "^0.5.4"
 qiskit-sphinx-theme = ">=1.16.0"
 qiskit-terra = {version = ">=0.23.2", extras = ["visualization"]}
 rich = "^13.5.3"
-ruff = "^0.0.291"
+ruff = "^0.1.5"
 sphinx = "^7"
-sympy = "^1.11.1"
 tomlkit = "^0.12.1"
 typer = "^0.7.0"
 types-requests = "^2.28.11"
@@ -106,7 +108,8 @@ examples-problematic = [
     "tweedledum"
 ]
 examples = [
-    "qiskit-optimization"
+    "qiskit-algorithms",
+    "qiskit-optimization",
 ]
 
 [build-system]
@@ -127,14 +130,6 @@ use-double-quotes = true
 use-schema-description = true
 use-field-description = true
 wrap-string-literal = true
-
-[tool.black]
-line-length = 100
-target-version = ['py38', 'py39', 'py310']
-preview = true  # don't use implicit string concatenation
-
-[tool.isort]
-profile = "black"
 
 [tool.pyright]
 exclude = [
@@ -164,6 +159,7 @@ select = [
     "BLE",  # flake8-blind-except
     "C4",  # flake8-comprehensions
     "C90",  # mccabe
+    "COM",  # flake8-commas
     "D",  # pydocstyle
     "E",  # pycodestyle errors
     "ERA",  # eradicate
@@ -198,6 +194,24 @@ ignore = [
     "D213",  # multiline-summary-second-line (incompatible with D212)
     "S311",  # suspicious-non-cryptographic-random-usage
     "SIM117",  # multiple-with-statements
+    #
+    # ignore following rules since they are conflicting with the formatter
+    # https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
+    "W191",
+    "E111",
+    "E114",
+    "E117",
+    "E501",
+    "D206",
+    "D300",
+    "Q000",
+    "Q001",
+    "Q002",
+    "Q003",
+    "COM812",
+    "COM819",
+    "ISC001",
+    "ISC002",
 ]
 line-length = 100
 target-version = 'py38'
@@ -223,9 +237,16 @@ convention = "google"
 
 [tool.coverage.run]
 dynamic_context = "test_function"
+relative_files = true
 
 [tool.coverage.report]
-fail_under = 98
+fail_under = 99
+
+[tool.interrogate]
+ignore-module = true
+ignore-nested-functions = true
+exclude = ["qiskit_aqt_provider/api_models_generated.py"]
+fail-under = 86
 
 [tool.poe.tasks.test]
 shell = """
@@ -240,14 +261,14 @@ default = ""
 
 [tool.poe.tasks.format]
 shell = """
-black .
+ruff format .
 pyproject-fmt .
 """
 
-[tool.poe.tasks.black_check]
-shell = "black --check ."
+[tool.poe.tasks.python_format_check]
+shell = "ruff format --check ."
 
-[tool.poe.tasks.pyprojectfmt_check]
+[tool.poe.tasks.pyproject_format_check]
 shell = "pyproject-fmt --check ."
 
 [tool.poe.tasks.typecheck]
@@ -259,9 +280,12 @@ shell = "./scripts/api_models.py check"
 [tool.poe.tasks.ruff_check]
 shell = "ruff check ."
 
+[tool.poe.tasks.docstring_coverage]
+shell = "interrogate -v qiskit_aqt_provider test"
+
 [tool.poe.tasks]
-lint = ["check_api_models", "ruff_check"]
-format_check = ["black_check", "pyprojectfmt_check"]
+lint = ["check_api_models", "docstring_coverage", "ruff_check"]
+format_check = ["python_format_check", "pyproject_format_check"]
 generate-models = "./scripts/api_models.py generate"
 version_check = "./scripts/package_version.py --verbose check"
 docs = "sphinx-build -j auto -b html -W docs docs/_build"

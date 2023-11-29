@@ -17,9 +17,9 @@ copyright = "2023, Qiskit and AQT development teams"
 author = "Qiskit and AQT development teams"
 
 # The short X.Y version
-version = "0.17.0"
+version = "0.19.0"
 # The full version, including alpha/beta/rc tags
-release = "0.17.0"
+release = "0.19.0"
 
 extensions = [
     "sphinx.ext.napoleon",
@@ -58,6 +58,7 @@ nitpick_ignore = [
 ]
 nitpick_ignore_regex = [
     ("py:class", r"qiskit_aqt_provider\.api_models_generated.*"),
+    ("py:class", r"typing_extensions.*"),
 ]
 
 # show fully qualified names

@@ -13,6 +13,8 @@
 import json
 import math
 import uuid
+from contextlib import nullcontext
+from typing import Any, ContextManager
 from unittest import mock
 
 import httpx
@@ -239,8 +241,8 @@ def test_submit_valid_response(httpx_mock: HTTPXMock) -> None:
             json=json.loads(
                 api_models.Response.queued(
                     job_id=expected_job_id,
-                    resource_id=backend.resource_id,
-                    workspace_id=backend.workspace_id,
+                    resource_id=backend.resource_id.resource_id,
+                    workspace_id=backend.resource_id.workspace_id,
                 ).json()
             ),
         )
@@ -262,6 +264,9 @@ def test_submit_payload_matches(httpx_mock: HTTPXMock) -> None:
 
     def handle_submit(request: httpx.Request) -> httpx.Response:
         assert request.headers["user-agent"] == USER_AGENT
+        assert request.url.path.endswith(
+            f"submit/{backend.resource_id.workspace_id}/{backend.resource_id.resource_id}"
+        )
 
         data = api_models.JobSubmission.parse_raw(request.content.decode("utf-8"))
         assert data == expected_job_payload
@@ -271,8 +276,8 @@ def test_submit_payload_matches(httpx_mock: HTTPXMock) -> None:
             json=json.loads(
                 api_models.Response.queued(
                     job_id=expected_job_id,
-                    resource_id=backend.resource_id,
-                    workspace_id=backend.workspace_id,
+                    resource_id=backend.resource_id.resource_id,
+                    workspace_id=backend.resource_id.workspace_id,
                 ).json()
             ),
         )
@@ -306,12 +311,15 @@ def test_result_valid_response(httpx_mock: HTTPXMock) -> None:
     job_id = uuid.uuid4()
 
     payload = api_models.Response.cancelled(
-        job_id=job_id, resource_id=backend.resource_id, workspace_id=backend.workspace_id
+        job_id=job_id,
+        resource_id=backend.resource_id.resource_id,
+        workspace_id=backend.resource_id.workspace_id,
     )
 
     def handle_result(request: httpx.Request) -> httpx.Response:
         assert request.headers["user-agent"] == USER_AGENT
         assert request.headers["authorization"] == f"Bearer {token}"
+        assert request.url.path.endswith(f"result/{job_id}")
 
         return httpx.Response(status_code=httpx.codes.OK, json=json.loads(payload.json()))
 
@@ -353,8 +361,118 @@ def test_offline_simulator_detects_invalid_circuits(
     """
     qc = QuantumCircuit(2)
     qc.h(0)
-    qc.cnot(0, 1)
+    qc.cx(0, 1)
     qc.measure_all()
 
     with pytest.raises(ValueError, match="^Operation 'h' not in basis gate set"):
         offline_simulator_no_noise.run(qc)
+
+
+def test_offline_simulator_propagate_shots_option(
+    offline_simulator_no_noise: MockSimulator,
+) -> None:
+    """Check various ways of configuring the number of repetitions."""
+    qc = qiskit.transpile(random_circuit(2), offline_simulator_no_noise)
+
+    default_shots = sum(offline_simulator_no_noise.run(qc).result().get_counts().values())
+    assert default_shots == AQTOptions().shots
+
+    # TODO: use annotated-types to get unified access to upper bound
+    shots = min(default_shots + 40, AQTOptions.__fields__["shots"].field_info.le)
+    assert shots != default_shots
+
+    # configure shots in AQTResource.run
+    shots_run = sum(offline_simulator_no_noise.run(qc, shots=shots).result().get_counts().values())
+    assert shots_run == shots
+
+    # configure shots in qiskit.execute
+    shots_execute = sum(
+        qiskit.execute(qc, offline_simulator_no_noise, shots=shots).result().get_counts().values()
+    )
+    assert shots_execute == shots
+
+    # configure shots in resource options
+    offline_simulator_no_noise.options.shots = shots
+    shots_options = sum(offline_simulator_no_noise.run(qc).result().get_counts().values())
+    assert shots_options == shots
+
+    # qiskit.execute overrides resource options
+    shots_override = min(shots + 40, AQTOptions.__fields__["shots"].field_info.le)
+    assert shots_override != shots
+    assert shots_override != default_shots
+    assert offline_simulator_no_noise.options.shots != shots_override
+    shots = sum(
+        qiskit.execute(qc, offline_simulator_no_noise, shots=shots_override)
+        .result()
+        .get_counts()
+        .values()
+    )
+    assert shots == shots_override
+
+
+@pytest.mark.parametrize(
+    ("memory", "context"),
+    [(True, nullcontext()), (False, pytest.raises(qiskit.QiskitError, match="No memory"))],
+)
+def test_offline_simulator_run_propagate_memory_option(
+    memory: bool,
+    context: ContextManager[Any],
+    offline_simulator_no_noise: MockSimulator,
+) -> None:
+    """Check that the memory option can be set on `AQTResource.run`."""
+    qc = qiskit.transpile(random_circuit(2), offline_simulator_no_noise)
+    default_shots = AQTOptions().shots
+
+    result = offline_simulator_no_noise.run(qc, memory=memory).result()
+    with context:
+        assert len(result.get_memory()) == default_shots
+
+
+@pytest.mark.parametrize(
+    ("memory", "context"),
+    [(True, nullcontext()), (False, pytest.raises(qiskit.QiskitError, match="No memory"))],
+)
+def test_offline_simulator_execute_propagate_memory_option(
+    memory: bool, context: ContextManager[Any], offline_simulator_no_noise: MockSimulator
+) -> None:
+    """Check that the memory option can be set in `qiskit.execute`."""
+    qc = random_circuit(2)
+    default_shots = AQTOptions().shots
+
+    result = qiskit.execute(qc, offline_simulator_no_noise, memory=memory).result()
+    with context:
+        assert len(result.get_memory()) == default_shots
+
+
+@pytest.mark.parametrize(
+    ("memory", "context"),
+    [(True, nullcontext()), (False, pytest.raises(qiskit.QiskitError, match="No memory"))],
+)
+def test_offline_simulator_resource_propagate_memory_option(
+    memory: bool, context: ContextManager[Any], offline_simulator_no_noise: MockSimulator
+) -> None:
+    """Check that the memory option can be set as resource option."""
+    qc = qiskit.transpile(random_circuit(2), offline_simulator_no_noise)
+    default_shots = AQTOptions().shots
+
+    offline_simulator_no_noise.options.memory = memory
+    result = offline_simulator_no_noise.run(qc).result()
+    with context:
+        assert len(result.get_memory()) == default_shots
+
+
+@pytest.mark.parametrize(
+    ("memory", "context"),
+    [(True, nullcontext()), (False, pytest.raises(qiskit.QiskitError, match="No memory"))],
+)
+def test_offline_simulator_execute_override_memory_option(
+    memory: bool, context: ContextManager[Any], offline_simulator_no_noise: MockSimulator
+) -> None:
+    """Check that setting `memory` through `qiskit.execute` overrides the resource options."""
+    qc = random_circuit(2)
+    default_shots = AQTOptions().shots
+
+    offline_simulator_no_noise.options.memory = not memory
+    result = qiskit.execute(qc, offline_simulator_no_noise, memory=memory).result()
+    with context:
+        assert len(result.get_memory()) == default_shots

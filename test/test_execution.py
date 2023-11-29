@@ -21,19 +21,22 @@ import typing
 from collections import Counter
 from fractions import Fraction
 from math import pi
-from typing import List
+from typing import List, Union
 
 import numpy as np
 import pytest
 import qiskit
-from qiskit import ClassicalRegister, QiskitError, QuantumCircuit, QuantumRegister
+from qiskit import ClassicalRegister, QiskitError, QuantumCircuit, QuantumRegister, quantum_info
+from qiskit.providers import Backend
 from qiskit.providers.jobstatus import JobStatus
 from qiskit.result import Counts
-from qiskit_aer import AerSimulator
+from qiskit.transpiler import TranspilerError
+from qiskit_aer import AerProvider, AerSimulator
 from qiskit_experiments.library import QuantumVolume
 
+from qiskit_aqt_provider import AQTProvider
 from qiskit_aqt_provider.aqt_resource import AQTResource
-from qiskit_aqt_provider.test.circuits import qft_circuit
+from qiskit_aqt_provider.test.circuits import assert_circuits_equivalent, qft_circuit
 from qiskit_aqt_provider.test.fixtures import MockSimulator
 from qiskit_aqt_provider.test.resources import TestResource
 from qiskit_aqt_provider.test.timeout import timeout
@@ -153,7 +156,7 @@ def test_simple_backend_execute_noisy(backend: MockSimulator) -> None:
 
     assert sum(counts.values()) == total_shots
 
-    if backend.noisy:
+    if backend.with_noise_model:
         assert set(counts.keys()) == {"0", "1"}
         assert counts["0"] < 0.1 * counts["1"]  # very crude
     else:
@@ -273,6 +276,41 @@ def test_get_memory_bit_ordering(shots: int, offline_simulator_no_noise: AQTReso
     assert not any(bitstring == bitstring[::-1] for bitstring in sim_memory)
 
 
+@pytest.mark.parametrize(
+    "backend",
+    [
+        pytest.param(
+            AQTProvider("token").get_backend("offline_simulator_no_noise"), id="offline-simulator"
+        ),
+        pytest.param(AerProvider().get_backend("aer_simulator"), id="aer-simulator"),
+    ],
+)
+def test_regression_issue_85(backend: Backend) -> None:
+    """Check that qubit and clbit permutations are properly handled by the offline simulators.
+
+    This is a regression test for #85. Check that executing circuits with qubit/clbit
+    permutations outputs the same bitstrings on noiseless offline simulators from this
+    package and straight from Aer.
+    """
+    empty_3 = QuantumCircuit(3)
+    base = QuantumCircuit(3)
+    base.h(0)
+    base.cx(0, 2)
+    base.measure_all()
+
+    perm_qubits = empty_3.compose(base, qubits=[0, 2, 1])
+    perm_all = empty_3.compose(base, qubits=[0, 2, 1], clbits=[0, 2, 1])
+
+    base_bitstrings = set(qiskit.execute(base, backend).result().get_counts())
+    assert base_bitstrings == {"000", "101"}
+
+    perm_qubits_bitstrings = set(qiskit.execute(perm_qubits, backend).result().get_counts())
+    assert perm_qubits_bitstrings == {"000", "101"}
+
+    perm_all_bitstrings = set(qiskit.execute(perm_all, backend).result().get_counts())
+    assert perm_all_bitstrings == {"000", "011"}
+
+
 @pytest.mark.parametrize(("shots", "qubits"), [(100, 5), (100, 8)])
 def test_bell_states(shots: int, qubits: int, offline_simulator_no_noise: AQTResource) -> None:
     """Create a N qubits Bell state."""
@@ -287,6 +325,100 @@ def test_bell_states(shots: int, qubits: int, offline_simulator_no_noise: AQTRes
 
     assert set(counts.keys()) == {"0" * qubits, "1" * qubits}
     assert sum(counts.values()) == shots
+
+
+@pytest.mark.parametrize(
+    "target_state",
+    [
+        quantum_info.Statevector.from_label("01"),
+        "01",
+        1,
+        [0, 1, 0, 0],
+    ],
+)
+@pytest.mark.parametrize("optimization_level", range(4))
+def test_state_preparation(
+    target_state: Union[int, str, quantum_info.Statevector, List[complex]],
+    optimization_level: int,
+    offline_simulator_no_noise: AQTResource,
+) -> None:
+    """Test the state preparation unitary factory.
+
+    Prepare the state |01> using the different formats accepted by
+    `QuantumCircuit.prepare_state`.
+    """
+    qc = QuantumCircuit(2)
+    qc.prepare_state(target_state)
+    qc.measure_all()
+
+    shots = 100
+    job = qiskit.execute(
+        qc, offline_simulator_no_noise, shots=shots, optimization_level=optimization_level
+    )
+    counts = job.result().get_counts()
+
+    assert counts == {"01": shots}
+
+
+@pytest.mark.parametrize("optimization_level", range(4))
+def test_state_preparation_single_qubit(
+    optimization_level: int, offline_simulator_no_noise: AQTResource
+) -> None:
+    """Test the state preparation unitary factory, targeting a single qubit in the register."""
+    qreg = QuantumRegister(4)
+    qc = QuantumCircuit(qreg)
+    qc.prepare_state(1, qreg[2])
+    qc.measure_all()
+
+    shots = 100
+    job = qiskit.execute(
+        qc, offline_simulator_no_noise, shots=shots, optimization_level=optimization_level
+    )
+    counts = job.result().get_counts()
+
+    assert counts == {"0100": shots}
+
+
+def test_initialize_not_supported(offline_simulator_no_noise: AQTResource) -> None:
+    """Verify that `QuantumCircuit.initialize` is not supported.
+
+    #112 adds a note to the user guide indicating that `QuantumCircuit.initialize`
+    is not supported. Remove the note if this test fails.
+    """
+    qc = QuantumCircuit(2)
+    qc.x(0)
+    qc.initialize("01")
+    qc.measure_all()
+
+    with pytest.raises(
+        TranspilerError,
+        match=re.compile(
+            r"high\s?level\s?synthesis was unable to synthesize instruction", re.IGNORECASE
+        ),
+    ):
+        qiskit.transpile(qc, offline_simulator_no_noise)
+
+
+@pytest.mark.parametrize("optimization_level", range(4))
+def test_cswap(optimization_level: int, offline_simulator_no_noise: AQTResource) -> None:
+    """Verify that CSWAP (Fredkin) gates can be transpiled and executed (in a trivial case)."""
+    qc = QuantumCircuit(3)
+    qc.prepare_state("101")
+    qc.cswap(0, 1, 2)
+
+    trans_qc = qiskit.transpile(
+        qc, offline_simulator_no_noise, optimization_level=optimization_level
+    )
+    assert_circuits_equivalent(qc, trans_qc)
+
+    qc.measure_all()
+    shots = 200
+    job = qiskit.execute(
+        qc, offline_simulator_no_noise, optimization_level=optimization_level, shots=shots
+    )
+    counts = job.result().get_counts()
+
+    assert counts == {"011": shots}
 
 
 @pytest.mark.parametrize(("shots", "qubits"), [(100, 3)])

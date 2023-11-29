@@ -82,10 +82,12 @@ class BackendsTable(Sequence[AQTResource]):
         self.headers = ["Workspace ID", "Resource ID", "Description", "Resource type"]
 
     @overload
-    def __getitem__(self, index: int) -> AQTResource: ...  # pragma: no cover
+    def __getitem__(self, index: int) -> AQTResource:
+        ...  # pragma: no cover
 
     @overload
-    def __getitem__(self, index: slice) -> Sequence[AQTResource]: ...  # pragma: no cover
+    def __getitem__(self, index: slice) -> Sequence[AQTResource]:
+        ...  # pragma: no cover
 
     @override
     def __getitem__(self, index: Union[slice, int]) -> Union[AQTResource, Sequence[AQTResource]]:
@@ -111,7 +113,7 @@ class BackendsTable(Sequence[AQTResource]):
         data: DefaultDict[str, List[AQTResource]] = defaultdict(list)
 
         for backend in self:
-            data[backend.workspace_id].append(backend)
+            data[backend.resource_id.workspace_id].append(backend)
 
         return dict(data)
 
@@ -119,12 +121,14 @@ class BackendsTable(Sequence[AQTResource]):
         """Assemble the data for the printable table."""
         table = []
         for workspace_id, resources in self.by_workspace().items():
-            for count, resource in enumerate(sorted(resources, key=attrgetter("resource_id"))):
+            for count, resource in enumerate(
+                sorted(resources, key=attrgetter("resource_id.resource_id"))
+            ):
                 line = [
                     workspace_id,
-                    resource.resource_id,
-                    resource.resource_name,
-                    resource.resource_type,
+                    resource.resource_id.resource_id,
+                    resource.resource_id.resource_name,
+                    resource.resource_id.resource_type,
                 ]
                 if count != 0:
                     # don't repeat the workspace id
@@ -139,7 +143,7 @@ class AQTProvider(ProviderV1):
     """Provider for backends from Alpine Quantum Technologies (AQT)."""
 
     # Set AQT_PORTAL_URL environment variable to override
-    DEFAULT_PORTAL_URL: Final = "https://arnica-stage.aqt.eu"
+    DEFAULT_PORTAL_URL: Final = "https://arnica.aqt.eu"
 
     def __init__(
         self,
@@ -208,15 +212,24 @@ class AQTProvider(ProviderV1):
         With no arguments, return all backends accessible with the configured
         access token.
 
+        Filters can be either strings or regular expression patterns. Strings filter by
+        exact match.
+
         Args:
-            name: regular expression pattern for the resource ID.
+            name: filter for the backend name.
             backend_type: if given, restrict the search to the given backend type.
-            workspace: regular expression for the workspace ID.
+            workspace: filter for the workspace ID.
 
         Returns:
             Collection of backends accessible with the given access token that match the
             given criteria.
         """
+        if isinstance(name, str):
+            name = re.compile(f"^{name}$")
+
+        if isinstance(workspace, str):
+            workspace = re.compile(f"^{workspace}$")
+
         remote_workspaces = api_models.Workspaces(__root__=[])
 
         if backend_type != "offline_simulator":
@@ -234,19 +247,22 @@ class AQTProvider(ProviderV1):
         backends: List[AQTResource] = []
 
         # add offline simulators in the default workspace
-        if (not workspace or re.match(workspace, "default", re.IGNORECASE)) and (
+        if (not workspace or workspace.match("default")) and (
             not backend_type or backend_type == "offline_simulator"
         ):
             for simulator in OFFLINE_SIMULATORS:
-                if name and not re.match(name, simulator.id, re.IGNORECASE):
+                if name and not name.match(simulator.id):
                     continue
                 backends.append(
                     OfflineSimulatorResource(
                         self,
-                        workspace_id="default",
-                        resource_id=simulator.id,
-                        resource_name=simulator.name,
-                        noisy=simulator.noisy,
+                        resource_id=api_models.ResourceId(
+                            workspace_id="default",
+                            resource_id=simulator.id,
+                            resource_name=simulator.name,
+                            resource_type="offline_simulator",
+                        ),
+                        with_noise_model=simulator.noisy,
                     )
                 )
 
@@ -256,10 +272,12 @@ class AQTProvider(ProviderV1):
                 backends.append(
                     AQTResource(
                         self,
-                        workspace_id=_workspace.id,
-                        resource_id=resource.id,
-                        resource_name=resource.name,
-                        resource_type=resource.type.value,
+                        resource_id=api_models.ResourceId(
+                            workspace_id=_workspace.id,
+                            resource_id=resource.id,
+                            resource_name=resource.name,
+                            resource_type=resource.type.value,
+                        ),
                     )
                 )
 

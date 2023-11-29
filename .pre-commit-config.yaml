@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
       - id: mixed-line-ending
       - id: check-merge-conflict
@@ -13,18 +13,14 @@ repos:
       - id: check-case-conflict
       - id: no-commit-to-branch
         args: [--branch, master]
-  - repo: https://github.com/psf/black
-    rev: 23.9.1
-    hooks:
-      - id: black
-        language_version: python3
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: "v0.0.291"
+    rev: "v0.1.5"
     hooks:
       - id: ruff
         args: [ --fix, --exit-non-zero-on-fix ]
+      - id: ruff-format
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: "1.1.0"
+    rev: "1.2.0"
     hooks:
       - id: pyproject-fmt
   - repo: local

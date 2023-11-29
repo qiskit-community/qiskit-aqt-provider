@@ -19,8 +19,8 @@ import tempfile
 import textwrap
 from typing import Final, Set, Tuple
 
-from qiskit.algorithms import AmplificationProblem, Grover
 from qiskit.circuit.library.phase_oracle import PhaseOracle
+from qiskit_algorithms import AmplificationProblem, Grover
 
 from qiskit_aqt_provider import AQTProvider
 from qiskit_aqt_provider.primitives import AQTSampler
@@ -71,7 +71,8 @@ if __name__ == "__main__":
 
     # Problem definition
     sat_problem = ThreeSatProblem(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             c example DIMACS-CNF 3-SAT
             p cnf 3 5
             -1 -2 -3 0
@@ -79,7 +80,8 @@ if __name__ == "__main__":
             1 2 -3 0
             1 -2 -3 0
             -1 2 3 0
-            """),
+            """
+        ),
         num_solutions=3,
     )
 

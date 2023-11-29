@@ -13,7 +13,7 @@
 """Thin convenience wrappers around generated API models."""
 
 import re
-from typing import Any, Dict, List, Optional, Pattern, Union
+from typing import Any, Dict, List, Literal, Optional, Pattern, Union
 from uuid import UUID
 
 import httpx
@@ -28,7 +28,6 @@ from qiskit_aqt_provider.api_models_generated import (
     OperationModel,
     QuantumCircuit,
     QuantumCircuits,
-    Resource,
 )
 from qiskit_aqt_provider.api_models_generated import Type as ResourceType
 from qiskit_aqt_provider.versions import USER_AGENT
@@ -42,7 +41,6 @@ __all__ = [
     "QuantumCircuit",
     "QuantumCircuits",
     "Response",
-    "Resource",
     "ResourceType",
 ]
 
@@ -76,7 +74,6 @@ class Workspaces(pdt.BaseModel, extra=pdt.Extra.forbid, frozen=True):
     ) -> Self:
         """Filtered copy of the list of available workspaces and devices.
 
-        All regular expression matches are case insensitive.
         Omitted criteria match any entry in the respective field.
 
         Args:
@@ -89,9 +86,7 @@ class Workspaces(pdt.BaseModel, extra=pdt.Extra.forbid, frozen=True):
         """
         filtered_workspaces = []
         for workspace in self.__root__:
-            if workspace_pattern is not None and not re.match(
-                workspace_pattern, workspace.id, re.IGNORECASE
-            ):
+            if workspace_pattern is not None and not re.match(workspace_pattern, workspace.id):
                 continue
 
             filtered_resources = []
@@ -100,9 +95,7 @@ class Workspaces(pdt.BaseModel, extra=pdt.Extra.forbid, frozen=True):
                 if backend_type is not None and resource.type is not backend_type:
                     continue
 
-                if name_pattern is not None and not re.match(
-                    name_pattern, resource.id, re.IGNORECASE
-                ):
+                if name_pattern is not None and not re.match(name_pattern, resource.id):
                     continue
 
                 filtered_resources.append(resource)
@@ -112,6 +105,25 @@ class Workspaces(pdt.BaseModel, extra=pdt.Extra.forbid, frozen=True):
             )
 
         return self.__class__(__root__=filtered_workspaces)
+
+
+GeneralResourceType: TypeAlias = Literal["device", "simulator", "offline_simulator"]
+
+
+class ResourceId(pdt.BaseModel, frozen=True):
+    """Resource identification and metadata."""
+
+    workspace_id: str
+    """Workspace containing the resource."""
+
+    resource_id: str
+    """Unique identifier of the resource in the containing workspace."""
+
+    resource_name: str
+    """Pretty display name for the resource."""
+
+    resource_type: GeneralResourceType
+    """Resource type, also includes offline simulators."""
 
 
 class Operation:

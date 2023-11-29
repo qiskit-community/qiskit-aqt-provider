@@ -22,6 +22,7 @@ import pytest
 from qiskit.circuit import QuantumCircuit
 from typing_extensions import override
 
+from qiskit_aqt_provider import api_models
 from qiskit_aqt_provider.aqt_job import AQTJob
 from qiskit_aqt_provider.aqt_provider import AQTProvider
 from qiskit_aqt_provider.aqt_resource import OfflineSimulatorResource
@@ -33,10 +34,13 @@ class MockSimulator(OfflineSimulatorResource):
     def __init__(self, *, noisy: bool) -> None:
         super().__init__(
             AQTProvider(""),
-            workspace_id="default",
-            resource_id="mock_simulator",
-            resource_name="mock_simulator",
-            noisy=noisy,
+            resource_id=api_models.ResourceId(
+                workspace_id="default",
+                resource_id="mock_simulator",
+                resource_name="mock_simulator",
+                resource_type="offline_simulator",
+            ),
+            with_noise_model=noisy,
         )
 
         self.submit_call_args: List[Tuple[List[QuantumCircuit], int]] = []
