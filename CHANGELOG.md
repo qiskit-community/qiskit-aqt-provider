@@ -4,8 +4,6 @@
 
 ## qiskit-aqt-provider v1.0.0
 
-Releases in the v1.x.x series support the AQT quantum computing portal ARNICA at https://arnica.aqt.eu.
-
 * Set minimal required `qiskit` version to 0.45.0 (#108)
 * Use `qiskit-algorithms` package instead of deprecated `qiskit.algorithms` in examples (#110)
 * Use arnica.aqt.eu instead of arnica-stage.aqt.eu as default portal (#111)
