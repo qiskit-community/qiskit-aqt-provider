@@ -61,5 +61,6 @@ jobs:
         run: poetry run coverage lcov -o coverage.lcov
       - name: Upload coverage report
         uses: coverallsapp/github-action@v2
+        if: matrix.python-version == '3.11'
         with:
           file: coverage.lcov
