@@ -63,3 +63,13 @@ jobs:
         uses: coverallsapp/github-action@v2
         with:
           file: coverage.lcov
+          parallel: true
+          flag-name: run ${{ join(matrix.*, ' - ') }}
+  finish:
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close parallel coverage build
+        uses: coverallsapp/github-action@v2
+        with:
+          parallel-finished: true
