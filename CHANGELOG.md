@@ -2,6 +2,28 @@
 
 ## Unreleased
 
+## qiskit-aqt-provider v1.0.0
+
+* Set minimal required `qiskit` version to 0.45.0 (#108)
+* Use `qiskit-algorithms` package instead of deprecated `qiskit.algorithms` in examples (#110)
+* Use arnica.aqt.eu instead of arnica-stage.aqt.eu as default portal (#111)
+
+## qiskit-aqt-provider v0.19.0
+
+* Interprete string filters in `AQTProvider.get_backend()` as exact matches, not patterns (#90)
+* Fix incorrect handling of qubit/clbit permutations by offline simulators (#93)
+* Depend on [qiskit](https://pypi.org/project/qiskit/) instead of [qiskit-terra](https://pypi.org/project/qiskit-terra) (#95)
+* Remove use of deprecated `Bit.index` and `Bit.register` (#99)
+* Use [`ruff format`](https://docs.astral.sh/ruff/formatter/) instead of `black` (#101)
+
+## qiskit-aqt-provider v0.18.0
+
+* Check that the circuits submitted to the offline simulators can be converted to the AQT API (#68)
+* Update the user guide and improve the API reference consistency (#72, #75)
+* Add quickstart examples for the Qiskit.org homepage (#73)
+* Add persistence mechanism for `AQTJob` instances (#77)
+* Rename `OfflineSimulatorResource.noisy` to `OfflineSimulatorResource.with_noise_model` (#77)
+
 ## qiskit-aqt-provider v0.17.0
 
 * Merge community and AQT versions (#61)

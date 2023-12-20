@@ -14,6 +14,7 @@
 
 import math
 
+import qiskit.circuit.random
 from qiskit import QuantumCircuit
 from qiskit.quantum_info.operators import Operator
 
@@ -24,16 +25,47 @@ def assert_circuits_equal(result: QuantumCircuit, expected: QuantumCircuit) -> N
     assert result == expected, msg  # noqa: S101
 
 
+def assert_circuits_equal_ignore_global_phase(
+    result: QuantumCircuit, expected: QuantumCircuit
+) -> None:
+    """Assert result == expected, ignoring the value of the global phase."""
+    result_copy = result.copy()
+    result_copy.global_phase = 0.0
+    expected_copy = expected.copy()
+    expected_copy.global_phase = 0.0
+
+    assert_circuits_equal(result_copy, expected_copy)
+
+
 def assert_circuits_equivalent(result: QuantumCircuit, expected: QuantumCircuit) -> None:
     """Assert that the passed circuits are equivalent up to a global phase."""
     msg = f"\nexpected:\n{expected}\nresult:\n{result}"
     assert Operator(expected).equiv(Operator(result)), msg  # noqa: S101
 
 
-def empty_circuit(num_qubits: int) -> QuantumCircuit:
+def empty_circuit(num_qubits: int, with_final_measurement: bool = True) -> QuantumCircuit:
     """An empty circuit, with the given number of qubits."""
     qc = QuantumCircuit(num_qubits)
-    qc.measure_all()
+
+    if with_final_measurement:
+        qc.measure_all()
+
+    return qc
+
+
+def random_circuit(
+    num_qubits: int, *, seed: int = 1234, with_final_measurement: bool = True
+) -> QuantumCircuit:
+    """A random circuit, with depth equal to the number of qubits."""
+    qc = qiskit.circuit.random.random_circuit(
+        num_qubits,
+        num_qubits,
+        seed=seed,
+    )
+
+    if with_final_measurement:
+        qc.measure_all()
+
     return qc
 
 

@@ -17,7 +17,6 @@ from typing import (
     Any,
     Dict,
     List,
-    Literal,
     Optional,
     Type,
     TypeVar,
@@ -34,17 +33,22 @@ from qiskit.providers import Options as QiskitOptions
 from qiskit.providers.models import BackendConfiguration
 from qiskit.transpiler import Target
 from qiskit_aer import AerJob, AerSimulator, noise
+from typing_extensions import override
 
 from qiskit_aqt_provider import api_models
 from qiskit_aqt_provider.aqt_job import AQTJob
 from qiskit_aqt_provider.aqt_options import AQTOptions
-from qiskit_aqt_provider.circuit_to_aqt import circuits_to_aqt_job
+from qiskit_aqt_provider.circuit_to_aqt import aqt_to_qiskit_circuit
 
 if TYPE_CHECKING:  # pragma: no cover
     from qiskit_aqt_provider.aqt_provider import AQTProvider
 
 
 TargetT = TypeVar("TargetT", bound=Target)
+
+
+class UnknownOptionWarning(UserWarning):
+    """An unknown option was passed to a backend's :meth:`run <AQTResource.run>` method."""
 
 
 def make_transpiler_target(target_cls: Type[TargetT], num_qubits: int) -> TargetT:
@@ -78,34 +82,24 @@ class AQTResource(Backend):
     def __init__(
         self,
         provider: "AQTProvider",
-        *,
-        workspace_id: str,
-        resource_id: str,
-        resource_name: str,
-        resource_type: Literal["device", "simulator", "offline_simulator"],
+        resource_id: api_models.ResourceId,
     ):
         """Initialize the backend.
 
         Args:
             provider: Qiskit provider that owns this backend.
-            workspace_id: name of the AQT workspace the mapped resource belongs to.
-            resource_id: name of the resource in the AQT cloud portal.
-            resource_name: pretty name of the resource in the AQT cloud portal.
-            resource_type: resource class.
+            resource_id: description of resource to target.
         """
-        super().__init__(name=resource_id, provider=provider)
+        super().__init__(name=resource_id.resource_id, provider=provider)
 
         self.resource_id = resource_id
-        self.resource_name = resource_name
-        self.resource_type = resource_type
-        self.workspace_id = workspace_id
 
         self._http_client = provider._http_client
 
         num_qubits = 20
         self._configuration = BackendConfiguration.from_dict(
             {
-                "backend_name": resource_name,
+                "backend_name": resource_id.resource_name,
                 "backend_version": 2,
                 "url": provider.portal_url,
                 "simulator": True,
@@ -130,24 +124,22 @@ class AQTResource(Backend):
 
         self._options = AQTOptions()
 
-    def submit(self, circuits: List[QuantumCircuit], shots: int) -> UUID:
+    def submit(self, job: AQTJob) -> UUID:
         """Submit a quantum circuits job to the AQT resource.
 
-        .. hint:: This is a low-level method. Use the :meth:`run` method to submit
+        .. tip:: This is a low-level method. Use the :meth:`run` method to submit
             a job and retrieve a :class:`AQTJob <qiskit_aqt_provider.aqt_job.AQTJob>`
             handle.
 
         Args:
-            circuits: circuits to execute.
-            shots: number of repetitions per circuit.
+            job: the quantum circuits job to submit to the resource for execution.
 
         Returns:
             The unique identifier of the submitted job.
         """
-        payload = circuits_to_aqt_job(circuits, shots)
-
         resp = self._http_client.post(
-            f"/submit/{self.workspace_id}/{self.resource_id}", json=payload.model_dump()
+            f"/submit/{self.resource_id.workspace_id}/{self.resource_id.resource_id}",
+            json=job.api_submit_payload.model_dump(),
         )
 
         resp.raise_for_status()
@@ -156,7 +148,7 @@ class AQTResource(Backend):
     def result(self, job_id: UUID) -> api_models.JobResponse:
         """Query the result for a specific job.
 
-        .. hint:: This is a low-level method. Use the
+        .. tip:: This is a low-level method. Use the
             :meth:`AQTJob.result <qiskit_aqt_provider.aqt_job.AQTJob.result>`
             method to retrieve the result of a job described by a
             :class:`AQTJob <qiskit_aqt_provider.aqt_job.AQTJob>` handle.
@@ -217,15 +209,14 @@ class AQTResource(Backend):
     def run(self, circuits: Union[QuantumCircuit, List[QuantumCircuit]], **options: Any) -> AQTJob:
         """Submit circuits for execution on this resource.
 
-        Additional keywork arguments are treated as overrides for this resource's options.
-        Keywords that are not valid options for this resource are ignored with a warning.
-
         Args:
             circuits: circuits to execute
-            options: overrides for this resource's options.
+            options: overrides for this resource's options. Elements should be valid fields
+              of the :class:`AQTOptions <qiskit_aqt_provider.aqt_options.AQTOptions>` model.
+              Unknown fields are ignored with a :class:`UnknownOptionWarning`.
 
         Returns:
-            A job handle.
+            A handle to the submitted job.
         """
         if not isinstance(circuits, list):
             circuits = [circuits]
@@ -237,7 +228,7 @@ class AQTResource(Backend):
             for unknown_option in unknown_options:
                 warnings.warn(
                     f"Option {unknown_option} is not used by this backend",
-                    UserWarning,
+                    UnknownOptionWarning,
                     stacklevel=2,
                 )
 
@@ -301,28 +292,40 @@ class SimulatorJob:
 
 
 class OfflineSimulatorResource(AQTResource):
-    """AQT-compatible offline simulator resource that uses the Qiskit-Aer backend."""
+    """AQT-compatible offline simulator resource.
+
+    Offline simulators expose the same interface and restrictions as hardware backends. If
+    `with_noise_model` is true, a noise model approximating that of AQT hardware backends is used.
+
+    .. tip::
+      The simulator backend is provided by `Qiskit Aer <https://qiskit.org/ecosystem/aer/>`_. The
+      Qiskit Aer resource is exposed for detailed detuning as the
+      ``OfflineSimulatorResource.simulator`` attribute.
+    """
 
     def __init__(
         self,
         provider: "AQTProvider",
-        *,
-        workspace_id: str,
-        resource_id: str,
-        resource_name: str,
-        noisy: bool,
+        resource_id: api_models.ResourceId,
+        with_noise_model: bool,
     ) -> None:
+        """Initialize an offline simulator resource.
+
+        Args:
+            provider: Qiskit provider that owns this backend.
+            resource_id: identification of the offline simulator resource.
+            with_noise_model: whether to configure a noise model in the simulator backend.
+        """
+        assert resource_id.resource_type == "offline_simulator"  # noqa: S101
+
         super().__init__(
             provider,
-            workspace_id=workspace_id,
             resource_id=resource_id,
-            resource_name=resource_name,
-            resource_type="offline_simulator",
         )
 
         self.job: Optional[SimulatorJob] = None
 
-        if not noisy:
+        if not with_noise_model:
             noise_model = None
         else:
             # the transpiler lowers all operations to the gate set supported by the AQT API,
@@ -334,33 +337,43 @@ class OfflineSimulatorResource(AQTResource):
         self.simulator = AerSimulator(method="statevector", noise_model=noise_model)
 
     @property
-    def noisy(self) -> bool:
+    def with_noise_model(self) -> bool:
         """Whether the simulator includes a noise model."""
         return self.simulator.options.noise_model is not None
 
-    def submit(self, circuits: List[QuantumCircuit], shots: int) -> UUID:
-        """Submit circuits for execution on the simulator.
+    @override
+    def submit(self, job: AQTJob) -> UUID:
+        """Submit a job for execution on the simulator.
 
-        .. hint:: This is a low-level method. Use :meth:`AQTResource.run()` instead.
+        .. tip:: This is a low-level method. Use the :meth:`AQTResource.run()` method
+            to submit a job and retrieve a :class:`AQTJob <qiskit_aqt_provider.aqt_job.AQTJob>`
+            handle.
 
         Args:
-            circuits: circuits to execute
-            shots: number of repetitions per circuit.
+            job: quantum circuits job to submit to the simulator.
 
         Returns:
             Unique identifier of the simulator job.
         """
+        # Use the API payload such that the memory map is the same as that
+        # of the remote devices.
+        circuits = [
+            aqt_to_qiskit_circuit(circuit.quantum_circuit, circuit.number_of_qubits)
+            for circuit in job.api_submit_payload.payload.circuits
+        ]
+
         self.job = SimulatorJob(
-            job=self.simulator.run(circuits, shots=shots),
-            circuits=circuits,
-            shots=shots,
+            job=self.simulator.run(circuits, shots=job.options.shots),
+            circuits=job.circuits,
+            shots=job.options.shots,
         )
         return self.job.job_id
 
+    @override
     def result(self, job_id: UUID) -> api_models.JobResponse:
         """Query results for a simulator job.
 
-        .. hint:: This is a low-level method. Use
+        .. tip:: This is a low-level method. Use
             :meth:`AQTJob.result() <qiskit_aqt_provider.aqt_job.AQTJob.result>` instead.
 
         Args:
@@ -382,7 +395,7 @@ class OfflineSimulatorResource(AQTResource):
             samples: List[List[int]] = []
 
             # Use data()["counts"] instead of get_counts() to access the raw counts
-            # instead of the classical memory-mapped ones.
+            # in hexadecimal format.
             counts: Dict[str, int] = qiskit_result.data(circuit_index)["counts"]
 
             for hex_state, occurences in counts.items():
@@ -397,7 +410,7 @@ class OfflineSimulatorResource(AQTResource):
 
         return api_models.Response.finished(
             job_id=job_id,
-            workspace_id=self.workspace_id,
-            resource_id=self.resource_id,
+            workspace_id=self.resource_id.workspace_id,
+            resource_id=self.resource_id.resource_id,
             results=results,
         )

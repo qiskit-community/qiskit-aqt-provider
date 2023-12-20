@@ -36,7 +36,7 @@ import dotenv
 import httpx
 from qiskit.providers import ProviderV1
 from tabulate import tabulate
-from typing_extensions import TypeAlias
+from typing_extensions import TypeAlias, override
 
 from qiskit_aqt_provider import api_models
 
@@ -70,40 +70,50 @@ OFFLINE_SIMULATORS: Final = [
 
 
 class BackendsTable(Sequence[AQTResource]):
-    """Pretty-printable list of AQT backends."""
+    """Pretty-printable collection of AQT backends.
+
+    The :meth:`__str__` method returns a plain text table reprensentation of the available backends.
+    The :meth:`_repr_html_` method returns an HTML representation that is automatically used
+    in IPython/Jupyter notebooks.
+    """
 
     def __init__(self, backends: List[AQTResource]):
         self.backends = backends
         self.headers = ["Workspace ID", "Resource ID", "Description", "Resource type"]
 
     @overload
-    def __getitem__(self, index: int) -> AQTResource: ...  # pragma: no cover
+    def __getitem__(self, index: int) -> AQTResource:
+        ...  # pragma: no cover
 
     @overload
-    def __getitem__(self, index: slice) -> Sequence[AQTResource]: ...  # pragma: no cover
+    def __getitem__(self, index: slice) -> Sequence[AQTResource]:
+        ...  # pragma: no cover
 
+    @override
     def __getitem__(self, index: Union[slice, int]) -> Union[AQTResource, Sequence[AQTResource]]:
         """Retrieve a backend by index."""
         return self.backends[index]
 
+    @override
     def __len__(self) -> int:
         """Number of backends."""
         return len(self.backends)
 
+    @override
     def __str__(self) -> str:
-        """Text table representation."""
+        """Plain-text table representation."""
         return tabulate(self.table(), headers=self.headers, tablefmt="fancy_grid")
 
     def _repr_html_(self) -> str:
-        """HTML representation (for IPython)."""
+        """HTML table representation (for IPython/Jupyter)."""
         return tabulate(self.table(), headers=self.headers, tablefmt="html")  # pragma: no cover
 
     def by_workspace(self) -> Dict[str, List[AQTResource]]:
-        """Aggregate backends by workspace."""
+        """Backends grouped by workspace ID."""
         data: DefaultDict[str, List[AQTResource]] = defaultdict(list)
 
         for backend in self:
-            data[backend.workspace_id].append(backend)
+            data[backend.resource_id.workspace_id].append(backend)
 
         return dict(data)
 
@@ -111,12 +121,14 @@ class BackendsTable(Sequence[AQTResource]):
         """Assemble the data for the printable table."""
         table = []
         for workspace_id, resources in self.by_workspace().items():
-            for count, resource in enumerate(sorted(resources, key=attrgetter("resource_id"))):
+            for count, resource in enumerate(
+                sorted(resources, key=attrgetter("resource_id.resource_id"))
+            ):
                 line = [
                     workspace_id,
-                    resource.resource_id,
-                    resource.resource_name,
-                    resource.resource_type,
+                    resource.resource_id.resource_id,
+                    resource.resource_id.resource_name,
+                    resource.resource_id.resource_type,
                 ]
                 if count != 0:
                     # don't repeat the workspace id
@@ -131,7 +143,7 @@ class AQTProvider(ProviderV1):
     """Provider for backends from Alpine Quantum Technologies (AQT)."""
 
     # Set AQT_PORTAL_URL environment variable to override
-    DEFAULT_PORTAL_URL: Final = "https://arnica-stage.aqt.eu"
+    DEFAULT_PORTAL_URL: Final = "https://arnica.aqt.eu"
 
     def __init__(
         self,
@@ -200,15 +212,24 @@ class AQTProvider(ProviderV1):
         With no arguments, return all backends accessible with the configured
         access token.
 
+        Filters can be either strings or regular expression patterns. Strings filter by
+        exact match.
+
         Args:
-            name: regular expression pattern for the resource ID.
-            backend_type: whether to search for simulators or hardware devices.
-            workspace: regular expression for the workspace ID.
+            name: filter for the backend name.
+            backend_type: if given, restrict the search to the given backend type.
+            workspace: filter for the workspace ID.
 
         Returns:
-            List of backends accessible with the given access token that match the
+            Collection of backends accessible with the given access token that match the
             given criteria.
         """
+        if isinstance(name, str):
+            name = re.compile(f"^{name}$")
+
+        if isinstance(workspace, str):
+            workspace = re.compile(f"^{workspace}$")
+
         remote_workspaces = api_models.Workspaces(root=[])
 
         if backend_type != "offline_simulator":
@@ -226,19 +247,22 @@ class AQTProvider(ProviderV1):
         backends: List[AQTResource] = []
 
         # add offline simulators in the default workspace
-        if (not workspace or re.match(workspace, "default", re.IGNORECASE)) and (
+        if (not workspace or workspace.match("default")) and (
             not backend_type or backend_type == "offline_simulator"
         ):
             for simulator in OFFLINE_SIMULATORS:
-                if name and not re.match(name, simulator.id, re.IGNORECASE):
+                if name and not name.match(simulator.id):
                     continue
                 backends.append(
                     OfflineSimulatorResource(
                         self,
-                        workspace_id="default",
-                        resource_id=simulator.id,
-                        resource_name=simulator.name,
-                        noisy=simulator.noisy,
+                        resource_id=api_models.ResourceId(
+                            workspace_id="default",
+                            resource_id=simulator.id,
+                            resource_name=simulator.name,
+                            resource_type="offline_simulator",
+                        ),
+                        with_noise_model=simulator.noisy,
                     )
                 )
 
@@ -248,10 +272,12 @@ class AQTProvider(ProviderV1):
                 backends.append(
                     AQTResource(
                         self,
-                        workspace_id=_workspace.id,
-                        resource_id=resource.id,
-                        resource_name=resource.name,
-                        resource_type=resource.type.value,
+                        resource_id=api_models.ResourceId(
+                            workspace_id=_workspace.id,
+                            resource_id=resource.id,
+                            resource_name=resource.name,
+                            resource_type=resource.type.value,
+                        ),
                     )
                 )
 

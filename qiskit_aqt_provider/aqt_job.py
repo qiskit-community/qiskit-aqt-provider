@@ -13,6 +13,7 @@
 import uuid
 from collections import Counter, defaultdict, namedtuple
 from dataclasses import dataclass
+from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -35,8 +36,9 @@ from qiskit.utils.lazy_tester import contextlib
 from tqdm import tqdm
 from typing_extensions import Self, TypeAlias, assert_never
 
-from qiskit_aqt_provider import api_models_generated
+from qiskit_aqt_provider import api_models_generated, persistence
 from qiskit_aqt_provider.aqt_options import AQTOptions
+from qiskit_aqt_provider.circuit_to_aqt import circuits_to_aqt_job
 
 if TYPE_CHECKING:  # pragma: no cover
     from qiskit_aqt_provider.aqt_resource import AQTResource
@@ -112,10 +114,42 @@ class _MockProgressBar:
     def __enter__(self) -> Self:
         return self
 
-    def __exit__(*args) -> None: ...
+    def __exit__(*args) -> None:
+        ...
 
 
 class AQTJob(JobV1):
+    """Handle for quantum circuits jobs running on AQT backends.
+
+    Jobs contain one or more quantum circuits that are executed with a common
+    set of options (see :class:`AQTOptions <qiskit_aqt_provider.aqt_options.AQTOptions>`).
+
+    Job handles should be retrieved from calls to
+    :func:`qiskit.execute <qiskit.execute_function.execute>`
+    or :meth:`AQTResource.run <qiskit_aqt_provider.aqt_resource.AQTResource.run>`, both of which
+    immediately submit the job for execution. The :meth:`result` method allows blocking until a job
+    completes:
+
+    >>> import qiskit
+    >>> from qiskit.providers import JobStatus
+    >>> from qiskit_aqt_provider import AQTProvider
+    ...
+    >>> backend = AQTProvider("").get_backend("offline_simulator_no_noise")
+    ...
+    >>> qc = qiskit.QuantumCircuit(1)
+    >>> _ = qc.rx(3.14, 0)
+    >>> _ = qc.measure_all()
+    ...
+    >>> job = qiskit.execute(qc, backend, shots=100)
+    >>> result = job.result()
+    >>> job.status() is JobStatus.DONE
+    True
+    >>> result.success
+    True
+    >>> result.get_counts()
+    {'1': 100}
+    """
+
     _backend: "AQTResource"
 
     def __init__(
@@ -124,7 +158,11 @@ class AQTJob(JobV1):
         circuits: List[QuantumCircuit],
         options: AQTOptions,
     ):
-        """Initialize a job instance.
+        """Initialize an :class:`AQTJob` instance.
+
+        .. tip:: :class:`AQTJob` instances should not be created directly. Use
+          :meth:`AQTResource.run <qiskit_aqt_provider.aqt_resource.AQTResource.run>`
+          to submit circuits for execution and retrieve a job handle.
 
         Args:
             backend: backend to run the job on.
@@ -135,10 +173,104 @@ class AQTJob(JobV1):
 
         self.circuits = circuits
         self.options = options
+        self.api_submit_payload = circuits_to_aqt_job(circuits, options.shots)
+
         self.status_payload: JobStatusPayload = JobQueued()
+
+    @classmethod
+    def restore(
+        cls,
+        job_id: str,
+        *,
+        access_token: Optional[str] = None,
+        store_path: Optional[Path] = None,
+        remove_from_store: bool = True,
+    ) -> Self:
+        """Restore a job handle from local persistent storage.
+
+        .. warning:: The default local storage path depends on the `qiskit_aqt_provider`
+            package version. Job persisted with a different package version will therefore
+            **not** be found!
+
+        .. hint:: If the job's execution backend is an offline simulator, the
+            job is re-submitted to the simulation backend and the new job ID differs
+            from the one passed to this function.
+
+        Args:
+            job_id: identifier of the job to retrieve.
+            access_token: access token for the AQT cloud.
+              See :class:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider>`.
+            store_path: local persistent storage directory.
+              By default, use a standard cache directory.
+            remove_from_store: if :data:`True`, remove the retrieved job's data from persistent
+              storage after a successful load.
+
+        Returns:
+            A job handle for the passed `job_id`.
+
+        Raises:
+            JobNotFoundError: the target job was not found in persistent storage.
+        """
+        from qiskit_aqt_provider.aqt_provider import AQTProvider
+        from qiskit_aqt_provider.aqt_resource import AQTResource, OfflineSimulatorResource
+
+        store_path = persistence.get_store_path(store_path)
+        data = persistence.Job.restore(job_id, store_path)
+
+        # TODO: forward .env loading args?
+        provider = AQTProvider(access_token)
+        if data.resource.resource_type == "offline_simulator":
+            # FIXME: persist with_noise_model and restore it
+            resource = OfflineSimulatorResource(provider, data.resource, with_noise_model=False)
+        else:
+            resource = AQTResource(provider, data.resource)
+
+        obj = cls(backend=resource, circuits=data.circuits.circuits, options=data.options)
+
+        if data.resource.resource_type == "offline_simulator":
+            # re-submit the job because we can't restore the backend state
+            obj.submit()
+        else:
+            obj._job_id = job_id
+
+        if remove_from_store:
+            persistence.Job.remove_from_store(job_id, store_path)
+
+        return obj
+
+    def persist(self, *, store_path: Optional[Path] = None) -> Path:
+        """Save this job to local persistent storage.
+
+        .. warning:: Only jobs that have been submitted for execution
+          can be persisted (a valid `job_id` is required).
+
+        Args:
+            store_path: local persistent storage directory.
+              By default, use a standard cache directory.
+
+        Returns:
+            The path to the job data in local persistent storage.
+
+        Raises:
+            RuntimeError: the job was never submitted for execution.
+        """
+        if not self.job_id():
+            raise RuntimeError("Can only persist submitted jobs.")
+
+        store_path = persistence.get_store_path(store_path)
+        data = persistence.Job(
+            resource=self._backend.resource_id,
+            circuits=persistence.Circuits(self.circuits),
+            options=self.options,
+        )
+
+        return data.persist(self.job_id(), store_path)
 
     def submit(self) -> None:
         """Submit this job for execution.
+
+        This operation is not blocking. Use :meth:`result()` to block until
+        the job completes.
 
         Raises:
             RuntimeError: this job was already submitted.
@@ -146,7 +278,7 @@ class AQTJob(JobV1):
         if self.job_id():
             raise RuntimeError(f"Job already submitted (ID: {self.job_id()})")
 
-        job_id = self._backend.submit(self.circuits, self.options.shots)
+        job_id = self._backend.submit(self)
         self._job_id = str(job_id)
 
     def status(self) -> JobStatus:
@@ -346,31 +478,12 @@ def _build_memory_mapping(circuit: QuantumCircuit) -> Dict[int, Set[int]]:
         >>> _build_memory_mapping(qc)
         {0: {0, 2}, 1: {1}}
     """
-    field = namedtuple("field", "offset,size")
-
-    # quantum memory map
-    qregs = {}
-    offset = 0
-    for qreg in circuit.qregs:
-        qregs[qreg] = field(offset, qreg.size)
-        offset += qreg.size
-
-    # classical memory map
-    clregs = {}
-    offset = 0
-    for creg in circuit.cregs:
-        clregs[creg] = field(offset, creg.size)
-        offset += creg.size
-
     qu2cl: DefaultDict[int, Set[int]] = defaultdict(set)
 
     for instruction in circuit.data:
-        operation = instruction.operation
-        if operation.name == "measure":
+        if instruction.operation.name == "measure":
             for qubit, clbit in zip(instruction.qubits, instruction.clbits):
-                qubit_index = qregs[qubit.register].offset + qubit.index
-                clbit_index = clregs[clbit.register].offset + clbit.index
-                qu2cl[qubit_index].add(clbit_index)
+                qu2cl[circuit.find_bit(qubit).index].add(circuit.find_bit(clbit).index)
 
     return dict(qu2cl)
 

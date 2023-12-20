@@ -2,9 +2,11 @@
 
 [![Latest release](https://img.shields.io/pypi/v/qiskit-aqt-provider.svg)](https://pypi.python.org/pypi/qiskit-aqt-provider)
 [![License](https://img.shields.io/pypi/l/qiskit-aqt-provider.svg)](https://pypi.python.org/pypi/qiskit-aqt-provider)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.10069281.svg)](https://doi.org/10.5281/zenodo.10069281)
+
 [![Supported Python versions](https://img.shields.io/pypi/pyversions/qiskit-aqt-provider.svg)](https://pypi.python.org/pypi/qiskit-aqt-provider)
-![Build Status](https://github.com/alpine-quantum-technologies/qiskit-aqt-provider/actions/workflows/poetry.yml/badge.svg?branch=master)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+![Build Status](https://github.com/qiskit-community/qiskit-aqt-provider/actions/workflows/poetry.yml/badge.svg?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/qiskit-community/qiskit-aqt-provider/badge.svg?branch=master)](https://coveralls.io/github/qiskit-community/qiskit-aqt-provider?branch=master)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v1.json)](https://github.com/charliermarsh/ruff)
 [![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 
@@ -15,4 +17,4 @@ systems.
 
 ## Usage
 
-See the [user guide](https://github.com/qiskit-community/qiskit-aqt-provider/blob/master/docs/guide.rst) and the [examples](https://github.com/qiskit-community/qiskit-aqt-provider/tree/master/examples).
+See the [documentation](https://qiskit-community.github.io/qiskit-aqt-provider/) and the [examples](https://github.com/qiskit-community/qiskit-aqt-provider/tree/master/examples).

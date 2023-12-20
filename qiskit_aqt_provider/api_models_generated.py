@@ -79,7 +79,9 @@ class JobUser(BaseModel):
     """
     Id that uniquely identifies the job. This is used to request results.
     """
-    job_type: Annotated[Literal["quantum_circuit"], Field(title="Job Type")] = "quantum_circuit"
+    job_type: Annotated[
+        Literal["quantum_circuit"], Field(title="Job Type")
+    ] = "quantum_circuit"
     label: Annotated[Optional[str], Field(title="Label")] = None
     resource_id: Annotated[str, Field(title="Resource Id")] = ""
     workspace_id: Annotated[str, Field(title="Workspace Id")] = ""
@@ -184,7 +186,9 @@ class UnknownJob(BaseModel):
         frozen=True,
     )
     job_id: Annotated[UUID, Field(title="Job Id")]
-    message: Annotated[Literal["unknown job_id"], Field(title="Message")] = "unknown job_id"
+    message: Annotated[
+        Literal["unknown job_id"], Field(title="Message")
+    ] = "unknown job_id"
 
 
 class ValidationError(BaseModel):
@@ -349,60 +353,92 @@ class ResultResponse(
             UnknownJob,
         ],
         Field(
-            json_schema_extra={
-                "examples": {
-                    "cancelled": {
-                        "description": (
-                            "Job that has been cancelled by the user, before it could be processed"
-                            " by the Quantum computer"
-                        ),
-                        "summary": "Cancelled Job",
-                        "value": {
-                            "job": {
-                                "job_id": "ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450",
-                                "job_type": "quantum_circuit",
-                                "label": "Example computation",
-                                "resource_id": "",
-                                "workspace_id": "",
-                            },
-                            "response": {"status": "cancelled"},
+            examples={
+                "cancelled": {
+                    "description": (
+                        "Job that has been cancelled by the user, before it could be"
+                        " processed by the Quantum computer"
+                    ),
+                    "summary": "Cancelled Job",
+                    "value": {
+                        "job": {
+                            "job_id": "ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450",
+                            "job_type": "quantum_circuit",
+                            "label": "Example computation",
+                            "resource_id": "",
+                            "workspace_id": "",
+                        },
+                        "response": {"status": "cancelled"},
+                    },
+                },
+                "error": {
+                    "description": (
+                        "Job that created an error while being processed by the Quantum"
+                        " computer"
+                    ),
+                    "summary": "Failed Job",
+                    "value": {
+                        "job": {
+                            "job_id": "ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450",
+                            "job_type": "quantum_circuit",
+                            "label": "Example computation",
+                            "resource_id": "",
+                            "workspace_id": "",
+                        },
+                        "response": {
+                            "message": "detailed error message",
+                            "status": "error",
                         },
                     },
-                    "error": {
-                        "description": (
-                            "Job that created an error while being processed by the Quantum"
-                            " computer"
-                        ),
-                        "summary": "Failed Job",
-                        "value": {
-                            "job": {
-                                "job_id": "ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450",
-                                "job_type": "quantum_circuit",
-                                "label": "Example computation",
-                                "resource_id": "",
-                                "workspace_id": "",
-                            },
-                            "response": {"message": "detailed error message", "status": "error"},
+                },
+                "finished": {
+                    "description": (
+                        "Job that has been successfully processed by a quantum computer"
+                        " or simulator"
+                    ),
+                    "summary": "Finished Job",
+                    "value": {
+                        "job": {
+                            "job_id": "ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450",
+                            "job_type": "quantum_circuit",
+                            "label": "Example computation",
+                            "resource_id": "",
+                            "workspace_id": "",
+                        },
+                        "response": {
+                            "result": {0: [[1, 0], [1, 1], [0, 0], [1, 1], [1, 1]]},
+                            "status": "finished",
                         },
                     },
-                    "finished": {
-                        "description": (
-                            "Job that has been successfully processed by a quantum computer or"
-                            " simulator"
-                        ),
-                        "summary": "Finished Job",
-                        "value": {
-                            "job": {
-                                "job_id": "ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450",
-                                "job_type": "quantum_circuit",
-                                "label": "Example computation",
-                                "resource_id": "",
-                                "workspace_id": "",
-                            },
-                            "response": {
-                                "result": {0: [[1, 0], [1, 1], [0, 0], [1, 1], [1, 1]]},
-                                "status": "finished",
-                            },
+                },
+                "ongoing": {
+                    "description": (
+                        "Job that is currently being processed by the Quantum computer"
+                    ),
+                    "summary": "Ongoing Job",
+                    "value": {
+                        "job": {
+                            "job_id": "ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450",
+                            "job_type": "quantum_circuit",
+                            "label": "Example computation",
+                            "resource_id": "",
+                            "workspace_id": "",
+                        },
+                    },
+                },
+                "queued": {
+                    "description": (
+                        "Job waiting in the queue to be picked up by the Quantum"
+                        " computer"
+                    ),
+                    "summary": "Queued Job",
+                    "value": {
+                        "job": {
+                            "job_id": "ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450",
+                            "job_type": "quantum_circuit",
+                            "label": "Example computation",
+                            "resource_id": "",
+                            "workspace_id": "",
                         },
                     },
                     "ongoing": {

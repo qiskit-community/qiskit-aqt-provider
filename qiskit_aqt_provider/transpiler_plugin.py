@@ -33,7 +33,7 @@ from qiskit_aqt_provider.utils import map_exceptions
 
 
 class UnboundParametersTarget(Target):
-    """Target that disables passes that require bound parameters."""
+    """Marker class for transpilation targets to disable passes that require bound parameters."""
 
 
 def bound_pass_manager(target: Target) -> PassManager:
@@ -79,6 +79,12 @@ class RewriteRxAsR(TransformationPass):
 
 
 class AQTSchedulingPlugin(PassManagerStagePlugin):
+    """Scheduling stage plugin for the :mod:`qiskit.transpiler`.
+
+    If the transpilation target is not :class:`UnboundParametersTarget`,
+    register a :class:`RewriteRxAsR` pass irrespective of the optimization level.
+    """
+
     def pass_manager(
         self,
         pass_manager_config: PassManagerConfig,
@@ -161,7 +167,7 @@ def wrap_rxx_angle(theta: float) -> Instruction:
 
 
 class WrapRxxAngles(TransformationPass):
-    """Wrap Rxx angles to [-π/2, π/2]."""
+    """Wrap Rxx angles to [0, π/2]."""
 
     SUBSTITUTE_GATE_NAME: Final = "Rxx"
 
@@ -181,6 +187,13 @@ class WrapRxxAngles(TransformationPass):
 
 
 class AQTTranslationPlugin(PassManagerStagePlugin):
+    """Translation stage plugin for the :mod:`qiskit.transpiler`.
+
+    If the transpilation target is not :class:`UnboundParametersTarget`,
+    register a :class:`WrapRxxAngles` pass after the preset pass irrespective
+    of the optimization level.
+    """
+
     def pass_manager(
         self,
         pass_manager_config: PassManagerConfig,
