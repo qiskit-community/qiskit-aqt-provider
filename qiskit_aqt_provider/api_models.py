@@ -200,7 +200,11 @@ class Response:
         """Queued job."""
         return api_models.JobResponseRRQueued(
             job=api_models.JobUser(
-                job_type="quantum_circuit", job_id=job_id, label="qiskit", resource_id=resource_id, workspace_id=workspace_id
+                job_type="quantum_circuit",
+                job_id=job_id,
+                label="qiskit",
+                resource_id=resource_id,
+                workspace_id=workspace_id,
             ),
             response=api_models.RRQueued(status="queued"),
         )
@@ -212,7 +216,11 @@ class Response:
         """Ongoing job."""
         return api_models.JobResponseRROngoing(
             job=api_models.JobUser(
-                job_type="quantum_circuit", job_id=job_id, label="qiskit", resource_id=resource_id, workspace_id=workspace_id
+                job_type="quantum_circuit",
+                job_id=job_id,
+                label="qiskit",
+                resource_id=resource_id,
+                workspace_id=workspace_id,
             ),
             response=api_models.RROngoing(status="ongoing", finished_count=finished_count),
         )
@@ -246,7 +254,11 @@ class Response:
         """Failed job."""
         return api_models.JobResponseRRError(
             job=api_models.JobUser(
-                job_type="quantum_circuit",job_id=job_id, label="qiskit", resource_id=resource_id, workspace_id=workspace_id
+                job_type="quantum_circuit",
+                job_id=job_id,
+                label="qiskit",
+                resource_id=resource_id,
+                workspace_id=workspace_id,
             ),
             response=api_models.RRError(status="error", message=message),
         )
@@ -257,7 +269,10 @@ class Response:
         return api_models.JobResponseRRCancelled(
             job=api_models.JobUser(
                 job_type="quantum_circuit",
-                job_id=job_id, label="qiskit", resource_id=resource_id, workspace_id=workspace_id
+                job_id=job_id,
+                label="qiskit",
+                resource_id=resource_id,
+                workspace_id=workspace_id,
             ),
             response=api_models.RRCancelled(status="cancelled"),
         )

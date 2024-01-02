@@ -105,7 +105,7 @@ class Job(pdt.BaseModel):
             JobNotFoundError: no job with the given identifier is stored in the local storage.
         """
         data = cls.filepath(job_id, store_path).read_text("utf-8")
-        return cls.parse_raw(data)
+        return cls.model_validate_json(data)
 
     def persist(self, job_id: str, store_path: Path) -> Path:
         """Persist the job data to the local storage.
@@ -118,7 +118,7 @@ class Job(pdt.BaseModel):
             The path of the persisted data file.
         """
         filepath = self.filepath(job_id, store_path)
-        filepath.write_text(self.json(), "utf-8")
+        filepath.write_text(self.model_dump_json(), "utf-8")
         return filepath
 
     @classmethod

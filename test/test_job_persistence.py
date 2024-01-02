@@ -121,7 +121,7 @@ def test_job_persistence_transaction_online_backend(httpx_mock: HTTPXMock, tmp_p
         assert request.headers["authorization"] == f"Bearer {token}"
 
         _, workspace_id, resource_id = request.url.path.rsplit("/", maxsplit=2)
-        data = api_models.JobSubmission.parse_raw(request.content.decode("utf-8"))
+        data = api_models.JobSubmission.model_validate_json(request.content.decode("utf-8"))
         circuits = data.payload.circuits
         job_id = uuid.uuid4()
 
@@ -138,7 +138,7 @@ def test_job_persistence_transaction_online_backend(httpx_mock: HTTPXMock, tmp_p
             json=json.loads(
                 api_models.Response.queued(
                     job_id=job_id, resource_id=resource_id, workspace_id=workspace_id
-                ).json()
+                ).model_dump_json()
             ),
         )
 
@@ -162,7 +162,7 @@ def test_job_persistence_transaction_online_backend(httpx_mock: HTTPXMock, tmp_p
                     workspace_id=job.workspace_id,
                     resource_id=job.resource_id,
                     message=job.error_msg,
-                ).json()
+                ).model_dump_json()
             ),
         )
 

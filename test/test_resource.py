@@ -268,7 +268,7 @@ def test_submit_payload_matches(httpx_mock: HTTPXMock) -> None:
             f"submit/{backend.resource_id.workspace_id}/{backend.resource_id.resource_id}"
         )
 
-        data = api_models.JobSubmission.parse_raw(request.content.decode("utf-8"))
+        data = api_models.JobSubmission.model_validate_json(request.content.decode("utf-8"))
         assert data == expected_job_payload
 
         return httpx.Response(
@@ -278,7 +278,7 @@ def test_submit_payload_matches(httpx_mock: HTTPXMock) -> None:
                     job_id=expected_job_id,
                     resource_id=backend.resource_id.resource_id,
                     workspace_id=backend.resource_id.workspace_id,
-                ).json()
+                ).model_dump_json()
             ),
         )
 

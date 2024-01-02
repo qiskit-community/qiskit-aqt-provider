@@ -186,7 +186,7 @@ def test_remote_workspaces_filtering_prefix_collision(httpx_mock: HTTPXMock) -> 
 
     httpx_mock.add_response(
         url=re.compile(".+/workspaces$"),
-        json=json.loads(api_models.Workspaces(root=remote_workspaces).json()),
+        json=json.loads(api_models.Workspaces(root=remote_workspaces).model_dump_json()),
     )
 
     provider = AQTProvider("my-token")
