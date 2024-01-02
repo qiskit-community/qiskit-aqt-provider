@@ -18,7 +18,6 @@ from typing import Any, Callable, ClassVar, Iterator, List, Optional, Union
 
 import platformdirs
 import pydantic as pdt
-from pydantic.validators import strict_str_validator
 from qiskit import qpy
 from qiskit.circuit import QuantumCircuit
 from typing_extensions import Self
@@ -57,7 +56,8 @@ class Circuits:
         if isinstance(value, Circuits):  # self bypass
             return typing.cast(Self, value)
 
-        value = strict_str_validator(value)
+        if not isinstance(value, str):
+            raise ValueError(f"Expected string, received {type(value)}")
 
         data = base64.b64decode(value.encode("ascii"))
         buf = io.BytesIO(data)
