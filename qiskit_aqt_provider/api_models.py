@@ -150,7 +150,7 @@ class Operation:
             root=api_models.GateRXX(
                 operation="RXX",
                 theta=theta,
-                qubits={api_models.Qubit(root=qubit) for qubit in qubits},
+                qubits=[api_models.Qubit(root=qubit) for qubit in qubits],
             )
         )
 
@@ -200,9 +200,9 @@ class Response:
         """Queued job."""
         return api_models.JobResponseRRQueued(
             job=api_models.JobUser(
-                job_id=job_id, label="qiskit", resource_id=resource_id, workspace_id=workspace_id
+                job_type="quantum_circuit", job_id=job_id, label="qiskit", resource_id=resource_id, workspace_id=workspace_id
             ),
-            response=api_models.RRQueued(),
+            response=api_models.RRQueued(status="queued"),
         )
 
     @staticmethod
@@ -212,9 +212,9 @@ class Response:
         """Ongoing job."""
         return api_models.JobResponseRROngoing(
             job=api_models.JobUser(
-                job_id=job_id, label="qiskit", resource_id=resource_id, workspace_id=workspace_id
+                job_type="quantum_circuit", job_id=job_id, label="qiskit", resource_id=resource_id, workspace_id=workspace_id
             ),
-            response=api_models.RROngoing(finished_count=finished_count),
+            response=api_models.RROngoing(status="ongoing", finished_count=finished_count),
         )
 
     @staticmethod
@@ -224,12 +224,14 @@ class Response:
         """Completed job with the given results."""
         return api_models.JobResponseRRFinished(
             job=api_models.JobUser(
+                job_type="quantum_circuit",
                 job_id=job_id,
                 label="qiskit",
                 resource_id=resource_id,
                 workspace_id=workspace_id,
             ),
             response=api_models.RRFinished(
+                status="finished",
                 result={
                     circuit_index: [
                         [api_models.ResultItem(root=state) for state in shot] for shot in samples
@@ -244,9 +246,9 @@ class Response:
         """Failed job."""
         return api_models.JobResponseRRError(
             job=api_models.JobUser(
-                job_id=job_id, label="qiskit", resource_id=resource_id, workspace_id=workspace_id
+                job_type="quantum_circuit",job_id=job_id, label="qiskit", resource_id=resource_id, workspace_id=workspace_id
             ),
-            response=api_models.RRError(message=message),
+            response=api_models.RRError(status="error", message=message),
         )
 
     @staticmethod
@@ -254,12 +256,13 @@ class Response:
         """Cancelled job."""
         return api_models.JobResponseRRCancelled(
             job=api_models.JobUser(
+                job_type="quantum_circuit",
                 job_id=job_id, label="qiskit", resource_id=resource_id, workspace_id=workspace_id
             ),
-            response=api_models.RRCancelled(),
+            response=api_models.RRCancelled(status="cancelled"),
         )
 
     @staticmethod
     def unknown_job(*, job_id: UUID) -> api_models.UnknownJob:
         """Unknown job."""
-        return api_models.UnknownJob(job_id=job_id)
+        return api_models.UnknownJob(job_id=job_id, message="unknown job_id")

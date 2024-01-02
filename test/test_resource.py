@@ -382,7 +382,9 @@ def test_offline_simulator_propagate_shots_option(
     assert default_shots == AQTOptions().shots
 
     # TODO: use annotated-types to get unified access to upper bound
-    shots = min(default_shots + 40, AQTOptions.__fields__["shots"].field_info.le)
+    # FIXME [pydantic2]
+    # shots = min(default_shots + 40, AQTOptions.__fields__["shots"].field_info.le)  # noqa: ERA001
+    shots = min(default_shots + 40, 200)
     assert shots != default_shots
 
     # configure shots in AQTResource.run
@@ -401,7 +403,9 @@ def test_offline_simulator_propagate_shots_option(
     assert shots_options == shots
 
     # qiskit.execute overrides resource options
-    shots_override = min(shots + 40, AQTOptions.__fields__["shots"].field_info.le)
+    # FIXME [pydantic2]
+    # shots_override = min(shots + 40, AQTOptions.__fields__["shots"].field_info.le)  # noqa: ERA001
+    shots_override = min(shots + 40, 200)
     assert shots_override != shots
     assert shots_override != default_shots
     assert offline_simulator_no_noise.options.shots != shots_override
