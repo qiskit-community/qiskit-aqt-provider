@@ -4,10 +4,10 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Dict, List, Literal, Optional, Set, Union
+from typing import Dict, List, Literal, Optional, Union
 from uuid import UUID
 
-from pydantic import BaseModel, RootModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, RootModel
 from typing_extensions import Annotated
 
 
@@ -29,7 +29,7 @@ class GateR(BaseModel):
     theta: Annotated[float, Field(ge=0.0, le=1.0, title="Theta")]
 
 
-class Qubit(BaseModel):
+class Qubit(RootModel[int]):
     model_config = ConfigDict(
         frozen=True,
     )
@@ -49,7 +49,7 @@ class GateRXX(BaseModel):
         frozen=True,
     )
     operation: Annotated[Literal["RXX"], Field(title="Operation")]
-    qubits: Annotated[Set[Qubit], Field(max_length=2, min_length=2, title="Qubits")]
+    qubits: Annotated[List[Qubit], Field(max_length=2, min_length=2, title="Qubits")]
     theta: Annotated[float, Field(ge=0.0, le=0.5, title="Theta")]
 
 
@@ -80,11 +80,11 @@ class JobUser(BaseModel):
     Id that uniquely identifies the job. This is used to request results.
     """
     job_type: Annotated[
-        Literal["quantum_circuit"], Field(title="Job Type")
-    ] = "quantum_circuit"
-    label: Annotated[Optional[str], Field(title="Label")] = None
-    resource_id: Annotated[str, Field(title="Resource Id")] = ""
-    workspace_id: Annotated[str, Field(title="Workspace Id")] = ""
+        Literal["quantum_circuit"], Field("quantum_circuit", title="Job Type")
+    ]
+    label: Annotated[Optional[str], Field(None, title="Label")]
+    resource_id: Annotated[str, Field("", title="Resource Id")]
+    workspace_id: Annotated[str, Field("", title="Workspace Id")]
 
 
 class Measure(BaseModel):
@@ -122,7 +122,7 @@ class RRCancelled(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    status: Annotated[Literal["cancelled"], Field(title="Status")] = "cancelled"
+    status: Annotated[Literal["cancelled"], Field("cancelled", title="Status")]
 
 
 class RRError(BaseModel):
@@ -130,7 +130,7 @@ class RRError(BaseModel):
         frozen=True,
     )
     message: Annotated[str, Field(title="Message")]
-    status: Annotated[Literal["error"], Field(title="Status")] = "error"
+    status: Annotated[Literal["error"], Field("error", title="Status")]
 
 
 class ResultItem(RootModel[int]):
@@ -149,7 +149,7 @@ class RRFinished(BaseModel):
         frozen=True,
     )
     result: Annotated[Dict[str, List[List[ResultItem]]], Field(title="Result")]
-    status: Annotated[Literal["finished"], Field(title="Status")] = "finished"
+    status: Annotated[Literal["finished"], Field("finished", title="Status")]
 
 
 class RROngoing(BaseModel):
@@ -157,14 +157,14 @@ class RROngoing(BaseModel):
         frozen=True,
     )
     finished_count: Annotated[int, Field(ge=0, title="Finished Count")]
-    status: Annotated[Literal["ongoing"], Field(title="Status")] = "ongoing"
+    status: Annotated[Literal["ongoing"], Field("ongoing", title="Status")]
 
 
 class RRQueued(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    status: Annotated[Literal["queued"], Field(title="Status")] = "queued"
+    status: Annotated[Literal["queued"], Field("queued", title="Status")]
 
 
 class Type(Enum):
@@ -187,8 +187,8 @@ class UnknownJob(BaseModel):
     )
     job_id: Annotated[UUID, Field(title="Job Id")]
     message: Annotated[
-        Literal["unknown job_id"], Field(title="Message")
-    ] = "unknown job_id"
+        Literal["unknown job_id"], Field("unknown job_id", title="Message")
+    ]
 
 
 class ValidationError(BaseModel):
@@ -219,14 +219,14 @@ class Circuit(RootModel[List[OperationModel]]):
     root: Annotated[
         List[OperationModel],
         Field(
-            json_schema_extra={
-                "example": [
+            examples=[
+                [
                     {"operation": "RZ", "phi": 0.5, "qubit": 0},
                     {"operation": "R", "phi": 0.25, "qubit": 1, "theta": 0.5},
                     {"operation": "RXX", "qubits": [0, 1], "theta": 0.5},
                     {"operation": "MEASURE"},
                 ]
-            },
+            ],
             max_length=10000,
             min_length=1,
             title="Circuit",
@@ -241,7 +241,7 @@ class HTTPValidationError(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    detail: Annotated[Optional[List[ValidationError]], Field(title="Detail")] = None
+    detail: Annotated[Optional[List[ValidationError]], Field(None, title="Detail")]
 
 
 class JobResponseRRCancelled(BaseModel):
@@ -424,6 +424,7 @@ class ResultResponse(
                             "resource_id": "",
                             "workspace_id": "",
                         },
+                        "response": {"finished_count": 0, "status": "ongoing"},
                     },
                 },
                 "queued": {
@@ -440,48 +441,17 @@ class ResultResponse(
                             "resource_id": "",
                             "workspace_id": "",
                         },
+                        "response": {"status": "queued"},
                     },
-                    "ongoing": {
-                        "description": (
-                            "Job that is currently being processed by the Quantum computer"
-                        ),
-                        "summary": "Ongoing Job",
-                        "value": {
-                            "job": {
-                                "job_id": "ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450",
-                                "job_type": "quantum_circuit",
-                                "label": "Example computation",
-                                "resource_id": "",
-                                "workspace_id": "",
-                            },
-                            "response": {"finished_count": 0, "status": "ongoing"},
-                        },
+                },
+                "unknown": {
+                    "description": "The supplied job id could not be found",
+                    "summary": "Unknown Job",
+                    "value": {
+                        "job_id": "3aa8b827-4ff0-4a36-b1a6-f9ff6dee59ce",
+                        "message": "unknown job_id",
                     },
-                    "queued": {
-                        "description": (
-                            "Job waiting in the queue to be picked up by the Quantum computer"
-                        ),
-                        "summary": "Queued Job",
-                        "value": {
-                            "job": {
-                                "job_id": "ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450",
-                                "job_type": "quantum_circuit",
-                                "label": "Example computation",
-                                "resource_id": "",
-                                "workspace_id": "",
-                            },
-                            "response": {"status": "queued"},
-                        },
-                    },
-                    "unknown": {
-                        "description": "The supplied job id could not be found",
-                        "summary": "Unknown Job",
-                        "value": {
-                            "job_id": "3aa8b827-4ff0-4a36-b1a6-f9ff6dee59ce",
-                            "message": "unknown job_id",
-                        },
-                    },
-                }
+                },
             },
             title="ResultResponse",
         ),
@@ -496,6 +466,8 @@ class JobSubmission(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    job_type: Annotated[Literal["quantum_circuit"], Field(title="Job Type")] = "quantum_circuit"
-    label: Annotated[Optional[str], Field(title="Label")] = None
+    job_type: Annotated[
+        Literal["quantum_circuit"], Field("quantum_circuit", title="Job Type")
+    ]
+    label: Annotated[Optional[str], Field(None, title="Label")]
     payload: QuantumCircuits

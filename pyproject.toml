@@ -65,7 +65,7 @@ rustworkx = { version = "=0.13.1" }
 [tool.poetry.group.dev.dependencies]
 autodoc-pydantic = "<2.0.0"
 coverage = "^7.2.1"
-datamodel-code-generator = "^0.21.2"
+datamodel-code-generator = "^0.25.2"
 hypothesis = "^6.82.0"
 interrogate = "^1.5.0"
 ipykernel = "^6.22.0"
