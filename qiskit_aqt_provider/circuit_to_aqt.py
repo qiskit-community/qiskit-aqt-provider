@@ -94,23 +94,23 @@ def aqt_to_qiskit_circuit(circuit: api_models.Circuit, number_of_qubits: int) ->
     """
     qiskit_circuit = QuantumCircuit(number_of_qubits)
 
-    for operation in circuit.__root__:
-        if isinstance(operation.__root__, api_models_generated.GateRZ):
-            qiskit_circuit.rz(operation.__root__.phi * pi, operation.__root__.qubit)
-        elif isinstance(operation.__root__, api_models_generated.GateR):
+    for operation in circuit.root:
+        if isinstance(operation.root, api_models_generated.GateRZ):
+            qiskit_circuit.rz(operation.root.phi * pi, operation.root.qubit)
+        elif isinstance(operation.root, api_models_generated.GateR):
             qiskit_circuit.r(
-                operation.__root__.theta * pi,
-                operation.__root__.phi * pi,
-                operation.__root__.qubit,
+                operation.root.theta * pi,
+                operation.root.phi * pi,
+                operation.root.qubit,
             )
-        elif isinstance(operation.__root__, api_models_generated.GateRXX):
+        elif isinstance(operation.root, api_models_generated.GateRXX):
             qiskit_circuit.rxx(
-                operation.__root__.theta * pi, *[mod.__root__ for mod in operation.__root__.qubits]
+                operation.root.theta * pi, *[mod.root for mod in operation.root.qubits]
             )
-        elif isinstance(operation.__root__, api_models_generated.Measure):
+        elif isinstance(operation.root, api_models_generated.Measure):
             qiskit_circuit.measure_all()
         else:
-            assert_never(operation.__root__)  # pragma: no cover
+            assert_never(operation.root)  # pragma: no cover
 
     return qiskit_circuit
 
