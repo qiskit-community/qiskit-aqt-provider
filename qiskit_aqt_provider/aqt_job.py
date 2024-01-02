@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 import uuid
-from collections import Counter, defaultdict, namedtuple
+from collections import Counter, defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 from typing import (
