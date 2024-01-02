@@ -14,10 +14,12 @@ import base64
 import io
 import typing
 from pathlib import Path
-from typing import Any, Callable, ClassVar, Iterator, List, Optional, Union
+from typing import Any, ClassVar, List, Optional, Union
 
 import platformdirs
 import pydantic as pdt
+from pydantic import GetCoreSchemaHandler
+from pydantic_core import CoreSchema, core_schema
 from qiskit import qpy
 from qiskit.circuit import QuantumCircuit
 from typing_extensions import Self
@@ -43,8 +45,11 @@ class Circuits:
         self.circuits = circuits
 
     @classmethod
-    def __get_validators__(cls) -> Iterator[Callable[[Any], Any]]:  # noqa: D105
-        yield cls.validate
+    def __get_pydantic_core_schema__(
+        cls, source_type: Any, handler: GetCoreSchemaHandler
+    ) -> CoreSchema:
+        """Setup custom validator, to turn this class into a pydantic model."""
+        return core_schema.no_info_plain_validator_function(function=cls.validate)
 
     @classmethod
     def validate(cls, value: Union[Self, str]) -> Self:
