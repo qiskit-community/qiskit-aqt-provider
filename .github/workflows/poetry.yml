@@ -1,9 +1,11 @@
 name: Tests
 on:
   push:
-    branches: [ master, 'stable/*' ]
+    branches:
+      - master
   pull_request:
-    branches: [ master, 'stable/*' ]
+  # Run on manual triggers
+  workflow_dispatch:
 jobs:
   tests:
     name: tests-python${{ matrix.python-version }}-${{ matrix.os }}
