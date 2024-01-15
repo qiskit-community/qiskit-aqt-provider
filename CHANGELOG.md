@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* Update to pydantic 2 (#66)
+
 ## qiskit-aqt-provider v1.0.0
 
 * Set minimal required `qiskit` version to 0.45.0 (#108)
