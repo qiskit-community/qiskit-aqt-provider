@@ -50,6 +50,7 @@ components:
       - qubit
       - phi
       - theta
+      - operation
       title: GateR
       type: object
     GateRXX:
@@ -78,6 +79,7 @@ components:
       required:
       - qubits
       - theta
+      - operation
       title: GateRXX
       type: object
     GateRZ:
@@ -99,6 +101,7 @@ components:
       required:
       - qubit
       - phi
+      - operation
       title: GateRZ
       type: object
     HTTPValidationError:
