@@ -57,10 +57,6 @@ tabulate = ">=0.9.0"
 tqdm = ">=4"
 tweedledum = { version = ">=1", optional = true }
 typing-extensions = ">=4.0.0"
-# rustworkx version 0.13.2 seems to be released but it is not installable
-# This is a transitive dependency of qiskit. It can be removed once
-# the installation problem is resolved upstream.
-rustworkx = { version = "=0.13.1" }
 
 [tool.poetry.group.dev.dependencies]
 autodoc-pydantic = "^2.0.1"
