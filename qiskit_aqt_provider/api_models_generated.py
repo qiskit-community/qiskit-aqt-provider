@@ -13,8 +13,9 @@ from typing_extensions import Annotated
 
 class GateR(BaseModel):
     """
-    A single-qubit rotation of angle θ around axis φ in the equatorial plane
-    of the Bloch sphere.
+    A single-qubit rotation.
+
+    Describes a rotation of angle θ around axis φ in the equatorial plane of the Bloch sphere.
 
     Angles are expressed in units of π.
     """
@@ -23,7 +24,7 @@ class GateR(BaseModel):
         extra="forbid",
         frozen=True,
     )
-    operation: Annotated[Literal["R"], Field(title="Operation")]
+    operation: Annotated[Literal["R"], Field("R", title="Operation")]
     phi: Annotated[float, Field(ge=0.0, le=2.0, title="Phi")]
     qubit: Annotated[int, Field(ge=0, title="Qubit")]
     theta: Annotated[float, Field(ge=0.0, le=1.0, title="Theta")]
@@ -48,7 +49,7 @@ class GateRXX(BaseModel):
         extra="forbid",
         frozen=True,
     )
-    operation: Annotated[Literal["RXX"], Field(title="Operation")]
+    operation: Annotated[Literal["RXX"], Field("RXX", title="Operation")]
     qubits: Annotated[List[Qubit], Field(max_length=2, min_length=2, title="Qubits")]
     theta: Annotated[float, Field(ge=0.0, le=0.5, title="Theta")]
 
@@ -62,16 +63,12 @@ class GateRZ(BaseModel):
         extra="forbid",
         frozen=True,
     )
-    operation: Annotated[Literal["RZ"], Field(title="Operation")]
+    operation: Annotated[Literal["RZ"], Field("RZ", title="Operation")]
     phi: Annotated[float, Field(title="Phi")]
     qubit: Annotated[int, Field(ge=0, title="Qubit")]
 
 
 class JobUser(BaseModel):
-    """
-    Abstract job that can run on a computing resource.
-    """
-
     model_config = ConfigDict(
         frozen=True,
     )
@@ -99,7 +96,7 @@ class Measure(BaseModel):
         extra="forbid",
         frozen=True,
     )
-    operation: Annotated[Literal["MEASURE"], Field(title="Operation")]
+    operation: Annotated[Literal["MEASURE"], Field("MEASURE", title="Operation")]
 
 
 class OperationModel(RootModel[Union[GateRZ, GateR, GateRXX, Measure]]):
@@ -245,10 +242,6 @@ class HTTPValidationError(BaseModel):
 
 
 class JobResponseRRCancelled(BaseModel):
-    """
-    This class contains the data a uses is receiving at the "/result" endpoint.
-    """
-
     model_config = ConfigDict(
         frozen=True,
     )
@@ -257,10 +250,6 @@ class JobResponseRRCancelled(BaseModel):
 
 
 class JobResponseRRError(BaseModel):
-    """
-    This class contains the data a uses is receiving at the "/result" endpoint.
-    """
-
     model_config = ConfigDict(
         frozen=True,
     )
@@ -269,10 +258,6 @@ class JobResponseRRError(BaseModel):
 
 
 class JobResponseRRFinished(BaseModel):
-    """
-    This class contains the data a uses is receiving at the "/result" endpoint.
-    """
-
     model_config = ConfigDict(
         frozen=True,
     )
@@ -281,10 +266,6 @@ class JobResponseRRFinished(BaseModel):
 
 
 class JobResponseRROngoing(BaseModel):
-    """
-    This class contains the data a uses is receiving at the "/result" endpoint.
-    """
-
     model_config = ConfigDict(
         frozen=True,
     )
@@ -293,10 +274,6 @@ class JobResponseRROngoing(BaseModel):
 
 
 class JobResponseRRQueued(BaseModel):
-    """
-    This class contains the data a uses is receiving at the "/result" endpoint.
-    """
-
     model_config = ConfigDict(
         frozen=True,
     )
@@ -353,81 +330,8 @@ class ResultResponse(
             UnknownJob,
         ],
         Field(
-            examples={
-                "cancelled": {
-                    "description": (
-                        "Job that has been cancelled by the user, before it could be"
-                        " processed by the Quantum computer"
-                    ),
-                    "summary": "Cancelled Job",
-                    "value": {
-                        "job": {
-                            "job_id": "ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450",
-                            "job_type": "quantum_circuit",
-                            "label": "Example computation",
-                            "resource_id": "",
-                            "workspace_id": "",
-                        },
-                        "response": {"status": "cancelled"},
-                    },
-                },
-                "error": {
-                    "description": (
-                        "Job that created an error while being processed by the Quantum"
-                        " computer"
-                    ),
-                    "summary": "Failed Job",
-                    "value": {
-                        "job": {
-                            "job_id": "ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450",
-                            "job_type": "quantum_circuit",
-                            "label": "Example computation",
-                            "resource_id": "",
-                            "workspace_id": "",
-                        },
-                        "response": {
-                            "message": "detailed error message",
-                            "status": "error",
-                        },
-                    },
-                },
-                "finished": {
-                    "description": (
-                        "Job that has been successfully processed by a quantum computer"
-                        " or simulator"
-                    ),
-                    "summary": "Finished Job",
-                    "value": {
-                        "job": {
-                            "job_id": "ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450",
-                            "job_type": "quantum_circuit",
-                            "label": "Example computation",
-                            "resource_id": "",
-                            "workspace_id": "",
-                        },
-                        "response": {
-                            "result": {0: [[1, 0], [1, 1], [0, 0], [1, 1], [1, 1]]},
-                            "status": "finished",
-                        },
-                    },
-                },
-                "ongoing": {
-                    "description": (
-                        "Job that is currently being processed by the Quantum computer"
-                    ),
-                    "summary": "Ongoing Job",
-                    "value": {
-                        "job": {
-                            "job_id": "ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450",
-                            "job_type": "quantum_circuit",
-                            "label": "Example computation",
-                            "resource_id": "",
-                            "workspace_id": "",
-                        },
-                        "response": {"finished_count": 0, "status": "ongoing"},
-                    },
-                },
-                "queued": {
+            examples=[
+                {
                     "description": (
                         "Job waiting in the queue to be picked up by the Quantum"
                         " computer"
@@ -438,13 +342,191 @@ class ResultResponse(
                             "job_id": "ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450",
                             "job_type": "quantum_circuit",
                             "label": "Example computation",
-                            "resource_id": "",
-                            "workspace_id": "",
+                            "payload": {
+                                "circuits": [
+                                    {
+                                        "number_of_qubits": 2,
+                                        "quantum_circuit": [
+                                            {"operation": "RZ", "phi": 0.5, "qubit": 0},
+                                            {
+                                                "operation": "R",
+                                                "phi": 0.25,
+                                                "qubit": 1,
+                                                "theta": 0.5,
+                                            },
+                                            {
+                                                "operation": "RXX",
+                                                "qubits": [0, 1],
+                                                "theta": 0.5,
+                                            },
+                                            {"operation": "MEASURE"},
+                                        ],
+                                        "repetitions": 5,
+                                    }
+                                ]
+                            },
                         },
                         "response": {"status": "queued"},
                     },
                 },
-                "unknown": {
+                {
+                    "description": (
+                        "Job that is currently being processed by the Quantum computer"
+                    ),
+                    "summary": "Ongoing Job",
+                    "value": {
+                        "job": {
+                            "job_id": "ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450",
+                            "job_type": "quantum_circuit",
+                            "label": "Example computation",
+                            "payload": {
+                                "circuits": [
+                                    {
+                                        "number_of_qubits": 2,
+                                        "quantum_circuit": [
+                                            {"operation": "RZ", "phi": 0.5, "qubit": 0},
+                                            {
+                                                "operation": "R",
+                                                "phi": 0.25,
+                                                "qubit": 1,
+                                                "theta": 0.5,
+                                            },
+                                            {
+                                                "operation": "RXX",
+                                                "qubits": [0, 1],
+                                                "theta": 0.5,
+                                            },
+                                            {"operation": "MEASURE"},
+                                        ],
+                                        "repetitions": 5,
+                                    }
+                                ]
+                            },
+                        },
+                        "response": {"finished_count": 0, "status": "ongoing"},
+                    },
+                },
+                {
+                    "description": (
+                        "Job that created an error while being processed by the Quantum"
+                        " computer"
+                    ),
+                    "summary": "Failed Job",
+                    "value": {
+                        "job": {
+                            "job_id": "ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450",
+                            "job_type": "quantum_circuit",
+                            "label": "Example computation",
+                            "payload": {
+                                "circuits": [
+                                    {
+                                        "number_of_qubits": 2,
+                                        "quantum_circuit": [
+                                            {"operation": "RZ", "phi": 0.5, "qubit": 0},
+                                            {
+                                                "operation": "R",
+                                                "phi": 0.25,
+                                                "qubit": 1,
+                                                "theta": 0.5,
+                                            },
+                                            {
+                                                "operation": "RXX",
+                                                "qubits": [0, 1],
+                                                "theta": 0.5,
+                                            },
+                                            {"operation": "MEASURE"},
+                                        ],
+                                        "repetitions": 5,
+                                    }
+                                ]
+                            },
+                        },
+                        "response": {
+                            "message": "detailed error message",
+                            "status": "error",
+                        },
+                    },
+                },
+                {
+                    "description": (
+                        "Job that has been cancelled by the user, before it could be"
+                        " processed by the Quantum computer"
+                    ),
+                    "summary": "Cancelled Job",
+                    "value": {
+                        "job": {
+                            "job_id": "ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450",
+                            "job_type": "quantum_circuit",
+                            "label": "Example computation",
+                            "payload": {
+                                "circuits": [
+                                    {
+                                        "number_of_qubits": 2,
+                                        "quantum_circuit": [
+                                            {"operation": "RZ", "phi": 0.5, "qubit": 0},
+                                            {
+                                                "operation": "R",
+                                                "phi": 0.25,
+                                                "qubit": 1,
+                                                "theta": 0.5,
+                                            },
+                                            {
+                                                "operation": "RXX",
+                                                "qubits": [0, 1],
+                                                "theta": 0.5,
+                                            },
+                                            {"operation": "MEASURE"},
+                                        ],
+                                        "repetitions": 5,
+                                    }
+                                ]
+                            },
+                        },
+                        "response": {"status": "cancelled"},
+                    },
+                },
+                {
+                    "description": (
+                        "Job that has been successfully processed by a quantum computer"
+                        " or simulator"
+                    ),
+                    "summary": "Finished Job",
+                    "value": {
+                        "job": {
+                            "job_id": "ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450",
+                            "job_type": "quantum_circuit",
+                            "label": "Example computation",
+                            "payload": {
+                                "circuits": [
+                                    {
+                                        "number_of_qubits": 2,
+                                        "quantum_circuit": [
+                                            {"operation": "RZ", "phi": 0.5, "qubit": 0},
+                                            {
+                                                "operation": "R",
+                                                "phi": 0.25,
+                                                "qubit": 1,
+                                                "theta": 0.5,
+                                            },
+                                            {
+                                                "operation": "RXX",
+                                                "qubits": [0, 1],
+                                                "theta": 0.5,
+                                            },
+                                            {"operation": "MEASURE"},
+                                        ],
+                                        "repetitions": 5,
+                                    }
+                                ]
+                            },
+                        },
+                        "response": {
+                            "result": {"0": [[1, 0], [1, 1], [0, 0], [1, 1], [1, 1]]},
+                            "status": "finished",
+                        },
+                    },
+                },
+                {
                     "description": "The supplied job id could not be found",
                     "summary": "Unknown Job",
                     "value": {
@@ -452,17 +534,13 @@ class ResultResponse(
                         "message": "unknown job_id",
                     },
                 },
-            },
+            ],
             title="ResultResponse",
         ),
     ]
 
 
 class JobSubmission(BaseModel):
-    """
-    Abstract job that can run on a computing resource.
-    """
-
     model_config = ConfigDict(
         frozen=True,
     )
