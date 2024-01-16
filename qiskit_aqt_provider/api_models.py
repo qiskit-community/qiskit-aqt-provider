@@ -110,8 +110,10 @@ class Workspaces(pdt.RootModel[List[api_models.Workspace]]):
 GeneralResourceType: TypeAlias = Literal["device", "simulator", "offline_simulator"]
 
 
-class ResourceId(pdt.BaseModel, frozen=True):
+class ResourceId(pdt.BaseModel):
     """Resource identification and metadata."""
+
+    model_config = pdt.ConfigDict(frozen=True)
 
     workspace_id: str
     """Workspace containing the resource."""

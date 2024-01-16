@@ -14,11 +14,11 @@ import base64
 import io
 import typing
 from pathlib import Path
-from typing import Any, ClassVar, List, Optional, Union
+from typing import Any, List, Optional, Union
 
 import platformdirs
 import pydantic as pdt
-from pydantic import GetCoreSchemaHandler
+from pydantic import ConfigDict, GetCoreSchemaHandler
 from pydantic_core import CoreSchema, core_schema
 from qiskit import qpy
 from qiskit.circuit import QuantumCircuit
@@ -88,6 +88,8 @@ class Circuits:
 class Job(pdt.BaseModel):
     """Model for job persistence in local storage."""
 
+    model_config = ConfigDict(frozen=True, json_encoders={Circuits: Circuits.json_encoder})
+
     resource: ResourceId
     circuits: Circuits
     options: AQTOptions
@@ -142,10 +144,6 @@ class Job(pdt.BaseModel):
             store_path: path to the local storage directory.
         """
         return store_path / job_id
-
-    class Config:  # noqa: D106
-        frozen = True
-        json_encoders: ClassVar = {Circuits: Circuits.json_encoder}
 
 
 def get_store_path(override: Optional[Path] = None) -> Path:

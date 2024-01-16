@@ -53,7 +53,7 @@ def test_options_timeout_positive() -> None:
     options.query_timeout_seconds = 10.0  # works
     options.query_timeout_seconds = None  # works
 
-    with pytest.raises(pdt.ValidationError, match="Timeout must be None or > 0"):
+    with pytest.raises(pdt.ValidationError, match="query_timeout_seconds must be None or > 0"):
         options.query_timeout_seconds = -2.0  # fails
 
 
