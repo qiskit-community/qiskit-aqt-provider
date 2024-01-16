@@ -238,7 +238,7 @@ fail_under = 99
 ignore-module = true
 ignore-nested-functions = true
 exclude = ["qiskit_aqt_provider/api_models_generated.py"]
-fail-under = 86
+fail-under = 88
 
 [tool.poe.tasks.test]
 shell = """
