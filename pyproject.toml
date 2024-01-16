@@ -276,9 +276,6 @@ shell = "ruff check ."
 shell = "interrogate -v qiskit_aqt_provider test"
 
 [tool.poe.tasks]
-# FIXME: the model generator still has problems with root models
-# lint = ["check_api_models", "ruff_check"]
-#lint = ["ruff_check"]
 lint = ["check_api_models", "docstring_coverage", "ruff_check"]
 format_check = ["python_format_check", "pyproject_format_check"]
 generate-models = "./scripts/api_models.py generate"
