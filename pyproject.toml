@@ -67,7 +67,7 @@ interrogate = "^1.5.0"
 ipykernel = "^6.22.0"
 jupyter-sphinx = "^0.4.0"
 mistletoe = "^1.1.0"
-mypy = "=1.7.1"
+mypy = "=1.8.0"
 poethepoet = "^0.18.1"
 polyfactory = "^2.0.0"
 pre-commit = "^3.1.1"
@@ -80,7 +80,7 @@ qiskit-experiments = "^0.5.4"
 qiskit-sphinx-theme = ">=1.16.0"
 qiskit-terra = {version = ">=0.23.2", extras = ["visualization"]}
 rich = "^13.5.3"
-ruff = "^0.1.5"
+ruff = "^0.1.13"
 sphinx = "^7"
 tomlkit = "^0.12.1"
 typer = "^0.7.0"
@@ -141,6 +141,13 @@ pythonVersion = "3.8"
 pythonPlatform = "Linux"
 
 [tool.ruff]
+line-length = 100
+target-version = 'py38'
+extend-exclude = [
+    "qiskit_aqt_provider/api_models_generated.py",  # generated code
+]
+
+[tool.ruff.lint]
 select = [
     "ARG",  # flake8-unused-arguments
     "BLE",  # flake8-blind-except
@@ -200,13 +207,8 @@ ignore = [
     "ISC001",
     "ISC002",
 ]
-line-length = 100
-target-version = 'py38'
-extend-exclude = [
-    "qiskit_aqt_provider/api_models_generated.py",  # generated code
-]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "examples/*.py" = [
     "T201",  # allow prints
 ]
