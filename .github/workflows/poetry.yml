@@ -1,9 +1,11 @@
 name: Tests
 on:
   push:
-    branches: [ master, 'stable/*' ]
+    branches:
+      - master
   pull_request:
-    branches: [ master, 'stable/*' ]
+  # Run on manual triggers
+  workflow_dispatch:
 jobs:
   tests:
     name: tests-python${{ matrix.python-version }}-${{ matrix.os }}
@@ -65,3 +67,13 @@ jobs:
         uses: coverallsapp/github-action@v2
         with:
           file: coverage.lcov
+          parallel: true
+          flag-name: run ${{ join(matrix.*, ' - ') }}
+  finish:
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close parallel coverage build
+        uses: coverallsapp/github-action@v2
+        with:
+          parallel-finished: true

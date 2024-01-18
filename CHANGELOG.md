@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## qiskit-aqt-provider v1.1.0
+
+* Update to `pydantic` v2 (#66)
+* Update API specification to track the production server (#66)
+
+## qiskit-aqt-provider v1.0.0
+
 * Set minimal required `qiskit` version to 0.45.0 (#108)
 * Use `qiskit-algorithms` package instead of deprecated `qiskit.algorithms` in examples (#110)
 * Use arnica.aqt.eu instead of arnica-stage.aqt.eu as default portal (#111)

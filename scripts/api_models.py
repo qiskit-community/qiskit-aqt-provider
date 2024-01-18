@@ -56,11 +56,17 @@ def generate_models(schema_path: Path) -> str:
     Returns:
         Source code of the Pydantic models.
     """
-    proc = subprocess.run(
-        shlex.split(f"datamodel-codegen --input {schema_path}"),  # noqa: S603
-        capture_output=True,
-        check=True,
-    )
+    try:
+        proc = subprocess.run(
+            shlex.split(f"datamodel-codegen --input {schema_path}"),  # noqa: S603
+            capture_output=True,
+            check=True,
+        )
+    except subprocess.CalledProcessError as e:
+        print(e.stderr.decode())
+        print("-------------------------------------------------")
+        print(f"datamodel-codegen failed with error code: {e.returncode}")
+        exit(1)
 
     return proc.stdout.decode()
 

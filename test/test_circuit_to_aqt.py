@@ -62,7 +62,7 @@ def test_just_measure_circuit() -> None:
                 api_models.QuantumCircuit(
                     repetitions=shots,
                     number_of_qubits=1,
-                    quantum_circuit=api_models.Circuit(__root__=[api_models.Operation.measure()]),
+                    quantum_circuit=api_models.Circuit(root=[api_models.Operation.measure()]),
                 ),
             ]
         ),
@@ -92,7 +92,7 @@ def test_valid_circuit() -> None:
                     number_of_qubits=2,
                     repetitions=1,
                     quantum_circuit=api_models.Circuit(
-                        __root__=[
+                        root=[
                             api_models.Operation.r(theta=0.5, phi=0.0, qubit=0),
                             api_models.Operation.rz(phi=0.2, qubit=1),
                             api_models.Operation.rxx(theta=0.5, qubits=[0, 1]),
@@ -147,7 +147,7 @@ def test_invalid_measurements() -> None:
                     number_of_qubits=2,
                     repetitions=1,
                     quantum_circuit=api_models.Circuit(
-                        __root__=[
+                        root=[
                             api_models.Operation.r(theta=0.5, phi=0.0, qubit=0),
                             api_models.Operation.r(theta=0.5, phi=0.0, qubit=1),
                             api_models.Operation.measure(),
@@ -183,7 +183,7 @@ def test_convert_multiple_circuits() -> None:
                     number_of_qubits=2,
                     repetitions=1,
                     quantum_circuit=api_models.Circuit(
-                        __root__=[
+                        root=[
                             api_models.Operation.r(theta=0.5, phi=0.0, qubit=0),
                             api_models.Operation.rxx(theta=0.5, qubits=[0, 1]),
                             api_models.Operation.measure(),
@@ -194,7 +194,7 @@ def test_convert_multiple_circuits() -> None:
                     number_of_qubits=1,
                     repetitions=1,
                     quantum_circuit=api_models.Circuit(
-                        __root__=[
+                        root=[
                             api_models.Operation.r(theta=0.25, phi=0.0, qubit=0),
                             api_models.Operation.measure(),
                         ]

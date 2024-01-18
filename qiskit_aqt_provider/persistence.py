@@ -14,11 +14,12 @@ import base64
 import io
 import typing
 from pathlib import Path
-from typing import Any, Callable, ClassVar, Iterator, List, Optional, Union
+from typing import Any, List, Optional, Union
 
 import platformdirs
 import pydantic as pdt
-from pydantic.validators import strict_str_validator
+from pydantic import ConfigDict, GetCoreSchemaHandler
+from pydantic_core import CoreSchema, core_schema
 from qiskit import qpy
 from qiskit.circuit import QuantumCircuit
 from typing_extensions import Self
@@ -44,8 +45,11 @@ class Circuits:
         self.circuits = circuits
 
     @classmethod
-    def __get_validators__(cls) -> Iterator[Callable[[Any], Any]]:  # noqa: D105
-        yield cls.validate
+    def __get_pydantic_core_schema__(
+        cls, source_type: Any, handler: GetCoreSchemaHandler
+    ) -> CoreSchema:
+        """Setup custom validator, to turn this class into a pydantic model."""
+        return core_schema.no_info_plain_validator_function(function=cls.validate)
 
     @classmethod
     def validate(cls, value: Union[Self, str]) -> Self:
@@ -57,7 +61,8 @@ class Circuits:
         if isinstance(value, Circuits):  # self bypass
             return typing.cast(Self, value)
 
-        value = strict_str_validator(value)
+        if not isinstance(value, str):
+            raise ValueError(f"Expected string, received {type(value)}")
 
         data = base64.b64decode(value.encode("ascii"))
         buf = io.BytesIO(data)
@@ -83,6 +88,8 @@ class Circuits:
 class Job(pdt.BaseModel):
     """Model for job persistence in local storage."""
 
+    model_config = ConfigDict(frozen=True, json_encoders={Circuits: Circuits.json_encoder})
+
     resource: ResourceId
     circuits: Circuits
     options: AQTOptions
@@ -100,7 +107,7 @@ class Job(pdt.BaseModel):
             JobNotFoundError: no job with the given identifier is stored in the local storage.
         """
         data = cls.filepath(job_id, store_path).read_text("utf-8")
-        return cls.parse_raw(data)
+        return cls.model_validate_json(data)
 
     def persist(self, job_id: str, store_path: Path) -> Path:
         """Persist the job data to the local storage.
@@ -113,7 +120,7 @@ class Job(pdt.BaseModel):
             The path of the persisted data file.
         """
         filepath = self.filepath(job_id, store_path)
-        filepath.write_text(self.json(), "utf-8")
+        filepath.write_text(self.model_dump_json(), "utf-8")
         return filepath
 
     @classmethod
@@ -137,10 +144,6 @@ class Job(pdt.BaseModel):
             store_path: path to the local storage directory.
         """
         return store_path / job_id
-
-    class Config:  # noqa: D106
-        frozen = True
-        json_encoders: ClassVar = {Circuits: Circuits.json_encoder}
 
 
 def get_store_path(override: Optional[Path] = None) -> Path:

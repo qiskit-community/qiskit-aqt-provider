@@ -139,11 +139,11 @@ class AQTResource(Backend):
         """
         resp = self._http_client.post(
             f"/submit/{self.resource_id.workspace_id}/{self.resource_id.resource_id}",
-            json=job.api_submit_payload.dict(),
+            json=job.api_submit_payload.model_dump(),
         )
 
         resp.raise_for_status()
-        return api_models.Response.parse_obj(resp.json()).job.job_id
+        return api_models.Response.model_validate(resp.json()).job.job_id
 
     def result(self, job_id: UUID) -> api_models.JobResponse:
         """Query the result for a specific job.
@@ -161,7 +161,7 @@ class AQTResource(Backend):
         """
         resp = self._http_client.get(f"/result/{job_id}")
         resp.raise_for_status()
-        return api_models.Response.parse_obj(resp.json())
+        return api_models.Response.model_validate(resp.json())
 
     def configuration(self) -> BackendConfiguration:
         warnings.warn(
@@ -232,7 +232,7 @@ class AQTResource(Backend):
                     stacklevel=2,
                 )
 
-        options_copy = self.options.copy()
+        options_copy = self.options.model_copy()
         options_copy.update_options(**valid_options)
 
         job = AQTJob(

@@ -296,7 +296,7 @@ class AQTJob(JobV1):
         elif isinstance(payload, api_models_generated.JobResponseRRFinished):
             self.status_payload = JobFinished(
                 results={
-                    int(circuit_index): [[sample.__root__ for sample in shot] for shot in shots]
+                    int(circuit_index): [[sample.root for sample in shot] for shot in shots]
                     for circuit_index, shots in payload.response.result.items()
                 }
             )
@@ -335,8 +335,7 @@ class AQTJob(JobV1):
     def result(self) -> Result:
         """Block until all circuits have been evaluated and return the combined result.
 
-        Success or error is signalled by the `success` field in the returned
-        :class:`Result <qiskit.result.Result>` instance.
+        Success or error is signalled by the `success` field in the returned Result instance.
 
         Returns:
             The combined result of all circuit evaluations.
