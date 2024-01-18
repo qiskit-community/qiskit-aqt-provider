@@ -22,7 +22,10 @@ from qiskit_aqt_provider.test.timeout import timeout
 
 @pytest.mark.parametrize(
     ("max_duration", "duration", "expected"),
-    [(1.0, 0.5, nullcontext()), (0.5, 1.0, pytest.raises(TimeoutError))],
+    [
+        (1.0, 0.5, nullcontext()),
+        (0.5, 1.0, pytest.raises(TimeoutError)),
+    ],
 )
 def test_timeout_context(
     max_duration: float, duration: float, expected: ContextManager[Any]

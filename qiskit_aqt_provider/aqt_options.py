@@ -16,9 +16,7 @@ import pydantic as pdt
 from typing_extensions import Self, override
 
 
-class AQTOptions(
-    pdt.BaseModel, Mapping[str, Any], extra=pdt.Extra.forbid, validate_assignment=True
-):
+class AQTOptions(pdt.BaseModel, Mapping[str, Any]):
     """Options for AQT resources.
 
     This is a typed drop-in replacement for :class:`qiskit.providers.Options`.
@@ -52,6 +50,8 @@ class AQTOptions(
     100
     """
 
+    model_config = pdt.ConfigDict(extra="forbid", validate_assignment=True)
+
     # Qiskit generic:
 
     shots: int = pdt.Field(ge=1, le=200, default=100)
@@ -75,11 +75,11 @@ class AQTOptions(
 
     When enabled, the progress bar is written to :data:`sys.stderr`."""
 
-    @pdt.validator("query_timeout_seconds")
+    @pdt.field_validator("query_timeout_seconds")
     @classmethod
-    def validate_timeout(cls, value: Optional[float]) -> Optional[float]:
+    def validate_timeout(cls, value: Optional[float], info: pdt.ValidationInfo) -> Optional[float]:
         if value is not None and value <= 0.0:
-            raise ValueError("Timeout must be None or > 0.")
+            raise ValueError(f"{info.field_name} must be None or > 0.")
 
         return value
 
@@ -91,10 +91,10 @@ class AQTOptions(
           The preferred way of updating options is by direct (validated)
           assignment.
         """
-        update = self.dict()
+        update = self.model_dump()
         update.update(kwargs)
 
-        for key, value in self.validate(update).dict().items():
+        for key, value in self.model_validate(update).model_dump().items():
             setattr(self, key, value)
 
         return self
@@ -104,12 +104,12 @@ class AQTOptions(
     @override
     def __len__(self) -> int:
         """Number of options."""
-        return len(self.__fields__)
+        return len(self.model_fields)
 
     @override
     def __iter__(self) -> Iterator[Any]:  # type: ignore[override]
         """Iterate over option names."""
-        return iter(self.__fields__)
+        return iter(self.model_fields)
 
     @override
     def __getitem__(self, name: str) -> Any:

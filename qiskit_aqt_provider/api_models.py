@@ -60,10 +60,10 @@ def http_client(*, base_url: str, token: str) -> httpx.Client:
     return httpx.Client(headers=headers, base_url=base_url, timeout=10.0)
 
 
-class Workspaces(pdt.BaseModel, extra=pdt.Extra.forbid, frozen=True):
+class Workspaces(pdt.RootModel[List[api_models.Workspace]]):
     """List of available workspaces and devices."""
 
-    __root__: List[api_models.Workspace]
+    root: List[api_models.Workspace]
 
     def filter(
         self,
@@ -85,7 +85,7 @@ class Workspaces(pdt.BaseModel, extra=pdt.Extra.forbid, frozen=True):
             Workspaces model that only contains matching resources.
         """
         filtered_workspaces = []
-        for workspace in self.__root__:
+        for workspace in self.root:
             if workspace_pattern is not None and not re.match(workspace_pattern, workspace.id):
                 continue
 
@@ -104,14 +104,16 @@ class Workspaces(pdt.BaseModel, extra=pdt.Extra.forbid, frozen=True):
                 api_models.Workspace(id=workspace.id, resources=filtered_resources)
             )
 
-        return self.__class__(__root__=filtered_workspaces)
+        return self.__class__(root=filtered_workspaces)
 
 
 GeneralResourceType: TypeAlias = Literal["device", "simulator", "offline_simulator"]
 
 
-class ResourceId(pdt.BaseModel, frozen=True):
+class ResourceId(pdt.BaseModel):
     """Resource identification and metadata."""
+
+    model_config = pdt.ConfigDict(frozen=True)
 
     workspace_id: str
     """Workspace containing the resource."""
@@ -133,31 +135,31 @@ class Operation:
     def rz(*, phi: float, qubit: int) -> api_models.OperationModel:
         """RZ gate."""
         return api_models.OperationModel(
-            __root__=api_models.GateRZ(operation="RZ", phi=phi, qubit=qubit)
+            root=api_models.GateRZ(operation="RZ", phi=phi, qubit=qubit)
         )
 
     @staticmethod
     def r(*, phi: float, theta: float, qubit: int) -> api_models.OperationModel:
         """R gate."""
         return api_models.OperationModel(
-            __root__=api_models.GateR(operation="R", phi=phi, theta=theta, qubit=qubit)
+            root=api_models.GateR(operation="R", phi=phi, theta=theta, qubit=qubit)
         )
 
     @staticmethod
     def rxx(*, theta: float, qubits: List[int]) -> api_models.OperationModel:
         """RXX gate."""
         return api_models.OperationModel(
-            __root__=api_models.GateRXX(
+            root=api_models.GateRXX(
                 operation="RXX",
                 theta=theta,
-                qubits=[api_models.Qubit(__root__=qubit) for qubit in qubits],
+                qubits=[api_models.Qubit(root=qubit) for qubit in qubits],
             )
         )
 
     @staticmethod
     def measure() -> api_models.OperationModel:
         """MEASURE operation."""
-        return api_models.OperationModel(__root__=api_models.Measure(operation="MEASURE"))
+        return api_models.OperationModel(root=api_models.Measure(operation="MEASURE"))
 
 
 JobResponse: TypeAlias = Union[
@@ -179,7 +181,7 @@ class Response:
     """Factories for API response payloads."""
 
     @staticmethod
-    def parse_obj(data: Any) -> JobResponse:
+    def model_validate(data: Any) -> JobResponse:
         """Parse an API response.
 
         Returns:
@@ -188,7 +190,7 @@ class Response:
         Raises:
             UnknownJobError: the server answered with an unknown job error.
         """
-        response = api_models.ResultResponse.parse_obj(data).__root__
+        response = api_models.ResultResponse.model_validate(data).root
 
         if isinstance(response, api_models.UnknownJob):
             raise UnknownJobError(str(response.job_id))
@@ -200,9 +202,13 @@ class Response:
         """Queued job."""
         return api_models.JobResponseRRQueued(
             job=api_models.JobUser(
-                job_id=job_id, label="qiskit", resource_id=resource_id, workspace_id=workspace_id
+                job_type="quantum_circuit",
+                job_id=job_id,
+                label="qiskit",
+                resource_id=resource_id,
+                workspace_id=workspace_id,
             ),
-            response=api_models.RRQueued(),
+            response=api_models.RRQueued(status="queued"),
         )
 
     @staticmethod
@@ -212,9 +218,13 @@ class Response:
         """Ongoing job."""
         return api_models.JobResponseRROngoing(
             job=api_models.JobUser(
-                job_id=job_id, label="qiskit", resource_id=resource_id, workspace_id=workspace_id
+                job_type="quantum_circuit",
+                job_id=job_id,
+                label="qiskit",
+                resource_id=resource_id,
+                workspace_id=workspace_id,
             ),
-            response=api_models.RROngoing(finished_count=finished_count),
+            response=api_models.RROngoing(status="ongoing", finished_count=finished_count),
         )
 
     @staticmethod
@@ -224,16 +234,17 @@ class Response:
         """Completed job with the given results."""
         return api_models.JobResponseRRFinished(
             job=api_models.JobUser(
+                job_type="quantum_circuit",
                 job_id=job_id,
                 label="qiskit",
                 resource_id=resource_id,
                 workspace_id=workspace_id,
             ),
             response=api_models.RRFinished(
+                status="finished",
                 result={
                     circuit_index: [
-                        [api_models.ResultItem(__root__=state) for state in shot]
-                        for shot in samples
+                        [api_models.ResultItem(root=state) for state in shot] for shot in samples
                     ]
                     for circuit_index, samples in results.items()
                 },
@@ -245,9 +256,13 @@ class Response:
         """Failed job."""
         return api_models.JobResponseRRError(
             job=api_models.JobUser(
-                job_id=job_id, label="qiskit", resource_id=resource_id, workspace_id=workspace_id
+                job_type="quantum_circuit",
+                job_id=job_id,
+                label="qiskit",
+                resource_id=resource_id,
+                workspace_id=workspace_id,
             ),
-            response=api_models.RRError(message=message),
+            response=api_models.RRError(status="error", message=message),
         )
 
     @staticmethod
@@ -255,12 +270,16 @@ class Response:
         """Cancelled job."""
         return api_models.JobResponseRRCancelled(
             job=api_models.JobUser(
-                job_id=job_id, label="qiskit", resource_id=resource_id, workspace_id=workspace_id
+                job_type="quantum_circuit",
+                job_id=job_id,
+                label="qiskit",
+                resource_id=resource_id,
+                workspace_id=workspace_id,
             ),
-            response=api_models.RRCancelled(),
+            response=api_models.RRCancelled(status="cancelled"),
         )
 
     @staticmethod
     def unknown_job(*, job_id: UUID) -> api_models.UnknownJob:
         """Unknown job."""
-        return api_models.UnknownJob(job_id=job_id)
+        return api_models.UnknownJob(job_id=job_id, message="unknown job_id")

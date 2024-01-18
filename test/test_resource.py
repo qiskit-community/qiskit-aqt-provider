@@ -142,7 +142,7 @@ def test_query_period_propagation() -> None:
 
 def test_run_options_propagation(offline_simulator_no_noise: MockSimulator) -> None:
     """Check that options passed to AQTResource.run are propagated to the corresponding job."""
-    default = offline_simulator_no_noise.options.copy()
+    default = offline_simulator_no_noise.options.model_copy()
 
     while True:
         overrides = OptionsFactory.build()
@@ -154,7 +154,7 @@ def test_run_options_propagation(offline_simulator_no_noise: MockSimulator) -> N
 
     # don't submit the circuit to the simulator
     with mock.patch.object(AQTJob, "submit") as mocked_submit:
-        job = offline_simulator_no_noise.run(qc, **overrides.dict())
+        job = offline_simulator_no_noise.run(qc, **overrides.model_dump())
         assert job.options == overrides
 
     mocked_submit.assert_called_once()
@@ -162,7 +162,7 @@ def test_run_options_propagation(offline_simulator_no_noise: MockSimulator) -> N
 
 def test_run_options_unknown(offline_simulator_no_noise: MockSimulator) -> None:
     """Check that AQTResource.run accepts but warns about unknown options."""
-    default = offline_simulator_no_noise.options.copy()
+    default = offline_simulator_no_noise.options.model_copy()
     overrides = {"shots": 123, "unknown_option": True}
     assert set(overrides) - set(default) == {"unknown_option"}
 
@@ -243,7 +243,7 @@ def test_submit_valid_response(httpx_mock: HTTPXMock) -> None:
                     job_id=expected_job_id,
                     resource_id=backend.resource_id.resource_id,
                     workspace_id=backend.resource_id.workspace_id,
-                ).json()
+                ).model_dump_json()
             ),
         )
 
@@ -268,7 +268,7 @@ def test_submit_payload_matches(httpx_mock: HTTPXMock) -> None:
             f"submit/{backend.resource_id.workspace_id}/{backend.resource_id.resource_id}"
         )
 
-        data = api_models.JobSubmission.parse_raw(request.content.decode("utf-8"))
+        data = api_models.JobSubmission.model_validate_json(request.content.decode("utf-8"))
         assert data == expected_job_payload
 
         return httpx.Response(
@@ -278,7 +278,7 @@ def test_submit_payload_matches(httpx_mock: HTTPXMock) -> None:
                     job_id=expected_job_id,
                     resource_id=backend.resource_id.resource_id,
                     workspace_id=backend.resource_id.workspace_id,
-                ).json()
+                ).model_dump_json()
             ),
         )
 
@@ -321,7 +321,9 @@ def test_result_valid_response(httpx_mock: HTTPXMock) -> None:
         assert request.headers["authorization"] == f"Bearer {token}"
         assert request.url.path.endswith(f"result/{job_id}")
 
-        return httpx.Response(status_code=httpx.codes.OK, json=json.loads(payload.json()))
+        return httpx.Response(
+            status_code=httpx.codes.OK, json=json.loads(payload.model_dump_json())
+        )
 
     httpx_mock.add_callback(handle_result, method="GET")
 
@@ -347,7 +349,9 @@ def test_result_unknown_job(httpx_mock: HTTPXMock) -> None:
     backend = DummyResource("")
     job_id = uuid.uuid4()
 
-    httpx_mock.add_response(json=json.loads(api_models.Response.unknown_job(job_id=job_id).json()))
+    httpx_mock.add_response(
+        json=json.loads(api_models.Response.unknown_job(job_id=job_id).model_dump_json())
+    )
 
     with pytest.raises(api_models.UnknownJobError, match=str(job_id)):
         backend.result(job_id)
@@ -378,7 +382,9 @@ def test_offline_simulator_propagate_shots_option(
     assert default_shots == AQTOptions().shots
 
     # TODO: use annotated-types to get unified access to upper bound
-    shots = min(default_shots + 40, AQTOptions.__fields__["shots"].field_info.le)
+    # FIXME [pydantic2]
+    # shots = min(default_shots + 40, AQTOptions.__fields__["shots"].field_info.le)  # noqa: ERA001
+    shots = min(default_shots + 40, 200)
     assert shots != default_shots
 
     # configure shots in AQTResource.run
@@ -397,7 +403,9 @@ def test_offline_simulator_propagate_shots_option(
     assert shots_options == shots
 
     # qiskit.execute overrides resource options
-    shots_override = min(shots + 40, AQTOptions.__fields__["shots"].field_info.le)
+    # FIXME [pydantic2]
+    # shots_override = min(shots + 40, AQTOptions.__fields__["shots"].field_info.le)  # noqa: ERA001
+    shots_override = min(shots + 40, 200)
     assert shots_override != shots
     assert shots_override != default_shots
     assert offline_simulator_no_noise.options.shots != shots_override

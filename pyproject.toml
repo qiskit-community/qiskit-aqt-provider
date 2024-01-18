@@ -47,7 +47,7 @@ python = ">=3.8,<3.12"
 
 httpx = ">=0.24.0"
 platformdirs = ">=3"
-pydantic = ">=1.10.8,<2"
+pydantic = ">=2.5.0"
 python-dotenv = ">=1"
 qiskit = ">=0.45.0"
 qiskit-aer = ">=0.11"
@@ -59,9 +59,9 @@ tweedledum = { version = ">=1", optional = true }
 typing-extensions = ">=4.0.0"
 
 [tool.poetry.group.dev.dependencies]
-autodoc-pydantic = "<2.0.0"
+autodoc-pydantic = "^2.0.1"
 coverage = "^7.2.1"
-datamodel-code-generator = "^0.21.2"
+datamodel-code-generator = "^0.25.2"
 hypothesis = "^6.82.0"
 interrogate = "^1.5.0"
 ipykernel = "^6.22.0"
@@ -110,12 +110,13 @@ disable-timestamp = true
 enable-faux-immutability = true
 enum-field-as-literal = "one"
 field-constraints = true
+output-model-type = "pydantic_v2.BaseModel"
 strict-nullable = true
 target-python-version = '3.8'
 use-annotated = true
 use-double-quotes = true
-use-schema-description = true
 use-field-description = true
+use-schema-description = true
 wrap-string-literal = true
 
 [tool.pyright]
@@ -235,7 +236,7 @@ fail_under = 99
 ignore-module = true
 ignore-nested-functions = true
 exclude = ["qiskit_aqt_provider/api_models_generated.py"]
-fail-under = 86
+fail-under = 88
 
 [tool.poe.tasks.test]
 shell = """
