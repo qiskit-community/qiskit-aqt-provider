@@ -17,7 +17,7 @@ This is a modified version of the corresponding
 """
 import tempfile
 import textwrap
-from typing import Final, Set, Tuple
+from typing import Final
 
 from qiskit.circuit.library.phase_oracle import PhaseOracle
 from qiskit_algorithms import AmplificationProblem, Grover
@@ -44,7 +44,7 @@ class ThreeSatProblem:
         return bool(self.func.simulate(*args))
 
 
-def format_bitstring(bits: str) -> Tuple[bool, ...]:
+def format_bitstring(bits: str) -> tuple[bool, ...]:
     """Format a bitstring as tuple of boolean values.
 
     Warning: this reverses the bit order.
@@ -97,7 +97,7 @@ if __name__ == "__main__":
 
     # Run the Grover search until all solutions are found
     MAX_ITERATIONS: Final = 100
-    solutions: Set[str] = set()
+    solutions: set[str] = set()
     for _ in range(MAX_ITERATIONS):
         solutions.add(grover.amplify(problem).assignment)
         if len(solutions) == sat_problem.num_solutions:

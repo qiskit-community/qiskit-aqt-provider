@@ -16,7 +16,6 @@ This module is exposed as pytest plugin for this project.
 """
 
 import uuid
-from typing import List, Tuple
 
 import pytest
 from qiskit.circuit import QuantumCircuit
@@ -43,7 +42,7 @@ class MockSimulator(OfflineSimulatorResource):
             with_noise_model=noisy,
         )
 
-        self.submit_call_args: List[Tuple[List[QuantumCircuit], int]] = []
+        self.submit_call_args: list[tuple[list[QuantumCircuit], int]] = []
 
     @override
     def submit(self, job: AQTJob) -> uuid.UUID:
@@ -58,7 +57,7 @@ class MockSimulator(OfflineSimulatorResource):
         return super().submit(job)
 
     @property
-    def submitted_circuits(self) -> List[List[QuantumCircuit]]:
+    def submitted_circuits(self) -> list[list[QuantumCircuit]]:
         """Circuit batches passed to the resource for execution, in submission order."""
         return [circuit for circuit, _ in self.submit_call_args]
 

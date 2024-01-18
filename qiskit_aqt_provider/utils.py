@@ -10,7 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-from typing import Callable, Tuple, Type, TypeVar
+from typing import Callable, TypeVar
 
 from typing_extensions import ParamSpec
 
@@ -19,7 +19,7 @@ P = ParamSpec("P")
 
 
 def map_exceptions(
-    target_exc: Type[BaseException], /, *, source_exc: Tuple[Type[BaseException]] = (Exception,)
+    target_exc: type[BaseException], /, *, source_exc: tuple[type[BaseException]] = (Exception,)
 ) -> Callable[[Callable[P, T]], Callable[P, T]]:
     """Map select exceptions to another exception type.
 

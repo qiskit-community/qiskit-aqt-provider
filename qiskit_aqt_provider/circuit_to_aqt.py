@@ -10,7 +10,6 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-from typing import List
 
 from numpy import pi
 from qiskit import QuantumCircuit
@@ -28,7 +27,7 @@ def qiskit_to_aqt_circuit(circuit: QuantumCircuit) -> api_models.Circuit:
     Returns:
         AQT API circuit payload.
     """
-    ops: List[api_models.OperationModel] = []
+    ops: list[api_models.OperationModel] = []
     num_measurements = 0
 
     for instruction in circuit.data:
@@ -115,7 +114,7 @@ def aqt_to_qiskit_circuit(circuit: api_models.Circuit, number_of_qubits: int) ->
     return qiskit_circuit
 
 
-def circuits_to_aqt_job(circuits: List[QuantumCircuit], shots: int) -> api_models.JobSubmission:
+def circuits_to_aqt_job(circuits: list[QuantumCircuit], shots: int) -> api_models.JobSubmission:
     """Convert a list of circuits to the corresponding AQT API job request payload.
 
     Args:

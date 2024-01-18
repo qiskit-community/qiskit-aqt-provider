@@ -13,9 +13,9 @@
 """Timeout utilities for tests."""
 
 import threading
+from collections.abc import Iterator
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
-from typing import Iterator
 
 
 @contextmanager

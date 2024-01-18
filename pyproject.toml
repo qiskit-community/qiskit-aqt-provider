@@ -112,7 +112,7 @@ enum-field-as-literal = "one"
 field-constraints = true
 output-model-type = "pydantic_v2.BaseModel"
 strict-nullable = true
-target-python-version = '3.8'
+target-python-version = '3.9'
 use-annotated = true
 use-double-quotes = true
 use-field-description = true
@@ -138,12 +138,12 @@ reportUnnecessaryTypeIgnoreComment = false
 
 reportDuplicateImport = "error"
 
-pythonVersion = "3.8"
+pythonVersion = "3.9"
 pythonPlatform = "Linux"
 
 [tool.ruff]
 line-length = 100
-target-version = 'py38'
+target-version = 'py39'
 extend-exclude = [
     "qiskit_aqt_provider/api_models_generated.py",  # generated code
 ]

@@ -12,8 +12,8 @@
 
 
 import time
-from contextlib import nullcontext
-from typing import Any, ContextManager
+from contextlib import AbstractContextManager, nullcontext
+from typing import Any
 
 import pytest
 
@@ -28,7 +28,7 @@ from qiskit_aqt_provider.test.timeout import timeout
     ],
 )
 def test_timeout_context(
-    max_duration: float, duration: float, expected: ContextManager[Any]
+    max_duration: float, duration: float, expected: AbstractContextManager[Any]
 ) -> None:
     """Basic test for the timeout context manager."""
     with expected:

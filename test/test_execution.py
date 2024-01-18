@@ -21,7 +21,7 @@ import typing
 from collections import Counter
 from fractions import Fraction
 from math import pi
-from typing import List, Union
+from typing import Union
 
 import numpy as np
 import pytest
@@ -338,7 +338,7 @@ def test_bell_states(shots: int, qubits: int, offline_simulator_no_noise: AQTRes
 )
 @pytest.mark.parametrize("optimization_level", range(4))
 def test_state_preparation(
-    target_state: Union[int, str, quantum_info.Statevector, List[complex]],
+    target_state: Union[int, str, quantum_info.Statevector, list[complex]],
     optimization_level: int,
     offline_simulator_no_noise: AQTResource,
 ) -> None:
@@ -498,7 +498,7 @@ def test_period_finding_circuit(offline_simulator_no_noise: AQTResource) -> None
         return result.get_counts()
 
     n_attempts = 20
-    results: List[bool] = []
+    results: list[bool] = []
 
     # run the circuits (2 shots) n_attempts times
     # and do the classical post-processing to extract the period of the function f.

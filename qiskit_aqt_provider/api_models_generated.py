@@ -4,11 +4,10 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Dict, List, Literal, Optional, Union
+from typing import Annotated, Dict, List, Literal, Optional, Union
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, RootModel
-from typing_extensions import Annotated
 
 
 class GateR(BaseModel):

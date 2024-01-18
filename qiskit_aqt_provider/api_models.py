@@ -13,7 +13,8 @@
 """Thin convenience wrappers around generated API models."""
 
 import re
-from typing import Any, Dict, List, Literal, Optional, Pattern, Union
+from re import Pattern
+from typing import Any, Literal, Optional, Union
 from uuid import UUID
 
 import httpx
@@ -60,10 +61,10 @@ def http_client(*, base_url: str, token: str) -> httpx.Client:
     return httpx.Client(headers=headers, base_url=base_url, timeout=10.0)
 
 
-class Workspaces(pdt.RootModel[List[api_models.Workspace]]):
+class Workspaces(pdt.RootModel[list[api_models.Workspace]]):
     """List of available workspaces and devices."""
 
-    root: List[api_models.Workspace]
+    root: list[api_models.Workspace]
 
     def filter(
         self,
@@ -146,7 +147,7 @@ class Operation:
         )
 
     @staticmethod
-    def rxx(*, theta: float, qubits: List[int]) -> api_models.OperationModel:
+    def rxx(*, theta: float, qubits: list[int]) -> api_models.OperationModel:
         """RXX gate."""
         return api_models.OperationModel(
             root=api_models.GateRXX(
@@ -229,7 +230,7 @@ class Response:
 
     @staticmethod
     def finished(
-        *, job_id: UUID, workspace_id: str, resource_id: str, results: Dict[str, List[List[int]]]
+        *, job_id: UUID, workspace_id: str, resource_id: str, results: dict[str, list[list[int]]]
     ) -> JobResponse:
         """Completed job with the given results."""
         return api_models.JobResponseRRFinished(

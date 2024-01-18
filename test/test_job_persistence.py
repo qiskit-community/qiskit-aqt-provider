@@ -16,7 +16,7 @@ import re
 import typing
 import uuid
 from pathlib import Path
-from typing import Dict, List, NamedTuple, Optional
+from typing import NamedTuple, Optional
 
 import httpx
 import pytest
@@ -105,12 +105,12 @@ def test_job_persistence_transaction_online_backend(httpx_mock: HTTPXMock, tmp_p
 
     # Mocked portal state: holds details of the submitted jobs
     class PortalJob(NamedTuple):
-        circuits: List[api_models_generated.QuantumCircuit]
+        circuits: list[api_models_generated.QuantumCircuit]
         workspace_id: str
         resource_id: str
         error_msg: str
 
-    portal_state: Dict[uuid.UUID, PortalJob] = {}
+    portal_state: dict[uuid.UUID, PortalJob] = {}
 
     def handle_submit(request: httpx.Request) -> httpx.Response:
         """Mocked circuit submission endpoint.

@@ -17,7 +17,7 @@ import random
 import time
 import uuid
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from typing import Optional
 
 from qiskit import QuantumCircuit
 from typing_extensions import assert_never, override
@@ -42,7 +42,7 @@ class JobStatus(enum.Enum):
 class TestJob:  # pylint: disable=too-many-instance-attributes
     """Job state holder for the TestResource."""
 
-    circuits: List[QuantumCircuit]
+    circuits: list[QuantumCircuit]
     shots: int
     status: JobStatus = JobStatus.QUEUED
     job_id: uuid.UUID = field(default_factory=lambda: uuid.uuid4())
@@ -51,7 +51,7 @@ class TestJob:  # pylint: disable=too-many-instance-attributes
     time_finished: float = 0.0
     error_message: str = "error"
 
-    results: Dict[str, List[List[int]]] = field(init=False)
+    results: dict[str, list[list[int]]] = field(init=False)
 
     workspace: str = field(default="test-workspace", init=False)
     resource: str = field(default="test-resource", init=False)

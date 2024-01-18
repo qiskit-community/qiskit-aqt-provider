@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 from copy import copy
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from qiskit.primitives import BackendEstimator
 
@@ -27,7 +27,7 @@ class AQTEstimator(BackendEstimator):
     def __init__(
         self,
         backend: AQTResource,
-        options: Optional[Dict[str, Any]] = None,
+        options: Optional[dict[str, Any]] = None,
         abelian_grouping: bool = True,
         skip_transpilation: bool = False,
     ):

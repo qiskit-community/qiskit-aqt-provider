@@ -15,10 +15,7 @@ from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
-    List,
     Optional,
-    Type,
     TypeVar,
     Union,
 )
@@ -51,7 +48,7 @@ class UnknownOptionWarning(UserWarning):
     """An unknown option was passed to a backend's :meth:`run <AQTResource.run>` method."""
 
 
-def make_transpiler_target(target_cls: Type[TargetT], num_qubits: int) -> TargetT:
+def make_transpiler_target(target_cls: type[TargetT], num_qubits: int) -> TargetT:
     """Factory for transpilation targets of AQT resources.
 
     Args:
@@ -206,7 +203,7 @@ class AQTResource(Backend):
     def get_translation_stage_plugin(self) -> str:
         return "aqt"
 
-    def run(self, circuits: Union[QuantumCircuit, List[QuantumCircuit]], **options: Any) -> AQTJob:
+    def run(self, circuits: Union[QuantumCircuit, list[QuantumCircuit]], **options: Any) -> AQTJob:
         """Submit circuits for execution on this resource.
 
         Args:
@@ -244,7 +241,7 @@ class AQTResource(Backend):
         return job
 
 
-def qubit_states_from_int(state: int, num_qubits: int) -> List[int]:
+def qubit_states_from_int(state: int, num_qubits: int) -> list[int]:
     """Convert the Qiskit state representation to the AQT states samples one.
 
     Args:
@@ -283,7 +280,7 @@ def qubit_states_from_int(state: int, num_qubits: int) -> List[int]:
 @dataclass(frozen=True)
 class SimulatorJob:
     job: AerJob
-    circuits: List[QuantumCircuit]
+    circuits: list[QuantumCircuit]
     shots: int
 
     @property
@@ -390,13 +387,13 @@ class OfflineSimulatorResource(AQTResource):
 
         qiskit_result = self.job.job.result()
 
-        results: Dict[str, List[List[int]]] = {}
+        results: dict[str, list[list[int]]] = {}
         for circuit_index, circuit in enumerate(self.job.circuits):
-            samples: List[List[int]] = []
+            samples: list[list[int]] = []
 
             # Use data()["counts"] instead of get_counts() to access the raw counts
             # in hexadecimal format.
-            counts: Dict[str, int] = qiskit_result.data(circuit_index)["counts"]
+            counts: dict[str, int] = qiskit_result.data(circuit_index)["counts"]
 
             for hex_state, occurences in counts.items():
                 samples.extend(
