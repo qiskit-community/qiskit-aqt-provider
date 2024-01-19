@@ -16,18 +16,15 @@ import os
 import re
 import warnings
 from collections import defaultdict
+from collections.abc import Sequence
 from dataclasses import dataclass
 from operator import attrgetter
 from pathlib import Path
+from re import Pattern
 from typing import (
-    DefaultDict,
-    Dict,
     Final,
-    List,
     Literal,
     Optional,
-    Pattern,
-    Sequence,
     Union,
     overload,
 )
@@ -77,7 +74,7 @@ class BackendsTable(Sequence[AQTResource]):
     in IPython/Jupyter notebooks.
     """
 
-    def __init__(self, backends: List[AQTResource]):
+    def __init__(self, backends: list[AQTResource]):
         self.backends = backends
         self.headers = ["Workspace ID", "Resource ID", "Description", "Resource type"]
 
@@ -108,16 +105,16 @@ class BackendsTable(Sequence[AQTResource]):
         """HTML table representation (for IPython/Jupyter)."""
         return tabulate(self.table(), headers=self.headers, tablefmt="html")  # pragma: no cover
 
-    def by_workspace(self) -> Dict[str, List[AQTResource]]:
+    def by_workspace(self) -> dict[str, list[AQTResource]]:
         """Backends grouped by workspace ID."""
-        data: DefaultDict[str, List[AQTResource]] = defaultdict(list)
+        data: defaultdict[str, list[AQTResource]] = defaultdict(list)
 
         for backend in self:
             data[backend.resource_id.workspace_id].append(backend)
 
         return dict(data)
 
-    def table(self) -> List[List[str]]:
+    def table(self) -> list[list[str]]:
         """Assemble the data for the printable table."""
         table = []
         for workspace_id, resources in self.by_workspace().items():
@@ -244,7 +241,7 @@ class AQTProvider(ProviderV1):
                     workspace_pattern=workspace,
                 )
 
-        backends: List[AQTResource] = []
+        backends: list[AQTResource] = []
 
         # add offline simulators in the default workspace
         if (not workspace or workspace.match("default")) and (

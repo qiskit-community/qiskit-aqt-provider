@@ -12,7 +12,7 @@
 
 import math
 from dataclasses import dataclass
-from typing import Final, List, Optional, Tuple
+from typing import Final, Optional
 
 import numpy as np
 from qiskit import QuantumCircuit
@@ -93,7 +93,7 @@ class AQTSchedulingPlugin(PassManagerStagePlugin):
         if isinstance(pass_manager_config.target, UnboundParametersTarget):
             return PassManager([])
 
-        passes: List[BasePass] = [
+        passes: list[BasePass] = [
             # The Qiskit Target declares RX/RZ as basis gates.
             # This allows decomposing any run of rotations into the ZXZ form, taking
             # advantage of the free Z rotations.
@@ -114,10 +114,10 @@ class CircuitInstruction:
     """
 
     gate: Gate
-    qubits: Tuple[int, ...]
+    qubits: tuple[int, ...]
 
 
-def _rxx_positive_angle(theta: float) -> List[CircuitInstruction]:
+def _rxx_positive_angle(theta: float) -> list[CircuitInstruction]:
     """List of instructions equivalent to RXX(θ) with θ >= 0."""
     rxx = CircuitInstruction(RXXGate(abs(theta)), qubits=(0, 1))
 
@@ -131,7 +131,7 @@ def _rxx_positive_angle(theta: float) -> List[CircuitInstruction]:
     ]
 
 
-def _emit_rxx_instruction(theta: float, instructions: List[CircuitInstruction]) -> Instruction:
+def _emit_rxx_instruction(theta: float, instructions: list[CircuitInstruction]) -> Instruction:
     """Collect the passed instructions into a single one labeled 'Rxx(θ)'."""
     qc = QuantumCircuit(2, name=f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}({pi_check(theta)})")
     for instruction in instructions:
@@ -213,6 +213,6 @@ class AQTTranslationPlugin(PassManagerStagePlugin):
         if isinstance(pass_manager_config.target, UnboundParametersTarget):
             return translation_pm
 
-        passes: List[BasePass] = [WrapRxxAngles()]
+        passes: list[BasePass] = [WrapRxxAngles()]
 
         return translation_pm + PassManager(passes)

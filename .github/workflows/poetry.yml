@@ -12,8 +12,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11']
-        poetry-version: [1.6.1]
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+        poetry-version: [1.7.1]
         os: ["ubuntu-latest"]
     steps:
       - uses: actions/checkout@v3
@@ -29,19 +29,19 @@ jobs:
       - name: Check shell scripts
         uses: ludeeus/action-shellcheck@2.0.0
       - name: Check Poetry lock file status
-        run: poetry lock --check
+        run: poetry check --lock
       - name: Install coverage tool
         run: |
           poetry run pip install coverage[toml]
-      - name: Install examples dependencies (Py3.11)
+      - name: Install examples dependencies (Python >= 3.11)
         run: |
           poetry install --only main --extras examples
-          # tweedledum has no wheel for Python3.11 and the build errors
-        if: matrix.python-version == '3.11'
-      - name: Install examples dependencies (~Py3.11)
+          # tweedledum has no wheel for Python >= 3.11 and the build errors
+        if: matrix.python-version >= '3.11'
+      - name: Install examples dependencies (Python < 3.11)
         run: |
           poetry install --only main --all-extras
-        if: matrix.python-version != '3.11'
+        if: matrix.python-version < '3.11'
       - name: Run examples
         run: |
           poetry run examples/run_all.sh -c

@@ -14,7 +14,7 @@ import base64
 import io
 import typing
 from pathlib import Path
-from typing import Any, List, Optional, Union
+from typing import Any, Optional, Union
 
 import platformdirs
 import pydantic as pdt
@@ -41,7 +41,7 @@ class Circuits:
     provided by :mod:`qiskit.qpy`.
     """
 
-    def __init__(self, circuits: List[QuantumCircuit]) -> None:
+    def __init__(self, circuits: list[QuantumCircuit]) -> None:
         self.circuits = circuits
 
     @classmethod

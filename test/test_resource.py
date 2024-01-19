@@ -13,8 +13,8 @@
 import json
 import math
 import uuid
-from contextlib import nullcontext
-from typing import Any, ContextManager
+from contextlib import AbstractContextManager, nullcontext
+from typing import Any
 from unittest import mock
 
 import httpx
@@ -424,7 +424,7 @@ def test_offline_simulator_propagate_shots_option(
 )
 def test_offline_simulator_run_propagate_memory_option(
     memory: bool,
-    context: ContextManager[Any],
+    context: AbstractContextManager[Any],
     offline_simulator_no_noise: MockSimulator,
 ) -> None:
     """Check that the memory option can be set on `AQTResource.run`."""
@@ -441,7 +441,7 @@ def test_offline_simulator_run_propagate_memory_option(
     [(True, nullcontext()), (False, pytest.raises(qiskit.QiskitError, match="No memory"))],
 )
 def test_offline_simulator_execute_propagate_memory_option(
-    memory: bool, context: ContextManager[Any], offline_simulator_no_noise: MockSimulator
+    memory: bool, context: AbstractContextManager[Any], offline_simulator_no_noise: MockSimulator
 ) -> None:
     """Check that the memory option can be set in `qiskit.execute`."""
     qc = random_circuit(2)
@@ -457,7 +457,7 @@ def test_offline_simulator_execute_propagate_memory_option(
     [(True, nullcontext()), (False, pytest.raises(qiskit.QiskitError, match="No memory"))],
 )
 def test_offline_simulator_resource_propagate_memory_option(
-    memory: bool, context: ContextManager[Any], offline_simulator_no_noise: MockSimulator
+    memory: bool, context: AbstractContextManager[Any], offline_simulator_no_noise: MockSimulator
 ) -> None:
     """Check that the memory option can be set as resource option."""
     qc = qiskit.transpile(random_circuit(2), offline_simulator_no_noise)
@@ -474,7 +474,7 @@ def test_offline_simulator_resource_propagate_memory_option(
     [(True, nullcontext()), (False, pytest.raises(qiskit.QiskitError, match="No memory"))],
 )
 def test_offline_simulator_execute_override_memory_option(
-    memory: bool, context: ContextManager[Any], offline_simulator_no_noise: MockSimulator
+    memory: bool, context: AbstractContextManager[Any], offline_simulator_no_noise: MockSimulator
 ) -> None:
     """Check that setting `memory` through `qiskit.execute` overrides the resource options."""
     qc = random_circuit(2)

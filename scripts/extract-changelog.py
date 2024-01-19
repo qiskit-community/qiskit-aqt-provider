@@ -5,7 +5,7 @@ import shlex
 import subprocess
 import sys
 from pathlib import Path
-from typing import Dict, Final, Optional
+from typing import Final, Optional
 
 import typer
 from mistletoe import Document, block_token
@@ -41,7 +41,7 @@ def main(
     with changelog_path.open(encoding="utf-8") as fp:
         md_ast = Document(fp)
 
-    changelogs: Dict[str, str] = {}
+    changelogs: dict[str, str] = {}
     current_version: Optional[str] = None
 
     for node in md_ast.children:

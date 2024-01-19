@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+* Add support for Python 3.12 (#79)
+* Remove support for Python 3.8 (#79)
+
 ## qiskit-aqt-provider v1.1.0
 
 * Update to `pydantic` v2 (#66)

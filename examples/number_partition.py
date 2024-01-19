@@ -20,7 +20,7 @@ it can be split into two non-overlapping sets that have the same sum.
 """
 
 from dataclasses import dataclass
-from typing import Final, List, Set, Union
+from typing import Final, Union
 
 import qiskit_algorithms
 from qiskit_algorithms.minimum_eigensolvers import QAOA
@@ -38,7 +38,7 @@ RANDOM_SEED: Final = 0
 class Success:
     # type would be better as tuple[set[int], set[int]] but
     # NumberPartition.interpret returns list[list[int]].
-    partition: List[List[int]]
+    partition: list[list[int]]
 
     def verify(self) -> bool:
         a, b = self.partition
@@ -49,7 +49,7 @@ class Infeasible:
     pass
 
 
-def solve_partition_problem(num_set: Set[int]) -> Union[Success, Infeasible]:
+def solve_partition_problem(num_set: set[int]) -> Union[Success, Infeasible]:
     """Solve a partition problem.
 
     Args:

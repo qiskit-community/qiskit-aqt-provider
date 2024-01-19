@@ -17,11 +17,11 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.8'
+          python-version: '3.11'
       - name: Install Poetry
         uses: abatilo/actions-poetry@v2
         with:
-          poetry-version: '1.6.1'
+          poetry-version: '1.7.1'
       - name: Install release dependencies
         run: pip install -U typer mistletoe
       - name: Build packages

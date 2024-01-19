@@ -18,12 +18,8 @@ from typing import (
     TYPE_CHECKING,
     Any,
     ClassVar,
-    DefaultDict,
-    Dict,
-    List,
     NoReturn,
     Optional,
-    Set,
     Union,
 )
 
@@ -52,7 +48,7 @@ class JobFinished:
     """The job finished successfully."""
 
     status: ClassVar = JobStatus.DONE
-    results: Dict[int, List[List[int]]]
+    results: dict[int, list[list[int]]]
 
 
 @dataclass
@@ -155,7 +151,7 @@ class AQTJob(JobV1):
     def __init__(
         self,
         backend: "AQTResource",
-        circuits: List[QuantumCircuit],
+        circuits: list[QuantumCircuit],
         options: AQTOptions,
     ):
         """Initialize an :class:`AQTJob` instance.
@@ -371,7 +367,7 @@ class AQTJob(JobV1):
             for circuit_index, circuit in enumerate(self.circuits):
                 samples = self.status_payload.results[circuit_index]
                 meas_map = _build_memory_mapping(circuit)
-                data: Dict[str, Any] = {
+                data: dict[str, Any] = {
                     "counts": _format_counts(samples, meas_map),
                 }
 
@@ -410,7 +406,7 @@ class AQTJob(JobV1):
         )
 
 
-def _build_memory_mapping(circuit: QuantumCircuit) -> Dict[int, Set[int]]:
+def _build_memory_mapping(circuit: QuantumCircuit) -> dict[int, set[int]]:
     """Scan the circuit for measurement instructions and collect qubit to classical bits mappings.
 
     Qubits can be mapped to multiple classical bits, possibly in different classical registers.
@@ -478,7 +474,7 @@ def _build_memory_mapping(circuit: QuantumCircuit) -> Dict[int, Set[int]]:
         >>> _build_memory_mapping(qc)
         {0: {0, 2}, 1: {1}}
     """
-    qu2cl: DefaultDict[int, Set[int]] = defaultdict(set)
+    qu2cl: defaultdict[int, set[int]] = defaultdict(set)
 
     for instruction in circuit.data:
         if instruction.operation.name == "measure":
@@ -489,7 +485,7 @@ def _build_memory_mapping(circuit: QuantumCircuit) -> Dict[int, Set[int]]:
 
 
 def _shot_to_int(
-    fluorescence_states: List[int], qubit_to_bit: Optional[Dict[int, Set[int]]] = None
+    fluorescence_states: list[int], qubit_to_bit: Optional[dict[int, set[int]]] = None
 ) -> int:
     """Format the detected fluorescence states from a single shot as an integer.
 
@@ -595,8 +591,8 @@ def _shot_to_int(
 
 
 def _format_counts(
-    samples: List[List[int]], qubit_to_bit: Optional[Dict[int, Set[int]]] = None
-) -> Dict[str, int]:
+    samples: list[list[int]], qubit_to_bit: Optional[dict[int, set[int]]] = None
+) -> dict[str, int]:
     """Format all shots results from a circuit evaluation.
 
     The returned dictionary is compatible with Qiskit's `ExperimentResultData`

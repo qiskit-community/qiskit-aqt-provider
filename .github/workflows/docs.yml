@@ -33,14 +33,14 @@ jobs:
       - name: Install Poetry
         uses: abatilo/actions-poetry@v2
         with:
-          poetry-version: '1.6.1'
+          poetry-version: '1.7.1'
       - name: Install Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.8'
+          python-version: '3.11'
           cache: "poetry"
       - name: Check Poetry lock file consistency
-        run: poetry lock --check
+        run: poetry check --lock
       - name: Install dependencies
         run: poetry install --sync
       - name: Check version numbers consistency
