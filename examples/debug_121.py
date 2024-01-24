@@ -6,10 +6,9 @@ from qiskit.circuit.parameter import Parameter
 from qiskit.primitives import BackendSampler
 from qiskit.providers import BackendV2, Options
 from qiskit.transpiler import Target
-from qiskit.transpiler.passes import Optimize1qGatesDecomposition
-from qiskit.transpiler.passmanager import PassManager
 from qiskit_aer import AerJob, AerProvider
 
+from qiskit_aqt_provider import transpiler_plugin
 from qiskit_aqt_provider.primitives import AQTSampler
 
 
@@ -58,7 +57,7 @@ if __name__ == "__main__":
 
     sampler = BackendSampler(
         backend,
-        bound_pass_manager=PassManager([Optimize1qGatesDecomposition(target=backend.target)]),
+        bound_pass_manager=transpiler_plugin.bound_pass_manager(backend.target),
     )
     aqt_sampler = AQTSampler(backend)
 
