@@ -51,13 +51,21 @@ jobs:
       - name: Run examples (windows)
         run: |
           # TODO: list examples programatically
+          echo "Running example.py"
           poetry run python examples/example.py
+          echo "Running example_noise.py"
           poetry run python examples/example_noise.py
+          echo "Running quickstart-sampler.py"
           poetry run python examples/quickstart-sampler.py
+          echo "Running quickstart-estimator.py"
           poetry run python examples/quickstart-estimator.py
+          echo "Running quickstart-transpile.py"
           poetry run python examples/quickstart-transpile.py
+          echo "Running vqe.py"
           poetry run python examples/vqe.py
+          echo "Running qaoa.py"
           poetry run python examples/qaoa.py
+          echo "Running number_partition.py"
           poetry run python examples/number_partition.py
         if: startsWith(matrix.os, 'windows')
       - name: Install all dependencies
