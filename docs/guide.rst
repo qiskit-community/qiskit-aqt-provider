@@ -299,7 +299,7 @@ Reset operations are not supported
 
 Because AQT backends do not support in-circuit state reinitialization of specific qubits, the :class:`Reset <qiskit.circuit.library.Reset>` operation is not supported. The Qiskit transpiler will fail synthesis for circuits using it (e.g. through :meth:`QuantumCircuit.initialize <qiskit.circuit.QuantumCircuit.initialize>`) when targeting AQT backends.
 
-AQT backends always prepare the quantum register in the :math:`|0>\otimes...\otimes|0>` state. Thus, :meth:`QuantumCircuit.prepare_state <qiskit.circuit.QuantumCircuit.prepare_state>` is an alternative to :meth:`QuantumCircuit.initialize <qiskit.circuit.QuantumCircuit.initialize>` as first instruction in the circuit:
+AQT backends always prepare the quantum register in the :math:`|0\rangle\otimes\cdots\otimes|0\rangle` state. Thus, :meth:`QuantumCircuit.prepare_state <qiskit.circuit.QuantumCircuit.prepare_state>` is an alternative to :meth:`QuantumCircuit.initialize <qiskit.circuit.QuantumCircuit.initialize>` as first instruction in the circuit:
 
 .. jupyter-execute::
 
