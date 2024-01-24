@@ -6,6 +6,7 @@ from qiskit.circuit.parameter import Parameter
 from qiskit.primitives import BackendSampler
 from qiskit.providers import BackendV2, Options
 from qiskit.transpiler import Target
+from qiskit.transpiler.passmanager import PassManager
 from qiskit_aer import AerJob, AerProvider
 
 from qiskit_aqt_provider.primitives import AQTSampler
@@ -50,7 +51,7 @@ if __name__ == "__main__":
     qc.measure_all()
 
     backend = Backend()
-    sampler = BackendSampler(backend)
+    sampler = BackendSampler(backend, bound_pass_manager=PassManager([]))
     aqt_sampler = AQTSampler(backend)
 
     print("BackendSampler")
