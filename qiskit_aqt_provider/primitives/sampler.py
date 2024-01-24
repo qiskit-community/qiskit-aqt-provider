@@ -52,6 +52,10 @@ class AQTSampler(BackendSampler):
         options_copy = (options or {}).copy()
         options_copy.update(with_progress_bar=options_copy.get("with_progress_bar", False))
 
+        print("MOD BACKEND")  # noqa: T201
+        print(mod_backend.target)  # noqa: T201
+        print("---")  # noqa: T201
+
         super().__init__(
             mod_backend,
             bound_pass_manager=transpiler_plugin.bound_pass_manager(mod_backend.target),
