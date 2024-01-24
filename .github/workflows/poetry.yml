@@ -50,7 +50,7 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu')
       - name: Run examples (windows)
         run: |
-          poetry run python examples/quickstart-sampler.py
+          poetry run python examples/debug_121.py
         if: startsWith(matrix.os, 'windows')
         continue-on-error: true
       - name: Install all dependencies
