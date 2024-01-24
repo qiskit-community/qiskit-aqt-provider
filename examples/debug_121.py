@@ -1,15 +1,14 @@
 from typing import Any, Union
 
+import qiskit
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import Measure, RXGate, RXXGate, RZGate
 from qiskit.circuit.parameter import Parameter
-from qiskit.primitives import BackendSampler
 from qiskit.providers import BackendV2, Options
 from qiskit.transpiler import Target
 from qiskit_aer import AerJob, AerProvider
 
 from qiskit_aqt_provider import transpiler_plugin
-from qiskit_aqt_provider.primitives import AQTSampler
 
 
 class Backend(BackendV2):
@@ -37,9 +36,6 @@ class Backend(BackendV2):
         return Options()
 
     def run(self, circuits: Union[QuantumCircuit, list[QuantumCircuit]], **options: Any) -> AerJob:
-        circuit, *_ = circuits
-        print("RXX", circuit.get_instructions("rxx"))
-        print("CX", circuit.get_instructions("cx"))
         sim = AerProvider().get_backend("aer_simulator")
         return sim.run(circuits, **options)
 
@@ -51,18 +47,12 @@ if __name__ == "__main__":
     qc.measure_all()
 
     backend = Backend()
-    print("BACKEND")
-    print(backend.target)
-    print("---")
 
-    sampler = BackendSampler(
-        backend,
-        bound_pass_manager=transpiler_plugin.bound_pass_manager(backend.target),
-    )
-    aqt_sampler = AQTSampler(backend)
+    c1 = qiskit.transpile(qc, backend)
+    print("C1 CX", c1.get_instructions("cx"))
+    print("C1 RXX", c1.get_instructions("rxx"))
 
-    print("BackendSampler")
-    sampler.run(qc).result()
-
-    print("AQTSampler")
-    aqt_sampler.run(qc).result()
+    pm = transpiler_plugin.bound_pass_manager(backend.target)
+    c2 = pm.run(c1)
+    print("C2 CX", c2.get_instructions("cx"))
+    print("C2 RXX", c2.get_instructions("rxx"))
