@@ -14,7 +14,7 @@ jobs:
       matrix:
         python-version: ['3.9', '3.10', '3.11', '3.12']
         poetry-version: [1.7.1]
-        os: ["ubuntu-latest"]
+        os: ["ubuntu-latest", "windows-latest"]
     steps:
       - uses: actions/checkout@v3
       - name: Install poetry
@@ -28,45 +28,61 @@ jobs:
           cache: "poetry"
       - name: Check shell scripts
         uses: ludeeus/action-shellcheck@2.0.0
+        if: startsWith(matrix.os, 'ubuntu')
       - name: Check Poetry lock file status
         run: poetry check --lock
       - name: Install coverage tool
         run: |
           poetry run pip install coverage[toml]
+        if: startsWith(matrix.os, 'ubuntu')
       - name: Install examples dependencies (Python >= 3.11)
         run: |
           poetry install --only main --extras examples
           # tweedledum has no wheel for Python >= 3.11 and the build errors
-        if: matrix.python-version >= '3.11'
+        if: matrix.python-version >= '3.11' || startsWith(matrix.os, 'windows')
       - name: Install examples dependencies (Python < 3.11)
         run: |
           poetry install --only main --all-extras
-        if: matrix.python-version < '3.11'
-      - name: Run examples
+        if: matrix.python-version < '3.11' && startsWith(matrix.os, 'ubuntu')
+      - name: Run examples (linux)
         run: |
           poetry run examples/run_all.sh -c
+        if: startsWith(matrix.os, 'ubuntu')
+      - name: Run examples (windows)
+        run: |
+          poetry run python examples/quickstart-sampler.py
+        if: startsWith(matrix.os, 'windows')
+        continue-on-error: true
       - name: Install all dependencies
         run: poetry install --sync
       - name: Check version numbers consistency
         run: poetry run poe version_check
+        if: startsWith(matrix.os, 'ubuntu')
       - name: Check formatting
         run: poetry run poe format_check
+        if: startsWith(matrix.os, 'ubuntu')
       - name: Linting
         run: poetry run poe lint
+        if: startsWith(matrix.os, 'ubuntu')
       - name: Type checking
         run: poetry run poe typecheck
+        if: startsWith(matrix.os, 'ubuntu')
       - name: Testing
         run: poetry run poe test --cov_opts="-a"  # add to examples coverage
+        if: startsWith(matrix.os, 'ubuntu')
       - name: Docs
         run: poetry run poe docs
+        if: startsWith(matrix.os, 'ubuntu')
       - name: Generate coverage report
         run: poetry run coverage lcov -o coverage.lcov
+        if: startsWith(matrix.os, 'ubuntu')
       - name: Upload coverage report
         uses: coverallsapp/github-action@v2
         with:
           file: coverage.lcov
           parallel: true
           flag-name: run ${{ join(matrix.*, ' - ') }}
+        if: startsWith(matrix.os, 'ubuntu')
   finish:
     needs: tests
     runs-on: ubuntu-latest
