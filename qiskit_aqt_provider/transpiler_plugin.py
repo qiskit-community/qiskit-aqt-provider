@@ -169,7 +169,7 @@ def wrap_rxx_angle(theta: float) -> Instruction:
 class WrapRxxAngles(TransformationPass):
     """Wrap Rxx angles to [0, π/2]."""
 
-    SUBSTITUTE_GATE_NAME: Final = "Rxx-wrapped"
+    SUBSTITUTE_GATE_NAME: Final = "Rxx"
 
     @map_exceptions(TranspilerError)
     def run(self, dag: DAGCircuit) -> DAGCircuit:
