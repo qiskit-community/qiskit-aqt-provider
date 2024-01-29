@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## qiskit-aqt-provider v1.2.0
+
 * Add support for Python 3.12 (#79)
 * Remove support for Python 3.8 (#79)
 * Improve math typesetting in user guide (#124)
