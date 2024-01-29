@@ -6,6 +6,8 @@ on:
   pull_request:
   # Run on manual triggers
   workflow_dispatch:
+env:
+  PYTHONIOENCODING: utf-8
 jobs:
   tests:
     name: tests-python${{ matrix.python-version }}-${{ matrix.os }}
