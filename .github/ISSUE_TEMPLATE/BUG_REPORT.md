@@ -12,7 +12,8 @@ assignees: ''
 
 ### Informations
 
-- **Qiskit AQT Provider version**:
+- **Qiskit AQT provider version**:
+- **Qiskit version**:
 - **Python version**:
 - **Operating system**:
 
