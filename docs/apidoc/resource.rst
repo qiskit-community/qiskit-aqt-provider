@@ -13,6 +13,7 @@ AQTResource
    :show-inheritance:
 
 .. autopydantic_model:: qiskit_aqt_provider.api_models.ResourceId
+   :exclude-members: model_computed_fields
    :model-show-json: False
    :model-show-validator-members: False
    :model-show-validator-summary: False
