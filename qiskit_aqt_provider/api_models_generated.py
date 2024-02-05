@@ -215,14 +215,12 @@ class Circuit(RootModel[List[OperationModel]]):
     root: Annotated[
         List[OperationModel],
         Field(
-            examples=[
-                [
-                    {"operation": "RZ", "phi": 0.5, "qubit": 0},
-                    {"operation": "R", "phi": 0.25, "qubit": 1, "theta": 0.5},
-                    {"operation": "RXX", "qubits": [0, 1], "theta": 0.5},
-                    {"operation": "MEASURE"},
-                ]
-            ],
+            examples=[[
+                {"operation": "RZ", "phi": 0.5, "qubit": 0},
+                {"operation": "R", "phi": 0.25, "qubit": 1, "theta": 0.5},
+                {"operation": "RXX", "qubits": [0, 1], "theta": 0.5},
+                {"operation": "MEASURE"},
+            ]],
             max_length=10000,
             min_length=1,
             title="Circuit",
@@ -342,27 +340,25 @@ class ResultResponse(
                             "job_type": "quantum_circuit",
                             "label": "Example computation",
                             "payload": {
-                                "circuits": [
-                                    {
-                                        "number_of_qubits": 2,
-                                        "quantum_circuit": [
-                                            {"operation": "RZ", "phi": 0.5, "qubit": 0},
-                                            {
-                                                "operation": "R",
-                                                "phi": 0.25,
-                                                "qubit": 1,
-                                                "theta": 0.5,
-                                            },
-                                            {
-                                                "operation": "RXX",
-                                                "qubits": [0, 1],
-                                                "theta": 0.5,
-                                            },
-                                            {"operation": "MEASURE"},
-                                        ],
-                                        "repetitions": 5,
-                                    }
-                                ]
+                                "circuits": [{
+                                    "number_of_qubits": 2,
+                                    "quantum_circuit": [
+                                        {"operation": "RZ", "phi": 0.5, "qubit": 0},
+                                        {
+                                            "operation": "R",
+                                            "phi": 0.25,
+                                            "qubit": 1,
+                                            "theta": 0.5,
+                                        },
+                                        {
+                                            "operation": "RXX",
+                                            "qubits": [0, 1],
+                                            "theta": 0.5,
+                                        },
+                                        {"operation": "MEASURE"},
+                                    ],
+                                    "repetitions": 5,
+                                }]
                             },
                         },
                         "response": {"status": "queued"},
@@ -379,27 +375,25 @@ class ResultResponse(
                             "job_type": "quantum_circuit",
                             "label": "Example computation",
                             "payload": {
-                                "circuits": [
-                                    {
-                                        "number_of_qubits": 2,
-                                        "quantum_circuit": [
-                                            {"operation": "RZ", "phi": 0.5, "qubit": 0},
-                                            {
-                                                "operation": "R",
-                                                "phi": 0.25,
-                                                "qubit": 1,
-                                                "theta": 0.5,
-                                            },
-                                            {
-                                                "operation": "RXX",
-                                                "qubits": [0, 1],
-                                                "theta": 0.5,
-                                            },
-                                            {"operation": "MEASURE"},
-                                        ],
-                                        "repetitions": 5,
-                                    }
-                                ]
+                                "circuits": [{
+                                    "number_of_qubits": 2,
+                                    "quantum_circuit": [
+                                        {"operation": "RZ", "phi": 0.5, "qubit": 0},
+                                        {
+                                            "operation": "R",
+                                            "phi": 0.25,
+                                            "qubit": 1,
+                                            "theta": 0.5,
+                                        },
+                                        {
+                                            "operation": "RXX",
+                                            "qubits": [0, 1],
+                                            "theta": 0.5,
+                                        },
+                                        {"operation": "MEASURE"},
+                                    ],
+                                    "repetitions": 5,
+                                }]
                             },
                         },
                         "response": {"finished_count": 0, "status": "ongoing"},
@@ -417,27 +411,25 @@ class ResultResponse(
                             "job_type": "quantum_circuit",
                             "label": "Example computation",
                             "payload": {
-                                "circuits": [
-                                    {
-                                        "number_of_qubits": 2,
-                                        "quantum_circuit": [
-                                            {"operation": "RZ", "phi": 0.5, "qubit": 0},
-                                            {
-                                                "operation": "R",
-                                                "phi": 0.25,
-                                                "qubit": 1,
-                                                "theta": 0.5,
-                                            },
-                                            {
-                                                "operation": "RXX",
-                                                "qubits": [0, 1],
-                                                "theta": 0.5,
-                                            },
-                                            {"operation": "MEASURE"},
-                                        ],
-                                        "repetitions": 5,
-                                    }
-                                ]
+                                "circuits": [{
+                                    "number_of_qubits": 2,
+                                    "quantum_circuit": [
+                                        {"operation": "RZ", "phi": 0.5, "qubit": 0},
+                                        {
+                                            "operation": "R",
+                                            "phi": 0.25,
+                                            "qubit": 1,
+                                            "theta": 0.5,
+                                        },
+                                        {
+                                            "operation": "RXX",
+                                            "qubits": [0, 1],
+                                            "theta": 0.5,
+                                        },
+                                        {"operation": "MEASURE"},
+                                    ],
+                                    "repetitions": 5,
+                                }]
                             },
                         },
                         "response": {
@@ -458,27 +450,25 @@ class ResultResponse(
                             "job_type": "quantum_circuit",
                             "label": "Example computation",
                             "payload": {
-                                "circuits": [
-                                    {
-                                        "number_of_qubits": 2,
-                                        "quantum_circuit": [
-                                            {"operation": "RZ", "phi": 0.5, "qubit": 0},
-                                            {
-                                                "operation": "R",
-                                                "phi": 0.25,
-                                                "qubit": 1,
-                                                "theta": 0.5,
-                                            },
-                                            {
-                                                "operation": "RXX",
-                                                "qubits": [0, 1],
-                                                "theta": 0.5,
-                                            },
-                                            {"operation": "MEASURE"},
-                                        ],
-                                        "repetitions": 5,
-                                    }
-                                ]
+                                "circuits": [{
+                                    "number_of_qubits": 2,
+                                    "quantum_circuit": [
+                                        {"operation": "RZ", "phi": 0.5, "qubit": 0},
+                                        {
+                                            "operation": "R",
+                                            "phi": 0.25,
+                                            "qubit": 1,
+                                            "theta": 0.5,
+                                        },
+                                        {
+                                            "operation": "RXX",
+                                            "qubits": [0, 1],
+                                            "theta": 0.5,
+                                        },
+                                        {"operation": "MEASURE"},
+                                    ],
+                                    "repetitions": 5,
+                                }]
                             },
                         },
                         "response": {"status": "cancelled"},
@@ -496,27 +486,25 @@ class ResultResponse(
                             "job_type": "quantum_circuit",
                             "label": "Example computation",
                             "payload": {
-                                "circuits": [
-                                    {
-                                        "number_of_qubits": 2,
-                                        "quantum_circuit": [
-                                            {"operation": "RZ", "phi": 0.5, "qubit": 0},
-                                            {
-                                                "operation": "R",
-                                                "phi": 0.25,
-                                                "qubit": 1,
-                                                "theta": 0.5,
-                                            },
-                                            {
-                                                "operation": "RXX",
-                                                "qubits": [0, 1],
-                                                "theta": 0.5,
-                                            },
-                                            {"operation": "MEASURE"},
-                                        ],
-                                        "repetitions": 5,
-                                    }
-                                ]
+                                "circuits": [{
+                                    "number_of_qubits": 2,
+                                    "quantum_circuit": [
+                                        {"operation": "RZ", "phi": 0.5, "qubit": 0},
+                                        {
+                                            "operation": "R",
+                                            "phi": 0.25,
+                                            "qubit": 1,
+                                            "theta": 0.5,
+                                        },
+                                        {
+                                            "operation": "RXX",
+                                            "qubits": [0, 1],
+                                            "theta": 0.5,
+                                        },
+                                        {"operation": "MEASURE"},
+                                    ],
+                                    "repetitions": 5,
+                                }]
                             },
                         },
                         "response": {

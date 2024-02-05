@@ -9,6 +9,9 @@ This guide covers usage of the Qiskit AQT provider package with the AQT cloud po
 .. jupyter-execute::
     :hide-code:
 
+    import warnings
+    warnings.simplefilter("ignore", category=DeprecationWarning)
+
     import qiskit
     from math import pi
 

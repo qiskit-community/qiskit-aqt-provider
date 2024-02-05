@@ -5,7 +5,7 @@ AQTOptions
 ==========
 
 .. autopydantic_model:: qiskit_aqt_provider.aqt_options.AQTOptions
-   :exclude-members: update_options
+   :exclude-members: update_options, model_computed_fields
    :model-show-json: False
    :model-show-validator-members: False
    :model-show-validator-summary: False
