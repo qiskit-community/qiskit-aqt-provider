@@ -166,7 +166,7 @@ class AQTResource(Backend):
             "future release. Instead you should access these attributes directly "
             "off the object or via the .target attribute. You can refer to qiskit "
             "backend interface transition guide for the exact changes: "
-            "https://qiskit.org/documentation/apidoc/providers.html#backendv1-backendv2",
+            "https://docs.quantum.ibm.com/api/qiskit/providers#migrating-between-backend-api-versions",
             DeprecationWarning,
         )
         return self._configuration
@@ -177,7 +177,7 @@ class AQTResource(Backend):
             "future release. Instead you should access these attributes directly "
             "off the object or via the .target attribute. You can refer to qiskit "
             "backend interface transition guide for the exact changes: "
-            "https://qiskit.org/documentation/apidoc/providers.html#backendv1-backendv2",
+            "https://docs.quantum.ibm.com/api/qiskit/providers#migrating-between-backend-api-versions",
             DeprecationWarning,
         )
 
@@ -295,7 +295,7 @@ class OfflineSimulatorResource(AQTResource):
     `with_noise_model` is true, a noise model approximating that of AQT hardware backends is used.
 
     .. tip::
-      The simulator backend is provided by `Qiskit Aer <https://qiskit.org/ecosystem/aer/>`_. The
+      The simulator backend is provided by `Qiskit Aer <https://qiskit.github.io/qiskit-aer//>`_. The
       Qiskit Aer resource is exposed for detailed detuning as the
       ``OfflineSimulatorResource.simulator`` attribute.
     """

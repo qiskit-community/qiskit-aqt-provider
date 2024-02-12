@@ -13,7 +13,7 @@
 """3-SAT solving example using the Grover algorithm.
 
 This is a modified version of the corresponding
-[Qiskit tutorial](https://qiskit.org/documentation/tutorials/algorithms/07_grover_examples.html).
+[Qiskit tutorial](https://qiskit-community.github.io/qiskit-algorithms/tutorials/07_grover_examples.html).
 """
 import tempfile
 import textwrap
