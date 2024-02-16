@@ -34,7 +34,7 @@ if __name__ == "__main__":
     # match. For example:
     backend = provider.get_backend("offline_simulator_no_noise", workspace="default")
 
-    # Create a 4-qubit GHZ state
+    # Define a quantum circuit that produces a 2-qubit GHZ state.
     qc = QuantumCircuit(4)
     qc.h(0)
     qc.cx(0, 1)
@@ -42,7 +42,11 @@ if __name__ == "__main__":
     qc.cx(0, 3)
     qc.measure_all()
 
-    result = qiskit.execute(qc, backend, shots=200).result()
+    # Transpile for the target backend.
+    qc = qiskit.transpile(qc, backend)
+
+    # Execute on the target backend.
+    result = backend.run(qc, shots=200).result()
 
     if result.success:
         print(result.get_counts())

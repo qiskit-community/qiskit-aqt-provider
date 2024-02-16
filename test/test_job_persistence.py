@@ -13,7 +13,6 @@
 import json
 import os
 import re
-import typing
 import uuid
 from pathlib import Path
 from typing import NamedTuple, Optional
@@ -55,7 +54,7 @@ def test_job_persistence_transaction_offline_simulator(
     assert isinstance(backend, OfflineSimulatorResource)
 
     circuits = [random_circuit(2), random_circuit(3)]
-    job = typing.cast(AQTJob, qiskit.execute(circuits, backend))
+    job = backend.run(qiskit.transpile(circuits, backend))
 
     path = job.persist(store_path=tmp_path)
 
@@ -174,7 +173,7 @@ def test_job_persistence_transaction_online_backend(httpx_mock: HTTPXMock, tmp_p
     # ----------
 
     circuits = [random_circuit(2), random_circuit(3), random_circuit(4)]
-    job = typing.cast(AQTJob, qiskit.execute(circuits, backend, shots=123))
+    job = backend.run(qiskit.transpile(circuits, backend), shots=123)
 
     # sanity checks
     assert uuid.UUID(job.job_id()) in portal_state

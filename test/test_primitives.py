@@ -167,7 +167,7 @@ def test_operator_estimator_primitive_trivial_pauli_z(
 )
 def test_aqt_sampler_transpilation(theta: float, offline_simulator_no_noise: MockSimulator) -> None:
     """Check that the AQTSampler passes the same circuit to the backend as a call to
-    `qiskit.execute` with the same transpiler call on the bound circuit would.
+    `backend.run` with the same transpiler call on the bound circuit would.
     """
     theta_param = Parameter("θ")
 

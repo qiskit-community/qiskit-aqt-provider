@@ -21,6 +21,7 @@ import httpx
 import pydantic as pdt
 import pytest
 import qiskit
+from annotated_types import Le
 from polyfactory.factories.pydantic_factory import ModelFactory
 from pytest_httpx import HTTPXMock
 from qiskit import QuantumCircuit
@@ -34,6 +35,7 @@ from qiskit_aqt_provider.circuit_to_aqt import circuits_to_aqt_job
 from qiskit_aqt_provider.test.circuits import assert_circuits_equal, empty_circuit, random_circuit
 from qiskit_aqt_provider.test.fixtures import MockSimulator
 from qiskit_aqt_provider.test.resources import DummyResource, TestResource
+from qiskit_aqt_provider.test.utils import get_field_constraint
 from qiskit_aqt_provider.versions import USER_AGENT
 
 
@@ -381,41 +383,17 @@ def test_offline_simulator_propagate_shots_option(
     default_shots = sum(offline_simulator_no_noise.run(qc).result().get_counts().values())
     assert default_shots == AQTOptions().shots
 
-    # TODO: use annotated-types to get unified access to upper bound
-    # FIXME [pydantic2]
-    # shots = min(default_shots + 40, AQTOptions.__fields__["shots"].field_info.le)  # noqa: ERA001
-    shots = min(default_shots + 40, 200)
+    shots = min(default_shots + 40, get_field_constraint(AQTOptions, "shots", Le).le)
     assert shots != default_shots
 
     # configure shots in AQTResource.run
     shots_run = sum(offline_simulator_no_noise.run(qc, shots=shots).result().get_counts().values())
     assert shots_run == shots
 
-    # configure shots in qiskit.execute
-    shots_execute = sum(
-        qiskit.execute(qc, offline_simulator_no_noise, shots=shots).result().get_counts().values()
-    )
-    assert shots_execute == shots
-
     # configure shots in resource options
     offline_simulator_no_noise.options.shots = shots
     shots_options = sum(offline_simulator_no_noise.run(qc).result().get_counts().values())
     assert shots_options == shots
-
-    # qiskit.execute overrides resource options
-    # FIXME [pydantic2]
-    # shots_override = min(shots + 40, AQTOptions.__fields__["shots"].field_info.le)  # noqa: ERA001
-    shots_override = min(shots + 40, 200)
-    assert shots_override != shots
-    assert shots_override != default_shots
-    assert offline_simulator_no_noise.options.shots != shots_override
-    shots = sum(
-        qiskit.execute(qc, offline_simulator_no_noise, shots=shots_override)
-        .result()
-        .get_counts()
-        .values()
-    )
-    assert shots == shots_override
 
 
 @pytest.mark.parametrize(
@@ -440,22 +418,6 @@ def test_offline_simulator_run_propagate_memory_option(
     ("memory", "context"),
     [(True, nullcontext()), (False, pytest.raises(qiskit.QiskitError, match="No memory"))],
 )
-def test_offline_simulator_execute_propagate_memory_option(
-    memory: bool, context: AbstractContextManager[Any], offline_simulator_no_noise: MockSimulator
-) -> None:
-    """Check that the memory option can be set in `qiskit.execute`."""
-    qc = random_circuit(2)
-    default_shots = AQTOptions().shots
-
-    result = qiskit.execute(qc, offline_simulator_no_noise, memory=memory).result()
-    with context:
-        assert len(result.get_memory()) == default_shots
-
-
-@pytest.mark.parametrize(
-    ("memory", "context"),
-    [(True, nullcontext()), (False, pytest.raises(qiskit.QiskitError, match="No memory"))],
-)
 def test_offline_simulator_resource_propagate_memory_option(
     memory: bool, context: AbstractContextManager[Any], offline_simulator_no_noise: MockSimulator
 ) -> None:
@@ -465,22 +427,5 @@ def test_offline_simulator_resource_propagate_memory_option(
 
     offline_simulator_no_noise.options.memory = memory
     result = offline_simulator_no_noise.run(qc).result()
-    with context:
-        assert len(result.get_memory()) == default_shots
-
-
-@pytest.mark.parametrize(
-    ("memory", "context"),
-    [(True, nullcontext()), (False, pytest.raises(qiskit.QiskitError, match="No memory"))],
-)
-def test_offline_simulator_execute_override_memory_option(
-    memory: bool, context: AbstractContextManager[Any], offline_simulator_no_noise: MockSimulator
-) -> None:
-    """Check that setting `memory` through `qiskit.execute` overrides the resource options."""
-    qc = random_circuit(2)
-    default_shots = AQTOptions().shots
-
-    offline_simulator_no_noise.options.memory = not memory
-    result = qiskit.execute(qc, offline_simulator_no_noise, memory=memory).result()
     with context:
         assert len(result.get_memory()) == default_shots
