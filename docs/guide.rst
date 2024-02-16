@@ -9,9 +9,6 @@ This guide covers usage of the Qiskit AQT provider package with the AQT cloud po
 .. jupyter-execute::
     :hide-code:
 
-    import warnings
-    warnings.simplefilter("ignore", category=DeprecationWarning)
-
     import qiskit
     from math import pi
 
@@ -104,11 +101,13 @@ Basic quantum circuit execution follows the regular Qiskit workflow. A quantum c
 
 .. warning:: AQT backends currently require a single projective measurement as last operation in a circuit. The hardware implementation always targets all the qubits in the quantum register, even if the circuit defines a partial measurement.
 
-The :func:`qiskit.execute <qiskit.execute_function.execute>` schedules the circuit for execution on a backend and immediately returns the corresponding job handle:
+Prior to execution circuits must be transpiled to only use gates supported by the selected backend. The transpiler's entry point is the :func:`qiskit.transpile <qiskit.compiler.transpile>` function. See `Quantum circuit transpilation`_ for more information.
+The :meth:`AQTResource.run <qiskit_aqt_provider.aqt_resource.AQTResource.run>` method schedules the circuit for execution on a backend and immediately returns the corresponding job handle:
 
 .. jupyter-execute::
 
-   job = qiskit.execute(circuit, backend)
+   transpiled_circuit = qiskit.transpile(circuit, backend)
+   job = backend.run(transpiled_circuit)
 
 The :meth:`AQTJob.result <qiskit_aqt_provider.aqt_job.AQTJob.result>` method blocks until the job completes (either successfully or not). The return type is a standard Qiskit :class:`Result <qiskit.result.Result>` instance:
 
@@ -121,16 +120,17 @@ The :meth:`AQTJob.result <qiskit_aqt_provider.aqt_job.AQTJob.result>` method blo
    else:
        raise RuntimeError
 
-Multiple options can be passed to :func:`qiskit.execute <qiskit.execute_function.execute>` that influence the backend behavior and interaction with the AQT cloud. See the reference documentation of the :class:`AQTOptions <qiskit_aqt_provider.aqt_options.AQTOptions>` class for a complete list.
+Multiple options can be passed to :meth:`AQTResource.run <qiskit_aqt_provider.aqt_resource.AQTResource.run>` that influence the backend behavior and interaction with the AQT cloud. See the reference documentation of the :class:`AQTOptions <qiskit_aqt_provider.aqt_options.AQTOptions>` class for a complete list.
 
 Batch circuits evaluation
 -------------------------
 
-The :func:`qiskit.execute <qiskit.execute_function.execute>` function can also be given a list of quantum circuits to execute as a batch. The returned :class:`AQTJob <qiskit_aqt_provider.aqt_job.AQTJob>` is a handle for all the circuit executions. Execution of individual circuits within such a batch job can be monitored using the :meth:`AQTJob.progress <qiskit_aqt_provider.aqt_job.AQTJob.progress>` method. The :attr:`with_progress_bar <qiskit_aqt_provider.aqt_options.AQTOptions.with_progress_bar>` option on AQT backends (enabled by default) allows printing an interactive progress bar on the standard error stream (:data:`sys.stderr`).
+The :meth:`AQTResource.run <qiskit_aqt_provider.aqt_resource.AQTResource.run>` method can also be given a list of quantum circuits to execute as a batch. The returned :class:`AQTJob <qiskit_aqt_provider.aqt_job.AQTJob>` is a handle for all the circuit executions. Execution of individual circuits within such a batch job can be monitored using the :meth:`AQTJob.progress <qiskit_aqt_provider.aqt_job.AQTJob.progress>` method. The :attr:`with_progress_bar <qiskit_aqt_provider.aqt_options.AQTOptions.with_progress_bar>` option on AQT backends (enabled by default) allows printing an interactive progress bar on the standard error stream (:data:`sys.stderr`).
 
 .. jupyter-execute::
 
-   job = qiskit.execute([circuit, circuit], backend)
+   transpiled_circuit0, transpiled_circuit1 = qiskit.transpile([circuit, circuit], backend)
+   job = backend.run([transpiled_circuit0, transpiled_circuit1])
    print(job.progress())
 
 The result of a batch job is also a standard Qiskit :class:`Result <qiskit.result.Result>` instance. The `success` marker is true if and only if all individual circuits were successfully executed:
@@ -155,7 +155,7 @@ Due to the limited availability of quantum computing resources, a job may have t
 
    job_ids = set()
 
-   job = qiskit.execute(circuit, backend)
+   job = backend.run(transpiled_circuit)
    job.persist()
    job_ids.add(job.job_id())
 
@@ -224,9 +224,7 @@ AQT backends only natively implement a limited but complete set of quantum gates
 
 .. warning:: For implementation reasons, the transpilation target declares :class:`RXGate <qiskit.circuit.library.RXGate>` as basis gate. The AQT API, however, only accepts the more general :class:`RGate <qiskit.circuit.library.RGate>`, in addition to :class:`RZGate <qiskit.circuit.library.RZGate>`, the entangling :class:`RXXGate <qiskit.circuit.library.RXXGate>`, and the :class:`Measure <qiskit.circuit.library.Measure>` operation.
 
-Circuit transpilation targeting the AQT backends is automatically performed when using the :func:`qiskit.execute <qiskit.execute_function.execute>` function. The optimization level can be tuned using the ``optimization_level=0,1,2,3`` argument.
-
-Transpilation can also be triggered separately from job submission using the :func:`qiskit.transpile <qiskit.compiler.transpile>` function, allowing to inspect the transformation from the original circuit:
+The transpiler's entry point is the :func:`qiskit.transpile <qiskit.compiler.transpile>` function. The optimization level can be tuned using the ``optimization_level=0,1,2,3`` argument. One can inspect how the circuit is converted from the original one:
 
 .. jupyter-execute::
    :hide-code:

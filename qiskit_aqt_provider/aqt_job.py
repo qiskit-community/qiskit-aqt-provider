@@ -120,23 +120,23 @@ class AQTJob(JobV1):
     Jobs contain one or more quantum circuits that are executed with a common
     set of options (see :class:`AQTOptions <qiskit_aqt_provider.aqt_options.AQTOptions>`).
 
-    Job handles should be retrieved from calls to
-    :func:`qiskit.execute <qiskit.execute_function.execute>`
-    or :meth:`AQTResource.run <qiskit_aqt_provider.aqt_resource.AQTResource.run>`, both of which
-    immediately submit the job for execution. The :meth:`result` method allows blocking until a job
+    Job handles should be retrieved from calls
+    to :meth:`AQTResource.run <qiskit_aqt_provider.aqt_resource.AQTResource.run>`, which immediately
+    returns after submitting the job. The :meth:`result` method allows blocking until a job
     completes:
 
     >>> import qiskit
     >>> from qiskit.providers import JobStatus
     >>> from qiskit_aqt_provider import AQTProvider
-    ...
+    >>>
     >>> backend = AQTProvider("").get_backend("offline_simulator_no_noise")
-    ...
+    >>>
     >>> qc = qiskit.QuantumCircuit(1)
     >>> _ = qc.rx(3.14, 0)
     >>> _ = qc.measure_all()
-    ...
-    >>> job = qiskit.execute(qc, backend, shots=100)
+    >>> qc = qiskit.transpile(qc, backend)
+    >>>
+    >>> job = backend.run(qc, shots=100)
     >>> result = job.result()
     >>> job.status() is JobStatus.DONE
     True
