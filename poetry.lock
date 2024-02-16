@@ -4124,58 +4124,6 @@ docs = ["myst-parser", "pydata-sphinx-theme", "sphinx"]
 test = ["argcomplete (>=3.0.3)", "mypy (>=1.7.0)", "pre-commit", "pytest (>=7.0,<7.5)", "pytest-mock", "pytest-mypy-testing"]
 
 [[package]]
-name = "tweedledum"
-version = "1.1.1"
-description = "A library for synthesizing and manipulating quantum circuits"
-optional = true
-python-versions = ">=3.6"
-files = [
-    {file = "tweedledum-1.1.1-cp310-cp310-macosx_10_15_x86_64.whl", hash = "sha256:b563c8324bbf5ed9ed57399a1eca34d8a82cb146b3011154e3df749753b75fe5"},
-    {file = "tweedledum-1.1.1-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:a5d734fed09a479afc0ec8fa91764ac9411821c27396e1b7d4a64393e689271d"},
-    {file = "tweedledum-1.1.1-cp310-cp310-manylinux_2_12_i686.manylinux2010_i686.whl", hash = "sha256:a7dc0a9674e90808b26e24410bff7e5385d2b21ddf7068fc9c7d020ac46cefd8"},
-    {file = "tweedledum-1.1.1-cp310-cp310-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:be97848edb19473eb653c58515605a636da1dc4a4650e291f3f05824c9dac005"},
-    {file = "tweedledum-1.1.1-cp310-cp310-win32.whl", hash = "sha256:eae6a32207f3f8daf17806b90b2390e13f418b00a62384d029e13f215249df6b"},
-    {file = "tweedledum-1.1.1-cp310-cp310-win_amd64.whl", hash = "sha256:ab7a800d6266c98a30b0e8dc3e13cf49c8145012dfa199c9cc4d58d598a54218"},
-    {file = "tweedledum-1.1.1-cp36-cp36m-macosx_10_15_x86_64.whl", hash = "sha256:6b8fa90b5303a6534ef332019ccdbb93ba969993cd7b78395ab31cb4c48a718e"},
-    {file = "tweedledum-1.1.1-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:cad30654036a36afee0fb879a9cc3f26b33655d8a833425704b6dbb6d4caddfb"},
-    {file = "tweedledum-1.1.1-cp36-cp36m-manylinux_2_12_i686.manylinux2010_i686.whl", hash = "sha256:4943f5d628f9adb95244b8bac79b7978f810bdaa5025e9930a625161a0d72dad"},
-    {file = "tweedledum-1.1.1-cp36-cp36m-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:09dbf20f792e97211270dfa2b3033ead0ce11fd65cc03781a542f36bccd7f1c1"},
-    {file = "tweedledum-1.1.1-cp36-cp36m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:0bbe9a20d71576465051720eac72aa7f95fae39b4e4feea44f690e1ba856e99a"},
-    {file = "tweedledum-1.1.1-cp36-cp36m-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:57687300cca24c2f8fb340d6fa2233450a054647c736dc84958aac4d235b8542"},
-    {file = "tweedledum-1.1.1-cp36-cp36m-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:828808a47c2c67a10e1cf8692ede0bcf2732e5ace8b910bdcb7a2c0bb82440d8"},
-    {file = "tweedledum-1.1.1-cp36-cp36m-win32.whl", hash = "sha256:451a10c32c58bf4726ce03f6cce9a93fb5332e679b7dbf48ef69c6fa93493243"},
-    {file = "tweedledum-1.1.1-cp36-cp36m-win_amd64.whl", hash = "sha256:f0500f8088cf142bfc4dd07a81f3a344603755602dc5f51acde588a36e538ed5"},
-    {file = "tweedledum-1.1.1-cp37-cp37m-macosx_10_15_x86_64.whl", hash = "sha256:86fac8e040d1645cfb3d623d949523eb1d367c2eee51fd5843536955104fd1ed"},
-    {file = "tweedledum-1.1.1-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:fdee0b3b044db8e5d74001fbe25201e0db31be529d47785d2a70e22b7ff63f4a"},
-    {file = "tweedledum-1.1.1-cp37-cp37m-manylinux_2_12_i686.manylinux2010_i686.whl", hash = "sha256:0fd7ca92719fcb6a2437a16fd0281809fc57acb8a86ebf41fd06fe8faca1e14d"},
-    {file = "tweedledum-1.1.1-cp37-cp37m-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:003d92abb1c49e824b8c05857ae745959981174a082dd8c5a66ab1f55855ced3"},
-    {file = "tweedledum-1.1.1-cp37-cp37m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:b6b2fb3d20e21dbe97e9776d0c0b33c0a3dab8e4ac03a5434e9bfd11c9b3a998"},
-    {file = "tweedledum-1.1.1-cp37-cp37m-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:157392c983762e8a3f7ab523b0cfa4c78fbe83e28e0f1eee59e623636ddfe1ec"},
-    {file = "tweedledum-1.1.1-cp37-cp37m-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:cdb3c526f86fcd3d2c8794d1a3d5836ece2cf6f6c9d8e1ee8036b30d24ce29b1"},
-    {file = "tweedledum-1.1.1-cp37-cp37m-win32.whl", hash = "sha256:57201c605b1d9045c135e72c521cbe537d8da6d534daa76e349c27fc1177681c"},
-    {file = "tweedledum-1.1.1-cp37-cp37m-win_amd64.whl", hash = "sha256:099b1826f213bd4006dcd02526377b81134538fe1377e4cb70a07ba223ae958a"},
-    {file = "tweedledum-1.1.1-cp38-cp38-macosx_10_15_x86_64.whl", hash = "sha256:80f99d7f9dee78f73796b9df2bc836c02f9bfc5a55eec65dda20899d96d09754"},
-    {file = "tweedledum-1.1.1-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:6f8cbd4cb6933d867e28ff7efc6030eceb1e4caef5c1bed5dfe7d097f63e6c28"},
-    {file = "tweedledum-1.1.1-cp38-cp38-manylinux_2_12_i686.manylinux2010_i686.whl", hash = "sha256:86da69130494c972d751ab61fdb209d40f079b77d5b3b833e83f26cee3c1a2fc"},
-    {file = "tweedledum-1.1.1-cp38-cp38-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:4385265171ee53d12d64429d65f0609f57a171d646a61366e3354eddc5c95778"},
-    {file = "tweedledum-1.1.1-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:956f34ca2f6edaaafeaeef5f08db2abd54e4b5371a861ad68065d88b63d157b2"},
-    {file = "tweedledum-1.1.1-cp38-cp38-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:9a3d4686fd1a8e8c86300e004acd73dd21e35a65f66625d784b2292280e46269"},
-    {file = "tweedledum-1.1.1-cp38-cp38-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:a08c535ef2ebcb326d2388bb4430d52f630ce43386f8b21a42e761e9e30394c4"},
-    {file = "tweedledum-1.1.1-cp38-cp38-win32.whl", hash = "sha256:a032f0b6f6143dccee115b14a72780bc5813ccc552f3b1e9d519cb41e2d3ee50"},
-    {file = "tweedledum-1.1.1-cp38-cp38-win_amd64.whl", hash = "sha256:0da0905cd6c08b99d772b2b97f15ccfa80758c49143c3eff131b9480eba6f3fd"},
-    {file = "tweedledum-1.1.1-cp39-cp39-macosx_10_15_x86_64.whl", hash = "sha256:1c73247309b6853b19906df594f7d0a8664bf3490ee2fb25621f617099525ffc"},
-    {file = "tweedledum-1.1.1-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:cd6cd64ccfc10db296f17e20713265bd91899774a34bcdf788c002c48514469e"},
-    {file = "tweedledum-1.1.1-cp39-cp39-manylinux_2_12_i686.manylinux2010_i686.whl", hash = "sha256:b6aeba18fad932e7dd7715758c97f5aaa287b2726cb4ca9eea7d769fcd607f90"},
-    {file = "tweedledum-1.1.1-cp39-cp39-manylinux_2_12_x86_64.manylinux2010_x86_64.whl", hash = "sha256:3e243c2f70a4e4758cbdd45b31cdd72eb4816ace7029bdfe7e706cc37015f72e"},
-    {file = "tweedledum-1.1.1-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:52f60f04dcc6e6162c3ce9eb058bb6853cfdd7c8dfefb1f1b428e94d0633a7cc"},
-    {file = "tweedledum-1.1.1-cp39-cp39-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:f4710519655c55c0b74b6c8abc39f24493f3a8a6c7854af362f4c7953d16036b"},
-    {file = "tweedledum-1.1.1-cp39-cp39-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:9c305fe9365f449cc3ad379ecf823f1ba6b734cdec56a618fbef11c83a54cede"},
-    {file = "tweedledum-1.1.1-cp39-cp39-win32.whl", hash = "sha256:d4bf1f03d11cdc02c32a7771fa23c7de136e7cfa2920f508b2b3bc93d8b29c50"},
-    {file = "tweedledum-1.1.1-cp39-cp39-win_amd64.whl", hash = "sha256:98818ca8cae7a1d95ca05b219ffbcaf92a4fec200ff245e3ddf3ffc616977490"},
-    {file = "tweedledum-1.1.1.tar.gz", hash = "sha256:58d6f7a988b10c31be3faa1faf3e58288ef7e8159584bfa6ded45742f390309f"},
-]
-
-[[package]]
 name = "typer"
 version = "0.7.0"
 description = "Typer, build great CLIs. Easy to code. Based on Python type hints."
@@ -4401,9 +4349,8 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 
 [extras]
 examples = ["qiskit-algorithms", "qiskit-optimization"]
-examples-problematic = ["tweedledum"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.13"
-content-hash = "9f53b4190ce424f16f2ca270c8d3b2942dc31939db2016f598ecdef7e70fce70"
+content-hash = "773eacf0753e949348cb5f6a7a17c3b3719eeb17b4f03a87485d80d83784d777"
