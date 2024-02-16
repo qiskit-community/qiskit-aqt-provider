@@ -10,7 +10,7 @@
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v1.json)](https://github.com/charliermarsh/ruff)
 [![Checked with mypy](https://www.mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 
-[Qiskit](https://qiskit.org/) is an open-source SDK for working with quantum computers at the level of circuits, algorithms, and application modules.
+[Qiskit](https://www.ibm.com/quantum/qiskit) is an open-source SDK for working with quantum computers at the level of circuits, algorithms, and application modules.
 
 This project contains a provider that allows access to [AQT](https://www.aqt.eu/) ion-trap quantum computing
 systems.
