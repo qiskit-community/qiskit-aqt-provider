@@ -37,15 +37,9 @@ jobs:
         run: |
           poetry run pip install coverage[toml]
         if: startsWith(matrix.os, 'ubuntu')
-      - name: Install examples dependencies (Windows or Python >= 3.11)
+      - name: Install examples dependencies
         run: |
           poetry install --only main --extras examples
-          # tweedledum has no wheel for Python >= 3.11 and the build errors
-        if: matrix.python-version >= '3.11' || startsWith(matrix.os, 'windows')
-      - name: Install examples dependencies (Python < 3.11)
-        run: |
-          poetry install --only main --all-extras
-        if: matrix.python-version < '3.11' && startsWith(matrix.os, 'ubuntu')
       - name: Run examples (linux)
         run: |
           poetry run examples/run_all.sh -c
