@@ -28,25 +28,25 @@ class AQTOptions(pdt.BaseModel, Mapping[str, Any]):
 
     >>> import qiskit
     >>> from qiskit_aqt_provider import AQTProvider
-    ...
+    >>>
     >>> backend = AQTProvider("").get_backend("offline_simulator_no_noise")
-    ...
+    >>>
     >>> qc = qiskit.QuantumCircuit(1)
     >>> _ = qc.rx(3.14, 0)
     >>> _ = qc.measure_all()
-    ...
+    >>> qc = qiskit.transpile(qc, backend)
+    >>>
     >>> backend.options.shots = 50
-    >>> result = qiskit.execute(qc, backend).result()
+    >>> result = backend.run(qc).result()
     >>> sum(result.get_counts().values())
     50
 
     Option overrides can also be applied on a per-job basis, as keyword arguments to
-    :func:`qiskit.execute <qiskit.execute_function.execute>` or
     :meth:`AQTResource.run <qiskit_aqt_provider.aqt_resource.AQTResource.run>`:
 
     >>> backend.options.shots
     50
-    >>> result = qiskit.execute(qc, backend, shots=100).result()
+    >>> result = backend.run(qc, shots=100).result()
     >>> sum(result.get_counts().values())
     100
     """

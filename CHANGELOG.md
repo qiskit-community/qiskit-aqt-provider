@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* Remove references to the deprecated function `qiskit.execute` (#136)
+
 ## qiskit-aqt-provider v1.2.0
 
 * Add support for Python 3.12 (#79)
