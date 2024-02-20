@@ -10,7 +10,6 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-import importlib.metadata
 from math import isclose, pi
 from typing import Callable
 
@@ -27,34 +26,6 @@ from qiskit_aqt_provider.primitives import AQTSampler
 from qiskit_aqt_provider.primitives.estimator import AQTEstimator
 from qiskit_aqt_provider.test.circuits import assert_circuits_equal
 from qiskit_aqt_provider.test.fixtures import MockSimulator
-
-
-@pytest.mark.skipif(
-    importlib.metadata.version("qiskit-terra") >= "0.24.0",
-    reason="qiskit.opflow is deprecated in qiskit-terra>=0.24",
-)
-def test_circuit_sampling_opflow(
-    offline_simulator_no_noise: AQTResource,
-) -> None:  # pragma: no cover
-    """Check that an `AQTResource` can be used as backend for the legacy
-    `opflow.CircuitSampler` with parametric circuits.
-    """
-    from qiskit.opflow import CircuitSampler, StateFn
-
-    theta = Parameter("θ")
-
-    qc = QuantumCircuit(2)
-    qc.rx(theta, 0)
-    qc.ry(theta, 0)
-    qc.rz(theta, 0)
-    qc.rxx(theta, 0, 1)
-
-    assert qc.num_parameters > 0
-
-    sampler = CircuitSampler(offline_simulator_no_noise)
-
-    sampled = sampler.convert(StateFn(qc), params={theta: pi}).eval()
-    assert sampled.to_matrix().tolist() == [[0.0, 0.0, 0.0, 1.0]]
 
 
 @pytest.mark.parametrize(
