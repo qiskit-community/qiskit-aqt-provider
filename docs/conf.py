@@ -17,9 +17,9 @@ copyright = "2023, Qiskit and AQT development teams"
 author = "Qiskit and AQT development teams"
 
 # The short X.Y version
-version = "1.2.0"
+version = "1.3.0"
 # The full version, including alpha/beta/rc tags
-release = "1.2.0"
+release = "1.3.0"
 
 extensions = [
     "sphinx.ext.napoleon",
@@ -80,5 +80,5 @@ autodoc_pydantic_field_list_validators = False
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
-    "qiskit": ("https://qiskit.org/documentation/", None),
+    "qiskit": ("https://docs.quantum.ibm.com/api/qiskit/0.46", None),
 }
