@@ -175,7 +175,7 @@ By default, persisted job handles can only be retrieved once, as the stored data
 Using Qiskit primitives
 -----------------------
 
-Circuit evaluation can also be performed using :mod:`Qiskit primitives <qiskit.primitives>` through their specialized implementations for AQT backends :class:`AQTSampler <qiskit_aqt_provider.primitives.sampler.AQTSampler>` and :class:`AQTEstimator <qiskit_aqt_provider.primitives.estimator.AQTEstimator>`.
+Circuit evaluation can also be performed using :mod:`Qiskit primitives <qiskit.primitives>` through their specialized implementations for AQT backends :class:`AQTSampler <qiskit_aqt_provider.primitives.sampler.AQTSampler>` and :class:`AQTEstimator <qiskit_aqt_provider.primitives.estimator.AQTEstimator>`. These classes expose the :class:`BaseSamplerV1 <qiskit.primitives.BaseSamplerV1>` and :class:`BaseEstimatorV1 <qiskit.primitives.BaseEstimatorV1>` interfaces respectively.
 
 .. warning:: The generic implementations :class:`BackendSampler <qiskit.primitives.BackendSampler>` and :class:`BackendEstimator <qiskit.primitives.BackendEstimator>` are **not** compatible with backends retrieved from the :class:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider>`. Please use the specialized implementations :class:`AQTSampler <qiskit_aqt_provider.primitives.sampler.AQTSampler>` and :class:`AQTEstimator <qiskit_aqt_provider.primitives.estimator.AQTEstimator>` instead.
 
@@ -209,7 +209,7 @@ In this Bell state, the expectation value of the the :math:`\sigma_z\otimes\sigm
    result = estimator.run(bell_circuit, observable).result()
    print(result.values[0])
 
-.. tip:: The circuit passed to estimator's :meth:`run <qiskit.primitives.BaseEstimator.run>` method is used to prepare the state the observable is evaluated in. Therefore, it must not contain unconditional measurement operations.
+.. tip:: The circuit passed to estimator's :meth:`run <qiskit.primitives.BaseEstimatorV1.run>` method is used to prepare the state the observable is evaluated in. Therefore, it must not contain unconditional measurement operations.
 
 Quantum circuit transpilation
 =============================
@@ -279,7 +279,7 @@ The built-in transpiler largely leverages the :mod:`qiskit.transpiler`. Custom p
 Transpilation in Qiskit primitives
 ----------------------------------
 
-The generic implementations of the Qiskit primitives :class:`Sampler <qiskit.primitives.BaseSampler>` and :class:`Estimator <qiskit.primitives.BaseEstimator>` cache transpilation results to improve their runtime performance. This is particularly effective when evaluating batches of circuits that differ only in their parametrization.
+The generic implementations of the Qiskit primitives :class:`Sampler <qiskit.primitives.BaseSamplerV1>` and :class:`Estimator <qiskit.primitives.BaseEstimatorV1>` cache transpilation results to improve their runtime performance. This is particularly effective when evaluating batches of circuits that differ only in their parametrization.
 
 However, some passes registered by the AQT :ref:`transpiler plugin <transpiler-plugin>` require knowledge of the bound parameter values. The specialized implementations :class:`AQTSampler <qiskit_aqt_provider.primitives.sampler.AQTSampler>` and :class:`AQTEstimator <qiskit_aqt_provider.primitives.estimator.AQTEstimator>` use a hybrid approach, where the transpilation results of passes that do not require bound parameters are cached, while the small subset of passes that require fixed parameter values is executed before each circuit submission to the execution backend.
 
