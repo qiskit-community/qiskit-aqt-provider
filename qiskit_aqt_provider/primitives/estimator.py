@@ -20,7 +20,7 @@ from qiskit_aqt_provider.aqt_resource import AQTResource, make_transpiler_target
 
 
 class AQTEstimator(BackendEstimator):
-    """:class:`Estimator <qiskit.primitives.Estimator>` primitive for AQT backends."""
+    """:class:`BaseEstimatorV1 <qiskit.primitives.BaseEstimatorV1>` primitive for AQT backends."""
 
     _backend: AQTResource
 

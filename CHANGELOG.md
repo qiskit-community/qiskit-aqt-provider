@@ -2,9 +2,11 @@
 
 ## Unreleased
 
+* Only support Qiskit >= 1.0 (#141)
+
 ## qiskit-aqt-provider v1.3.0
 
-* Point Qiskit docs link to docs.quantum.ibm.com (#135)
+* Point Qiskit docs links to docs.quantum.ibm.com (#135)
 * Remove references to the deprecated function `qiskit.execute` (#136)
 * Pin Qiskit dependency strictly below 1.0 (#137)
 * Remove the Grover 3-SAT example (#137)

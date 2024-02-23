@@ -80,5 +80,5 @@ autodoc_pydantic_field_list_validators = False
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
-    "qiskit": ("https://docs.quantum.ibm.com/api/qiskit/0.46", None),
+    "qiskit": ("https://docs.quantum.ibm.com/api/qiskit/", None),
 }

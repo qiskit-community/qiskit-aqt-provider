@@ -79,6 +79,7 @@ class AQTOptions(pdt.BaseModel, Mapping[str, Any]):
     @pdt.field_validator("query_timeout_seconds")
     @classmethod
     def validate_timeout(cls, value: Optional[float], info: pdt.ValidationInfo) -> Optional[float]:
+        """Enforce that the timeout, if set, is strictly positive."""
         if value is not None and value <= 0.0:
             raise ValueError(f"{info.field_name} must be None or > 0.")
 

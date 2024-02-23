@@ -10,14 +10,19 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-import importlib.metadata
 from math import isclose, pi
 from typing import Callable
 
 import pytest
 import qiskit
 from qiskit.circuit import Parameter, QuantumCircuit
-from qiskit.primitives import BackendSampler, BaseSampler, Sampler
+from qiskit.primitives import (
+    BackendEstimator,
+    BackendSampler,
+    BaseEstimatorV1,
+    BaseSamplerV1,
+    Sampler,
+)
 from qiskit.providers import Backend
 from qiskit.quantum_info import SparsePauliOp
 from qiskit.transpiler.exceptions import TranspilerError
@@ -29,32 +34,18 @@ from qiskit_aqt_provider.test.circuits import assert_circuits_equal
 from qiskit_aqt_provider.test.fixtures import MockSimulator
 
 
-@pytest.mark.skipif(
-    importlib.metadata.version("qiskit-terra") >= "0.24.0",
-    reason="qiskit.opflow is deprecated in qiskit-terra>=0.24",
-)
-def test_circuit_sampling_opflow(
-    offline_simulator_no_noise: AQTResource,
-) -> None:  # pragma: no cover
-    """Check that an `AQTResource` can be used as backend for the legacy
-    `opflow.CircuitSampler` with parametric circuits.
+def test_backend_primitives_are_v1() -> None:
+    """Check that `BackendSampler` and `BackendEstimator` have primitives V1 interfaces.
+
+    As of 2024-02-20, there are no backend primitives that provide V2 interfaces.
+
+    If this test fails, the `AQTSampler` and `AQTEstimator` docs as well as the user
+    guide must be updated.
+
+    An interface mismatch may be detected at other spots. This makes the detection explicit.
     """
-    from qiskit.opflow import CircuitSampler, StateFn
-
-    theta = Parameter("θ")
-
-    qc = QuantumCircuit(2)
-    qc.rx(theta, 0)
-    qc.ry(theta, 0)
-    qc.rz(theta, 0)
-    qc.rxx(theta, 0, 1)
-
-    assert qc.num_parameters > 0
-
-    sampler = CircuitSampler(offline_simulator_no_noise)
-
-    sampled = sampler.convert(StateFn(qc), params={theta: pi}).eval()
-    assert sampled.to_matrix().tolist() == [[0.0, 0.0, 0.0, 1.0]]
+    assert issubclass(BackendSampler, BaseSamplerV1)
+    assert issubclass(BackendEstimator, BaseEstimatorV1)
 
 
 @pytest.mark.parametrize(
@@ -75,7 +66,7 @@ def test_circuit_sampling_opflow(
     ],
 )
 def test_circuit_sampling_primitive(
-    get_sampler: Callable[[Backend], BaseSampler],
+    get_sampler: Callable[[Backend], BaseSamplerV1],
     offline_simulator_no_noise: AQTResource,
 ) -> None:
     """Check that a `Sampler` primitive using an AQT backend can sample parametric circuits."""

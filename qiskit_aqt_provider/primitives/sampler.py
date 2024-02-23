@@ -20,7 +20,7 @@ from qiskit_aqt_provider.aqt_resource import AQTResource, make_transpiler_target
 
 
 class AQTSampler(BackendSampler):
-    """:class:`Sampler <qiskit.primitives.Sampler>` primitive for AQT backends."""
+    """:class:`BaseSamplerV1 <qiskit.primitives.BaseSamplerV1>` primitive for AQT backends."""
 
     _backend: AQTResource
 
