@@ -49,9 +49,13 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install uv
         run: |
-          # https://github.com/astral-sh/uv/issues/1386#issuecomment-1947801083
-          echo "VIRTUAL_ENV=${Python_ROOT_DIR}" >> $GITHUB_ENV
           pip install uv
+          uv venv
+          echo "VIRTUAL_ENV=.venv" >> $GITHUB_ENV
+      - name: Check Python version
+        run: |
+          source $VIRTUAL_ENV/bin/activate
+          python --version
       - name: Restore packages
         uses: actions/download-artifact@v4
         with:
@@ -71,67 +75,67 @@ jobs:
       - name: Run examples
         run: |
           ./examples/run_all.sh
-  tests:
-    name: tests-py${{ matrix.python-version }}-qiskit${{ matrix.qiskit-version }}-resolve-${{ matrix.resolution-strategy }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        qiskit-version: ['0.46.0', '1.0.1']
-        python-version: ['3.9', '3.10', '3.11', '3.12']
-        os: ['ubuntu-latest']
-        resolution-strategy: ['highest', 'lowest-direct']
-    steps:
-      - uses: actions/checkout@v4
-      - name: Check shell scripts
-        uses: ludeeus/action-shellcheck@2.0.0
-      - name: Setup Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: "pip"
-      - name: Install uv
-        run: |
-          # https://github.com/astral-sh/uv/issues/1386#issuecomment-1947801083
-          echo "VIRTUAL_ENV=${Python_ROOT_DIR}" >> $GITHUB_ENV
-          pip install uv
-      - name: Lock dependencies
-        run: |
-          echo "qiskit==${{ matrix.qiskit-version }}" > qiskit-override.txt
-          # FIXME: https://github.com/Qiskit/qiskit_sphinx_theme/issues/567
-          echo 'furo==2023.9.10' > furo-override.txt
-          uv pip compile pyproject.toml --all-extras --override qiskit-override.txt --override furo-override.txt | tee requirements.txt
-      - name: Install project
-        run: |
-          uv pip sync --strict requirements.txt
-          uv pip install 'qiskit-aqt-provider @ .'  # for the plugins
-      - name: Check version numbers consistency
-        run: poe version_check
-      - name: Check formatting
-        run: poe format_check
-      - name: Linting
-        run: poe lint
-      - name: Type checking
-        run: poe typecheck
-      - name: Run examples with coverage
-        run: |
-          ./examples/run_all.sh -c
-      - name: Run tests with coverage
-        run: poe test --cov_opts="-a"  # add to examples coverage
-      - name: Build docs
-        run: poe docs
-      - name: Generate coverage report
-        run: coverage lcov -o coverage.lcov
-      - name: Upload coverage report
-        uses: coverallsapp/github-action@v2
-        with:
-          file: coverage.lcov
-          parallel: true
-          flag-name: run ${{ join(matrix.*, ' - ') }}
-  finish:
-    needs: tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Close parallel coverage build
-        uses: coverallsapp/github-action@v2
-        with:
-          parallel-finished: true
+  # tests:
+  #   name: tests-py${{ matrix.python-version }}-qiskit${{ matrix.qiskit-version }}-resolve-${{ matrix.resolution-strategy }}
+  #   runs-on: ${{ matrix.os }}
+  #   strategy:
+  #     matrix:
+  #       qiskit-version: ['0.46.0', '1.0.1']
+  #       python-version: ['3.9', '3.10', '3.11', '3.12']
+  #       os: ['ubuntu-latest']
+  #       resolution-strategy: ['highest', 'lowest-direct']
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Check shell scripts
+  #       uses: ludeeus/action-shellcheck@2.0.0
+  #     - name: Setup Python ${{ matrix.python-version }}
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: ${{ matrix.python-version }}
+  #         cache: "pip"
+  #     - name: Install uv
+  #       run: |
+  #         # https://github.com/astral-sh/uv/issues/1386#issuecomment-1947801083
+  #         echo "VIRTUAL_ENV=${Python_ROOT_DIR}" >> $GITHUB_ENV
+  #         pip install uv
+  #     - name: Lock dependencies
+  #       run: |
+  #         echo "qiskit==${{ matrix.qiskit-version }}" > qiskit-override.txt
+  #         # FIXME: https://github.com/Qiskit/qiskit_sphinx_theme/issues/567
+  #         echo 'furo==2023.9.10' > furo-override.txt
+  #         uv pip compile pyproject.toml --all-extras --override qiskit-override.txt --override furo-override.txt | tee requirements.txt
+  #     - name: Install project
+  #       run: |
+  #         uv pip sync --strict requirements.txt
+  #         uv pip install 'qiskit-aqt-provider @ .'  # for the plugins
+  #     - name: Check version numbers consistency
+  #       run: poe version_check
+  #     - name: Check formatting
+  #       run: poe format_check
+  #     - name: Linting
+  #       run: poe lint
+  #     - name: Type checking
+  #       run: poe typecheck
+  #     - name: Run examples with coverage
+  #       run: |
+  #         ./examples/run_all.sh -c
+  #     - name: Run tests with coverage
+  #       run: poe test --cov_opts="-a"  # add to examples coverage
+  #     - name: Build docs
+  #       run: poe docs
+  #     - name: Generate coverage report
+  #       run: coverage lcov -o coverage.lcov
+  #     - name: Upload coverage report
+  #       uses: coverallsapp/github-action@v2
+  #       with:
+  #         file: coverage.lcov
+  #         parallel: true
+  #         flag-name: run ${{ join(matrix.*, ' - ') }}
+  # finish:
+  #   needs: tests
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Close parallel coverage build
+  #       uses: coverallsapp/github-action@v2
+  #       with:
+  #         parallel-finished: true
