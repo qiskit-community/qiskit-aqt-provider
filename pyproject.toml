@@ -1,140 +1,111 @@
-[tool.poetry]
+[build-system]
+build-backend = "hatchling.build"
+requires = [
+  "hatchling",
+]
+
+[project]
 name = "qiskit-aqt-provider"
 version = "1.3.0"
 description = "Qiskit provider for AQT backends"
-authors = ["Qiskit Development Team", "Alpine Quantum Technologies GmbH"]
-repository = "https://github.com/qiskit-community/qiskit-aqt-provider"
-documentation = "https://qiskit-community.github.io/qiskit-aqt-provider"
 readme = "README.md"
+keywords=[
+  "qiskit",
+  "quantum",
+  "sdk",
+]
 license = "Apache-2.0"
+maintainers = [
+    { name = "Alpine Quantum Technologies GmbH", email = "info@aqt.eu" },
+]
+authors = [
+    { name = "Qiskit Development Team" },
+    { name = "Alpine Quantum Technologies GmbH", email = "info@aqt.eu" },
+]
+requires-python = ">=3.9"
 classifiers=[
-        "Intended Audience :: Developers",
-        "Intended Audience :: Science/Research",
-        "Operating System :: Microsoft :: Windows",
-        "Operating System :: MacOS",
-        "Operating System :: POSIX :: Linux",
-        "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
-	"Programming Language :: Python :: 3.12",
-        "Topic :: Scientific/Engineering",
-    ]
-keywords=["qiskit", "sdk", "quantum"]
-
-packages = [
-    { include = "qiskit_aqt_provider" },
-    { include = "test", format = "sdist" }
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "Operating System :: MacOS",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering",
 ]
-include = [
-    "CODE_OF_CONDUCT.md",
-    "CONTRIBUTING.md",
-    "LICENSE.txt",
-    "README.md"
+dependencies = [
+  "httpx<1,>=0.24",
+  "platformdirs<4,>=3",
+  "pydantic<3,>=2.5",
+  "python-dotenv<2,>=1",
+  "qiskit<2,>=0.46",
+  "qiskit-aer<1,>=0.13.2",
+  "tabulate<1,>=0.9",
+  "tqdm<5,>=4",
+  "typing-extensions<5,>=4",
 ]
-
-[tool.poetry.plugins."qiskit.transpiler.scheduling"]
+[project.optional-dependencies]
+development = [
+  "autodoc-pydantic==2.0.1",
+  "coverage==7.4.1",
+  "datamodel-code-generator==0.25.4",
+  "hypothesis==6.98.9",
+  "interrogate==1.5",
+  "ipykernel==6.29.2",
+  "jupyter-sphinx==0.4",
+  "mistletoe==1.3",
+  "mypy==1.8",
+  "poethepoet==0.18.1",
+  "polyfactory==2.14.1",
+  "pre-commit==3.6.2",
+  "pylatexenc==2.10",
+  "pyproject-fmt==1.7",
+  "pytest==7.4.4",
+  "pytest-httpx==0.30",
+  "pytest-mock==3.12",
+  "pytest-sugar==0.9.7",
+  "qiskit[visualization]==1.0.1",
+  "qiskit-experiments==0.6",
+  "qiskit-sphinx-theme==1.16",
+  "rich==13.7",
+  "ruff==0.2.2",
+  "sphinx==7.2.6",
+  "tomlkit==0.12.3",
+  "typer==0.7",
+  "types-requests~=2.31",
+  "types-setuptools~=65.7",
+  "types-tabulate~=0.9",
+  "types-tqdm~=4.66",
+]
+examples = [
+  "qiskit-algorithms<1,>=0.2",
+  "qiskit-optimization<1,>=0.6",
+]
+[project.urls]
+Documentation = "https://qiskit-community.github.io/qiskit-aqt-provider"
+Repository = "https://github.com/qiskit-community/qiskit-aqt-provider"
+[project.entry-points.pytest11]
+pytest_qiskit_aqt = "qiskit_aqt_provider.test.fixtures"
+[project.entry-points."qiskit.transpiler.scheduling"]
 aqt = "qiskit_aqt_provider.transpiler_plugin:AQTSchedulingPlugin"
-
-[tool.poetry.plugins."qiskit.transpiler.translation"]
+[project.entry-points."qiskit.transpiler.translation"]
 aqt = "qiskit_aqt_provider.transpiler_plugin:AQTTranslationPlugin"
 
-[tool.poetry.plugins.pytest11]
-pytest_qiskit_aqt = "qiskit_aqt_provider.test.fixtures"
-
-[tool.poetry.dependencies]
-python = ">=3.9,<3.13"
-
-httpx = ">=0.24.0"
-platformdirs = ">=3"
-pydantic = ">=2.5.0"
-python-dotenv = ">=1"
-qiskit = "^1"
-qiskit-aer = ">=0.13.2"
-qiskit-algorithms = { version = ">=0.2.1", optional = true }
-qiskit-optimization = { version = ">=0.6.0", optional = true }
-tabulate = ">=0.9.0"
-tqdm = ">=4"
-typing-extensions = ">=4.0.0"
-
-[tool.poetry.group.dev.dependencies]
-autodoc-pydantic = "^2.0.1"
-coverage = "^7.2.1"
-datamodel-code-generator = "^0.25.3"
-hypothesis = "^6.82.0"
-interrogate = "^1.5.0"
-ipykernel = "^6.22.0"
-jupyter-sphinx = "^0.4.0"
-mistletoe = "^1.1.0"
-mypy = "=1.8.0"
-poethepoet = "^0.18.1"
-polyfactory = "^2.0.0"
-pre-commit = "^3.1.1"
-pyproject-fmt = "^1.7.0"
-pytest = ">=7"
-pytest-httpx = "^0.22.0"
-pytest-mock = "^3.11.1"
-pytest-sugar = "^0.9.6"
-qiskit-experiments = "^0.6.0"
-qiskit-sphinx-theme = ">=1.16.0"
-qiskit = {version = "^1", extras = ["visualization"]}
-rich = "^13.5.3"
-ruff = "^0.2.0"
-sphinx = "^7"
-tomlkit = "^0.12.1"
-typer = "^0.7.0"
-types-requests = "^2.28.11"
-types-setuptools = "^65.7.0"
-types-tabulate = "^0.9.0.1"
-types-tqdm = "^4.65.0.1"
-
-[tool.poetry.extras]
-examples = [
-    "qiskit-algorithms",
-    "qiskit-optimization",
+[tool.hatch.build.targets.sdist]
+packages = [
+  "qiskit_aqt_provider",
+  # FIXME: put examples and test(s) in qiskit_aqt_provider package
+  "examples",
+  "test",
 ]
 
-[build-system]
-build-backend = "poetry.core.masonry.api"
-requires = [
-  "poetry-core>=1",
+[tool.hatch.build.targets.wheel]
+packages = [
+  "qiskit_aqt_provider",
 ]
-
-[tool.datamodel-codegen]
-disable-timestamp = true
-enable-faux-immutability = true
-enum-field-as-literal = "one"
-field-constraints = true
-output-model-type = "pydantic_v2.BaseModel"
-strict-nullable = true
-target-python-version = '3.9'
-use-annotated = true
-use-double-quotes = true
-use-field-description = true
-use-schema-description = true
-wrap-string-literal = true
-
-[tool.pyright]
-exclude = [
-    "**/__pycache__",
-    "**/.*",
-    "docs/",
-]
-
-typeCheckingMode = "basic"
-analyzeUnannotatedFunctions = false
-reportShadowedImports = true
-reportTypeCommentUsage = true
-reportImportCycles = false
-reportMissingImports = false
-reportMissingTypeStubs = false
-reportConstantRedefinition = true
-reportUnnecessaryTypeIgnoreComment = false
-
-reportDuplicateImport = "error"
-
-pythonVersion = "3.9"
-pythonPlatform = "Linux"
 
 [tool.ruff]
 line-length = 100
@@ -226,6 +197,42 @@ relative_files = true
 
 [tool.coverage.report]
 fail_under = 99
+
+[tool.pyright]
+exclude = [
+    "**/__pycache__",
+    "**/.*",
+    "docs/",
+]
+
+typeCheckingMode = "basic"
+analyzeUnannotatedFunctions = false
+reportShadowedImports = true
+reportTypeCommentUsage = true
+reportImportCycles = false
+reportMissingImports = false
+reportMissingTypeStubs = false
+reportConstantRedefinition = true
+reportUnnecessaryTypeIgnoreComment = false
+
+reportDuplicateImport = "error"
+
+pythonVersion = "3.9"
+pythonPlatform = "Linux"
+
+[tool.datamodel-codegen]
+disable-timestamp = true
+enable-faux-immutability = true
+enum-field-as-literal = "one"
+field-constraints = true
+output-model-type = "pydantic_v2.BaseModel"
+strict-nullable = true
+target-python-version = '3.9'
+use-annotated = true
+use-double-quotes = true
+use-field-description = true
+use-schema-description = true
+wrap-string-literal = true
 
 [tool.interrogate]
 ignore-module = true

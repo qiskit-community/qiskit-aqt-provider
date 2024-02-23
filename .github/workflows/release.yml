@@ -3,8 +3,10 @@ on:
   push:
     tags:
       - 'v*'
+  # Run on manual triggers
+  workflow_dispatch:
 jobs:
-  wheel-build:
+  release:
     name: Build and Publish Release Artifacts
     runs-on: ubuntu-latest
     environment: release
@@ -17,17 +19,18 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-      - name: Install Poetry
-        uses: abatilo/actions-poetry@v2
-        with:
-          poetry-version: '1.7.1'
+          python-version: 3.12
+      - name: Install uv
+        run: |
+          # https://github.com/astral-sh/uv/issues/1386#issuecomment-1947801083
+          echo "VIRTUAL_ENV=${Python_ROOT_DIR}" >> $GITHUB_ENV
+          pip install uv
       - name: Install release dependencies
-        run: pip install -U typer mistletoe
+        run: |
+          uv pip install typer mistletoe hatch
       - name: Build packages
         run: |
-          poetry build
-        shell: bash
+          hatch build
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:

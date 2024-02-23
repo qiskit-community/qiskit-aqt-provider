@@ -28,25 +28,28 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Install Poetry
-        uses: abatilo/actions-poetry@v2
-        with:
-          poetry-version: '1.7.1'
+      - uses: actions/checkout@v4
       - name: Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-          cache: "poetry"
-      - name: Check Poetry lock file consistency
-        run: poetry check --lock
+          python-version: 3.12
+          cache: "pip"
+      - name: Install uv
+        run: |
+          # https://github.com/astral-sh/uv/issues/1386#issuecomment-1947801083
+          echo "VIRTUAL_ENV=${Python_ROOT_DIR}" >> $GITHUB_ENV
+          pip install uv
       - name: Install dependencies
-        run: poetry install --sync
+        run: |
+          # FIXME: https://github.com/Qiskit/qiskit_sphinx_theme/issues/567
+          echo 'furo==2023.9.10' > furo-override.txt
+          uv pip compile pyproject.toml --all-extras --override furo-override.txt > requirements.txt
+          uv pip sync --strict requirements.txt
+          uv pip install 'qiskit-aqt-provider @ .'
       - name: Check version numbers consistency
-        run: poetry run poe version_check
+        run: poe version_check
       - name: Build documentation
-        run: poetry run poe docs
+        run: poe docs
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
