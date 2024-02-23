@@ -97,7 +97,8 @@ jobs:
       - name: Lock dependencies
         run: |
           echo "qiskit==${{ matrix.qiskit-version }}" > qiskit-override.txt
-          echo 'furo==2023.9.10' > furo-override.txt  # https://github.com/Qiskit/qiskit_sphinx_theme/issues/567
+          # FIXME: https://github.com/Qiskit/qiskit_sphinx_theme/issues/567
+          echo 'furo==2023.9.10' > furo-override.txt
           uv pip compile pyproject.toml --all-extras --override qiskit-override.txt --override furo-override.txt > requirements.txt
       - name: Install project
         run: |
