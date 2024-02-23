@@ -2,7 +2,10 @@
 
 ## Unreleased
 
-* Only support Qiskit >= 1.0 (#141)
+* Support Qiskit >= 1.0 (#141)
+* Use `hatchlings` as build backend (#143)
+* Test against multiple versions of Qiskit (#143)
+* CI: use `uv` instead of `poetry` as dependency resolver (#143)
 
 ## qiskit-aqt-provider v1.3.0
 
