@@ -70,7 +70,7 @@ def check_consistency(
         Whether the detected version number are consistent.
     """
     pyproject = tomlkit.parse(pyproject_path.read_text(encoding="utf-8"))
-    pyproject_version = str(pyproject["tool"]["poetry"]["version"])  # type: ignore[index]
+    pyproject_version = str(pyproject["project"]["version"])  # type: ignore[index]
 
     docs_conf = docs_conf_path.read_text(encoding="utf-8")
 
@@ -114,7 +114,7 @@ def bump_versions(pyproject_path: Path, docs_conf_path: Path, new_version: str) 
         new_version: target version to update to.
     """
     pyproject = tomlkit.parse(pyproject_path.read_text(encoding="utf-8"))
-    pyproject["tool"]["poetry"]["version"] = new_version  # type: ignore[index]
+    pyproject["project"]["version"] = new_version  # type: ignore[index]
     pyproject_path.write_text(tomlkit.dumps(pyproject), encoding="utf-8")
 
     docs_conf = docs_conf_path.read_text(encoding="utf-8")
