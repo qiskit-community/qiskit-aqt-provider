@@ -64,7 +64,7 @@ development = [
   "pylatexenc==2.10",
   "pyproject-fmt==1.7",
   "pytest==7.4.4",
-  "pytest-httpx==0.22",
+  "pytest-httpx==0.30",
   "pytest-mock==3.12",
   "pytest-sugar==0.9.7",
   "qiskit[visualization]==1.0.1",
