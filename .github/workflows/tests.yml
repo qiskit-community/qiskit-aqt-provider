@@ -10,7 +10,7 @@ env:
   PYTHONIOENCODING: utf-8
 jobs:
   tests:
-    name: tests-python${{ matrix.python-version }}-${{ matrix.os }}
+    name: tests-${{ matrix.os }}-py${{ matrix.python-version }}-qiskit${{ matrix.qiskit-version }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
