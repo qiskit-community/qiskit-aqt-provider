@@ -18,9 +18,14 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: 3.12
+      - name: Install uv
+        run: |
+          # https://github.com/astral-sh/uv/issues/1386#issuecomment-1947801083
+          echo "VIRTUAL_ENV=${Python_ROOT_DIR}" >> $GITHUB_ENV
+          pip install uv
       - name: Build packages
         run: |
-          pip install hatch
+          uv pip install hatch
           hatch build
       - name: Store packages
         uses: actions/upload-artifact@v4
@@ -56,7 +61,7 @@ jobs:
           # there is only one wheel in dist/
           echo "qiskit==${{ matrix.qiskit-version }}" > override.txt
           uv pip install --strict --override override.txt "qiskit-aqt-provider[examples] @ $(ls dist/*.whl)"
-      - name: Checkout examples
+      - name: Checkout examples  # FIXME: ship examples with source distribution
         uses: actions/checkout@v4
         with:
           sparse-checkout: |
@@ -65,35 +70,48 @@ jobs:
       - name: Run examples
         run: |
           ./examples/run_all.sh
-  # tests:
-  #   name: tests-${{ matrix.os }}-py${{ matrix.python-version }}-qiskit${{ matrix.qiskit-version }}
-  #   runs-on: ${{ matrix.os }}
-  #   strategy:
-  #     matrix:
-  #       qiskit-version: ['0.46.0', '1.0.1']
-  #       python-version: ['3.12']
-  #       os: ['ubuntu-latest']
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - name: Check shell scripts
-  #       uses: ludeeus/action-shellcheck@2.0.0
-  #     - name: Lock
-  #       run: poetry install --sync
-  #     - name: Check version numbers consistency
-  #       run: poetry run poe version_check
-  #       if: startsWith(matrix.os, 'ubuntu')
-  #     - name: Check formatting
-  #       run: poetry run poe format_check
-  #       if: startsWith(matrix.os, 'ubuntu')
-  #     - name: Linting
-  #       run: poetry run poe lint
-  #       if: startsWith(matrix.os, 'ubuntu')
-  #     - name: Type checking
-  #       run: poetry run poe typecheck
-  #       if: startsWith(matrix.os, 'ubuntu')
-  #     - name: Testing
-  #       run: poetry run poe test --cov_opts="-a"  # add to examples coverage
-  #       if: startsWith(matrix.os, 'ubuntu')
+  tests:
+    name: tests-${{ matrix.os }}-py${{ matrix.python-version }}-qiskit${{ matrix.qiskit-version }}-resolve-${{ matrix.resolution-strategy }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        qiskit-version: ['1.0.1']
+        python-version: ['3.12']
+        os: ['ubuntu-latest']
+        resolution-strategy: ['highest']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check shell scripts
+        uses: ludeeus/action-shellcheck@2.0.0
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+      - name: Install uv
+        run: |
+          # https://github.com/astral-sh/uv/issues/1386#issuecomment-1947801083
+          echo "VIRTUAL_ENV=${Python_ROOT_DIR}" >> $GITHUB_ENV
+          pip install uv
+      - name: Lock dependencies
+        run: |
+          echo "qiskit==${{ matrix.qiskit-version }}" > qiskit-override.txt
+          echo 'furo==2023.9.10' > furo-override.txt  # https://github.com/Qiskit/qiskit_sphinx_theme/issues/567
+          uv pip compile pyproject.toml --all-extras --override qiskit-override.txt --override furo-override.txt > requirements.txt
+      - name: Install project
+        run: |
+          uv pip sync --strict --reinstall requirements.txt
+          uv pip install --editable .
+      - name: Check version numbers consistency
+        run: poe version_check
+      - name: Check formatting
+        run: poe format_check
+      - name: Linting
+        run: poe lint
+      - name: Type checking
+        run: poe typecheck
+      - name: Testing
+        run: poe test
   #     - name: Docs
   #       run: poetry run poe docs
   #       if: startsWith(matrix.os, 'ubuntu')
