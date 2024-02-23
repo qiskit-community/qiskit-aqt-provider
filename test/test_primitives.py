@@ -10,6 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+import importlib.metadata
 from math import isclose, pi
 from typing import Callable
 
@@ -19,8 +20,7 @@ from qiskit.circuit import Parameter, QuantumCircuit
 from qiskit.primitives import (
     BackendEstimator,
     BackendSampler,
-    BaseEstimatorV1,
-    BaseSamplerV1,
+    BaseSampler,
     Sampler,
 )
 from qiskit.providers import Backend
@@ -34,16 +34,19 @@ from qiskit_aqt_provider.test.circuits import assert_circuits_equal
 from qiskit_aqt_provider.test.fixtures import MockSimulator
 
 
+@pytest.skipif(importlib.metadata.version("qiskit") < "1.0", reason="Not relevant for qiskit < 1.0")
 def test_backend_primitives_are_v1() -> None:
     """Check that `BackendSampler` and `BackendEstimator` have primitives V1 interfaces.
 
-    As of 2024-02-20, there are no backend primitives that provide V2 interfaces.
+    As of 2024-02-20, there are no backend primitives that provide V2 interfaces in Qiskit 1.x.
 
     If this test fails, the `AQTSampler` and `AQTEstimator` docs as well as the user
     guide must be updated.
 
     An interface mismatch may be detected at other spots. This makes the detection explicit.
     """
+    from qiskit.primitives import BaseEstimatorV1, BaseSamplerV1
+
     assert issubclass(BackendSampler, BaseSamplerV1)
     assert issubclass(BackendEstimator, BaseEstimatorV1)
 
@@ -66,7 +69,7 @@ def test_backend_primitives_are_v1() -> None:
     ],
 )
 def test_circuit_sampling_primitive(
-    get_sampler: Callable[[Backend], BaseSamplerV1],
+    get_sampler: Callable[[Backend], BaseSampler],
     offline_simulator_no_noise: AQTResource,
 ) -> None:
     """Check that a `Sampler` primitive using an AQT backend can sample parametric circuits."""
