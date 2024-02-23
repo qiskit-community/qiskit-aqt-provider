@@ -9,8 +9,27 @@ on:
 env:
   PYTHONIOENCODING: utf-8
 jobs:
-  package-tests:
-    name: tests-${{ matrix.os }}-py${{ matrix.python-version }}-qiskit${{ matrix.qiskit-version }}
+  build-packages:
+    name: build-packages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+      - name: Build packages
+        run: |
+          pip install hatch
+          hatch build
+      - name: Store packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages
+          path: dist/
+  examples:
+    needs: build-packages
+    name: examples-${{ matrix.os }}-py${{ matrix.python-version }}-qiskit${{ matrix.qiskit-version }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -18,31 +37,46 @@ jobs:
         python-version: ['3.12']
         os: ["ubuntu-latest"]
     steps:
-      - uses: actions/checkout@v4
-      - name: Check shell scripts
-        uses: ludeeus/action-shellcheck@2.0.0
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: "pip"
       - name: Install uv
         run: |
           # https://github.com/astral-sh/uv/issues/1386#issuecomment-1947801083
           echo "VIRTUAL_ENV=${Python_ROOT_DIR}" >> $GITHUB_ENV
           pip install uv
-      - name: Build package
-        run: |
-          uv pip install hatch
-          hatch build
+      - name: Restore packages
+        uses: actions/download-artifact@v4
+        with:
+          name: packages
+          path: dist
       - name: Install package wheel
         run: |
           # there is only one wheel in dist/
           echo "qiskit==${{ matrix.qiskit-version }}" > override.txt
           uv pip install --strict --override override.txt "qiskit-aqt-provider[examples] @ $(ls dist/*.whl)"
+      - name: Checkout examples
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            examples
+          sparse-checkout-cone-mode: false
       - name: Run examples
         run: |
           ./examples/run_all.sh
+  # tests:
+  #   name: tests-${{ matrix.os }}-py${{ matrix.python-version }}-qiskit${{ matrix.qiskit-version }}
+  #   runs-on: ${{ matrix.os }}
+  #   strategy:
+  #     matrix:
+  #       qiskit-version: ['0.46.0', '1.0.1']
+  #       python-version: ['3.12']
+  #       os: ['ubuntu-latest']
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Check shell scripts
+  #       uses: ludeeus/action-shellcheck@2.0.0
   #     - name: Lock
   #       run: poetry install --sync
   #     - name: Check version numbers consistency
