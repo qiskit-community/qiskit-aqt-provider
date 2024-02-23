@@ -103,7 +103,7 @@ jobs:
       - name: Install project
         run: |
           uv pip sync --strict --reinstall requirements.txt
-          uv pip install --editable .
+          uv pip install 'qiskit-aqt-provider @ .'  # for the plugins
       - name: Check version numbers consistency
         run: poe version_check
       - name: Check formatting
