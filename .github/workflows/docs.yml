@@ -45,17 +45,17 @@ jobs:
           echo 'furo==2023.9.10' > furo-override.txt
           uv pip compile pyproject.toml --all-extras --override furo-override.txt > requirements.txt
           uv pip sync --strict requirements.txt
-          uv pip install --editable .
+          uv pip install 'qiskit-aqt-provider @ .'
       - name: Check version numbers consistency
         run: poe version_check
       - name: Build documentation
         run: poe docs
-      # - name: Setup Pages
-      #   uses: actions/configure-pages@v4
-      # - name: Upload artifact
-      #   uses: actions/upload-pages-artifact@v3
-      #   with:
-      #     path: 'docs/_build'
-      # - name: Deploy to GitHub Pages
-      #   id: deployment
-      #   uses: actions/deploy-pages@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: 'docs/_build'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

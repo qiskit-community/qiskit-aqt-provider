@@ -9,10 +9,10 @@ jobs:
   release:
     name: Build and Publish Release Artifacts
     runs-on: ubuntu-latest
-    # environment: release
-    # permissions:
-    #   id-token: write
-    #   contents: write
+    environment: release
+    permissions:
+      id-token: write
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -37,10 +37,10 @@ jobs:
           path: ./dist/qiskit*
       - name: Extract changelog
         run: python scripts/extract-changelog.py ${{ github.ref_name }} | tee ${{ github.workspace }}-CHANGELOG.txt
-      # - name: Create Github release
-      #   uses: softprops/action-gh-release@v1
-      #   with:
-      #     files: ./dist/qiskit*
-      #     body_path: ${{ github.workspace }}-CHANGELOG.txt
-      # - name: Publish to PyPI
-      #   uses: pypa/gh-action-pypi-publish@release/v1
+      - name: Create Github release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ./dist/qiskit*
+          body_path: ${{ github.workspace }}-CHANGELOG.txt
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
