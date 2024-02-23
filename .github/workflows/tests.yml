@@ -43,6 +43,12 @@ jobs:
         python-version: ['3.9', '3.10', '3.11', '3.12']
         os: ["ubuntu-latest"]
     steps:
+      - name: Checkout examples  # FIXME: ship examples with source distribution
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            examples
+          sparse-checkout-cone-mode: false
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
@@ -51,9 +57,11 @@ jobs:
         run: |
           pip install uv
           uv venv
+          # FIXME: https://github.com/astral-sh/uv/issues/1386
           echo "VIRTUAL_ENV=.venv" >> $GITHUB_ENV
       - name: Check Python version
         run: |
+          # FIXME: https://github.com/astral-sh/uv/issues/1910
           source $VIRTUAL_ENV/bin/activate
           python --version
       - name: Restore packages
@@ -66,14 +74,10 @@ jobs:
           # there is only one wheel in dist/
           echo "qiskit==${{ matrix.qiskit-version }}" > override.txt
           uv pip install --strict --override override.txt "qiskit-aqt-provider[examples] @ $(ls dist/*.whl)"
-      - name: Checkout examples  # FIXME: ship examples with source distribution
-        uses: actions/checkout@v4
-        with:
-          sparse-checkout: |
-            examples
-          sparse-checkout-cone-mode: false
       - name: Run examples
         run: |
+          # FIXME: https://github.com/astral-sh/uv/issues/1910
+          source $VIRTUAL_ENV/bin/activate
           ./examples/run_all.sh
   # tests:
   #   name: tests-py${{ matrix.python-version }}-qiskit${{ matrix.qiskit-version }}-resolve-${{ matrix.resolution-strategy }}
