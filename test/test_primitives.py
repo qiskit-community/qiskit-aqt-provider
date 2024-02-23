@@ -34,7 +34,9 @@ from qiskit_aqt_provider.test.circuits import assert_circuits_equal
 from qiskit_aqt_provider.test.fixtures import MockSimulator
 
 
-@pytest.skipif(importlib.metadata.version("qiskit") < "1.0", reason="Not relevant for qiskit < 1.0")
+@pytest.mark.skipif(
+    importlib.metadata.version("qiskit") < "1.0", reason="Not relevant for qiskit < 1.0"
+)
 def test_backend_primitives_are_v1() -> None:
     """Check that `BackendSampler` and `BackendEstimator` have primitives V1 interfaces.
 
