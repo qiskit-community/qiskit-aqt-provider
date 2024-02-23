@@ -40,7 +40,7 @@ jobs:
     strategy:
       matrix:
         qiskit-version: ['0.46.0', '1.0.1']
-        python-version: ['3.12']
+        python-version: ['3.9', '3.10', '3.11', '3.12']
         os: ["ubuntu-latest"]
     steps:
       - name: Set up Python ${{ matrix.python-version }}
@@ -76,10 +76,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        qiskit-version: ['1.0.1']
-        python-version: ['3.12']
+        qiskit-version: ['0.46.0', '1.0.1']
+        python-version: ['3.9', '3.10', '3.11', '3.12']
         os: ['ubuntu-latest']
-        resolution-strategy: ['highest']
+        resolution-strategy: ['highest', 'lowest-direct']
     steps:
       - uses: actions/checkout@v4
       - name: Check shell scripts
@@ -99,10 +99,10 @@ jobs:
           echo "qiskit==${{ matrix.qiskit-version }}" > qiskit-override.txt
           # FIXME: https://github.com/Qiskit/qiskit_sphinx_theme/issues/567
           echo 'furo==2023.9.10' > furo-override.txt
-          uv pip compile pyproject.toml --all-extras --override qiskit-override.txt --override furo-override.txt > requirements.txt
+          uv pip compile pyproject.toml --all-extras --override qiskit-override.txt --override furo-override.txt | tee requirements.txt
       - name: Install project
         run: |
-          uv pip sync --strict --reinstall requirements.txt
+          uv pip sync --strict requirements.txt
           uv pip install 'qiskit-aqt-provider @ .'  # for the plugins
       - name: Check version numbers consistency
         run: poe version_check
