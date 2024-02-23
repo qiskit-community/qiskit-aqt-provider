@@ -1,0 +1,88 @@
+name: Tests
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+  # Run on manual triggers
+  workflow_dispatch:
+env:
+  PYTHONIOENCODING: utf-8
+jobs:
+  tests:
+    name: tests-python${{ matrix.python-version }}-${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        qiskit-version: ['0.46.0', '1.0.1']
+        python-version: ['3.12']
+        os: ["ubuntu-latest"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check shell scripts
+        uses: ludeeus/action-shellcheck@2.0.0
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+      - name: Install uv
+        run: |
+          # https://github.com/astral-sh/uv/issues/1386#issuecomment-1947801083
+          echo "VIRTUAL_ENV=${Python_ROOT_DIR}" >> $GITHUB_ENV
+          pip install uv
+      - name: Lock dependencies
+        run: |
+          echo "qiskit==${{ matrix.qiskit-version }}" > overrides.txt
+          uv pip compile pyproject.toml --extra examples --override overrides.txt > requirements.txt
+      - name: Install dependencies
+        run: |
+          uv pip sync --strict --reinstall requirements.txt
+          uv pip install coverage[toml]
+      - name: Archive dependencies specification
+        uses: actions/upload-artifact@v4
+        with:
+          name: locked-dependencies
+          path: requirements.txt
+          retention-days: 7
+      - name: Run examples (linux)
+        run: |
+          ./examples/run_all.sh -c
+  #     - name: Lock
+  #       run: poetry install --sync
+  #     - name: Check version numbers consistency
+  #       run: poetry run poe version_check
+  #       if: startsWith(matrix.os, 'ubuntu')
+  #     - name: Check formatting
+  #       run: poetry run poe format_check
+  #       if: startsWith(matrix.os, 'ubuntu')
+  #     - name: Linting
+  #       run: poetry run poe lint
+  #       if: startsWith(matrix.os, 'ubuntu')
+  #     - name: Type checking
+  #       run: poetry run poe typecheck
+  #       if: startsWith(matrix.os, 'ubuntu')
+  #     - name: Testing
+  #       run: poetry run poe test --cov_opts="-a"  # add to examples coverage
+  #       if: startsWith(matrix.os, 'ubuntu')
+  #     - name: Docs
+  #       run: poetry run poe docs
+  #       if: startsWith(matrix.os, 'ubuntu')
+  #     - name: Generate coverage report
+  #       run: poetry run coverage lcov -o coverage.lcov
+  #       if: startsWith(matrix.os, 'ubuntu')
+  #     - name: Upload coverage report
+  #       uses: coverallsapp/github-action@v2
+  #       with:
+  #         file: coverage.lcov
+  #         parallel: true
+  #         flag-name: run ${{ join(matrix.*, ' - ') }}
+  #       if: startsWith(matrix.os, 'ubuntu')
+  # finish:
+  #   needs: tests
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Close parallel coverage build
+  #       uses: coverallsapp/github-action@v2
+  #       with:
+  #         parallel-finished: true
