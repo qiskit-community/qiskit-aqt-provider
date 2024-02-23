@@ -35,13 +35,12 @@ jobs:
           path: dist/
   examples:
     needs: build-packages
-    name: examples-py${{ matrix.python-version }}-qiskit${{ matrix.qiskit-version }}-resolve-${{ matrix.resolution-strategy }}
+    name: examples-py${{ matrix.python-version }}-qiskit${{ matrix.qiskit-version }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         qiskit-version: ['0.46.0', '1.0.1']
         python-version: ['3.9', '3.10', '3.11', '3.12']
-        resolution-strategy: ['highest', 'lowest-direct']
         os: ["ubuntu-latest"]
     steps:
       - name: Checkout examples  # FIXME: ship examples with source distribution
@@ -69,7 +68,7 @@ jobs:
         run: |
           # there is only one wheel in dist/
           echo "qiskit==${{ matrix.qiskit-version }}" > override.txt
-          uv pip install --strict --override override.txt --resolution ${{ matrix.resolution-strategy }} "qiskit-aqt-provider[examples] @ $(ls dist/*.whl)"
+          uv pip install --strict --override override.txt "qiskit-aqt-provider[examples] @ $(ls dist/*.whl)"
       - name: Run examples
         run: |
           # FIXME: https://github.com/astral-sh/uv/issues/1910
