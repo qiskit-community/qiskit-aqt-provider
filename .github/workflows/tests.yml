@@ -72,7 +72,7 @@ jobs:
         run: |
           ./examples/run_all.sh
   tests:
-    name: tests-${{ matrix.os }}-py${{ matrix.python-version }}-qiskit${{ matrix.qiskit-version }}-resolve-${{ matrix.resolution-strategy }}
+    name: tests-py${{ matrix.python-version }}-qiskit${{ matrix.qiskit-version }}-resolve-${{ matrix.resolution-strategy }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
