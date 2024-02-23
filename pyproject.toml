@@ -193,9 +193,6 @@ convention = "google"
 [tool.coverage.run]
 dynamic_context = "test_function"
 relative_files = true
-omit = [
-    "examples/*.py",
-]
 
 [tool.coverage.report]
 fail_under = 99

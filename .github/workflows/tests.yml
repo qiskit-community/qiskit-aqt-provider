@@ -18,6 +18,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: 3.12
+          cache: "pip"
       - name: Install uv
         run: |
           # https://github.com/astral-sh/uv/issues/1386#issuecomment-1947801083
@@ -110,26 +111,26 @@ jobs:
         run: poe lint
       - name: Type checking
         run: poe typecheck
-      - name: Testing
-        run: poe test
-  #     - name: Docs
-  #       run: poetry run poe docs
-  #       if: startsWith(matrix.os, 'ubuntu')
-  #     - name: Generate coverage report
-  #       run: poetry run coverage lcov -o coverage.lcov
-  #       if: startsWith(matrix.os, 'ubuntu')
-  #     - name: Upload coverage report
-  #       uses: coverallsapp/github-action@v2
-  #       with:
-  #         file: coverage.lcov
-  #         parallel: true
-  #         flag-name: run ${{ join(matrix.*, ' - ') }}
-  #       if: startsWith(matrix.os, 'ubuntu')
-  # finish:
-  #   needs: tests
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Close parallel coverage build
-  #       uses: coverallsapp/github-action@v2
-  #       with:
-  #         parallel-finished: true
+      - name: Run examples with coverage
+        run: |
+          ./examples/run_all.sh -c
+      - name: Run tests with coverage
+        run: poe test --cov_opts="-a"  # add to examples coverage
+      - name: Build docs
+        run: poe docs
+      - name: Generate coverage report
+        run: coverage lcov -o coverage.lcov
+      - name: Upload coverage report
+        uses: coverallsapp/github-action@v2
+        with:
+          file: coverage.lcov
+          parallel: true
+          flag-name: run ${{ join(matrix.*, ' - ') }}
+  finish:
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close parallel coverage build
+        uses: coverallsapp/github-action@v2
+        with:
+          parallel-finished: true
