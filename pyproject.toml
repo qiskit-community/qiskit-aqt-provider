@@ -96,6 +96,8 @@ aqt = "qiskit_aqt_provider.transpiler_plugin:AQTTranslationPlugin"
 [tool.hatch.build.targets.sdist]
 packages = [
   "qiskit_aqt_provider",
+  # FIXME: put examples and test(s) in qiskit_aqt_provider package
+  "examples",
   "test",
 ]
 

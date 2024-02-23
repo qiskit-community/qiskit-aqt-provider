@@ -31,23 +31,16 @@ jobs:
           # https://github.com/astral-sh/uv/issues/1386#issuecomment-1947801083
           echo "VIRTUAL_ENV=${Python_ROOT_DIR}" >> $GITHUB_ENV
           pip install uv
-      - name: Lock dependencies
+      - name: Build package
         run: |
-          echo "qiskit==${{ matrix.qiskit-version }}" > overrides.txt
-          uv pip compile pyproject.toml --extra examples --override overrides.txt > requirements.txt
-      - name: Install dependencies
+          uv pip install hatch
+          hatch build
+      - name: Install package wheel
         run: |
-          uv pip sync --strict --reinstall requirements.txt
-          uv pip install coverage[toml]
-      - name: Archive dependencies specification
-        uses: actions/upload-artifact@v4
-        with:
-          name: locked-dependencies
-          path: requirements.txt
-          retention-days: 7
+          uv pip install --strict 'qiskit-aqt-provider[examples] @ dist/qiskit_aqt_provider-1.3.0-py3-none-any.whl'
       - name: Run examples (linux)
         run: |
-          ./examples/run_all.sh -c
+          ./examples/run_all.sh
   #     - name: Lock
   #       run: poetry install --sync
   #     - name: Check version numbers consistency
