@@ -213,6 +213,9 @@ class AQTTranslationPlugin(PassManagerStagePlugin):
         if isinstance(pass_manager_config.target, UnboundParametersTarget):
             return translation_pm
 
-        passes: list[BasePass] = [WrapRxxAngles()]
+        passes: list[BasePass] = [
+            WrapRxxAngles(),
+            Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]),
+        ]
 
         return translation_pm + PassManager(passes)

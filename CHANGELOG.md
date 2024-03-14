@@ -3,6 +3,7 @@
 ## Unreleased
 
 * Only support Qiskit >= 1.0 (#141)
+* Transpiler: always decompose wrapped-angle RXX gates (#145)
 
 ## qiskit-aqt-provider v1.3.0
 
