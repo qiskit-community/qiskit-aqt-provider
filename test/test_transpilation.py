@@ -60,7 +60,7 @@ def test_rx_rewrite_example(
 
 
 @given(theta=st.floats(allow_nan=False, min_value=-1000 * pi, max_value=1000 * pi))
-@pytest.mark.parametrize("optimization_level", [1, 2, 3])
+@pytest.mark.parametrize("optimization_level", [0, 1, 2, 3])
 @pytest.mark.parametrize("test_gate", [RXGate, RYGate])
 def test_rx_ry_rewrite_transpile(
     theta: float,
@@ -202,7 +202,7 @@ def test_rxx_wrap_angle_case2_negative() -> None:
     )
 )
 @pytest.mark.parametrize("qubits", [3])
-@pytest.mark.parametrize("optimization_level", [1, 2, 3])
+@pytest.mark.parametrize("optimization_level", [0, 1, 2, 3])
 def test_rxx_wrap_angle_transpile(angle: float, qubits: int, optimization_level: int) -> None:
     """Check that Rxx angles are wrapped by the transpiler."""
     assume(abs(angle) > pi / 200)
@@ -222,21 +222,27 @@ def test_rxx_wrap_angle_transpile(angle: float, qubits: int, optimization_level:
 
     # in high optimization levels, the gate might be dropped
     assume(num_rxx is not None)
-    assert num_rxx == 1
+    if optimization_level != 3:
+        # qiskit's optimzation level 3 only emits RXX(π/2), so there
+        # may be more than one RXX gate in the transpiled circuit.
+        assert num_rxx == 1
 
     # check that all Rxx have angles in [0, π/2]
+    num_checked_gates = 0
     for operation in trans_qc.data:
         instruction = operation[0]
         if instruction.name == "rxx":
             (theta,) = instruction.params
             assert 0 <= float(theta) <= pi / 2
-            break  # there's only one Rxx gate in the circuit
+            num_checked_gates += 1
+            if num_checked_gates == num_rxx:
+                break
     else:  # pragma: no cover
         pytest.fail("Transpiled circuit contains no Rxx gate.")
 
 
 @pytest.mark.parametrize("qubits", [1, 5, 10])
-@pytest.mark.parametrize("optimization_level", [1, 2, 3])
+@pytest.mark.parametrize("optimization_level", [0, 1, 2, 3])
 def test_qft_circuit_transpilation(
     qubits: int, optimization_level: int, offline_simulator_no_noise: AQTResource
 ) -> None:
