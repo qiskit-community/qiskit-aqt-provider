@@ -33,6 +33,9 @@ backend = provider.get_backend("offline_simulator_no_noise")
 # Instantiate a sampler on the execution backend
 sampler = AQTSampler(backend)
 
+# Set the transpiler's optimization level
+sampler.set_transpile_options(optimization_level=3)
+
 # Sample the circuit on the execution backend
 result = sampler.run(circuit).result()
 

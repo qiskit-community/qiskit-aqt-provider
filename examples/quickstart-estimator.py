@@ -32,6 +32,9 @@ backend = provider.get_backend("offline_simulator_no_noise")
 # Instantiate an estimator on the execution backend
 estimator = AQTEstimator(backend)
 
+# Set the transpiler's optimization level
+estimator.set_transpile_options(optimization_level=3)
+
 # Specify the problem Hamiltonian
 hamiltonian = SparsePauliOp.from_list(
     [

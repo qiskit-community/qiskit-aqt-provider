@@ -42,6 +42,10 @@ Define a circuit that generates 2-qubit Bell state and sample it on a simulator 
    # Instantiate a sampler on the execution backend.
    sampler = AQTSampler(backend)
 
+   # Optional: set the transpiler's optimization level.
+   # Optimization level 3 typically provides the best results.
+   sampler.set_transpile_options(optimization_level=3)
+
    # Sample the circuit on the execution backend.
    result = sampler.run(circuit).result()
 
