@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 
 import math
+from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Final, Optional
 
@@ -197,7 +198,7 @@ class AQTTranslationPlugin(PassManagerStagePlugin):
     def pass_manager(
         self,
         pass_manager_config: PassManagerConfig,
-        optimization_level: Optional[int] = None,  # noqa: ARG002
+        optimization_level: Optional[int] = None,
     ) -> PassManager:
         translation_pm = common.generate_translation_passmanager(
             target=pass_manager_config.target,
@@ -213,9 +214,14 @@ class AQTTranslationPlugin(PassManagerStagePlugin):
         if isinstance(pass_manager_config.target, UnboundParametersTarget):
             return translation_pm
 
-        passes: list[BasePass] = [
+        passes: Sequence[BasePass] = [
             WrapRxxAngles(),
-            Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]),
-        ]
+        ] + (
+            [
+                Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]),
+            ]
+            if optimization_level is None or optimization_level == 0
+            else []
+        )
 
         return translation_pm + PassManager(passes)
