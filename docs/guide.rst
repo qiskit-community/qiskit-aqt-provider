@@ -235,9 +235,10 @@ to the transpiled one:
 
 .. jupyter-execute::
 
-   transpiled_circuit = qiskit.transpile(circuit, backend, optimization_level=2)
+   transpiled_circuit = qiskit.transpile(circuit, backend, optimization_level=3)
    transpiled_circuit.draw("mpl", style="bw")
 
+.. tip:: While all optimization levels produce circuits compatible with the AQT API, optimization level 3 typically produces circuits with the least number of gates, thus decreasing the circuit evaluation duration and mitigating errors.
 
 Transpiler bypass
 -----------------

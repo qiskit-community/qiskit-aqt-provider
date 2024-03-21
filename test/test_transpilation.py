@@ -15,7 +15,7 @@ from math import pi
 from typing import Union
 
 import pytest
-from hypothesis import assume, given
+from hypothesis import assume, example, given
 from hypothesis import strategies as st
 from qiskit import QuantumCircuit, transpile
 from qiskit.circuit.library import RXGate, RYGate
@@ -218,27 +218,55 @@ def test_rxx_wrap_angle_transpile(angle: float, qubits: int, optimization_level:
     assert_circuits_equivalent(trans_qc, qc)
 
     assert set(trans_qc.count_ops()) <= set(backend.configuration().basis_gates)
-    num_rxx = trans_qc.count_ops().get("rxx")
+    num_rxx = trans_qc.count_ops().get("rxx", 0)
 
-    # in high optimization levels, the gate might be dropped
-    assume(num_rxx is not None)
-    if optimization_level != 3:
-        # qiskit's optimzation level 3 only emits RXX(π/2), so there
-        # may be more than one RXX gate in the transpiled circuit.
-        assert num_rxx == 1
+    # Higher optimization levels can optimize e.g. Rxx(2n*π) = Identity away.
+    assert num_rxx <= 1
 
-    # check that all Rxx have angles in [0, π/2]
-    num_checked_gates = 0
+    # check that the Rxx gate has angle in [0, π/2]
     for operation in trans_qc.data:
         instruction = operation[0]
         if instruction.name == "rxx":
             (theta,) = instruction.params
             assert 0 <= float(theta) <= pi / 2
-            num_checked_gates += 1
-            if num_checked_gates == num_rxx:
-                break
+            break
     else:  # pragma: no cover
-        pytest.fail("Transpiled circuit contains no Rxx gate.")
+        if num_rxx > 0:
+            pytest.fail("Transpiled circuit contains no Rxx gate.")
+
+
+@example(angles_pi=[-582.16 / pi])
+@given(
+    angles_pi=st.lists(
+        st.floats(min_value=-1000.0, max_value=1000.0, allow_nan=False),
+        min_size=1,
+        max_size=4,
+    )
+)
+@pytest.mark.parametrize("optimization_level", [0, 1, 2, 3])
+def test_transpilation_preserves_or_decreases_number_of_rxx_gates(
+    angles_pi: list[float], optimization_level: int
+) -> None:
+    """Check that transpilation at least preserves the number of RXX gates."""
+    if optimization_level > 1:
+        # FIXME: remove once https://github.com/Qiskit/qiskit/issues/12051 is fixed.
+        assume(len(angles_pi) == 1)
+
+    qc = QuantumCircuit(2)
+
+    for angle_pi in angles_pi:
+        qc.rxx(angle_pi * pi, 0, 1)
+
+    # we only need the backend's transpilation target for this test
+    backend = MockSimulator(noisy=False)
+    tr_qc = transpile(qc, backend, optimization_level=optimization_level)
+
+    tr_qc_ops = tr_qc.count_ops()
+    assert set(tr_qc_ops) <= set(backend.configuration().basis_gates)
+
+    qc_rxx = qc.count_ops()["rxx"]
+    assert qc_rxx == len(angles_pi)
+    assert tr_qc_ops.get("rxx", 0) <= qc_rxx
 
 
 @pytest.mark.parametrize("qubits", [1, 5, 10])
