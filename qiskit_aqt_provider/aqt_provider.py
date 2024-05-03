@@ -79,12 +79,10 @@ class BackendsTable(Sequence[AQTResource]):
         self.headers = ["Workspace ID", "Resource ID", "Description", "Resource type"]
 
     @overload
-    def __getitem__(self, index: int) -> AQTResource:
-        ...  # pragma: no cover
+    def __getitem__(self, index: int) -> AQTResource: ...
 
     @overload
-    def __getitem__(self, index: slice) -> Sequence[AQTResource]:
-        ...  # pragma: no cover
+    def __getitem__(self, index: slice) -> Sequence[AQTResource]: ...
 
     @override
     def __getitem__(self, index: Union[slice, int]) -> Union[AQTResource, Sequence[AQTResource]]:

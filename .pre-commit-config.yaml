@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v4.6.0
     hooks:
       - id: mixed-line-ending
       - id: check-merge-conflict
@@ -14,13 +14,13 @@ repos:
       - id: no-commit-to-branch
         args: [--branch, master]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.2.2"
+    rev: "v0.4.2"
     hooks:
       - id: ruff
         args: [ --fix ]
       - id: ruff-format
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: "1.7.0"
+    rev: "1.8.0"
     hooks:
       - id: pyproject-fmt
   - repo: local

@@ -15,7 +15,6 @@
 Creates a 2-qubit GHZ state.
 """
 
-
 import qiskit
 from qiskit import QuantumCircuit
 
