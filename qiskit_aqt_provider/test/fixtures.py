@@ -31,6 +31,7 @@ class MockSimulator(OfflineSimulatorResource):
     """Offline simulator that keeps track of the submitted circuits."""
 
     def __init__(self, *, noisy: bool) -> None:
+        """Initialize the mocked simulator backend."""
         super().__init__(
             AQTProvider(""),
             resource_id=api_models.ResourceId(

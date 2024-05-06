@@ -231,8 +231,9 @@ fail_under = 99
 [tool.interrogate]
 ignore-module = true
 ignore-nested-functions = true
+ignore-magic = true
 exclude = ["qiskit_aqt_provider/api_models_generated.py"]
-fail-under = 88
+fail-under = 100
 
 [tool.typos.files]
 ignore-hidden = false

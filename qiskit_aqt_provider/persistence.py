@@ -42,6 +42,7 @@ class Circuits:
     """
 
     def __init__(self, circuits: list[QuantumCircuit]) -> None:
+        """Initialize a container filled with the given circuits."""
         self.circuits = circuits
 
     @classmethod
