@@ -46,7 +46,7 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu')
       - name: Run examples (windows)
         run: |
-          # TODO: list examples programatically
+          # TODO: list examples programmatically
           echo "Running example.py"
           poetry run python examples/example.py
           echo "Running example_noise.py"

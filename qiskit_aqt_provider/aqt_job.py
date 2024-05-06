@@ -490,7 +490,7 @@ def _shot_to_int(
 
     This follows the Qiskit ordering convention, where bit 0 in the classical register is mapped
     to bit 0 in the returned integer. The first classical register in the original circuit
-    represents the least-significant bits in the interger representation.
+    represents the least-significant bits in the integer representation.
 
     An optional translation map from the quantum to the classical register can be applied.
     If given, only the qubits registered in the translation map are present in the return value,

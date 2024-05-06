@@ -232,7 +232,7 @@ The documentation for the Python SDK is auto-generated from Python
 docstrings using [Sphinx](http://www.sphinx-doc.org. Please follow [Google's Python Style
 Guide](https://google.github.io/styleguide/pyguide.html?showone=Comments#Comments)
 for docstrings. A good example of the style can also be found with
-[Sphinx's napolean converter
+[Sphinx's napoleon converter
 documentation](http://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html).
 
 ## Development Cycle

@@ -395,11 +395,11 @@ class OfflineSimulatorResource(AQTResource):
             # in hexadecimal format.
             counts: dict[str, int] = qiskit_result.data(circuit_index)["counts"]
 
-            for hex_state, occurences in counts.items():
+            for hex_state, occurrences in counts.items():
                 samples.extend(
                     [
                         qubit_states_from_int(int(hex_state, 16), circuit.num_qubits)
-                        for _ in range(occurences)
+                        for _ in range(occurrences)
                     ]
                 )
 

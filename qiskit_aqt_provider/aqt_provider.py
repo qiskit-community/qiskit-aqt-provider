@@ -69,7 +69,7 @@ OFFLINE_SIMULATORS: Final = [
 class BackendsTable(Sequence[AQTResource]):
     """Pretty-printable collection of AQT backends.
 
-    The :meth:`__str__` method returns a plain text table reprensentation of the available backends.
+    The :meth:`__str__` method returns a plain text table representation of the available backends.
     The :meth:`_repr_html_` method returns an HTML representation that is automatically used
     in IPython/Jupyter notebooks.
     """
