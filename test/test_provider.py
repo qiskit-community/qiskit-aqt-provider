@@ -69,7 +69,7 @@ def test_access_token_envvar(monkeypatch: pytest.MonkeyPatch) -> None:
     assert aqt.access_token == token
 
 
-def test_access_token_argument_precendence_over_envvar(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_access_token_argument_precedence_over_envvar(monkeypatch: pytest.MonkeyPatch) -> None:
     """Check that the argument has precedence over the environment variable for setting
     the access token.
     """

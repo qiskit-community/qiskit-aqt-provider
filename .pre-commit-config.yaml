@@ -23,6 +23,10 @@ repos:
     rev: "1.8.0"
     hooks:
       - id: pyproject-fmt
+  - repo: https://github.com/crate-ci/typos
+    rev: "v1.21.0"
+    hooks:
+      - id: typos
   - repo: local
     hooks:
       - id: check-api-models
