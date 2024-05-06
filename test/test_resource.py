@@ -40,6 +40,8 @@ from qiskit_aqt_provider.versions import USER_AGENT
 
 
 class OptionsFactory(ModelFactory[AQTOptions]):
+    """Factory of random but well-formed options data."""
+
     __model__ = AQTOptions
 
     query_timeout_seconds = 10.0

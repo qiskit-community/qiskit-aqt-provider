@@ -169,6 +169,11 @@ class TestResource(AQTResource):  # pylint: disable=too-many-instance-attributes
 
     @override
     def submit(self, job: AQTJob) -> uuid.UUID:
+        """Handle an execution request for a given job.
+
+        If the backend always cancels job, the job is immediately cancelled.
+        Otherwise, register the passed job as the active one on the backend.
+        """
         test_job = TestJob(job.circuits, job.options.shots, error_message=self.error_message)
 
         if self.always_cancel:
@@ -179,6 +184,14 @@ class TestResource(AQTResource):  # pylint: disable=too-many-instance-attributes
 
     @override
     def result(self, job_id: uuid.UUID) -> api_models.JobResponse:
+        """Handle a results request for a given job.
+
+        Apply the logic configured when initializing the backend to
+        build an API result payload.
+
+        Raises:
+            UnknownJobError: the given job ID doesn't correspond to the active job's ID.
+        """
         if self.job is None or self.job.job_id != job_id:  # pragma: no cover
             raise api_models.UnknownJobError(str(job_id))
 
@@ -206,6 +219,7 @@ class DummyResource(AQTResource):
     """A non-functional resource, for testing purposes."""
 
     def __init__(self, token: str) -> None:
+        """Initialize the dummy backend."""
         super().__init__(
             AQTProvider(token),
             resource_id=api_models.ResourceId(

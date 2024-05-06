@@ -75,6 +75,11 @@ class BackendsTable(Sequence[AQTResource]):
     """
 
     def __init__(self, backends: list[AQTResource]):
+        """Initialize the table.
+
+        Args:
+            backends: list of available backends.
+        """
         self.backends = backends
         self.headers = ["Workspace ID", "Resource ID", "Description", "Resource type"]
 

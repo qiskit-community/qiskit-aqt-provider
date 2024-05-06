@@ -72,6 +72,7 @@ class RewriteRxAsR(TransformationPass):
 
     @map_exceptions(TranspilerError)
     def run(self, dag: DAGCircuit) -> DAGCircuit:
+        """Apply the transformation pass."""
         for node in dag.gate_nodes():
             if node.name == "rx":
                 (theta,) = node.op.params
@@ -91,6 +92,7 @@ class AQTSchedulingPlugin(PassManagerStagePlugin):
         pass_manager_config: PassManagerConfig,
         optimization_level: Optional[int] = None,  # noqa: ARG002
     ) -> PassManager:
+        """Pass manager for the scheduling phase."""
         if isinstance(pass_manager_config.target, UnboundParametersTarget):
             return PassManager([])
 
@@ -174,6 +176,7 @@ class WrapRxxAngles(TransformationPass):
 
     @map_exceptions(TranspilerError)
     def run(self, dag: DAGCircuit) -> DAGCircuit:
+        """Apply the transformation pass."""
         for node in dag.gate_nodes():
             if node.name == "rxx":
                 (theta,) = node.op.params
@@ -200,6 +203,7 @@ class AQTTranslationPlugin(PassManagerStagePlugin):
         pass_manager_config: PassManagerConfig,
         optimization_level: Optional[int] = None,
     ) -> PassManager:
+        """Pass manager for the translation stage."""
         translation_pm = common.generate_translation_passmanager(
             target=pass_manager_config.target,
             basis_gates=pass_manager_config.basis_gates,

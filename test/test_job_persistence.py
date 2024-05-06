@@ -102,8 +102,9 @@ def test_job_persistence_transaction_online_backend(httpx_mock: HTTPXMock, tmp_p
     )
     backend = AQTResource(provider, resource_id)
 
-    # Mocked portal state: holds details of the submitted jobs
     class PortalJob(NamedTuple):
+        """Mocked portal state: holds details of the submitted jobs."""
+
         circuits: list[api_models_generated.QuantumCircuit]
         workspace_id: str
         resource_id: str

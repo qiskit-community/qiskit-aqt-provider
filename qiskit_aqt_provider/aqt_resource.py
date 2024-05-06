@@ -161,6 +161,7 @@ class AQTResource(Backend):
         return api_models.Response.model_validate(resp.json())
 
     def configuration(self) -> BackendConfiguration:
+        """Legacy Qiskit backend configuration."""
         warnings.warn(
             "The configuration() method is deprecated and will be removed in a "
             "future release. Instead you should access these attributes directly "
@@ -171,36 +172,32 @@ class AQTResource(Backend):
         )
         return self._configuration
 
-    def properties(self) -> None:
-        warnings.warn(  # pragma: no cover
-            "The properties() method is deprecated and will be removed in a "
-            "future release. Instead you should access these attributes directly "
-            "off the object or via the .target attribute. You can refer to qiskit "
-            "backend interface transition guide for the exact changes: "
-            "https://docs.quantum.ibm.com/api/qiskit/providers#migrating-between-backend-api-versions",
-            DeprecationWarning,
-        )
-
     @property
     def max_circuits(self) -> int:
+        """Maximum number of circuits per batch."""
         return 2000
 
     @property
     def target(self) -> Target:
+        """Transpilation target for this backend."""
         return self._target
 
     @classmethod
     def _default_options(cls) -> QiskitOptions:
+        """Default backend options, in Qiskit format."""
         return QiskitOptions()
 
     @property
     def options(self) -> AQTOptions:
+        """Configured backend options."""
         return self._options
 
     def get_scheduling_stage_plugin(self) -> str:
+        """Name of the custom scheduling stage plugin for the Qiskit transpiler."""
         return "aqt"
 
     def get_translation_stage_plugin(self) -> str:
+        """Name of the custom translation stage plugin for the Qiskit transpiler."""
         return "aqt"
 
     def run(self, circuits: Union[QuantumCircuit, list[QuantumCircuit]], **options: Any) -> AQTJob:
@@ -279,12 +276,20 @@ def qubit_states_from_int(state: int, num_qubits: int) -> list[int]:
 
 @dataclass(frozen=True)
 class SimulatorJob:
+    """Data for a job running on a local simulator."""
+
     job: AerJob
+    """Simulation backend job handle."""
+
     circuits: list[QuantumCircuit]
+    """Quantum circuits to evaluate."""
+
     shots: int
+    """Number of repetitions of each circuit."""
 
     @property
     def job_id(self) -> UUID:
+        """The job's unique identifier."""
         return UUID(hex=self.job.job_id())
 
 
