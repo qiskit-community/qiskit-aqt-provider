@@ -33,6 +33,9 @@ class AQTEstimator(BackendEstimator):
     ):
         """Initialize an ``Estimator`` primitive using an AQT backend.
 
+        See :class:`AQTSampler <qiskit_aqt_provider.primitives.sampler.AQTSampler>` for
+        examples configuring run options.
+
         Args:
             backend: AQT resource to evaluate circuits on.
             options: options passed to through to the underlying
