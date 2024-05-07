@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* Docs: add examples on setting run options in primitives (#156)
 
 ## qiskit-aqt-provider v1.4.0
 
