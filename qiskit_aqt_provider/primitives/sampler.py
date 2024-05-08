@@ -38,6 +38,47 @@ class AQTSampler(BackendSampler):
               :class:`BackendSampler <qiskit.primitives.BackendSampler>`.
             skip_transpilation: if :data:`True`, do not transpile circuits
               before passing them to the execution backend.
+
+        Examples:
+            Initialize a :class:`Sampler <qiskit.primitives.BaseSamplerV1>` primitive
+            on a AQT offline simulator:
+
+            >>> import qiskit
+            >>> from qiskit_aqt_provider import AQTProvider
+            >>> from qiskit_aqt_provider.primitives import AQTSampler
+            >>>
+            >>> backend = AQTProvider("").get_backend("offline_simulator_no_noise")
+            >>> sampler = AQTSampler(backend)
+
+            Configuring :class:`options <qiskit_aqt_provider.aqt_options.AQTOptions>`
+            on the backend will affect all circuit evaluations triggered by
+            the `Sampler` primitive:
+
+            >>> qc = qiskit.QuantumCircuit(2)
+            >>> _ = qc.cx(0, 1)
+            >>> _ = qc.measure_all()
+            >>>
+            >>> sampler.run(qc).result().metadata[0]["shots"]
+            100
+            >>> backend.options.shots = 123
+            >>> sampler.run(qc).result().metadata[0]["shots"]
+            123
+
+            The same effect is achieved by passing options to the
+            :class:`AQTSampler` initializer:
+
+            >>> sampler = AQTSampler(backend, options={"shots": 120})
+            >>> sampler.run(qc).result().metadata[0]["shots"]
+            120
+
+            Passing the option in the
+            :meth:`AQTSampler.run <qiskit.primitives.BaseSamplerV1.run>` call
+            restricts the effect to a single evaluation:
+
+            >>> sampler.run(qc, shots=130).result().metadata[0]["shots"]
+            130
+            >>> sampler.run(qc).result().metadata[0]["shots"]
+            120
         """
         # Signal the transpiler to disable passes that require bound
         # parameters.
