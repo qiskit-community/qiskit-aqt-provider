@@ -283,15 +283,24 @@ def test_qft_circuit_transpilation(
 
     assert set(trans_qc.count_ops()) <= set(offline_simulator_no_noise.configuration().basis_gates)
 
+    rxx_count = 0
+    r_count = 0
     for operation in trans_qc.data:
         instruction = operation[0]
         if instruction.name == "rxx":
             (theta,) = instruction.params
             assert 0 <= float(theta) <= pi / 2
+            rxx_count += 1
 
         if instruction.name == "r":
             (theta, _) = instruction.params
             assert abs(theta) <= pi
+            r_count += 1
 
-    if optimization_level < 3 and qubits < 6:
+    assert r_count > 0
+
+    if qubits > 1:
+        assert rxx_count > 0
+
+    if optimization_level < 2 and qubits < 6:
         assert_circuits_equivalent(qc, trans_qc)
