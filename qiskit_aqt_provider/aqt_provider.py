@@ -31,7 +31,7 @@ from typing import (
 
 import dotenv
 import httpx
-from qiskit.providers import ProviderV1
+from qiskit.providers.exceptions import QiskitBackendNotFoundError
 from tabulate import tabulate
 from typing_extensions import TypeAlias, override
 
@@ -139,7 +139,7 @@ class BackendsTable(Sequence[AQTResource]):
         return table
 
 
-class AQTProvider(ProviderV1):
+class AQTProvider:
     """Provider for backends from Alpine Quantum Technologies (AQT)."""
 
     # Set AQT_PORTAL_URL environment variable to override
@@ -282,3 +282,35 @@ class AQTProvider(ProviderV1):
                 )
 
         return BackendsTable(backends)
+
+    def get_backend(
+        self,
+        name: Optional[Union[str, Pattern[str]]] = None,
+        *,
+        backend_type: Optional[Literal["device", "simulator", "offline_simulator"]] = None,
+        workspace: Optional[Union[str, Pattern[str]]] = None,
+    ) -> AQTResource:
+        """Return a single backend matching the specified filtering.
+
+        Args:
+            name: filter for the backend name.
+            backend_type: if given, restrict the search to the given backend type.
+            workspace: if given, restrict to matching workspace IDs.
+
+        Returns:
+            Backend: backend matching the filtering.
+
+        Raises:
+            QiskitBackendNotFoundError: if no backend could be found or
+                more than one backend matches the filtering criteria.
+        """
+        # From: https://github.com/Qiskit/qiskit/blob/8e3218bc0798b0612edf446db130e95ac9404968/qiskit/providers/provider.py#L53
+        # after ProviderV1 deprecation.
+        # See: https://github.com/Qiskit/qiskit/pull/12145.
+        backends = self.backends(name, backend_type=backend_type, workspace=workspace)
+        if len(backends) > 1:
+            raise QiskitBackendNotFoundError("More than one backend matches the criteria")
+        if not backends:
+            raise QiskitBackendNotFoundError("No backend matches the criteria")
+
+        return backends[0]
