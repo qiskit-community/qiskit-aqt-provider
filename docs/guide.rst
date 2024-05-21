@@ -222,7 +222,7 @@ AQT backends only natively implement a limited but complete set of quantum gates
 
    print(list(backend.target.operation_names))
 
-.. warning:: For implementation reasons, the transpilation target declares :class:`RXGate <qiskit.circuit.library.RXGate>` as basis gate. The AQT API, however, only accepts the more general :class:`RGate <qiskit.circuit.library.RGate>`, in addition to :class:`RZGate <qiskit.circuit.library.RZGate>`, the entangling :class:`RXXGate <qiskit.circuit.library.RXXGate>`, and the :class:`Measure <qiskit.circuit.library.Measure>` operation.
+.. warning:: For implementation reasons, the transpilation target declares :class:`RXGate <qiskit.circuit.library.RXGate>` as basis gate. The AQT API, however, only accepts the more general :class:`RGate <qiskit.circuit.library.RGate>`, in addition to :class:`RZGate <qiskit.circuit.library.RZGate>`, the entangling :class:`RXXGate <qiskit.circuit.library.RXXGate>`, and the :class:`Measure <qiskit.circuit.measure.Measure>` operation.
 
 The transpiler's entry point is the :func:`qiskit.transpile <qiskit.compiler.transpile>` function. The optimization level can be tuned using the ``optimization_level=0,1,2,3`` argument. One can inspect how the circuit is converted from the original one:
 
@@ -299,7 +299,7 @@ Common limitations
 Reset operations are not supported
 ----------------------------------
 
-Because AQT backends do not support in-circuit state reinitialization of specific qubits, the :class:`Reset <qiskit.circuit.library.Reset>` operation is not supported. The Qiskit transpiler will fail synthesis for circuits using it (e.g. through :meth:`QuantumCircuit.initialize <qiskit.circuit.QuantumCircuit.initialize>`) when targeting AQT backends.
+Because AQT backends do not support in-circuit state reinitialization of specific qubits, the :class:`Reset <qiskit.circuit.reset.Reset>` operation is not supported. The Qiskit transpiler will fail synthesis for circuits using it (e.g. through :meth:`QuantumCircuit.initialize <qiskit.circuit.QuantumCircuit.initialize>`) when targeting AQT backends.
 
 AQT backends always prepare the quantum register in the :math:`|0\rangle\otimes\cdots\otimes|0\rangle` state. Thus, :meth:`QuantumCircuit.prepare_state <qiskit.circuit.QuantumCircuit.prepare_state>` is an alternative to :meth:`QuantumCircuit.initialize <qiskit.circuit.QuantumCircuit.initialize>` as first instruction in the circuit:
 
