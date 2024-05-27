@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## qiskit-aqt-provider v1.5.0
 
 * Docs: add examples on setting run options in primitives (#156)
 * Provider: remove `ProviderV1` inheritance (#160)
