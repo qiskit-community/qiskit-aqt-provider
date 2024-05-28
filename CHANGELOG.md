@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+* Add an experimental QIR to AQT API converter (#162)
+
 ## qiskit-aqt-provider v1.5.0
 
 * Docs: add examples on setting run options in primitives (#156)
