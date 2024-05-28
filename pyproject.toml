@@ -61,6 +61,7 @@ python = ">=3.9,<3.13"
 httpx = ">=0.24.0"
 platformdirs = ">=3"
 pydantic = ">=2.5.0"
+pyqir = { version = "^0.10.2", optional = true }
 python-dotenv = ">=1"
 qiskit = "^1"
 qiskit-aer = ">=0.13.2"
@@ -89,6 +90,7 @@ pytest-httpx = "^0.22.0"
 pytest-mock = "^3.11.1"
 pytest-sugar = "^0.9.6"
 qiskit-experiments = "^0.6.0"
+qiskit-qir = "^0.5.0"
 qiskit-sphinx-theme = ">=1.16.1"
 qiskit = { version = "^1", extras = [
   "visualization",
@@ -108,6 +110,9 @@ typos = "^1.21.0"
 examples = [
   "qiskit-algorithms",
   "qiskit-optimization",
+]
+qir = [
+  "pyqir",
 ]
 
 [tool.ruff]

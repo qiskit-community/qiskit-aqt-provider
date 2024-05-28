@@ -2725,6 +2725,23 @@ files = [
 test = ["covdefaults (>=2.3)", "pytest (>=8.2)", "pytest-cov (>=5)"]
 
 [[package]]
+name = "pyqir"
+version = "0.10.2"
+description = "PyQIR parses, generates and evaluates the Quantum Intermediate Representation."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "pyqir-0.10.2-cp38-abi3-macosx_10_12_x86_64.macosx_11_0_arm64.macosx_10_12_universal2.whl", hash = "sha256:c36bb36e8350bfa1c19a4dbca4532de68b7359909f67f28ddaa9fa645f9b7cdd"},
+    {file = "pyqir-0.10.2-cp38-abi3-macosx_10_12_x86_64.whl", hash = "sha256:2da2f25fed9048f3dcd80659abc1836456f9b476cd211fadb981a24f45d25af8"},
+    {file = "pyqir-0.10.2-cp38-abi3-macosx_11_0_arm64.whl", hash = "sha256:51f9e54f7e8c420a794fea8320f29f0bf03ca008c28c3e49e2d39a01da801673"},
+    {file = "pyqir-0.10.2-cp38-abi3-manylinux_2_31_x86_64.whl", hash = "sha256:e7e610b715b9cdbf507ee45b6b0f5d7731cda75369a57a09dd2fe6fe8e234da3"},
+    {file = "pyqir-0.10.2-cp38-abi3-win_amd64.whl", hash = "sha256:e994938521af707d60af579e684af8271882f9b852916da4f6b4c535718d5e82"},
+]
+
+[package.extras]
+test = ["pytest (>=7.2.0,<7.3.0)"]
+
+[[package]]
 name = "pyspnego"
 version = "0.10.2"
 description = "Windows Negotiate Authentication Client and Server"
@@ -3234,6 +3251,24 @@ cplex = ["cplex"]
 cvx = ["cvxpy"]
 gurobi = ["gurobipy"]
 matplotlib = ["matplotlib"]
+
+[[package]]
+name = "qiskit-qir"
+version = "0.5.0"
+description = "Qiskit to QIR translator"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "qiskit-qir-0.5.0.tar.gz", hash = "sha256:5635837234974fdf6f1f6863231493f1fcdd571dc5283b480fe45ef69c9c86fd"},
+    {file = "qiskit_qir-0.5.0-py2.py3-none-any.whl", hash = "sha256:646c924919d24562d4640973f0284d32e9e2e8c63b6352b12e98f1bce89b1e8e"},
+]
+
+[package.dependencies]
+pyqir = ">=0.10.0,<0.11.0"
+qiskit = ">=1.0.0,<2.0"
+
+[package.extras]
+test = ["pytest"]
 
 [[package]]
 name = "qiskit-sphinx-theme"
@@ -4337,8 +4372,9 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "jaraco.test", "more
 
 [extras]
 examples = ["qiskit-algorithms", "qiskit-optimization"]
+qir = ["pyqir"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.13"
-content-hash = "76bac5a46ffd48e0959502153724f583278cb8a20be749aeec3be4708b2ebd4e"
+content-hash = "4a15a619ed1c8a622cbff2738d2e17226379b870100bd47328abdb1b12b7c850"
