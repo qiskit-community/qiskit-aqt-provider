@@ -12,6 +12,7 @@
 
 import json
 import math
+import re
 import uuid
 from contextlib import AbstractContextManager, nullcontext
 from typing import Any
@@ -27,7 +28,7 @@ from pytest_httpx import HTTPXMock
 from qiskit import QuantumCircuit
 from qiskit.providers.exceptions import JobTimeoutError
 
-from qiskit_aqt_provider import api_models
+from qiskit_aqt_provider import api_models, api_models_direct
 from qiskit_aqt_provider.aqt_job import AQTJob
 from qiskit_aqt_provider.aqt_options import AQTOptions
 from qiskit_aqt_provider.aqt_provider import AQTProvider
@@ -35,7 +36,11 @@ from qiskit_aqt_provider.aqt_resource import AQTDirectAccessResource, AQTResourc
 from qiskit_aqt_provider.circuit_to_aqt import circuits_to_aqt_job
 from qiskit_aqt_provider.test.circuits import assert_circuits_equal, empty_circuit, random_circuit
 from qiskit_aqt_provider.test.fixtures import MockSimulator
-from qiskit_aqt_provider.test.resources import DummyResource, TestResource
+from qiskit_aqt_provider.test.resources import (
+    DummyDirectAccessResource,
+    DummyResource,
+    TestResource,
+)
 from qiskit_aqt_provider.test.utils import get_field_constraint
 from qiskit_aqt_provider.versions import USER_AGENT
 
@@ -434,8 +439,8 @@ def test_offline_simulator_resource_propagate_memory_option(
         assert len(result.get_memory()) == default_shots
 
 
-def test_direct_invalid_url() -> None:
-    """Check that initializing a direct connection resource with invalid url parameters fails."""
+def test_direct_access_invalid_url() -> None:
+    """Check that initializing a direct-access resource with invalid url parameters fails."""
     provider = AQTProvider("token")
 
     with pytest.raises(ValueError, match="Invalid"):
@@ -444,3 +449,62 @@ def test_direct_invalid_url() -> None:
             host="example.com",
             port=64_000_000,  # invalid port
         )
+
+
+def test_direct_access_bad_request(httpx_mock: HTTPXMock) -> None:
+    """Check that direct-access resources raise a httpx.HTTPError if the request is flagged bad by the server."""
+    backend = DummyDirectAccessResource("")
+    httpx_mock.add_response(status_code=httpx.codes.BAD_REQUEST)
+
+    job = backend.run(empty_circuit(2))
+    with pytest.raises(httpx.HTTPError):
+        job.result()
+
+
+def test_direct_access_mocked_successful_transaction(httpx_mock: HTTPXMock) -> None:
+    """Mock a successful single-circuit transaction on a direct-access resource."""
+    token = str(uuid.uuid4())
+    backend = DummyDirectAccessResource(token)
+    backend.options.with_progress_bar = False
+
+    shots = 122
+    qc = empty_circuit(2)
+
+    expected_job_id = str(uuid.uuid4())
+
+    def handle_submit(request: httpx.Request) -> httpx.Response:
+        assert request.headers["user-agent"] == USER_AGENT
+
+        data = api_models.QuantumCircuit.model_validate_json(request.content.decode("utf-8"))
+        assert data.repetitions == shots
+
+        return httpx.Response(
+            status_code=httpx.codes.OK,
+            text=f'"{expected_job_id}"',
+        )
+
+    def handle_result(request: httpx.Request) -> httpx.Response:
+        assert request.headers["user-agent"] == USER_AGENT
+
+        _, job_id = request.url.path.rsplit("/", maxsplit=1)
+        assert job_id == expected_job_id
+
+        return httpx.Response(
+            status_code=httpx.codes.OK,
+            json=json.loads(
+                api_models_direct.JobResult.create_finished(
+                    job_id=uuid.UUID(job_id),
+                    result=[[0, 0] if s % 2 == 0 else [1, 0] for s in range(shots)],
+                ).model_dump_json()
+            ),
+        )
+
+    httpx_mock.add_callback(handle_submit, method="PUT", url=re.compile(".+/circuit/?$"))
+    httpx_mock.add_callback(
+        handle_result, method="GET", url=re.compile(".+/circuit/result/[0-9a-f-]+$")
+    )
+
+    job = backend.run(qc, shots=shots)
+    result = job.result()
+
+    assert result.get_counts() == {"00": shots // 2, "01": shots // 2}
