@@ -30,7 +30,8 @@ from qiskit.providers.exceptions import JobTimeoutError
 from qiskit_aqt_provider import api_models
 from qiskit_aqt_provider.aqt_job import AQTJob
 from qiskit_aqt_provider.aqt_options import AQTOptions
-from qiskit_aqt_provider.aqt_resource import AQTResource
+from qiskit_aqt_provider.aqt_provider import AQTProvider
+from qiskit_aqt_provider.aqt_resource import AQTDirectAccessResource, AQTResource
 from qiskit_aqt_provider.circuit_to_aqt import circuits_to_aqt_job
 from qiskit_aqt_provider.test.circuits import assert_circuits_equal, empty_circuit, random_circuit
 from qiskit_aqt_provider.test.fixtures import MockSimulator
@@ -431,3 +432,15 @@ def test_offline_simulator_resource_propagate_memory_option(
     result = offline_simulator_no_noise.run(qc).result()
     with context:
         assert len(result.get_memory()) == default_shots
+
+
+def test_direct_invalid_url() -> None:
+    """Check that initializing a direct connection resource with invalid url parameters fails."""
+    provider = AQTProvider("token")
+
+    with pytest.raises(ValueError, match="Invalid"):
+        AQTDirectAccessResource(
+            provider,
+            host="example.com",
+            port=64_000_000,  # invalid port
+        )

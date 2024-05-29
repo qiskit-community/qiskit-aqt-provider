@@ -37,7 +37,7 @@ from typing_extensions import TypeAlias, override
 
 from qiskit_aqt_provider import api_models
 
-from .aqt_resource import AQTResource, OfflineSimulatorResource
+from .aqt_resource import AQTDirectAccessResource, AQTResource, OfflineSimulatorResource
 
 StrPath: TypeAlias = Union[str, Path]
 
@@ -314,3 +314,12 @@ class AQTProvider:
             raise QiskitBackendNotFoundError("No backend matches the criteria")
 
         return backends[0]
+
+    def get_direct_access_backend(self, *, host: str, port: int) -> AQTDirectAccessResource:
+        """Return a handle that connects directly to an AQT quantum computing resource.
+
+        Args:
+            host: hostname to connect to.
+            port: port to connect on.
+        """
+        return AQTDirectAccessResource(self, host=host, port=port)

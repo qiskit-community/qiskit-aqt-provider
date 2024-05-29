@@ -58,7 +58,7 @@ def http_client(*, base_url: str, token: str) -> httpx.Client:
         token: access token for the remote service.
     """
     headers = {"Authorization": f"Bearer {token}", "User-Agent": USER_AGENT}
-    return httpx.Client(headers=headers, base_url=base_url, timeout=10.0)
+    return httpx.Client(headers=headers, base_url=base_url, timeout=10.0, follow_redirects=True)
 
 
 class Workspaces(pdt.RootModel[list[api_models.Workspace]]):
