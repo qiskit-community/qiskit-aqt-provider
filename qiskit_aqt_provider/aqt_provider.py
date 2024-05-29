@@ -36,8 +36,11 @@ from tabulate import tabulate
 from typing_extensions import TypeAlias, override
 
 from qiskit_aqt_provider import api_models
-
-from .aqt_resource import AQTDirectAccessResource, AQTResource, OfflineSimulatorResource
+from qiskit_aqt_provider.aqt_resource import (
+    AQTDirectAccessResource,
+    AQTResource,
+    OfflineSimulatorResource,
+)
 
 StrPath: TypeAlias = Union[str, Path]
 
@@ -67,7 +70,7 @@ OFFLINE_SIMULATORS: Final = [
 
 
 class BackendsTable(Sequence[AQTResource]):
-    """Pretty-printable collection of AQT backends.
+    """Pretty-printable collection of AQT cloud backends.
 
     The :meth:`__str__` method returns a plain text table representation of the available backends.
     The :meth:`_repr_html_` method returns an HTML representation that is automatically used
@@ -207,7 +210,7 @@ class AQTProvider:
         backend_type: Optional[Literal["device", "simulator", "offline_simulator"]] = None,
         workspace: Optional[Union[str, Pattern[str]]] = None,
     ) -> BackendsTable:
-        """Search for backends matching given criteria.
+        """Search for cloud backends matching given criteria.
 
         With no arguments, return all backends accessible with the configured
         access token.
@@ -290,7 +293,7 @@ class AQTProvider:
         backend_type: Optional[Literal["device", "simulator", "offline_simulator"]] = None,
         workspace: Optional[Union[str, Pattern[str]]] = None,
     ) -> AQTResource:
-        """Return a single backend matching the specified filtering.
+        """Return a handle for a cloud quantum computing resource matching the specified filtering.
 
         Args:
             name: filter for the backend name.
@@ -316,7 +319,7 @@ class AQTProvider:
         return backends[0]
 
     def get_direct_access_backend(self, *, host: str, port: int) -> AQTDirectAccessResource:
-        """Return a handle that connects directly to an AQT quantum computing resource.
+        """Return a handle for a direct-access quantum computing resource.
 
         Args:
             host: hostname to connect to.

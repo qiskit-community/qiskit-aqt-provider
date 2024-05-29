@@ -115,7 +115,7 @@ class _MockProgressBar:
 
 
 class AQTJob(JobV1):
-    """Handle for quantum circuits jobs running on AQT backends.
+    """Handle for quantum circuits jobs running on AQT cloud backends.
 
     Jobs contain one or more quantum circuits that are executed with a common
     set of options (see :class:`AQTOptions <qiskit_aqt_provider.aqt_options.AQTOptions>`).
@@ -387,7 +387,11 @@ class AQTJob(JobV1):
 
 
 class AQTDirectAccessJob(JobV1):
-    """Handle for quantum circuits jobs running on direct-access AQT backends."""
+    """Handle for quantum circuits jobs running on direct-access AQT backends.
+
+    Use :meth:`AQTDirectAccessResource.run <qiskit_aqt_provider.aqt_resource.AQTDirectAccessResource.run>`
+    to get a handle and evaluate circuits on a direct-access backend.
+    """
 
     _backend: "AQTDirectAccessResource"
 
@@ -414,11 +418,7 @@ class AQTDirectAccessJob(JobV1):
         self._status = JobStatus.INITIALIZING
 
     def submit(self) -> None:
-        """Virtual job submission.
-
-        This is a no-op for this type of job.
-        The method is present to match the :class:`APIJob` API.
-        """
+        """No-op on direct-access backends."""
 
     def result(self) -> Result:
         """Iteratively submit all circuits and block until full completion.

@@ -190,7 +190,11 @@ class _ResourceBase(Backend):
 
 
 class AQTResource(_ResourceBase):
-    """Qiskit backend for AQT quantum computing resources."""
+    """Qiskit backend for AQT cloud quantum computing resources.
+
+    Use :meth:`AQTProvider.get_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_backend>`
+    to retrieve backend instances.
+    """
 
     def __init__(
         self,
@@ -265,7 +269,11 @@ class AQTResource(_ResourceBase):
 
 
 class AQTDirectAccessResource(_ResourceBase):
-    """Qiskit backend for AQT computing resources with direct access (no cloud portal)."""
+    """Qiskit backend for AQT direct-access quantum computing resources.
+
+    Use :meth:`AQTProvider.get_direct_access_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_direct_access_backend>`
+    to retrieve backend instances.
+    """
 
     def __init__(
         self,
@@ -302,11 +310,20 @@ class AQTDirectAccessResource(_ResourceBase):
     ) -> AQTDirectAccessJob:
         """Prepare circuits for execution on this resource.
 
-        .. warning:: The circuits are only evaluated during the call to :meth:`AQTDirectAccessResource.result`.
+        .. warning:: The circuits are only evaluated during
+          the :meth:`AQTDirectAccessJob.result <qiskit_aqt_provider.aqt_job.AQTDirectAccessJob.result>`
+          call.
+
+        Args:
+            circuits: circuits to execute
+            options: overrides for this resource's options. Elements should be valid fields
+              of the :class:`AQTOptions <qiskit_aqt_provider.aqt_options.AQTOptions>` model.
+              Unknown fields are ignored with a :class:`UnknownOptionWarning`.
+
+        Returns:
+            A handle to the prepared job.
         """
-        job = self._create_job(AQTDirectAccessJob, circuits, **options)
-        job.submit()
-        return job
+        return self._create_job(AQTDirectAccessJob, circuits, **options)
 
     def submit(self, circuit: api_models.QuantumCircuit) -> UUID:
         """Submit a quantum circuit job to the AQT resource.
