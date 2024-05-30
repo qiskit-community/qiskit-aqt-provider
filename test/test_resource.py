@@ -29,18 +29,20 @@ from pytest_httpx import HTTPXMock
 from qiskit import QuantumCircuit
 from qiskit.providers import JobStatus
 from qiskit.providers.exceptions import JobTimeoutError
+
 from qiskit_aqt_provider import api_models, api_models_direct
 from qiskit_aqt_provider.aqt_job import AQTJob
 from qiskit_aqt_provider.aqt_options import AQTOptions
 from qiskit_aqt_provider.aqt_provider import AQTProvider
-from qiskit_aqt_provider.aqt_resource import (AQTDirectAccessResource,
-                                              AQTResource)
+from qiskit_aqt_provider.aqt_resource import AQTResource
 from qiskit_aqt_provider.circuit_to_aqt import circuits_to_aqt_job
-from qiskit_aqt_provider.test.circuits import (assert_circuits_equal,
-                                               empty_circuit, random_circuit)
+from qiskit_aqt_provider.test.circuits import assert_circuits_equal, empty_circuit, random_circuit
 from qiskit_aqt_provider.test.fixtures import MockSimulator
-from qiskit_aqt_provider.test.resources import (DummyDirectAccessResource,
-                                                DummyResource, TestResource)
+from qiskit_aqt_provider.test.resources import (
+    DummyDirectAccessResource,
+    DummyResource,
+    TestResource,
+)
 from qiskit_aqt_provider.test.utils import get_field_constraint
 from qiskit_aqt_provider.versions import USER_AGENT
 
@@ -586,7 +588,7 @@ def test_direct_access_mocked_failed_transaction(httpx_mock: HTTPXMock) -> None:
 
     circuit_submissions = 0
 
-    def handle_sumbit(request: httpx.Request) -> httpx.Response:
+    def handle_submit(request: httpx.Request) -> httpx.Response:
         assert request.headers["user-agent"] == USER_AGENT
 
         data = api_models.QuantumCircuit.model_validate_json(request.content.decode("utf-8"))
@@ -619,7 +621,7 @@ def test_direct_access_mocked_failed_transaction(httpx_mock: HTTPXMock) -> None:
             ),
         )
 
-    httpx_mock.add_callback(handle_sumbit, method="PUT", url=re.compile(".+/circuit/?$"))
+    httpx_mock.add_callback(handle_submit, method="PUT", url=re.compile(".+/circuit/?$"))
     httpx_mock.add_callback(
         handle_result, method="GET", url=re.compile(".+/circuit/result/[0-9a-f-]+$")
     )
