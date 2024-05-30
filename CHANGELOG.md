@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+* Support direct-access mode on AQT devices (#164)
+
 ## qiskit-aqt-provider v1.5.0
 
 * Docs: add examples on setting run options in primitives (#156)
