@@ -15,16 +15,27 @@
 This module is exposed as pytest plugin for this project.
 """
 
+import json
+import re
 import uuid
 
+import httpx
 import pytest
+from pytest_httpx import HTTPXMock
 from qiskit.circuit import QuantumCircuit
+from qiskit_aer import AerSimulator
 from typing_extensions import override
 
-from qiskit_aqt_provider import api_models
+from qiskit_aqt_provider import api_models, api_models_direct
 from qiskit_aqt_provider.aqt_job import AQTJob
 from qiskit_aqt_provider.aqt_provider import AQTProvider
-from qiskit_aqt_provider.aqt_resource import OfflineSimulatorResource
+from qiskit_aqt_provider.aqt_resource import (
+    AQTDirectAccessResource,
+    OfflineSimulatorResource,
+    qubit_states_from_int,
+)
+from qiskit_aqt_provider.circuit_to_aqt import aqt_to_qiskit_circuit
+from qiskit_aqt_provider.test.resources import DummyDirectAccessResource
 
 
 class MockSimulator(OfflineSimulatorResource):
@@ -65,5 +76,60 @@ class MockSimulator(OfflineSimulatorResource):
 
 @pytest.fixture(name="offline_simulator_no_noise")
 def fixture_offline_simulator_no_noise() -> MockSimulator:
-    """Noiseless offline simulator resource."""
+    """Noiseless offline simulator resource, as cloud backend."""
     return MockSimulator(noisy=False)
+
+
+@pytest.fixture(name="offline_simulator_no_noise_direct_access")
+def fixture_offline_simulator_no_noise_direct_access(
+    httpx_mock: HTTPXMock,
+) -> AQTDirectAccessResource:
+    """Noiseless offline simulator resource, as direct-access backend."""
+    simulator = AerSimulator(method="statevector")
+
+    inflight_circuits: dict[uuid.UUID, api_models.QuantumCircuit] = {}
+
+    def handle_submit(request: httpx.Request) -> httpx.Response:
+        data = api_models.QuantumCircuit.model_validate_json(request.content.decode("utf-8"))
+
+        job_id = uuid.uuid4()
+        inflight_circuits[job_id] = data.model_copy(deep=True)
+
+        return httpx.Response(
+            status_code=httpx.codes.OK,
+            text=f'"{job_id}"',
+        )
+
+    def handle_result(request: httpx.Request) -> httpx.Response:
+        _, job_id_str = request.url.path.rsplit("/", maxsplit=1)
+        job_id = uuid.UUID(job_id_str)
+
+        data = inflight_circuits[job_id]
+        qiskit_circuit = aqt_to_qiskit_circuit(data.quantum_circuit, data.number_of_qubits)
+        result = simulator.run(qiskit_circuit, shots=data.repetitions).result()
+
+        samples: list[list[int]] = []
+        for hex_state, occurrences in result.data()["counts"].items():
+            samples.extend(
+                [
+                    qubit_states_from_int(int(hex_state, 16), qiskit_circuit.num_qubits)
+                    for _ in range(occurrences)
+                ]
+            )
+
+        return httpx.Response(
+            status_code=httpx.codes.OK,
+            json=json.loads(
+                api_models_direct.JobResult.create_finished(
+                    job_id=job_id,
+                    result=samples,
+                ).model_dump_json()
+            ),
+        )
+
+    httpx_mock.add_callback(handle_submit, method="PUT", url=re.compile(".+/circuit/?$"))
+    httpx_mock.add_callback(
+        handle_result, method="GET", url=re.compile(".+/circuit/result/[0-9a-f-]+$")
+    )
+
+    return DummyDirectAccessResource("token")
