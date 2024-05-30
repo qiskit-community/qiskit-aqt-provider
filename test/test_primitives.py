@@ -23,15 +23,27 @@ from qiskit.primitives import (
     BaseSamplerV1,
     Sampler,
 )
-from qiskit.providers import Backend
+from qiskit.providers import Backend, BackendV2
 from qiskit.quantum_info import SparsePauliOp
 from qiskit.transpiler.exceptions import TranspilerError
 
-from qiskit_aqt_provider.aqt_resource import AQTResource
 from qiskit_aqt_provider.primitives import AQTSampler
 from qiskit_aqt_provider.primitives.estimator import AQTEstimator
 from qiskit_aqt_provider.test.circuits import assert_circuits_equal
 from qiskit_aqt_provider.test.fixtures import MockSimulator
+
+
+@pytest.fixture(scope="module")
+def assert_all_responses_were_requested() -> bool:
+    """Disable pytest-httpx check that all mocked responses are used for this module.
+
+    Some tests in this module request the offline_simulator_no_noise_direct_access
+    fixture without using it, thus not calling the mocked HTTP responses it contains.
+
+    # TODO: use alternative HTTPXMock setup when available.
+    # See: https://github.com/Colin-b/pytest_httpx/issues/137
+    """
+    return False
 
 
 def test_backend_primitives_are_v1() -> None:
@@ -66,8 +78,7 @@ def test_backend_primitives_are_v1() -> None:
     ],
 )
 def test_circuit_sampling_primitive(
-    get_sampler: Callable[[Backend], BaseSamplerV1],
-    offline_simulator_no_noise: AQTResource,
+    get_sampler: Callable[[Backend], BaseSamplerV1], any_offline_simulator_no_noise: BackendV2
 ) -> None:
     """Check that a `Sampler` primitive using an AQT backend can sample parametric circuits."""
     theta = Parameter("θ")
@@ -81,7 +92,7 @@ def test_circuit_sampling_primitive(
 
     assert qc.num_parameters > 0
 
-    sampler = get_sampler(offline_simulator_no_noise)
+    sampler = get_sampler(any_offline_simulator_no_noise)
     sampled = sampler.run(qc, [pi]).result().quasi_dists
     assert sampled == [{3: 1.0}]
 

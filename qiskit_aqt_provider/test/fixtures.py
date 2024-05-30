@@ -23,6 +23,7 @@ import httpx
 import pytest
 from pytest_httpx import HTTPXMock
 from qiskit.circuit import QuantumCircuit
+from qiskit.providers import BackendV2
 from qiskit_aer import AerSimulator
 from typing_extensions import override
 
@@ -133,3 +134,16 @@ def fixture_offline_simulator_no_noise_direct_access(
     )
 
     return DummyDirectAccessResource("token")
+
+
+@pytest.fixture(
+    name="any_offline_simulator_no_noise",
+    params=["offline_simulator_no_noise", "offline_simulator_no_noise_direct_access"],
+)
+def fixture_any_offline_simulator_no_noise(request: pytest.FixtureRequest) -> BackendV2:
+    """Noiseless, offline simulator backend.
+
+    The fixture is parametrized to successively run the dependent tests
+    with a regular cloud-bound backend, and a direct-access one.
+    """
+    return request.getfixturevalue(request.param)
