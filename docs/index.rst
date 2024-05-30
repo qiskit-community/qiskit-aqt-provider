@@ -66,10 +66,10 @@ For more details see the :ref:`user guide <user-guide>`, a selection of `example
   :caption: Reference
   :hidden:
 
-  AQTProvider <apidoc/provider>
-  AQTResource <apidoc/resource>
-  AQTJob <apidoc/job>
-  AQTOptions <apidoc/options>
+  Provider <apidoc/provider>
+  Backends <apidoc/resource>
+  Job handles <apidoc/job>
+  Options <apidoc/options>
   Qiskit primitives <apidoc/primitives>
   Transpiler plugin <apidoc/transpiler_plugin>
 
