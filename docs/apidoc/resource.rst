@@ -25,4 +25,5 @@ AQTResource
 
 .. autoclass:: qiskit_aqt_provider.aqt_resource._ResourceBase
    :show-inheritance:
-   :exclude-members: __init__, __new__
+   :exclude-members: __init__, __new__, get_scheduling_stage_plugin, get_translation_stage_plugin
+   :members:

@@ -24,7 +24,7 @@ class AQTOptions(pdt.BaseModel, Mapping[str, Any]):
 
     Options can be set on a backend globally or on a per-job basis. To update an option
     globally, set the corresponding attribute in the backend's
-    `options <qiskit_aqt_provider.aqt_resource._ResourceBase.options>` attribute:
+    :attr:`options <qiskit_aqt_provider.aqt_resource._ResourceBase.options>` attribute:
 
     >>> import qiskit
     >>> from qiskit_aqt_provider import AQTProvider
