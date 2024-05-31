@@ -318,11 +318,10 @@ class AQTProvider:
 
         return backends[0]
 
-    def get_direct_access_backend(self, *, host: str, port: int) -> AQTDirectAccessResource:
+    def get_direct_access_backend(self, base_url: str, /) -> AQTDirectAccessResource:
         """Return a handle for a direct-access quantum computing resource.
 
         Args:
-            host: hostname to connect to.
-            port: port to connect on.
+            base_url: URL of the direct-access interface.
         """
-        return AQTDirectAccessResource(self, host=host, port=port)
+        return AQTDirectAccessResource(self, base_url)

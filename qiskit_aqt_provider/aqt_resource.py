@@ -15,7 +15,6 @@ from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
     Any,
-    Literal,
     Optional,
     TypeVar,
     Union,
@@ -23,7 +22,6 @@ from typing import (
 from uuid import UUID
 
 import httpx
-import pydantic as pdt
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import RXGate, RXXGate, RZGate
 from qiskit.circuit.measure import Measure
@@ -278,32 +276,17 @@ class AQTDirectAccessResource(_ResourceBase):
     def __init__(
         self,
         provider: "AQTProvider",
-        host: str,
-        port: int,
-        *,
-        scheme: Literal["http", "https"] = "http",
+        base_url: str,
     ) -> None:
         """Initialize the backend.
 
         Args:
             provider: Qiskit provider that owns the backend.
-            host: hostname to connect to.
-            port: port to connect on.
-            scheme: connection URL scheme.
+            base_url: URL of the direct-access interface.
         """
-        try:
-            base_url = pdt.TypeAdapter(pdt.AnyHttpUrl).validate_python(
-                f"{scheme}://{host}:{port}/api/v1"
-            )
-        except pdt.ValidationError as e:
-            msg = f"Invalid {host=} or {port=}."
-            raise ValueError(msg) from e
+        self._http_client = api_models.http_client(base_url=base_url, token=provider.access_token)
 
-        self._http_client = api_models.http_client(
-            base_url=str(base_url), token=provider.access_token
-        )
-
-        super().__init__(provider=provider, name=f"direct-{host}:{port}")
+        super().__init__(provider=provider, name="direct-access")
 
     def run(
         self, circuits: Union[QuantumCircuit, list[QuantumCircuit]], **options: Any

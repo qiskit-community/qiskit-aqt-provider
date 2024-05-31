@@ -238,6 +238,5 @@ class DummyDirectAccessResource(AQTDirectAccessResource):
         """Initialize the dummy backend."""
         super().__init__(
             AQTProvider(token),
-            host="direct-access-example.aqt.eu",
-            port=6020,
+            base_url="direct-access-example.aqt.eu:6020",
         )
