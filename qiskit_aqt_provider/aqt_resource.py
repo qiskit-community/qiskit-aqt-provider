@@ -15,6 +15,7 @@ from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
     Any,
+    Generic,
     Optional,
     TypeVar,
     Union,
@@ -35,7 +36,7 @@ from typing_extensions import override
 
 from qiskit_aqt_provider import api_models, api_models_direct
 from qiskit_aqt_provider.aqt_job import AQTDirectAccessJob, AQTJob
-from qiskit_aqt_provider.aqt_options import AQTOptions
+from qiskit_aqt_provider.aqt_options import AQTDirectAccessOptions, AQTOptions
 from qiskit_aqt_provider.circuit_to_aqt import aqt_to_qiskit_circuit
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -75,17 +76,19 @@ def make_transpiler_target(target_cls: type[TargetT], num_qubits: int) -> Target
 
 
 _JobType = TypeVar("_JobType", AQTJob, AQTDirectAccessJob)
+_OptionsType = TypeVar("_OptionsType", bound=AQTOptions)
 
 
-class _ResourceBase(Backend):
+class _ResourceBase(Generic[_OptionsType], Backend):
     """Common setup for AQT backends."""
 
-    def __init__(self, provider: "AQTProvider", name: str):
+    def __init__(self, provider: "AQTProvider", name: str, default_options: _OptionsType):
         """Initialize the Qiskit backend.
 
         Args:
             provider: Qiskit provider that owns this backend.
             name: name of the backend.
+            default_options: default options for this backend.
         """
         super().__init__(name=name, provider=provider)
 
@@ -103,7 +106,7 @@ class _ResourceBase(Backend):
                 "memory": True,
                 "n_qubits": num_qubits,
                 "conditional": False,
-                "max_shots": 200,
+                "max_shots": default_options.max_shots(),
                 "max_experiments": 1,
                 "open_pulse": False,
                 "gates": [
@@ -114,7 +117,9 @@ class _ResourceBase(Backend):
             }
         )
         self._target = make_transpiler_target(Target, num_qubits)
-        self._options = AQTOptions()
+
+        self._options = default_options.model_copy(deep=True)
+        self._default_options_data = default_options.model_copy(deep=True)
 
     def configuration(self) -> BackendConfiguration:
         """Legacy Qiskit backend configuration."""
@@ -136,7 +141,7 @@ class _ResourceBase(Backend):
         return QiskitOptions()
 
     @property
-    def options(self) -> AQTOptions:
+    def options(self) -> _OptionsType:
         """Configured backend options."""
         return self._options
 
@@ -187,7 +192,7 @@ class _ResourceBase(Backend):
         )
 
 
-class AQTResource(_ResourceBase):
+class AQTResource(_ResourceBase[AQTOptions]):
     """Qiskit backend for AQT cloud quantum computing resources.
 
     Use :meth:`AQTProvider.get_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_backend>`
@@ -205,7 +210,9 @@ class AQTResource(_ResourceBase):
             provider: Qiskit provider that owns this backend.
             resource_id: description of resource to target.
         """
-        super().__init__(name=resource_id.resource_id, provider=provider)
+        super().__init__(
+            name=resource_id.resource_id, provider=provider, default_options=AQTOptions()
+        )
 
         self._http_client: httpx.Client = provider._http_client
         self.resource_id = resource_id
@@ -266,7 +273,7 @@ class AQTResource(_ResourceBase):
         return api_models.Response.model_validate(resp.json())
 
 
-class AQTDirectAccessResource(_ResourceBase):
+class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):
     """Qiskit backend for AQT direct-access quantum computing resources.
 
     Use :meth:`AQTProvider.get_direct_access_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_direct_access_backend>`
@@ -284,9 +291,11 @@ class AQTDirectAccessResource(_ResourceBase):
             provider: Qiskit provider that owns the backend.
             base_url: URL of the direct-access interface.
         """
-        self._http_client = api_models.http_client(base_url=base_url, token=provider.access_token)
+        super().__init__(
+            provider=provider, name="direct-access", default_options=AQTDirectAccessOptions()
+        )
 
-        super().__init__(provider=provider, name="direct-access")
+        self._http_client = api_models.http_client(base_url=base_url, token=provider.access_token)
 
     def run(
         self, circuits: Union[QuantumCircuit, list[QuantumCircuit]], **options: Any
