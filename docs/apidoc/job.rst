@@ -6,6 +6,11 @@ AQTJob
 
 .. autoclass:: qiskit_aqt_provider.aqt_job.AQTJob
    :members:
+   :exclude-members: __init__
+
+.. autoclass:: qiskit_aqt_provider.aqt_job.AQTDirectAccessJob
+   :members:
+   :exclude-members: __init__, submit
 
 .. autoclass:: qiskit_aqt_provider.aqt_job.Progress
    :members:

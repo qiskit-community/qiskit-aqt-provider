@@ -21,6 +21,7 @@ from typing import (
 )
 from uuid import UUID
 
+import httpx
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import RXGate, RXXGate, RZGate
 from qiskit.circuit.measure import Measure
@@ -32,8 +33,8 @@ from qiskit.transpiler import Target
 from qiskit_aer import AerJob, AerSimulator, noise
 from typing_extensions import override
 
-from qiskit_aqt_provider import api_models
-from qiskit_aqt_provider.aqt_job import AQTJob
+from qiskit_aqt_provider import api_models, api_models_direct
+from qiskit_aqt_provider.aqt_job import AQTDirectAccessJob, AQTJob
 from qiskit_aqt_provider.aqt_options import AQTOptions
 from qiskit_aqt_provider.circuit_to_aqt import aqt_to_qiskit_circuit
 
@@ -73,30 +74,25 @@ def make_transpiler_target(target_cls: type[TargetT], num_qubits: int) -> Target
     return target
 
 
-class AQTResource(Backend):
-    """Qiskit backend for AQT quantum computing resources."""
+_JobType = TypeVar("_JobType", AQTJob, AQTDirectAccessJob)
 
-    def __init__(
-        self,
-        provider: "AQTProvider",
-        resource_id: api_models.ResourceId,
-    ):
-        """Initialize the backend.
+
+class _ResourceBase(Backend):
+    """Common setup for AQT backends."""
+
+    def __init__(self, provider: "AQTProvider", name: str):
+        """Initialize the Qiskit backend.
 
         Args:
             provider: Qiskit provider that owns this backend.
-            resource_id: description of resource to target.
+            name: name of the backend.
         """
-        super().__init__(name=resource_id.resource_id, provider=provider)
-
-        self.resource_id = resource_id
-
-        self._http_client = provider._http_client
+        super().__init__(name=name, provider=provider)
 
         num_qubits = 20
         self._configuration = BackendConfiguration.from_dict(
             {
-                "backend_name": resource_id.resource_name,
+                "backend_name": name,
                 "backend_version": 2,
                 "url": provider.portal_url,
                 "simulator": True,
@@ -118,8 +114,117 @@ class AQTResource(Backend):
             }
         )
         self._target = make_transpiler_target(Target, num_qubits)
-
         self._options = AQTOptions()
+
+    def configuration(self) -> BackendConfiguration:
+        """Legacy Qiskit backend configuration."""
+        return self._configuration
+
+    @property
+    def max_circuits(self) -> int:
+        """Maximum number of circuits per batch."""
+        return 2000
+
+    @property
+    def target(self) -> Target:
+        """Transpilation target for this backend."""
+        return self._target
+
+    @classmethod
+    def _default_options(cls) -> QiskitOptions:
+        """Default backend options, in Qiskit format."""
+        return QiskitOptions()
+
+    @property
+    def options(self) -> AQTOptions:
+        """Configured backend options."""
+        return self._options
+
+    def get_scheduling_stage_plugin(self) -> str:
+        """Name of the custom scheduling stage plugin for the Qiskit transpiler."""
+        return "aqt"
+
+    def get_translation_stage_plugin(self) -> str:
+        """Name of the custom translation stage plugin for the Qiskit transpiler."""
+        return "aqt"
+
+    def _create_job(
+        self,
+        job_type: type[_JobType],
+        circuits: Union[QuantumCircuit, list[QuantumCircuit]],
+        **options: Any,
+    ) -> _JobType:
+        """Initialize a job handle of a given type.
+
+        Helper function for the ``run()`` method implementations.
+
+        Args:
+            job_type: type of the job handle to initialize.
+            circuits: circuits to execute when the job is submitted.
+            options: backend options overrides.
+        """
+        if not isinstance(circuits, list):
+            circuits = [circuits]
+
+        valid_options = {key: value for key, value in options.items() if key in self.options}
+        unknown_options = set(options) - set(valid_options)
+
+        if unknown_options:
+            for unknown_option in unknown_options:
+                warnings.warn(
+                    f"Option {unknown_option} is not used by this backend",
+                    UnknownOptionWarning,
+                    stacklevel=2,
+                )
+
+        options_copy = self.options.model_copy()
+        options_copy.update_options(**valid_options)
+
+        return job_type(
+            self,
+            circuits,
+            options_copy,
+        )
+
+
+class AQTResource(_ResourceBase):
+    """Qiskit backend for AQT cloud quantum computing resources.
+
+    Use :meth:`AQTProvider.get_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_backend>`
+    to retrieve backend instances.
+    """
+
+    def __init__(
+        self,
+        provider: "AQTProvider",
+        resource_id: api_models.ResourceId,
+    ):
+        """Initialize the backend.
+
+        Args:
+            provider: Qiskit provider that owns this backend.
+            resource_id: description of resource to target.
+        """
+        super().__init__(name=resource_id.resource_id, provider=provider)
+
+        self._http_client: httpx.Client = provider._http_client
+        self.resource_id = resource_id
+
+    def run(self, circuits: Union[QuantumCircuit, list[QuantumCircuit]], **options: Any) -> AQTJob:
+        """Submit circuits for execution on this resource.
+
+        Args:
+            circuits: circuits to execute
+            options: overrides for this resource's options. Elements should be valid fields
+              of the :class:`AQTOptions <qiskit_aqt_provider.aqt_options.AQTOptions>` model.
+              Unknown fields are ignored with a :class:`UnknownOptionWarning`.
+
+        Returns:
+            A handle to the submitted job.
+        """
+        job = self._create_job(AQTJob, circuits, **options)
+        job.submit()
+        return job
 
     def submit(self, job: AQTJob) -> UUID:
         """Submit a quantum circuits job to the AQT resource.
@@ -160,48 +265,37 @@ class AQTResource(Backend):
         resp.raise_for_status()
         return api_models.Response.model_validate(resp.json())
 
-    def configuration(self) -> BackendConfiguration:
-        """Legacy Qiskit backend configuration."""
-        warnings.warn(
-            "The configuration() method is deprecated and will be removed in a "
-            "future release. Instead you should access these attributes directly "
-            "off the object or via the .target attribute. You can refer to qiskit "
-            "backend interface transition guide for the exact changes: "
-            "https://docs.quantum.ibm.com/api/qiskit/providers#migrating-between-backend-api-versions",
-            DeprecationWarning,
-        )
-        return self._configuration
 
-    @property
-    def max_circuits(self) -> int:
-        """Maximum number of circuits per batch."""
-        return 2000
+class AQTDirectAccessResource(_ResourceBase):
+    """Qiskit backend for AQT direct-access quantum computing resources.
 
-    @property
-    def target(self) -> Target:
-        """Transpilation target for this backend."""
-        return self._target
+    Use :meth:`AQTProvider.get_direct_access_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_direct_access_backend>`
+    to retrieve backend instances.
+    """
 
-    @classmethod
-    def _default_options(cls) -> QiskitOptions:
-        """Default backend options, in Qiskit format."""
-        return QiskitOptions()
+    def __init__(
+        self,
+        provider: "AQTProvider",
+        base_url: str,
+    ) -> None:
+        """Initialize the backend.
 
-    @property
-    def options(self) -> AQTOptions:
-        """Configured backend options."""
-        return self._options
+        Args:
+            provider: Qiskit provider that owns the backend.
+            base_url: URL of the direct-access interface.
+        """
+        self._http_client = api_models.http_client(base_url=base_url, token=provider.access_token)
 
-    def get_scheduling_stage_plugin(self) -> str:
-        """Name of the custom scheduling stage plugin for the Qiskit transpiler."""
-        return "aqt"
+        super().__init__(provider=provider, name="direct-access")
 
-    def get_translation_stage_plugin(self) -> str:
-        """Name of the custom translation stage plugin for the Qiskit transpiler."""
-        return "aqt"
+    def run(
+        self, circuits: Union[QuantumCircuit, list[QuantumCircuit]], **options: Any
+    ) -> AQTDirectAccessJob:
+        """Prepare circuits for execution on this resource.
 
-    def run(self, circuits: Union[QuantumCircuit, list[QuantumCircuit]], **options: Any) -> AQTJob:
-        """Submit circuits for execution on this resource.
+        .. warning:: The circuits are only evaluated during
+          the :meth:`AQTDirectAccessJob.result <qiskit_aqt_provider.aqt_job.AQTDirectAccessJob.result>`
+          call.
 
         Args:
             circuits: circuits to execute
@@ -210,32 +304,37 @@ class AQTResource(Backend):
               Unknown fields are ignored with a :class:`UnknownOptionWarning`.
 
         Returns:
-            A handle to the submitted job.
+            A handle to the prepared job.
         """
-        if not isinstance(circuits, list):
-            circuits = [circuits]
+        return self._create_job(AQTDirectAccessJob, circuits, **options)
 
-        valid_options = {key: value for key, value in options.items() if key in self.options}
-        unknown_options = set(options) - set(valid_options)
+    def submit(self, circuit: api_models.QuantumCircuit) -> UUID:
+        """Submit a quantum circuit job to the AQT resource.
 
-        if unknown_options:
-            for unknown_option in unknown_options:
-                warnings.warn(
-                    f"Option {unknown_option} is not used by this backend",
-                    UnknownOptionWarning,
-                    stacklevel=2,
-                )
+        Args:
+            circuit: circuit to evaluate, in API format.
 
-        options_copy = self.options.model_copy()
-        options_copy.update_options(**valid_options)
+        Returns:
+            The unique identifier of the submitted job.
+        """
+        resp = self._http_client.put("/circuit", json=circuit.model_dump())
+        resp.raise_for_status()
+        return UUID(resp.json())
 
-        job = AQTJob(
-            self,
-            circuits,
-            options_copy,
-        )
-        job.submit()
-        return job
+    def result(self, job_id: UUID) -> api_models_direct.JobResult:
+        """Query the result of a specific job.
+
+        Block until a result (success or error) is available.
+
+        Args:
+            job_id: unique identifier of the target job.
+
+        Returns:
+            Job result, as API payload.
+        """
+        resp = self._http_client.get(f"/circuit/result/{job_id}")
+        resp.raise_for_status()
+        return api_models_direct.JobResult.model_validate(resp.json())
 
 
 def qubit_states_from_int(state: int, num_qubits: int) -> list[int]:

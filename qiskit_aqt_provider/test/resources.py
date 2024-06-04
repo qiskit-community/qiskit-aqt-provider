@@ -25,7 +25,7 @@ from typing_extensions import assert_never, override
 from qiskit_aqt_provider import api_models
 from qiskit_aqt_provider.aqt_job import AQTJob
 from qiskit_aqt_provider.aqt_provider import AQTProvider
-from qiskit_aqt_provider.aqt_resource import AQTResource
+from qiskit_aqt_provider.aqt_resource import AQTDirectAccessResource, AQTResource
 
 
 class JobStatus(enum.Enum):
@@ -228,4 +228,15 @@ class DummyResource(AQTResource):
                 resource_name="dummy",
                 resource_type="simulator",
             ),
+        )
+
+
+class DummyDirectAccessResource(AQTDirectAccessResource):
+    """A non-functional direct-access resource, for testing purposes."""
+
+    def __init__(self, token: str) -> None:
+        """Initialize the dummy backend."""
+        super().__init__(
+            AQTProvider(token),
+            base_url="direct-access-example.aqt.eu:6020",
         )

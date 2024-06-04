@@ -25,7 +25,7 @@ from typing import Union
 import pytest
 import qiskit
 from qiskit import ClassicalRegister, QiskitError, QuantumCircuit, QuantumRegister, quantum_info
-from qiskit.providers import Backend
+from qiskit.providers import BackendV2
 from qiskit.providers.jobstatus import JobStatus
 from qiskit.transpiler import TranspilerError
 from qiskit_aer import AerProvider, AerSimulator
@@ -39,12 +39,12 @@ from qiskit_aqt_provider.test.timeout import timeout
 
 
 @pytest.mark.parametrize("shots", [200])
-def test_empty_circuit(shots: int, offline_simulator_no_noise: AQTResource) -> None:
+def test_empty_circuit(shots: int, any_offline_simulator_no_noise: BackendV2) -> None:
     """Run an empty circuit."""
     qc = QuantumCircuit(1)
     qc.measure_all()
 
-    job = offline_simulator_no_noise.run(qc, shots=shots)
+    job = any_offline_simulator_no_noise.run(qc, shots=shots)
     assert job.result().get_counts() == {"0": shots}
 
 
@@ -102,20 +102,20 @@ def test_cancelled_circuit() -> None:
 
 
 @pytest.mark.parametrize("shots", [1, 100, 200])
-def test_simple_backend_run(shots: int, offline_simulator_no_noise: AQTResource) -> None:
+def test_simple_backend_run(shots: int, any_offline_simulator_no_noise: BackendV2) -> None:
     """Run a simple circuit with `backend.run`."""
     qc = QuantumCircuit(1)
     qc.rx(pi, 0)
     qc.measure_all()
 
-    trans_qc = qiskit.transpile(qc, offline_simulator_no_noise)
-    job = offline_simulator_no_noise.run(trans_qc, shots=shots)
+    trans_qc = qiskit.transpile(qc, any_offline_simulator_no_noise)
+    job = any_offline_simulator_no_noise.run(trans_qc, shots=shots)
 
     assert job.result().get_counts() == {"1": shots}
 
 
-@pytest.mark.parametrize("backend", [MockSimulator(noisy=False), MockSimulator(noisy=True)])
-def test_simple_backend_execute_noisy(backend: MockSimulator) -> None:
+@pytest.mark.parametrize("resource", [MockSimulator(noisy=False), MockSimulator(noisy=True)])
+def test_simple_backend_execute_noisy(resource: MockSimulator) -> None:
     """Execute a simple circuit on a noisy and noiseless backend. Check that the noisy backend
     is indeed noisy.
     """
@@ -131,12 +131,12 @@ def test_simple_backend_execute_noisy(backend: MockSimulator) -> None:
 
     counts: typing.Counter[str] = Counter()
     for _ in range(total_shots // shots):
-        job = backend.run(qiskit.transpile(qc, backend=backend), shots=shots)
+        job = resource.run(qiskit.transpile(qc, backend=resource), shots=shots)
         counts += Counter(job.result().get_counts())
 
     assert sum(counts.values()) == total_shots
 
-    if backend.with_noise_model:
+    if resource.with_noise_model:
         assert set(counts.keys()) == {"0", "1"}
         assert counts["0"] < 0.1 * counts["1"]  # very crude
     else:
@@ -144,7 +144,7 @@ def test_simple_backend_execute_noisy(backend: MockSimulator) -> None:
 
 
 @pytest.mark.parametrize("shots", [100])
-def test_ancilla_qubits_mapping(shots: int, offline_simulator_no_noise: AQTResource) -> None:
+def test_ancilla_qubits_mapping(shots: int, any_offline_simulator_no_noise: BackendV2) -> None:
     """Run a circuit with two quantum registers, with only one mapped to the classical memory."""
     qr = QuantumRegister(2)
     qr_aux = QuantumRegister(3)
@@ -156,14 +156,16 @@ def test_ancilla_qubits_mapping(shots: int, offline_simulator_no_noise: AQTResou
     qc.rxx(pi / 2, qr_aux[0], qr_aux[1])
     qc.measure(qr, memory)
 
-    trans_qc = qiskit.transpile(qc, offline_simulator_no_noise)
-    job = offline_simulator_no_noise.run(trans_qc, shots=shots)
+    trans_qc = qiskit.transpile(qc, any_offline_simulator_no_noise)
+    job = any_offline_simulator_no_noise.run(trans_qc, shots=shots)
     # only two bits in the counts dict because memory has two bits width
     assert job.result().get_counts() == {"11": shots}
 
 
 @pytest.mark.parametrize("shots", [100])
-def test_multiple_classical_registers(shots: int, offline_simulator_no_noise: AQTResource) -> None:
+def test_multiple_classical_registers(
+    shots: int, any_offline_simulator_no_noise: BackendV2
+) -> None:
     """Run a circuit with the final state mapped to multiple classical registers."""
     qr = QuantumRegister(5)
     memory_a = ClassicalRegister(2)
@@ -175,8 +177,8 @@ def test_multiple_classical_registers(shots: int, offline_simulator_no_noise: AQ
     qc.measure(qr[:2], memory_a)
     qc.measure(qr[2:], memory_b)
 
-    trans_qc = qiskit.transpile(qc, offline_simulator_no_noise)
-    job = offline_simulator_no_noise.run(trans_qc, shots=shots)
+    trans_qc = qiskit.transpile(qc, any_offline_simulator_no_noise)
+    job = any_offline_simulator_no_noise.run(trans_qc, shots=shots)
 
     # counts are returned as "memory_b memory_a", msb first
     assert job.result().get_counts() == {"010 01": shots}
@@ -185,7 +187,7 @@ def test_multiple_classical_registers(shots: int, offline_simulator_no_noise: AQ
 @pytest.mark.parametrize("shots", [123])
 @pytest.mark.parametrize("memory_opt", [True, False])
 def test_get_memory_simple(
-    shots: int, memory_opt: bool, offline_simulator_no_noise: AQTResource
+    shots: int, memory_opt: bool, any_offline_simulator_no_noise: BackendV2
 ) -> None:
     """Check that the raw bitstrings can be accessed for each shot via the
     get_memory() method in Qiskit's Result.
@@ -197,8 +199,8 @@ def test_get_memory_simple(
     qc.cx(0, 1)
     qc.measure_all()
 
-    result = offline_simulator_no_noise.run(
-        qiskit.transpile(qc, offline_simulator_no_noise), shots=shots, memory=memory_opt
+    result = any_offline_simulator_no_noise.run(
+        qiskit.transpile(qc, any_offline_simulator_no_noise), shots=shots, memory=memory_opt
     ).result()
 
     if memory_opt:
@@ -212,7 +214,7 @@ def test_get_memory_simple(
 
 
 @pytest.mark.parametrize("shots", [123])
-def test_get_memory_ancilla_qubits(shots: int, offline_simulator_no_noise: AQTResource) -> None:
+def test_get_memory_ancilla_qubits(shots: int, any_offline_simulator_no_noise: BackendV2) -> None:
     """Check that the raw bistrings returned by get_memory() in Qiskit's Result only
     contain the mapped classical bits.
     """
@@ -226,8 +228,8 @@ def test_get_memory_ancilla_qubits(shots: int, offline_simulator_no_noise: AQTRe
     qc.rxx(pi / 2, qr_aux[0], qr_aux[1])
     qc.measure(qr, memory)
 
-    job = offline_simulator_no_noise.run(
-        qiskit.transpile(qc, offline_simulator_no_noise), shots=shots, memory=True
+    job = any_offline_simulator_no_noise.run(
+        qiskit.transpile(qc, any_offline_simulator_no_noise), shots=shots, memory=True
     )
     memory = job.result().get_memory()
 
@@ -236,7 +238,7 @@ def test_get_memory_ancilla_qubits(shots: int, offline_simulator_no_noise: AQTRe
 
 
 @pytest.mark.parametrize("shots", [123])
-def test_get_memory_bit_ordering(shots: int, offline_simulator_no_noise: AQTResource) -> None:
+def test_get_memory_bit_ordering(shots: int, any_offline_simulator_no_noise: BackendV2) -> None:
     """Check that the bitstrings returned by the results produced by AQT jobs have the same
     bit order as the Qiskit Aer simulators.
     """
@@ -248,8 +250,8 @@ def test_get_memory_bit_ordering(shots: int, offline_simulator_no_noise: AQTReso
     qc.measure_all()
 
     aqt_memory = (
-        offline_simulator_no_noise.run(
-            qiskit.transpile(qc, offline_simulator_no_noise), shots=shots, memory=True
+        any_offline_simulator_no_noise.run(
+            qiskit.transpile(qc, any_offline_simulator_no_noise), shots=shots, memory=True
         )
         .result()
         .get_memory()
@@ -271,7 +273,7 @@ def test_get_memory_bit_ordering(shots: int, offline_simulator_no_noise: AQTReso
         pytest.param(AerProvider().get_backend("aer_simulator"), id="aer-simulator"),
     ],
 )
-def test_regression_issue_85(backend: Backend) -> None:
+def test_regression_issue_85(backend: BackendV2) -> None:
     """Check that qubit and clbit permutations are properly handled by the offline simulators.
 
     This is a regression test for #85. Check that executing circuits with qubit/clbit
@@ -302,7 +304,7 @@ def test_regression_issue_85(backend: Backend) -> None:
 
 
 @pytest.mark.parametrize(("shots", "qubits"), [(100, 5), (100, 8)])
-def test_bell_states(shots: int, qubits: int, offline_simulator_no_noise: AQTResource) -> None:
+def test_bell_states(shots: int, qubits: int, any_offline_simulator_no_noise: BackendV2) -> None:
     """Create a N qubits Bell state."""
     qc = QuantumCircuit(qubits)
     qc.h(0)
@@ -310,8 +312,8 @@ def test_bell_states(shots: int, qubits: int, offline_simulator_no_noise: AQTRes
         qc.cx(0, qubit)
     qc.measure_all()
 
-    job = offline_simulator_no_noise.run(
-        qiskit.transpile(qc, offline_simulator_no_noise), shots=shots
+    job = any_offline_simulator_no_noise.run(
+        qiskit.transpile(qc, any_offline_simulator_no_noise), shots=shots
     )
     counts = job.result().get_counts()
 
@@ -332,7 +334,7 @@ def test_bell_states(shots: int, qubits: int, offline_simulator_no_noise: AQTRes
 def test_state_preparation(
     target_state: Union[int, str, quantum_info.Statevector, list[complex]],
     optimization_level: int,
-    offline_simulator_no_noise: AQTResource,
+    any_offline_simulator_no_noise: BackendV2,
 ) -> None:
     """Test the state preparation unitary factory.
 
@@ -344,8 +346,8 @@ def test_state_preparation(
     qc.measure_all()
 
     shots = 100
-    job = offline_simulator_no_noise.run(
-        qiskit.transpile(qc, offline_simulator_no_noise, optimization_level=optimization_level),
+    job = any_offline_simulator_no_noise.run(
+        qiskit.transpile(qc, any_offline_simulator_no_noise, optimization_level=optimization_level),
         shots=shots,
     )
     counts = job.result().get_counts()
@@ -355,7 +357,7 @@ def test_state_preparation(
 
 @pytest.mark.parametrize("optimization_level", range(4))
 def test_state_preparation_single_qubit(
-    optimization_level: int, offline_simulator_no_noise: AQTResource
+    optimization_level: int, any_offline_simulator_no_noise: BackendV2
 ) -> None:
     """Test the state preparation unitary factory, targeting a single qubit in the register."""
     qreg = QuantumRegister(4)
@@ -364,8 +366,8 @@ def test_state_preparation_single_qubit(
     qc.measure_all()
 
     shots = 100
-    job = offline_simulator_no_noise.run(
-        qiskit.transpile(qc, offline_simulator_no_noise, optimization_level=optimization_level),
+    job = any_offline_simulator_no_noise.run(
+        qiskit.transpile(qc, any_offline_simulator_no_noise, optimization_level=optimization_level),
         shots=shots,
     )
     counts = job.result().get_counts()
@@ -394,21 +396,21 @@ def test_initialize_not_supported(offline_simulator_no_noise: AQTResource) -> No
 
 
 @pytest.mark.parametrize("optimization_level", range(4))
-def test_cswap(optimization_level: int, offline_simulator_no_noise: AQTResource) -> None:
+def test_cswap(optimization_level: int, any_offline_simulator_no_noise: BackendV2) -> None:
     """Verify that CSWAP (Fredkin) gates can be transpiled and executed (in a trivial case)."""
     qc = QuantumCircuit(3)
     qc.prepare_state("101")
     qc.cswap(0, 1, 2)
 
     trans_qc = qiskit.transpile(
-        qc, offline_simulator_no_noise, optimization_level=optimization_level
+        qc, any_offline_simulator_no_noise, optimization_level=optimization_level
     )
     assert_circuits_equivalent(qc, trans_qc)
 
     qc.measure_all()
     shots = 200
-    job = offline_simulator_no_noise.run(
-        qiskit.transpile(qc, offline_simulator_no_noise, optimization_level=optimization_level),
+    job = any_offline_simulator_no_noise.run(
+        qiskit.transpile(qc, any_offline_simulator_no_noise, optimization_level=optimization_level),
         shots=shots,
     )
     counts = job.result().get_counts()

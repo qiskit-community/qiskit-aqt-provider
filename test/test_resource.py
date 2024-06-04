@@ -10,8 +10,10 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+import itertools
 import json
 import math
+import re
 import uuid
 from contextlib import AbstractContextManager, nullcontext
 from typing import Any
@@ -25,16 +27,21 @@ from annotated_types import Le
 from polyfactory.factories.pydantic_factory import ModelFactory
 from pytest_httpx import HTTPXMock
 from qiskit import QuantumCircuit
+from qiskit.providers import JobStatus
 from qiskit.providers.exceptions import JobTimeoutError
 
-from qiskit_aqt_provider import api_models
+from qiskit_aqt_provider import api_models, api_models_direct
 from qiskit_aqt_provider.aqt_job import AQTJob
 from qiskit_aqt_provider.aqt_options import AQTOptions
 from qiskit_aqt_provider.aqt_resource import AQTResource
 from qiskit_aqt_provider.circuit_to_aqt import circuits_to_aqt_job
 from qiskit_aqt_provider.test.circuits import assert_circuits_equal, empty_circuit, random_circuit
 from qiskit_aqt_provider.test.fixtures import MockSimulator
-from qiskit_aqt_provider.test.resources import DummyResource, TestResource
+from qiskit_aqt_provider.test.resources import (
+    DummyDirectAccessResource,
+    DummyResource,
+    TestResource,
+)
 from qiskit_aqt_provider.test.utils import get_field_constraint
 from qiskit_aqt_provider.versions import USER_AGENT
 
@@ -431,3 +438,190 @@ def test_offline_simulator_resource_propagate_memory_option(
     result = offline_simulator_no_noise.run(qc).result()
     with context:
         assert len(result.get_memory()) == default_shots
+
+
+def test_direct_access_bad_request(httpx_mock: HTTPXMock) -> None:
+    """Check that direct-access resources raise a httpx.HTTPError if the request is flagged bad by the server."""
+    backend = DummyDirectAccessResource("token")
+    httpx_mock.add_response(status_code=httpx.codes.BAD_REQUEST)
+
+    job = backend.run(empty_circuit(2))
+    with pytest.raises(httpx.HTTPError):
+        job.result()
+
+
+@pytest.mark.parametrize("success", [False, True])
+def test_direct_access_job_status(success: bool, httpx_mock: HTTPXMock) -> None:
+    """Check the expected Qiskit job status on direct-access resources.
+
+    Since the transactions are synchronous, there are only three possible statuses:
+    1. initializing: the job was created but is not executing
+    2. done: the job executed successfully
+    3. error: the job execution failed.
+    """
+    shots = 100
+
+    def handle_submit(request: httpx.Request) -> httpx.Response:
+        assert request.headers["user-agent"] == USER_AGENT
+
+        return httpx.Response(status_code=httpx.codes.OK, text=f'"{uuid.uuid4()}"')
+
+    def handle_result(request: httpx.Request) -> httpx.Response:
+        assert request.headers["user-agent"] == USER_AGENT
+
+        _, job_id = request.url.path.rsplit("/", maxsplit=1)
+
+        return httpx.Response(
+            status_code=httpx.codes.OK,
+            json=json.loads(
+                api_models_direct.JobResult.create_finished(
+                    job_id=uuid.UUID(job_id), result=[[0] for _ in range(shots)]
+                ).model_dump_json()
+                if success
+                else api_models_direct.JobResult.create_error(
+                    job_id=uuid.UUID(job_id)
+                ).model_dump_json()
+            ),
+        )
+
+    httpx_mock.add_callback(handle_submit, method="PUT", url=re.compile(".+/circuit/?$"))
+    httpx_mock.add_callback(
+        handle_result, method="GET", url=re.compile(".+/circuit/result/[0-9a-f-]+$")
+    )
+
+    backend = DummyDirectAccessResource("token")
+    job = backend.run(empty_circuit(1), shots=shots)
+
+    assert job.status() is JobStatus.INITIALIZING
+
+    result = job.result()
+    assert result.success is success
+
+    if success:
+        assert job.status() is JobStatus.DONE
+    else:
+        assert job.status() is JobStatus.ERROR
+
+
+def test_direct_access_mocked_successful_transaction(httpx_mock: HTTPXMock) -> None:
+    """Mock a successful single-circuit transaction on a direct-access resource."""
+    token = str(uuid.uuid4())
+    backend = DummyDirectAccessResource(token)
+    backend.options.with_progress_bar = False
+
+    shots = 122
+    qc = empty_circuit(2)
+
+    expected_job_id = str(uuid.uuid4())
+
+    def handle_submit(request: httpx.Request) -> httpx.Response:
+        assert request.headers["user-agent"] == USER_AGENT
+
+        data = api_models.QuantumCircuit.model_validate_json(request.content.decode("utf-8"))
+        assert data.repetitions == shots
+
+        return httpx.Response(
+            status_code=httpx.codes.OK,
+            text=f'"{expected_job_id}"',
+        )
+
+    def handle_result(request: httpx.Request) -> httpx.Response:
+        assert request.headers["user-agent"] == USER_AGENT
+
+        _, job_id = request.url.path.rsplit("/", maxsplit=1)
+        assert job_id == expected_job_id
+
+        return httpx.Response(
+            status_code=httpx.codes.OK,
+            json=json.loads(
+                api_models_direct.JobResult.create_finished(
+                    job_id=uuid.UUID(job_id),
+                    result=[[0, 0] if s % 2 == 0 else [1, 0] for s in range(shots)],
+                ).model_dump_json()
+            ),
+        )
+
+    httpx_mock.add_callback(handle_submit, method="PUT", url=re.compile(".+/circuit/?$"))
+    httpx_mock.add_callback(
+        handle_result, method="GET", url=re.compile(".+/circuit/result/[0-9a-f-]+$")
+    )
+
+    job = backend.run(qc, shots=shots)
+    result = job.result()
+
+    assert result.get_counts() == {"00": shots // 2, "01": shots // 2}
+
+
+def test_direct_access_mocked_failed_transaction(httpx_mock: HTTPXMock) -> None:
+    """Mock a failed multi-circuit transaction on a direct-access resource.
+
+    The first two circuits succeed, the third one not. The fourth circuit would succeed,
+    but is never executed.
+    """
+    token = str(uuid.uuid4())
+    backend = DummyDirectAccessResource(token)
+    backend.options.with_progress_bar = False
+
+    shots = 122
+    qc = empty_circuit(2)
+
+    job_ids = [str(uuid.uuid4()) for _ in range(4)]
+    # produce 2 times the same id before going to the next, one value
+    # for handle_submit, the other one for handle result.
+    job_ids_iter = itertools.chain.from_iterable(zip(job_ids, job_ids))
+
+    # circuit executions' planned success
+    success = [True, True, False, True]
+    success_iter = iter(success)
+
+    circuit_submissions = 0
+
+    def handle_submit(request: httpx.Request) -> httpx.Response:
+        assert request.headers["user-agent"] == USER_AGENT
+
+        data = api_models.QuantumCircuit.model_validate_json(request.content.decode("utf-8"))
+        assert data.repetitions == shots
+
+        nonlocal circuit_submissions
+        circuit_submissions += 1
+
+        return httpx.Response(
+            status_code=httpx.codes.OK,
+            text=f'"{next(job_ids_iter)}"',
+        )
+
+    def handle_result(request: httpx.Request) -> httpx.Response:
+        assert request.headers["user-agent"] == USER_AGENT
+
+        _, job_id = request.url.path.rsplit("/", maxsplit=1)
+        assert job_id == next(job_ids_iter)
+
+        return httpx.Response(
+            status_code=httpx.codes.OK,
+            json=json.loads(
+                api_models_direct.JobResult.create_finished(
+                    job_id=uuid.UUID(job_id), result=[[0, 1] for _ in range(shots)]
+                ).model_dump_json()
+                if next(success_iter)
+                else api_models_direct.JobResult.create_error(
+                    job_id=uuid.UUID(job_id)
+                ).model_dump_json()
+            ),
+        )
+
+    httpx_mock.add_callback(handle_submit, method="PUT", url=re.compile(".+/circuit/?$"))
+    httpx_mock.add_callback(
+        handle_result, method="GET", url=re.compile(".+/circuit/result/[0-9a-f-]+$")
+    )
+
+    job = backend.run([qc, qc, qc, qc], shots=shots)
+    result = job.result()
+
+    assert not result.success  # not all circuits executed successfully
+
+    counts = result.get_counts()
+    assert isinstance(counts, list)  # multiple successful circuit executions
+    assert len(counts) == 2  # the first two circuits executed successfully
+    assert counts == [{"10": shots}, {"10": shots}]
+
+    assert circuit_submissions == 3  # the last circuit was never submitted

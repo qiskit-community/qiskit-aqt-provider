@@ -33,11 +33,12 @@ from tqdm import tqdm
 from typing_extensions import Self, TypeAlias, assert_never
 
 from qiskit_aqt_provider import api_models_generated, persistence
+from qiskit_aqt_provider.api_models_direct import JobResultError
 from qiskit_aqt_provider.aqt_options import AQTOptions
 from qiskit_aqt_provider.circuit_to_aqt import circuits_to_aqt_job
 
 if TYPE_CHECKING:  # pragma: no cover
-    from qiskit_aqt_provider.aqt_resource import AQTResource
+    from qiskit_aqt_provider.aqt_resource import AQTDirectAccessResource, AQTResource
 
 
 # Tags for the status of AQT API jobs
@@ -114,7 +115,7 @@ class _MockProgressBar:
 
 
 class AQTJob(JobV1):
-    """Handle for quantum circuits jobs running on AQT backends.
+    """Handle for quantum circuits jobs running on AQT cloud backends.
 
     Jobs contain one or more quantum circuits that are executed with a common
     set of options (see :class:`AQTOptions <qiskit_aqt_provider.aqt_options.AQTOptions>`).
@@ -365,30 +366,10 @@ class AQTJob(JobV1):
         if isinstance(self.status_payload, JobFinished):
             for circuit_index, circuit in enumerate(self.circuits):
                 samples = self.status_payload.results[circuit_index]
-                meas_map = _build_memory_mapping(circuit)
-                data: dict[str, Any] = {
-                    "counts": _format_counts(samples, meas_map),
-                }
-
-                if self.options.memory:
-                    data["memory"] = [
-                        "".join(str(x) for x in reversed(states)) for states in samples
-                    ]
-
                 results.append(
-                    {
-                        "shots": self.options.shots,
-                        "success": True,
-                        "status": JobStatus.DONE,
-                        "data": data,
-                        "header": {
-                            "memory_slots": circuit.num_clbits,
-                            "creg_sizes": [[reg.name, reg.size] for reg in circuit.cregs],
-                            "qreg_sizes": [[reg.name, reg.size] for reg in circuit.qregs],
-                            "name": circuit.name,
-                            "metadata": circuit.metadata or {},
-                        },
-                    }
+                    _partial_qiskit_result_dict(
+                        samples, circuit, shots=self.options.shots, memory=self.options.memory
+                    )
                 )
 
         return Result.from_dict(
@@ -403,6 +384,135 @@ class AQTJob(JobV1):
                 "error": self.error_message,
             }
         )
+
+
+class AQTDirectAccessJob(JobV1):
+    """Handle for quantum circuits jobs running on direct-access AQT backends.
+
+    Use :meth:`AQTDirectAccessResource.run <qiskit_aqt_provider.aqt_resource.AQTDirectAccessResource.run>`
+    to get a handle and evaluate circuits on a direct-access backend.
+    """
+
+    _backend: "AQTDirectAccessResource"
+
+    def __init__(
+        self,
+        backend: "AQTDirectAccessResource",
+        circuits: list[QuantumCircuit],
+        options: AQTOptions,
+    ):
+        """Initialize the :class:`AQTDirectAccessJob` instance.
+
+        Args:
+            backend: backend to run the job on.
+            circuits: list of circuits to execute.
+            options: overridden resource options for this job.
+        """
+        super().__init__(backend, "")
+
+        self.circuits = circuits
+        self.options = options
+        self.api_submit_payload = circuits_to_aqt_job(circuits, options.shots)
+
+        self._job_id = uuid.uuid4()
+        self._status = JobStatus.INITIALIZING
+
+    def submit(self) -> None:
+        """No-op on direct-access backends."""
+
+    def result(self) -> Result:
+        """Iteratively submit all circuits and block until full completion.
+
+        If an error occurs, the remaining circuits are not executed and the whole
+        job is marked as failed.
+
+        Returns:
+            The combined result of all circuit evaluations.
+        """
+        if self.options.with_progress_bar:
+            context: Union[tqdm[NoReturn], _MockProgressBar] = tqdm(total=len(self.circuits))
+        else:
+            context = _MockProgressBar(total=len(self.circuits))
+
+        result = {
+            "backend_name": self._backend.name,
+            "backend_version": self._backend.version,
+            "qobj_id": id(self.circuits),
+            "job_id": self.job_id(),
+            "success": True,
+            "results": [],
+        }
+
+        with context as progress_bar:
+            for circuit_index, circuit in enumerate(self.circuits):
+                api_circuit = self.api_submit_payload.payload.circuits[circuit_index]
+                job_id = self._backend.submit(api_circuit)
+                api_result = self._backend.result(job_id)
+
+                if isinstance(api_result.payload, JobResultError):
+                    break
+
+                result["results"].append(
+                    _partial_qiskit_result_dict(
+                        api_result.payload.result,
+                        circuit,
+                        shots=self.options.shots,
+                        memory=self.options.memory,
+                    )
+                )
+
+                progress_bar.update(1)
+            else:  # no circuits in the job, or all executed successfully
+                self._status = JobStatus.DONE
+                return Result.from_dict(result)
+
+        self._status = JobStatus.ERROR
+        result["success"] = False
+        return Result.from_dict(result)
+
+    def status(self) -> JobStatus:
+        """Query the job's status.
+
+        Returns:
+            Aggregated job status for all the circuits in this job.
+        """
+        return self._status
+
+
+def _partial_qiskit_result_dict(
+    samples: list[list[int]], circuit: QuantumCircuit, *, shots: int, memory: bool
+) -> dict[str, Any]:
+    """Build the Qiskit result dict for a single circuit evaluation.
+
+    Args:
+        samples: measurement outcome of the circuit evaluation.
+        circuit: the evaluated circuit.
+        shots: number of repetitions of the circuit evaluation.
+        memory: whether to fill the classical memory dump field with the measurement results.
+
+    Returns:
+        Dict, suitable for Qiskit's `Result.from_dict` factory.
+    """
+    meas_map = _build_memory_mapping(circuit)
+
+    data: dict[str, Any] = {"counts": _format_counts(samples, meas_map)}
+
+    if memory:
+        data["memory"] = ["".join(str(x) for x in reversed(states)) for states in samples]
+
+    return {
+        "shots": shots,
+        "success": True,
+        "status": JobStatus.DONE,
+        "data": data,
+        "header": {
+            "memory_slots": circuit.num_clbits,
+            "creg_sizes": [[reg.name, reg.size] for reg in circuit.cregs],
+            "qreg_sizes": [[reg.name, reg.size] for reg in circuit.qregs],
+            "name": circuit.name,
+            "metadata": circuit.metadata or {},
+        },
+    }
 
 
 def _build_memory_mapping(circuit: QuantumCircuit) -> dict[int, set[int]]:
