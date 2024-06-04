@@ -10,6 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+import typing
 import warnings
 from dataclasses import dataclass
 from typing import (
@@ -82,17 +83,20 @@ _OptionsType = TypeVar("_OptionsType", bound=AQTOptions)
 class _ResourceBase(Generic[_OptionsType], Backend):
     """Common setup for AQT backends."""
 
-    def __init__(self, provider: "AQTProvider", name: str, default_options: _OptionsType):
+    def __init__(self, provider: "AQTProvider", name: str, options_type: type[_OptionsType]):
         """Initialize the Qiskit backend.
 
         Args:
             provider: Qiskit provider that owns this backend.
             name: name of the backend.
-            default_options: default options for this backend.
+            options_type: options model. Must be default-initializable.
         """
         super().__init__(name=name, provider=provider)
 
         num_qubits = 20
+        self._target = make_transpiler_target(Target, num_qubits)
+        self._options = options_type()
+
         self._configuration = BackendConfiguration.from_dict(
             {
                 "backend_name": name,
@@ -106,7 +110,7 @@ class _ResourceBase(Generic[_OptionsType], Backend):
                 "memory": True,
                 "n_qubits": num_qubits,
                 "conditional": False,
-                "max_shots": default_options.max_shots(),
+                "max_shots": self._options.max_shots(),
                 "max_experiments": 1,
                 "open_pulse": False,
                 "gates": [
@@ -116,10 +120,6 @@ class _ResourceBase(Generic[_OptionsType], Backend):
                 ],
             }
         )
-        self._target = make_transpiler_target(Target, num_qubits)
-
-        self._options = default_options.model_copy(deep=True)
-        self._default_options_data = default_options.model_copy(deep=True)
 
     def configuration(self) -> BackendConfiguration:
         """Legacy Qiskit backend configuration."""
@@ -138,7 +138,8 @@ class _ResourceBase(Generic[_OptionsType], Backend):
     @classmethod
     def _default_options(cls) -> QiskitOptions:
         """Default backend options, in Qiskit format."""
-        return QiskitOptions()
+        options_type = typing.get_args(cls.__orig_bases__[0])[0]
+        return QiskitOptions(**options_type())
 
     @property
     def options(self) -> _OptionsType:
@@ -211,7 +212,9 @@ class AQTResource(_ResourceBase[AQTOptions]):
             resource_id: description of resource to target.
         """
         super().__init__(
-            name=resource_id.resource_id, provider=provider, default_options=AQTOptions()
+            name=resource_id.resource_id,
+            provider=provider,
+            options_type=AQTOptions,
         )
 
         self._http_client: httpx.Client = provider._http_client
@@ -292,7 +295,9 @@ class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):
             base_url: URL of the direct-access interface.
         """
         super().__init__(
-            provider=provider, name="direct-access", default_options=AQTDirectAccessOptions()
+            provider=provider,
+            name="direct-access",
+            options_type=AQTDirectAccessOptions,
         )
 
         self._http_client = api_models.http_client(base_url=base_url, token=provider.access_token)
