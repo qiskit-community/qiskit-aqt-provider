@@ -77,7 +77,9 @@ def make_transpiler_target(target_cls: type[TargetT], num_qubits: int) -> Target
 
 
 _JobType = TypeVar("_JobType", AQTJob, AQTDirectAccessJob)
+
 _OptionsType = TypeVar("_OptionsType", bound=AQTOptions)
+"""Resource options model."""
 
 
 class _ResourceBase(Generic[_OptionsType], Backend):
