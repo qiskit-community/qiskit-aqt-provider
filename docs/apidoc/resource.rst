@@ -27,3 +27,7 @@ AQTResource
    :show-inheritance:
    :exclude-members: __init__, __new__, get_scheduling_stage_plugin, get_translation_stage_plugin
    :members:
+
+.. autotypevar:: qiskit_aqt_provider.aqt_resource._OptionsType
+   :no-type:
+   :no-value:

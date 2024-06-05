@@ -23,16 +23,16 @@ import httpx
 import pydantic as pdt
 import pytest
 import qiskit
-from annotated_types import Le
 from polyfactory.factories.pydantic_factory import ModelFactory
 from pytest_httpx import HTTPXMock
 from qiskit import QuantumCircuit
 from qiskit.providers import JobStatus
 from qiskit.providers.exceptions import JobTimeoutError
+from typing_extensions import assert_type
 
 from qiskit_aqt_provider import api_models, api_models_direct
 from qiskit_aqt_provider.aqt_job import AQTJob
-from qiskit_aqt_provider.aqt_options import AQTOptions
+from qiskit_aqt_provider.aqt_options import AQTDirectAccessOptions, AQTOptions
 from qiskit_aqt_provider.aqt_resource import AQTResource
 from qiskit_aqt_provider.circuit_to_aqt import circuits_to_aqt_job
 from qiskit_aqt_provider.test.circuits import assert_circuits_equal, empty_circuit, random_circuit
@@ -42,7 +42,6 @@ from qiskit_aqt_provider.test.resources import (
     DummyResource,
     TestResource,
 )
-from qiskit_aqt_provider.test.utils import get_field_constraint
 from qiskit_aqt_provider.versions import USER_AGENT
 
 
@@ -94,6 +93,32 @@ def test_options_set_query_period(offline_simulator_no_noise: AQTResource) -> No
     # doesn't work with str
     with pytest.raises(pdt.ValidationError):
         backend.options.update_options(query_period_seconds="abc")
+
+
+def test_options_types_and_constraints_cloud_resource(
+    offline_simulator_no_noise: AQTResource,
+) -> None:
+    """Check that the options models and constraints are as expected for cloud backends."""
+    assert_type(offline_simulator_no_noise.options, AQTOptions)
+    assert isinstance(offline_simulator_no_noise.options, AQTOptions)
+    assert offline_simulator_no_noise.options.max_shots() == 2000
+
+    # Check that the default options in Qiskit format match the Pydantic model.
+    assert {
+        **offline_simulator_no_noise.__class__._default_options()
+    } == offline_simulator_no_noise.options.model_dump()
+
+
+def test_options_types_and_constraints_direct_access_resource() -> None:
+    """Check that the options models and constraints are as expected for direct-access backends."""
+    backend = DummyDirectAccessResource("token")
+
+    assert_type(backend.options, AQTDirectAccessOptions)
+    assert isinstance(backend.options, AQTDirectAccessOptions)
+    assert backend.options.max_shots() == 200
+
+    # Check that the default options in Qiskit format match the Pydantic model.
+    assert {**backend.__class__._default_options()} == backend.options.model_dump()
 
 
 def test_query_timeout_propagation() -> None:
@@ -392,7 +417,7 @@ def test_offline_simulator_propagate_shots_option(
     default_shots = sum(offline_simulator_no_noise.run(qc).result().get_counts().values())
     assert default_shots == AQTOptions().shots
 
-    shots = min(default_shots + 40, get_field_constraint(AQTOptions, "shots", Le).le)
+    shots = min(default_shots + 40, AQTOptions.max_shots())
     assert shots != default_shots
 
     # configure shots in AQTResource.run

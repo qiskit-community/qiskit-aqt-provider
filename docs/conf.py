@@ -28,6 +28,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
+    "sphinx_toolbox.more_autodoc.typevars",
     "sphinxcontrib.autodoc_pydantic",
     "jupyter_sphinx",
     "qiskit_sphinx_theme",
@@ -55,6 +56,7 @@ nitpick_ignore = [
     ("py:class", "Backend"),
     ("py:class", "Target"),
     ("py:exc", "QiskitBackendNotFoundError"),
+    ("py:class", "qiskit_aqt_provider.aqt_resource._OptionsType"),
 ]
 nitpick_ignore_regex = [
     ("py:class", r"qiskit_aqt_provider\.api_models_generated.*"),

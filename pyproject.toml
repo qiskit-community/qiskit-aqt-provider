@@ -96,6 +96,7 @@ qiskit = { version = "^1", extras = [
 rich = "^13.5.3"
 ruff = "^0.4.6"
 sphinx = ">=7,<7.3"
+sphinx-toolbox = "^3.5.0"
 tomlkit = "^0.12.1"
 typer = "^0.12.0"
 types-requests = "^2.28.11"

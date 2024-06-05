@@ -3,6 +3,7 @@
 ## Unreleased
 
 * Support direct-access mode on AQT devices (#164)
+* Support up to 2000 shots per circuit on cloud resources (#165)
 
 ## qiskit-aqt-provider v1.5.0
 

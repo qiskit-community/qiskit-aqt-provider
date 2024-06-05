@@ -13,6 +13,7 @@
 from collections.abc import Iterator, Mapping
 from typing import Any, Optional
 
+import annotated_types
 import pydantic as pdt
 from typing_extensions import Self, override
 
@@ -56,7 +57,7 @@ class AQTOptions(pdt.BaseModel, Mapping[str, Any]):
 
     # Qiskit generic:
 
-    shots: int = pdt.Field(ge=1, le=200, default=100)
+    shots: int = pdt.Field(ge=1, le=2000, default=100)
     """Number of repetitions per circuit."""
 
     memory: bool = False
@@ -75,7 +76,8 @@ class AQTOptions(pdt.BaseModel, Mapping[str, Any]):
     with_progress_bar: bool = True
     """Whether to display a progress bar when waiting for results from a single job.
 
-    When enabled, the progress bar is written to :data:`sys.stderr`."""
+    When enabled, the progress bar is written to :data:`sys.stderr`.
+    """
 
     @pdt.field_validator("query_timeout_seconds")
     @classmethod
@@ -102,7 +104,7 @@ class AQTOptions(pdt.BaseModel, Mapping[str, Any]):
 
         return self
 
-    # Mapping[str, Any] implementationm, for compatibility with qiskit.providers.Options
+    # Mapping[str, Any] implementation, for compatibility with qiskit.providers.Options
 
     @override
     def __len__(self) -> int:
@@ -118,3 +120,25 @@ class AQTOptions(pdt.BaseModel, Mapping[str, Any]):
     def __getitem__(self, name: str) -> Any:
         """Get the value for a given option."""
         return self.__dict__[name]
+
+    # Convenience methods
+
+    @classmethod
+    def max_shots(cls) -> int:
+        """Maximum number of repetitions per circuit."""
+        for metadata in cls.model_fields["shots"].metadata:
+            if isinstance(metadata, annotated_types.Le):
+                return int(str(metadata.le))
+
+            if isinstance(metadata, annotated_types.Lt):  # pragma: no cover
+                return int(str(metadata.lt)) - 1
+        else:  # pragma: no cover
+            msg = "No upper bound found for 'shots'."
+            raise ValueError(msg)
+
+
+class AQTDirectAccessOptions(AQTOptions):
+    """Options for AQT direct-access resources."""
+
+    shots: int = pdt.Field(ge=1, le=200, default=100)
+    """Number of repetitions per circuit."""
