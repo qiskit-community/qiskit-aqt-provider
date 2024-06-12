@@ -348,7 +348,7 @@ class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):
         Returns:
             Job result, as API payload.
         """
-        resp = self._http_client.get(f"/circuit/result/{job_id}")
+        resp = self._http_client.get(f"/circuit/result/{job_id}", timeout=3600)
         resp.raise_for_status()
         return api_models_direct.JobResult.model_validate(resp.json())
 
