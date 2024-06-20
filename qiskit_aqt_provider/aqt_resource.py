@@ -337,18 +337,19 @@ class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):
         resp.raise_for_status()
         return UUID(resp.json())
 
-    def result(self, job_id: UUID) -> api_models_direct.JobResult:
+    def result(self, job_id: UUID, *, timeout: Optional[float]) -> api_models_direct.JobResult:
         """Query the result of a specific job.
 
         Block until a result (success or error) is available.
 
         Args:
             job_id: unique identifier of the target job.
+            timeout: query timeout, in seconds. Disabled if `None`.
 
         Returns:
             Job result, as API payload.
         """
-        resp = self._http_client.get(f"/circuit/result/{job_id}")
+        resp = self._http_client.get(f"/circuit/result/{job_id}", timeout=timeout)
         resp.raise_for_status()
         return api_models_direct.JobResult.model_validate(resp.json())
 
