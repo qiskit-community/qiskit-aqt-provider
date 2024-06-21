@@ -128,6 +128,7 @@ lint.select = [
   "D",    # pydocstyle
   "E",    # pycodestyle errors
   "ERA",  # eradicate
+  "EXE",  # flake8-executable
   "F",    # pyflakes
   "I",    # isort
   "ICN",  # flake8-import-conventions
