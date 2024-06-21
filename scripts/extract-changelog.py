@@ -11,6 +11,7 @@ import typer
 from mistletoe import Document, block_token
 from mistletoe.base_renderer import BaseRenderer
 
+REVISION_HEADER_LEVEL: Final = 2
 HEADER_REGEX: Final = re.compile(r"([a-z-]+)\s+(v\d+\.\d+\.\d+)")
 
 
@@ -28,6 +29,7 @@ def default_changelog_path() -> Path:
         subprocess.run(
             shlex.split("git rev-parse --show-toplevel"),  # noqa: S603
             capture_output=True,
+            check=True,
         )
         .stdout.strip()
         .decode("utf-8")
@@ -48,7 +50,7 @@ def main(
     current_version: Optional[str] = None
 
     for node in md_ast.children:
-        if isinstance(node, block_token.Heading) and node.level == 2:
+        if isinstance(node, block_token.Heading) and node.level == REVISION_HEADER_LEVEL:
             if (match := HEADER_REGEX.search(node.children[0].content)) is not None:
                 _, revision = match.groups()
                 current_version = revision

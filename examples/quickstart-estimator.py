@@ -53,7 +53,7 @@ hamiltonian = SparsePauliOp.from_list(
 
 # Define the VQE Ansatz, initial point, and cost function
 ansatz = TwoLocal(num_qubits=2, rotation_blocks="ry", entanglement_blocks="cz")
-initial_point = initial_point = [0] * 8
+initial_point = [0] * 8
 
 
 def cost_function(

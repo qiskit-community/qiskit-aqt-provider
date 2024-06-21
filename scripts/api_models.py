@@ -66,7 +66,7 @@ def generate_models(schema_path: Path) -> str:
         print(e.stderr.decode())
         print("-------------------------------------------------")
         print(f"datamodel-codegen failed with error code: {e.returncode}")
-        exit(1)
+        raise typer.Exit(code=1)
 
     return proc.stdout.decode()
 
@@ -104,6 +104,7 @@ def check(
         proc = subprocess.run(
             shlex.split(f"diff -u {filepath} {models_path}"),  # noqa: S603
             capture_output=True,
+            check=True,
         )
 
         if proc.returncode != 0:

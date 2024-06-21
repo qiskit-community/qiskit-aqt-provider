@@ -133,9 +133,8 @@ class AQTOptions(pdt.BaseModel, Mapping[str, Any]):
 
             if isinstance(metadata, annotated_types.Lt):  # pragma: no cover
                 return int(str(metadata.lt)) - 1
-        else:  # pragma: no cover
-            msg = "No upper bound found for 'shots'."
-            raise ValueError(msg)
+
+        raise ValueError("No upper bound found for 'shots'.")  # pragma: no cover
 
 
 class AQTDirectAccessOptions(AQTOptions):

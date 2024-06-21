@@ -137,6 +137,7 @@ lint.select = [
   "PERF", # perflint
   "PGH",  # pygrep-hooks
   "PIE",  # flake8-pie
+  "PL",   # pylint
   "PT",   # flake8-pytest-style
   "PTH",  # flake8-use-pathlib
   "PYI",  # flake8-pyi
@@ -186,9 +187,10 @@ lint.per-file-ignores."scripts/*.py" = [
   "T201", # allow prints
 ]
 lint.per-file-ignores."test/**/*.py" = [
-  "D205",  # allow multiline docstring summaries
-  "PT011", # allow pytest.raises without match=
-  "S101",  # allow assertions
+  "D205",    # allow multiline docstring summaries
+  "PLR2004", # magic-value-comparison
+  "PT011",   # allow pytest.raises without match=
+  "S101",    # allow assertions
 ]
 lint.pydocstyle.convention = "google"
 
