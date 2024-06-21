@@ -119,34 +119,35 @@ extend-exclude = [
 ]
 
 lint.select = [
-  "ARG", # flake8-unused-arguments
-  "BLE", # flake8-blind-except
-  "C4",  # flake8-comprehensions
-  "C90", # mccabe
-  "COM", # flake8-commas
-  "D",   # pydocstyle
-  "E",   # pycodestyle errors
-  "ERA", # eradicate
-  "F",   # pyflakes
-  "I",   # isort
-  "ICN", # flake8-import-conventions
-  "ISC", # flake8-implicit-str-concat
-  "NPY", # numpy
-  "PGH", # pygrep-hooks
-  "PIE", # flake8-pie
-  "PT",  # flake8-pytest-style
-  "PTH", # flake8-use-pathlib
-  "PYI", # flake8-pyi
-  "RET", # flake8-return
-  "RSE", # flake8-raise
-  "RUF", # ruff specials
-  "S",   # flake8-bandit
-  "SIM", # flake8-simplify
-  "T10", # flake8-debugger
-  "T20", # flake8-print
-  "TID", # flake8-tidy-imports
-  "UP",  # pyupgrade
-  "W",   # pycodestyle warnings
+  "ARG",  # flake8-unused-arguments
+  "BLE",  # flake8-blind-except
+  "C4",   # flake8-comprehensions
+  "C90",  # mccabe
+  "COM",  # flake8-commas
+  "D",    # pydocstyle
+  "E",    # pycodestyle errors
+  "ERA",  # eradicate
+  "F",    # pyflakes
+  "I",    # isort
+  "ICN",  # flake8-import-conventions
+  "ISC",  # flake8-implicit-str-concat
+  "NPY",  # numpy
+  "PERF", # perflint
+  "PGH",  # pygrep-hooks
+  "PIE",  # flake8-pie
+  "PT",   # flake8-pytest-style
+  "PTH",  # flake8-use-pathlib
+  "PYI",  # flake8-pyi
+  "RET",  # flake8-return
+  "RSE",  # flake8-raise
+  "RUF",  # ruff specials
+  "S",    # flake8-bandit
+  "SIM",  # flake8-simplify
+  "T10",  # flake8-debugger
+  "T20",  # flake8-print
+  "TID",  # flake8-tidy-imports
+  "UP",   # pyupgrade
+  "W",    # pycodestyle warnings
 ]
 lint.ignore = [
   "COM812", # missing-trailing-comma

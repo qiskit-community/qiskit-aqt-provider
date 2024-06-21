@@ -269,22 +269,23 @@ class AQTProvider:
                     )
                 )
 
-        # add (filtered) remote resources
-        for _workspace in remote_workspaces.root:
-            for resource in _workspace.resources:
-                backends.append(
-                    AQTResource(
-                        self,
-                        resource_id=api_models.ResourceId(
-                            workspace_id=_workspace.id,
-                            resource_id=resource.id,
-                            resource_name=resource.name,
-                            resource_type=resource.type.value,
-                        ),
-                    )
+        return BackendsTable(
+            backends
+            # add (filtered) remote resources
+            + [
+                AQTResource(
+                    self,
+                    resource_id=api_models.ResourceId(
+                        workspace_id=_workspace.id,
+                        resource_id=resource.id,
+                        resource_name=resource.name,
+                        resource_type=resource.type.value,
+                    ),
                 )
-
-        return BackendsTable(backends)
+                for _workspace in remote_workspaces.root
+                for resource in _workspace.resources
+            ]
+        )
 
     def get_backend(
         self,
