@@ -18,6 +18,7 @@ class Renderer(BaseRenderer):
     """Markdown renderer."""
 
     def render_list_item(self, token: block_token.ListItem) -> str:
+        """Tweak lists rendering. Use '*' as item marker."""
         return f"* {self.render_inner(token)}\n"
 
 

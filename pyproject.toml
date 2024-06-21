@@ -152,7 +152,6 @@ lint.ignore = [
   "COM812", # missing-trailing-comma
   "COM819", # prohibited-trailing-comma
   "D100",   # missing docstring in public module
-  "D102",   # missing docstring in public method
   "D104",   # missing docstring in public package
   "D107",   # missing docstring in __init__
   "D206",   # indent-with-spaces
