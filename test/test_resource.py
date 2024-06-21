@@ -528,9 +528,9 @@ def test_direct_access_job_status(success: bool, httpx_mock: HTTPXMock) -> None:
         assert job.status() is JobStatus.ERROR
 
 
-def test_direct_access_mocked_successful_transaction(httpx_mock: HTTPXMock) -> None:
+@pytest.mark.parametrize("token", [str(uuid.uuid4()), ""])
+def test_direct_access_mocked_successful_transaction(token: str, httpx_mock: HTTPXMock) -> None:
     """Mock a successful single-circuit transaction on a direct-access resource."""
-    token = str(uuid.uuid4())
     backend = DummyDirectAccessResource(token)
     backend.options.with_progress_bar = False
 
@@ -539,8 +539,15 @@ def test_direct_access_mocked_successful_transaction(httpx_mock: HTTPXMock) -> N
 
     expected_job_id = str(uuid.uuid4())
 
+    def assert_valid_token(headers: httpx.Headers) -> None:
+        if token:
+            assert headers["authorization"] == f"Bearer {token}"
+        else:
+            assert "authorization" not in headers
+
     def handle_submit(request: httpx.Request) -> httpx.Response:
         assert request.headers["user-agent"] == USER_AGENT
+        assert_valid_token(request.headers)
 
         data = api_models.QuantumCircuit.model_validate_json(request.content.decode("utf-8"))
         assert data.repetitions == shots
@@ -552,6 +559,7 @@ def test_direct_access_mocked_successful_transaction(httpx_mock: HTTPXMock) -> N
 
     def handle_result(request: httpx.Request) -> httpx.Response:
         assert request.headers["user-agent"] == USER_AGENT
+        assert_valid_token(request.headers)
 
         _, job_id = request.url.path.rsplit("/", maxsplit=1)
         assert job_id == expected_job_id

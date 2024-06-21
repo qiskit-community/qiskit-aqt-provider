@@ -57,7 +57,10 @@ def http_client(*, base_url: str, token: str) -> httpx.Client:
         base_url: base URL of the server
         token: access token for the remote service.
     """
-    headers = {"Authorization": f"Bearer {token}", "User-Agent": USER_AGENT}
+    headers = {"User-Agent": USER_AGENT}
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+
     return httpx.Client(headers=headers, base_url=base_url, timeout=10.0, follow_redirects=True)
 
 
