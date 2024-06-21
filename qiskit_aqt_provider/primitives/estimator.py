@@ -30,7 +30,7 @@ class AQTEstimator(BackendEstimator):
         options: Optional[dict[str, Any]] = None,
         abelian_grouping: bool = True,
         skip_transpilation: bool = False,
-    ):
+    ) -> None:
         """Initialize an ``Estimator`` primitive using an AQT backend.
 
         See :class:`AQTSampler <qiskit_aqt_provider.primitives.sampler.AQTSampler>` for

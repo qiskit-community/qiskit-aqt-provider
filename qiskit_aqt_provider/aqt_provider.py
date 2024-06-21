@@ -77,7 +77,7 @@ class BackendsTable(Sequence[AQTResource]):
     in IPython/Jupyter notebooks.
     """
 
-    def __init__(self, backends: list[AQTResource]):
+    def __init__(self, backends: list[AQTResource]) -> None:
         """Initialize the table.
 
         Args:
@@ -154,7 +154,7 @@ class AQTProvider:
         *,
         load_dotenv: bool = True,
         dotenv_path: Optional[StrPath] = None,
-    ):
+    ) -> None:
         """Initialize the AQT provider.
 
         The access token for the AQT cloud can be provided either through the

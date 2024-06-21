@@ -18,8 +18,13 @@ This examples uses a variational quantum eigensolver (VQE) to find
 the ground state energy of a Hamiltonian.
 """
 
+from collections.abc import Sequence
+
+from qiskit import QuantumCircuit
 from qiskit.circuit.library import TwoLocal
+from qiskit.primitives import BaseEstimator
 from qiskit.quantum_info import SparsePauliOp
+from qiskit.quantum_info.operators.base_operator import BaseOperator
 from scipy.optimize import minimize
 
 from qiskit_aqt_provider import AQTProvider
@@ -51,13 +56,18 @@ ansatz = TwoLocal(num_qubits=2, rotation_blocks="ry", entanglement_blocks="cz")
 initial_point = initial_point = [0] * 8
 
 
-def cost_function(params, ansatz, hamiltonian, estimator):
+def cost_function(
+    params: Sequence[float],
+    ansatz: QuantumCircuit,
+    hamiltonian: BaseOperator,
+    estimator: BaseEstimator,
+) -> float:
     """Cost function for the VQE.
 
     Return the estimated expectation value of the Hamiltonian
     on the state prepared by the Ansatz circuit.
     """
-    return estimator.run(ansatz, hamiltonian, parameter_values=params).result().values[0]
+    return float(estimator.run(ansatz, hamiltonian, parameter_values=params).result().values[0])
 
 
 # Run the VQE using the SciPy minimizer routine

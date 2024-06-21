@@ -85,7 +85,9 @@ _OptionsType = TypeVar("_OptionsType", bound=AQTOptions)
 class _ResourceBase(Generic[_OptionsType], Backend):
     """Common setup for AQT backends."""
 
-    def __init__(self, provider: "AQTProvider", name: str, options_type: type[_OptionsType]):
+    def __init__(
+        self, provider: "AQTProvider", name: str, options_type: type[_OptionsType]
+    ) -> None:
         """Initialize the Qiskit backend.
 
         Args:
@@ -206,7 +208,7 @@ class AQTResource(_ResourceBase[AQTOptions]):
         self,
         provider: "AQTProvider",
         resource_id: api_models.ResourceId,
-    ):
+    ) -> None:
         """Initialize the backend.
 
         Args:

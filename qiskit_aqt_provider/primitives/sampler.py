@@ -29,7 +29,7 @@ class AQTSampler(BackendSampler):
         backend: AQTResource,
         options: Optional[dict[str, Any]] = None,
         skip_transpilation: bool = False,
-    ):
+    ) -> None:
         """Initialize a ``Sampler`` primitive using an AQT backend.
 
         Args:
