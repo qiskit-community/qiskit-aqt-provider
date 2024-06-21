@@ -466,7 +466,7 @@ def test_offline_simulator_resource_propagate_memory_option(
 
 
 def test_direct_access_bad_request(httpx_mock: HTTPXMock) -> None:
-    """Check that direct-access resources raise a httpx.HTTPError if the request is flagged bad by the server."""
+    """Check that direct-access resources raise a httpx.HTTPError on bad requests."""
     backend = DummyDirectAccessResource("token")
     httpx_mock.add_response(status_code=httpx.codes.BAD_REQUEST)
 

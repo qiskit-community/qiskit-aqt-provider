@@ -44,7 +44,8 @@ class AQTOptions(pdt.BaseModel, Mapping[str, Any]):
 
     Option overrides can also be applied on a per-job basis, as keyword arguments to
     :meth:`AQTResource.run <qiskit_aqt_provider.aqt_resource.AQTResource.run>` or
-    :meth:`AQTDirectAccessResource.run <qiskit_aqt_provider.aqt_resource.AQTDirectAccessResource.run>`:
+    :meth:`AQTDirectAccessResource.run
+    <qiskit_aqt_provider.aqt_resource.AQTDirectAccessResource.run>`:
 
     >>> backend.options.shots
     50

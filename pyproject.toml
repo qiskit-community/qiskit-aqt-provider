@@ -163,7 +163,6 @@ lint.ignore = [
   "E111",   # indentation-with-invalid-multiple
   "E114",   # indentation-with-invalid-multiple-comment
   "E117",   # over-idented
-  "E501",
   "ISC001", # single-line-implicit-string-concatenation
   "ISC002", # multi-line-implicit-string-concatenation
   "Q000",   # bad-quotes-inline-string

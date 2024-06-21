@@ -389,7 +389,9 @@ class AQTJob(JobV1):
 class AQTDirectAccessJob(JobV1):
     """Handle for quantum circuits jobs running on direct-access AQT backends.
 
-    Use :meth:`AQTDirectAccessResource.run <qiskit_aqt_provider.aqt_resource.AQTDirectAccessResource.run>`
+    Use
+    :meth:`AQTDirectAccessResource.run
+    <qiskit_aqt_provider.aqt_resource.AQTDirectAccessResource.run>`
     to get a handle and evaluate circuits on a direct-access backend.
     """
 
