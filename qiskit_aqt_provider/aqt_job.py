@@ -447,7 +447,9 @@ class AQTDirectAccessJob(JobV1):
             for circuit_index, circuit in enumerate(self.circuits):
                 api_circuit = self.api_submit_payload.payload.circuits[circuit_index]
                 job_id = self._backend.submit(api_circuit)
-                api_result = self._backend.result(job_id)
+                api_result = self._backend.result(
+                    job_id, timeout=self.options.query_timeout_seconds
+                )
 
                 if isinstance(api_result.payload, JobResultError):
                     break
