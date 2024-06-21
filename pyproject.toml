@@ -149,33 +149,30 @@ lint.select = [
   "W",   # pycodestyle warnings
 ]
 lint.ignore = [
-  "COM812",
-  "COM819",
+  "COM812", # missing-trailing-comma
+  "COM819", # prohibited-trailing-comma
   "D100",   # missing docstring in public module
   "D101",   # missing docstring in public class
   "D102",   # missing docstring in public method
   "D104",   # missing docstring in public package
   "D107",   # missing docstring in __init__
-  "D206",
+  "D206",   # indent-with-spaces
   "D211",   # no-blank-line-before-class (incompatible with D203)
   "D213",   # multiline-summary-second-line (incompatible with D212)
-  "D300",
-  "E111",
-  "E114",
-  "E117",
+  "D300",   # triple-single-quotes
+  "E111",   # indentation-with-invalid-multiple
+  "E114",   # indentation-with-invalid-multiple-comment
+  "E117",   # over-idented
   "E501",
-  "ISC001",
-  "ISC002",
-  "Q000",
-  "Q001",
-  "Q002",
-  "Q003",
+  "ISC001", # single-line-implicit-string-concatenation
+  "ISC002", # multi-line-implicit-string-concatenation
+  "Q000",   # bad-quotes-inline-string
+  "Q001",   # bad-quotes-multiline-string
+  "Q002",   # bad-quotes-docstring
+  "Q003",   # avoidable-escaped-quote
   "S311",   # suspicious-non-cryptographic-random-usage
   "SIM117", # multiple-with-statements
-  #
-  # ignore following rules since they are conflicting with the formatter
-  # https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
-  "W191",
+  "W191",   # tab-indentation
 ]
 lint.per-file-ignores."examples/*.py" = [
   "T201", # allow prints
