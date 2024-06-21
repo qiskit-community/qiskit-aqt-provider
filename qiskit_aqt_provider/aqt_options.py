@@ -44,7 +44,8 @@ class AQTOptions(pdt.BaseModel, Mapping[str, Any]):
 
     Option overrides can also be applied on a per-job basis, as keyword arguments to
     :meth:`AQTResource.run <qiskit_aqt_provider.aqt_resource.AQTResource.run>` or
-    :meth:`AQTDirectAccessResource.run <qiskit_aqt_provider.aqt_resource.AQTDirectAccessResource.run>`:
+    :meth:`AQTDirectAccessResource.run
+    <qiskit_aqt_provider.aqt_resource.AQTDirectAccessResource.run>`:
 
     >>> backend.options.shots
     50
@@ -132,9 +133,8 @@ class AQTOptions(pdt.BaseModel, Mapping[str, Any]):
 
             if isinstance(metadata, annotated_types.Lt):  # pragma: no cover
                 return int(str(metadata.lt)) - 1
-        else:  # pragma: no cover
-            msg = "No upper bound found for 'shots'."
-            raise ValueError(msg)
+
+        raise ValueError("No upper bound found for 'shots'.")  # pragma: no cover
 
 
 class AQTDirectAccessOptions(AQTOptions):

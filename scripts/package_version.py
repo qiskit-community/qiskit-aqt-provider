@@ -29,9 +29,16 @@ DOCS_VERSION_REGEX: Final = re.compile(r'(version|release)\s=\s"(\d+\.\d+\.\d+)"
 
 @dataclass(frozen=True)
 class CommonArgs:
+    """Parsed arguments common to all sub-commands."""
+
     pyproject_path: Path
+    """Path to the pyproject file."""
+
     docs_conf_path: Path
+    """Path to the Sphinx docs configuration module."""
+
     verbose: bool
+    """Verbosity flag."""
 
 
 def get_args(ctx: typer.Context) -> CommonArgs:

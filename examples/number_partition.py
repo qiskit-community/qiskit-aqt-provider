@@ -36,17 +36,23 @@ RANDOM_SEED: Final = 0
 
 @dataclass(frozen=True)
 class Success:
+    """Solution of a partition problem."""
+
     # type would be better as tuple[set[int], set[int]] but
     # NumberPartition.interpret returns list[list[int]].
     partition: list[list[int]]
 
-    def verify(self) -> bool:
+    def is_valid(self) -> bool:
+        """Evaluate whether the stored partition is valid.
+
+        A partition is valid if both sets have the same sum.
+        """
         a, b = self.partition
         return sum(a) == sum(b)
 
 
 class Infeasible:
-    pass
+    """Marker for unsolvable partition problems."""
 
 
 def solve_partition_problem(num_set: set[int]) -> Union[Success, Infeasible]:
@@ -87,7 +93,7 @@ if __name__ == "__main__":
     num_set = {1, 3, 4}
     result = solve_partition_problem(num_set)
     assert isinstance(result, Success)  # noqa: S101
-    assert result.verify()  # noqa: S101
+    assert result.is_valid()  # noqa: S101
     print(f"Partition for {num_set}:", result.partition)
 
     num_set = {1, 2}

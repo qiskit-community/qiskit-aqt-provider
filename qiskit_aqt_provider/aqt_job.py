@@ -14,6 +14,7 @@ import uuid
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from pathlib import Path
+from types import TracebackType
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -111,7 +112,13 @@ class _MockProgressBar:
     def __enter__(self) -> Self:
         return self
 
-    def __exit__(*args) -> None: ...
+    def __exit__(
+        self,
+        exc_type: Optional[type[BaseException]],
+        exc_value: Optional[BaseException],
+        traceback: Optional[TracebackType],
+        /,
+    ) -> None: ...
 
 
 class AQTJob(JobV1):
@@ -153,7 +160,7 @@ class AQTJob(JobV1):
         backend: "AQTResource",
         circuits: list[QuantumCircuit],
         options: AQTOptions,
-    ):
+    ) -> None:
         """Initialize an :class:`AQTJob` instance.
 
         .. tip:: :class:`AQTJob` instances should not be created directly. Use
@@ -389,7 +396,9 @@ class AQTJob(JobV1):
 class AQTDirectAccessJob(JobV1):
     """Handle for quantum circuits jobs running on direct-access AQT backends.
 
-    Use :meth:`AQTDirectAccessResource.run <qiskit_aqt_provider.aqt_resource.AQTDirectAccessResource.run>`
+    Use
+    :meth:`AQTDirectAccessResource.run
+    <qiskit_aqt_provider.aqt_resource.AQTDirectAccessResource.run>`
     to get a handle and evaluate circuits on a direct-access backend.
     """
 
@@ -400,7 +409,7 @@ class AQTDirectAccessJob(JobV1):
         backend: "AQTDirectAccessResource",
         circuits: list[QuantumCircuit],
         options: AQTOptions,
-    ):
+    ) -> None:
         """Initialize the :class:`AQTDirectAccessJob` instance.
 
         Args:

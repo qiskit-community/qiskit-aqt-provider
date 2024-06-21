@@ -19,6 +19,7 @@ def default_pyproject_path() -> Path:
         subprocess.run(
             shlex.split("git rev-parse --show-toplevel"),  # noqa: S603
             capture_output=True,
+            check=True,
         )
         .stdout.strip()
         .decode("utf-8")

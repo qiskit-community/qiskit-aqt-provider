@@ -119,63 +119,67 @@ extend-exclude = [
 ]
 
 lint.select = [
-  "ARG", # flake8-unused-arguments
-  "BLE", # flake8-blind-except
-  "C4",  # flake8-comprehensions
-  "C90", # mccabe
-  "COM", # flake8-commas
-  "D",   # pydocstyle
-  "E",   # pycodestyle errors
-  "ERA", # eradicate
-  "F",   # pyflakes
-  "I",   # isort
-  "ICN", # flake8-import-conventions
-  "ISC", # flake8-implicit-str-concat
-  "NPY", # numpy
-  "PGH", # pygrep-hooks
-  "PIE", # flake8-pie
-  "PT",  # flake8-pytest-style
-  "PTH", # flake8-use-pathlib
-  "PYI", # flake8-pyi
-  "RET", # flake8-return
-  "RSE", # flake8-raise
-  "RUF", # ruff specials
-  "S",   # flake8-bandit
-  "SIM", # flake8-simplify
-  "T10", # flake8-debugger
-  "T20", # flake8-print
-  "TID", # flake8-tidy-imports
-  "UP",  # pyupgrade
-  "W",   # pycodestyle warnings
+  "ANN",  # flake8-annotations
+  "ARG",  # flake8-unused-arguments
+  "BLE",  # flake8-blind-except
+  "C4",   # flake8-comprehensions
+  "C90",  # mccabe
+  "COM",  # flake8-commas
+  "D",    # pydocstyle
+  "E",    # pycodestyle errors
+  "ERA",  # eradicate
+  "EXE",  # flake8-executable
+  "F",    # pyflakes
+  "FLY",  # flynt
+  "I",    # isort
+  "ICN",  # flake8-import-conventions
+  "ISC",  # flake8-implicit-str-concat
+  "NPY",  # numpy
+  "PERF", # perflint
+  "PGH",  # pygrep-hooks
+  "PIE",  # flake8-pie
+  "PL",   # pylint
+  "PT",   # flake8-pytest-style
+  "PTH",  # flake8-use-pathlib
+  "PYI",  # flake8-pyi
+  "RET",  # flake8-return
+  "RSE",  # flake8-raise
+  "RUF",  # ruff specials
+  "S",    # flake8-bandit
+  "SIM",  # flake8-simplify
+  "SLOT", # flake8-slots
+  "T10",  # flake8-debugger
+  "T20",  # flake8-print
+  "TID",  # flake8-tidy-imports
+  "UP",   # pyupgrade
+  "W",    # pycodestyle warnings
+  "YTT",  # flake8-2020
 ]
 lint.ignore = [
-  "COM812",
-  "COM819",
+  "ANN101", # missing-type-self (deprecated)
+  "ANN102", # missing-type-cls (deprecated)
+  "ANN401", # any-type
+  "COM812", # missing-trailing-comma
+  "COM819", # prohibited-trailing-comma
   "D100",   # missing docstring in public module
-  "D101",   # missing docstring in public class
-  "D102",   # missing docstring in public method
   "D104",   # missing docstring in public package
   "D107",   # missing docstring in __init__
-  "D206",
+  "D206",   # indent-with-spaces
   "D211",   # no-blank-line-before-class (incompatible with D203)
   "D213",   # multiline-summary-second-line (incompatible with D212)
-  "D300",
-  "E111",
-  "E114",
-  "E117",
-  "E501",
-  "ISC001",
-  "ISC002",
-  "Q000",
-  "Q001",
-  "Q002",
-  "Q003",
+  "D300",   # triple-single-quotes
+  "E111",   # indentation-with-invalid-multiple
+  "E114",   # indentation-with-invalid-multiple-comment
+  "E117",   # over-idented
+  "ISC001", # single-line-implicit-string-concatenation
+  "ISC002", # multi-line-implicit-string-concatenation
+  "Q000",   # bad-quotes-inline-string
+  "Q001",   # bad-quotes-multiline-string
+  "Q002",   # bad-quotes-docstring
+  "Q003",   # avoidable-escaped-quote
   "S311",   # suspicious-non-cryptographic-random-usage
   "SIM117", # multiple-with-statements
-  #
-  # ignore following rules since they are conflicting with the formatter
-  # https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
-  "W191",
+  "W191",   # tab-indentation
 ]
 lint.per-file-ignores."examples/*.py" = [
   "T201", # allow prints
@@ -184,9 +188,10 @@ lint.per-file-ignores."scripts/*.py" = [
   "T201", # allow prints
 ]
 lint.per-file-ignores."test/**/*.py" = [
-  "D205",  # allow multiline docstring summaries
-  "PT011", # allow pytest.raises without match=
-  "S101",  # allow assertions
+  "D205",    # allow multiline docstring summaries
+  "PLR2004", # magic-value-comparison
+  "PT011",   # allow pytest.raises without match=
+  "S101",    # allow assertions
 ]
 lint.pydocstyle.convention = "google"
 

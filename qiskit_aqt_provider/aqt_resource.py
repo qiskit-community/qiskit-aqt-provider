@@ -85,7 +85,9 @@ _OptionsType = TypeVar("_OptionsType", bound=AQTOptions)
 class _ResourceBase(Generic[_OptionsType], Backend):
     """Common setup for AQT backends."""
 
-    def __init__(self, provider: "AQTProvider", name: str, options_type: type[_OptionsType]):
+    def __init__(
+        self, provider: "AQTProvider", name: str, options_type: type[_OptionsType]
+    ) -> None:
         """Initialize the Qiskit backend.
 
         Args:
@@ -206,7 +208,7 @@ class AQTResource(_ResourceBase[AQTOptions]):
         self,
         provider: "AQTProvider",
         resource_id: api_models.ResourceId,
-    ):
+    ) -> None:
         """Initialize the backend.
 
         Args:
@@ -281,7 +283,9 @@ class AQTResource(_ResourceBase[AQTOptions]):
 class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):
     """Qiskit backend for AQT direct-access quantum computing resources.
 
-    Use :meth:`AQTProvider.get_direct_access_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_direct_access_backend>`
+    Use
+    :meth:`AQTProvider.get_direct_access_backend
+    <qiskit_aqt_provider.aqt_provider.AQTProvider.get_direct_access_backend>`
     to retrieve backend instances.
     """
 
@@ -310,7 +314,8 @@ class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):
         """Prepare circuits for execution on this resource.
 
         .. warning:: The circuits are only evaluated during
-          the :meth:`AQTDirectAccessJob.result <qiskit_aqt_provider.aqt_job.AQTDirectAccessJob.result>`
+          the :meth:`AQTDirectAccessJob.result
+          <qiskit_aqt_provider.aqt_job.AQTDirectAccessJob.result>`
           call.
 
         Args:
@@ -416,8 +421,9 @@ class OfflineSimulatorResource(AQTResource):
     `with_noise_model` is true, a noise model approximating that of AQT hardware backends is used.
 
     .. tip::
-      The simulator backend is provided by `Qiskit Aer <https://qiskit.github.io/qiskit-aer//>`_. The
-      Qiskit Aer resource is exposed for detailed detuning as the
+      The simulator backend is provided by
+      `Qiskit Aer <https://qiskit.github.io/qiskit-aer/>`_.
+      The Qiskit Aer resource is exposed for detailed detuning as the
       ``OfflineSimulatorResource.simulator`` attribute.
     """
 
