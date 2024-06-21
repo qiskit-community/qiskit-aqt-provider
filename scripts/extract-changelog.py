@@ -15,6 +15,8 @@ HEADER_REGEX: Final = re.compile(r"([a-z-]+)\s+(v\d+\.\d+\.\d+)")
 
 
 class Renderer(BaseRenderer):
+    """Markdown renderer."""
+
     def render_list_item(self, token: block_token.ListItem) -> str:
         return f"* {self.render_inner(token)}\n"
 
