@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+* Update API specification and associated constraints (#176)
+
 ## qiskit-aqt-provider v1.6.0
 
 * Support direct-access mode on AQT devices (#164)
