@@ -11,8 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field, RootModel
 
 
 class GateR(BaseModel):
-    """
-    ### A single-qubit rotation around an arbitrary axis on the Bloch sphere's equatorial plane.
+    r"""### A single-qubit rotation around an arbitrary axis on the Bloch sphere's equatorial plane.
 
     The R-gate on qubit j with pulse area θ and mixing angle φ, both in units of π, is defined as
         $$
@@ -65,8 +64,7 @@ class Qubit(RootModel[int]):
 
 
 class GateRXX(BaseModel):
-    """
-    ### A two-qubit entangling gate of Mølmer-Sørenson-type.
+    r"""### A two-qubit entangling gate of Mølmer-Sørenson-type.
 
     The MS-gate on qubits j and k with pulse area θ in units of π is defined as
         $$
@@ -123,8 +121,7 @@ class GateRXX(BaseModel):
 
 
 class GateRZ(BaseModel):
-    """
-    ### A single-qubit rotation rotation around the Bloch sphere's z-axis.
+    r"""### A single-qubit rotation rotation around the Bloch sphere's z-axis.
 
     The Rz-gate on qubit j with pulse area θ in units of π is defined as
         $$
@@ -171,17 +168,14 @@ class JobUser(BaseModel):
     """
     Id that uniquely identifies the job. This is used to request results.
     """
-    job_type: Annotated[
-        Literal["quantum_circuit"], Field("quantum_circuit", title="Job Type")
-    ]
+    job_type: Annotated[Literal["quantum_circuit"], Field("quantum_circuit", title="Job Type")]
     label: Annotated[Optional[str], Field(None, title="Label")]
     resource_id: Annotated[str, Field("", title="Resource Id")]
     workspace_id: Annotated[str, Field("", title="Workspace Id")]
 
 
 class Measure(BaseModel):
-    """
-    Measurement operation.
+    """Measurement operation.
 
     The MEASURE operation instructs the resource
     to perform a projective measurement of all qubits.
@@ -233,9 +227,7 @@ class ResultItem(RootModel[int]):
 
 
 class RRFinished(BaseModel):
-    """
-    Contains the measurement data of a finished circuit.
-    """
+    """Contains the measurement data of a finished circuit."""
 
     model_config = ConfigDict(
         frozen=True,
@@ -274,9 +266,7 @@ class Resource(BaseModel):
 
 
 class ResourceStates(Enum):
-    """
-    Possible states of a quantum resource.
-    """
+    """Possible states of a quantum resource."""
 
     online = "online"
     maintenance = "maintenance"
@@ -284,9 +274,7 @@ class ResourceStates(Enum):
 
 
 class SubmitJobResponse(BaseModel):
-    """
-    Schema for the response for the public submit job endpoint.
-    """
+    """Schema for the response for the public submit job endpoint."""
 
     model_config = ConfigDict(
         frozen=True,
@@ -300,9 +288,7 @@ class UnknownJob(BaseModel):
         frozen=True,
     )
     job_id: Annotated[UUID, Field(title="Job Id")]
-    message: Annotated[
-        Literal["unknown job_id"], Field("unknown job_id", title="Message")
-    ]
+    message: Annotated[Literal["unknown job_id"], Field("unknown job_id", title="Message")]
 
 
 class ValidationError(BaseModel):
@@ -323,9 +309,7 @@ class Workspace(BaseModel):
 
 
 class Circuit(RootModel[List[OperationModel]]):
-    """
-    Json encoding of a quantum circuit.
-    """
+    """Json encoding of a quantum circuit."""
 
     model_config = ConfigDict(
         frozen=True,
@@ -399,9 +383,7 @@ class JobResponseRRQueued(BaseModel):
 
 
 class QuantumCircuit(BaseModel):
-    """
-    A quantum circuit-type job that can run on a computing resource.
-    """
+    """A quantum circuit-type job that can run on a computing resource."""
 
     model_config = ConfigDict(
         frozen=True,
@@ -412,22 +394,16 @@ class QuantumCircuit(BaseModel):
 
 
 class QuantumCircuits(BaseModel):
-    """
-    A collection of quantum circuits representing a single job.
-    """
+    """A collection of quantum circuits representing a single job."""
 
     model_config = ConfigDict(
         frozen=True,
     )
-    circuits: Annotated[
-        List[QuantumCircuit], Field(max_length=50, min_length=1, title="Circuits")
-    ]
+    circuits: Annotated[List[QuantumCircuit], Field(max_length=50, min_length=1, title="Circuits")]
 
 
 class ResourceDetails(BaseModel):
-    """
-    Schema for the response of the public resource details endpoint.
-    """
+    """Schema for the response of the public resource details endpoint."""
 
     model_config = ConfigDict(
         frozen=True,
@@ -467,8 +443,7 @@ class ResultResponse(
             examples=[
                 {
                     "description": (
-                        "Job waiting in the queue to be picked up by the Quantum"
-                        " computer"
+                        "Job waiting in the queue to be picked up by the Quantum" " computer"
                     ),
                     "summary": "Queued Job",
                     "value": {
@@ -542,8 +517,7 @@ class ResultResponse(
                 },
                 {
                     "description": (
-                        "Job that created an error while being processed by the Quantum"
-                        " computer"
+                        "Job that created an error while being processed by the Quantum" " computer"
                     ),
                     "summary": "Failed Job",
                     "value": {
@@ -675,15 +649,11 @@ class ResultResponse(
 
 
 class SubmitJobRequest(BaseModel):
-    """
-    Schema for the request for the public submit job endpoint.
-    """
+    """Schema for the request for the public submit job endpoint."""
 
     model_config = ConfigDict(
         frozen=True,
     )
-    job_type: Annotated[
-        Literal["quantum_circuit"], Field("quantum_circuit", title="Job Type")
-    ]
+    job_type: Annotated[Literal["quantum_circuit"], Field("quantum_circuit", title="Job Type")]
     label: Annotated[Optional[str], Field(None, title="Label")]
     payload: QuantumCircuits

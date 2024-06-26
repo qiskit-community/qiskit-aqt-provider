@@ -114,9 +114,6 @@ examples = [
 [tool.ruff]
 target-version = "py39"
 line-length = 100
-extend-exclude = [
-  "qiskit_aqt_provider/api_models_generated.py", # generated code
-]
 
 lint.select = [
   "ANN",  # flake8-annotations
@@ -183,6 +180,13 @@ lint.ignore = [
 ]
 lint.per-file-ignores."examples/*.py" = [
   "T201", # allow prints
+]
+lint.per-file-ignores."qiskit_aqt_provider/api_models_generated.py" = [
+  "D100",   # undocumented-public-module
+  "D101",   # undocumented-public-class
+  "E501",   # line-too-long
+  "ERA001", # commented-out-code
+  "UP",     # pyupgrade
 ]
 lint.per-file-ignores."scripts/*.py" = [
   "T201", # allow prints
