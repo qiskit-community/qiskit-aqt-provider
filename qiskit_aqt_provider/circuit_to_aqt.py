@@ -114,7 +114,7 @@ def aqt_to_qiskit_circuit(circuit: api_models.Circuit, number_of_qubits: int) ->
     return qiskit_circuit
 
 
-def circuits_to_aqt_job(circuits: list[QuantumCircuit], shots: int) -> api_models.JobSubmission:
+def circuits_to_aqt_job(circuits: list[QuantumCircuit], shots: int) -> api_models.SubmitJobRequest:
     """Convert a list of circuits to the corresponding AQT API job request payload.
 
     Args:
@@ -124,7 +124,7 @@ def circuits_to_aqt_job(circuits: list[QuantumCircuit], shots: int) -> api_model
     Returns:
         JobSubmission: AQT API payload for submitting the quantum circuits job.
     """
-    return api_models.JobSubmission(
+    return api_models.SubmitJobRequest(
         job_type="quantum_circuit",
         label="qiskit",
         payload=api_models.QuantumCircuits(

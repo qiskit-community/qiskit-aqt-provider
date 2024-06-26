@@ -121,7 +121,7 @@ def test_job_persistence_transaction_online_backend(httpx_mock: HTTPXMock, tmp_p
         assert request.headers["authorization"] == f"Bearer {token}"
 
         _, workspace_id, resource_id = request.url.path.rsplit("/", maxsplit=2)
-        data = api_models.JobSubmission.model_validate_json(request.content.decode("utf-8"))
+        data = api_models.SubmitJobRequest.model_validate_json(request.content.decode("utf-8"))
         circuits = data.payload.circuits
         job_id = uuid.uuid4()
 

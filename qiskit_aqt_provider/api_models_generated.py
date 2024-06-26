@@ -12,11 +12,39 @@ from pydantic import BaseModel, ConfigDict, Field, RootModel
 
 class GateR(BaseModel):
     """
-    A single-qubit rotation.
+    ### A single-qubit rotation around an arbitrary axis on the Bloch sphere's equatorial plane.
 
-    Describes a rotation of angle θ around axis φ in the equatorial plane of the Bloch sphere.
+    The R-gate on qubit j with pulse area θ and mixing angle φ, both in units of π, is defined as
+        $$
+        U_{\mathrm{R}}^j(\theta,\varphi) =
+        \exp\left( -\mathrm{i} \theta \frac{\pi}{2}
+        \left[\sin(\varphi \pi)\sigma_y^j + \cos(\varphi \pi)\sigma_x^j \right] \right) =
+        \begin{pmatrix}
+        \cos(\theta \frac{\pi}{2}) && -\mathrm{i} e^{-\mathrm{i} \varphi \pi}\sin(\theta \frac{\pi}{2})\\
+        -\mathrm{i} e^{\mathrm{i} \varphi \pi}\sin(\theta \frac{\pi}{2}) && \cos(\theta \frac{\pi}{2})
+        \end{pmatrix}
+        $$
+    with the Pauli matrices
+        $$
+        \sigma_x =
+        \begin{pmatrix}
+        0 & 1 \\ 1 & 0
+        \end{pmatrix} ,
+        \sigma_y =
+        \begin{pmatrix}
+        0 & -\mathrm{i} \\ \mathrm{i} & 0
+        \end{pmatrix}.
+        $$
 
-    Angles are expressed in units of π.
+    **Examples:**
+        $$
+        \begin{align*}
+        U_{\mathrm{R}}^j(0.5, 0) \ket{0_j} &=
+        \frac{1}{\sqrt{2}}\left (\ket{0_j} - \mathrm{i}\ket{1_j} \right )\\
+        U_{\mathrm{R}}^j(0.5, 0.5) \ket{0_j} &=
+        \frac{1}{\sqrt{2}}\left (\ket{0_j} + \ket{1_j} \right )
+        \end{align*}
+        $$
     """
 
     model_config = ConfigDict(
@@ -38,10 +66,51 @@ class Qubit(RootModel[int]):
 
 class GateRXX(BaseModel):
     """
-    A parametric 2-qubits X⊗X gate with angle θ.
+    ### A two-qubit entangling gate of Mølmer-Sørenson-type.
 
-    The angle is expressed in units of π. The gate is maximally entangling
-    for θ=0.5 (π/2).
+    The MS-gate on qubits j and k with pulse area θ in units of π is defined as
+        $$
+        \begin{aligned}
+        U_{\mathrm{MS}}^{j,k} \left (\theta \right) & =
+        e^{\mathrm{i}\theta\frac{\pi}{2}}\exp{\left(-\mathrm{i} \theta \pi {S_x}^2 \right) }
+        = \begin{pmatrix}
+        \cos(\theta \frac{\pi}{2}) & 0 & 0 && -\mathrm{i}\sin(\theta \frac{\pi}{2}) \\
+        0 & \cos(\theta \frac{\pi}{2}) & -\mathrm{i}\sin(\theta \frac{\pi}{2}) && 0 \\
+        0 & -\mathrm{i}\sin(\theta\frac{\pi}{2}) & \cos(\theta \frac{\pi}{2}) && 0 \\
+        -\mathrm{i}\sin(\theta \frac{\pi}{2}) & 0 & 0 && \cos(\theta \frac{\pi}{2})
+        \end{pmatrix}
+        \end{aligned}
+        $$
+    with
+        $$
+        S_x =\frac{1}{2}\left (\sigma_x^j + \sigma_x^k \right)
+        $$
+    and the Pauli matrix
+        $$
+        \sigma_x =
+        \begin{pmatrix}
+        0 & 1 \\ 1 & 0
+        \end{pmatrix}.
+        $$
+
+    A fully-entangling gate between qubit 0 and qubit 1 therefore is
+        $$
+        U_{\mathrm{MS}}^{0,1} \left (0.5 \right) = \frac{1}{\sqrt{2}}
+        \begin{pmatrix}
+        1 && 0 && 0 && -\mathrm{i} \\ 0 && 1 && -\mathrm{i} && 0 \\
+        0 && -\mathrm{i} && 1 && 0 \\ -\mathrm{i} && 0 && 0 && 1
+        \end{pmatrix}
+        $$
+
+    **Examples:**
+        $$
+        \begin{align*}
+        U_{\mathrm{MS}}^{j,k}(0.5) \ket{0_j0_k} &=
+        \frac{1}{\sqrt{2}}\left (\ket{0_j0_k} -\mathrm{i} \ket{1_j1_k} \right ) \\
+        U_{\mathrm{MS}}^{j,k}(0.5) \ket{1_j1_k} &=
+        \frac{1}{\sqrt{2}}\left ( -\mathrm{i}\ket{0_j0_k} + \ket{1_j1_k} \right )
+        \end{align*}
+        $$
     """
 
     model_config = ConfigDict(
@@ -55,7 +124,34 @@ class GateRXX(BaseModel):
 
 class GateRZ(BaseModel):
     """
-    A single-qubit rotation of angle φ around the Z axis of the Bloch sphere.
+    ### A single-qubit rotation rotation around the Bloch sphere's z-axis.
+
+    The Rz-gate on qubit j with pulse area θ in units of π is defined as
+        $$
+        U_{\mathrm{R_z}}^j(\theta) =
+        \exp\left( -\mathrm{i} \theta \frac{\pi}{2} \sigma_z^j \right) =
+        \begin{pmatrix}
+        \cos(\theta \frac{\pi}{2}) -\mathrm{i}\sin(\theta \frac{\pi}{2}) && 0 \\
+        0 && \cos(\theta \frac{\pi}{2}) +\mathrm{i}\sin(\theta \frac{\pi}{2})
+        \end{pmatrix}
+        $$
+    with the Pauli matrix
+        $$
+        \sigma_z =
+        \begin{pmatrix}
+        1 & 0 \\ 0 & -1
+        \end{pmatrix}.
+        $$
+
+    **Examples:**
+        $$
+        \begin{align*}
+        U_{\mathrm{R_z}}^j(1)\frac{1}{\sqrt{2}}\left( \ket{0_j} + \ket{1_j}\right) &=
+        \frac{1}{\sqrt{2}}\left (\ket{0_j} - \ket{1_j} \right ) \\
+        U_{\mathrm{R_z}}^j(0.5)\frac{1}{\sqrt{2}}\left (\ket{0_j} + \ket{1_j} \right) &=
+        \frac{1}{\sqrt{2}}\left (\ket{0_j} +\mathrm{i}\ket{1_j} \right )
+        \end{align*}
+        $$
     """
 
     model_config = ConfigDict(
@@ -177,6 +273,28 @@ class Resource(BaseModel):
     type: Annotated[Type, Field(title="Type")]
 
 
+class ResourceStates(Enum):
+    """
+    Possible states of a quantum resource.
+    """
+
+    online = "online"
+    maintenance = "maintenance"
+    offline = "offline"
+
+
+class SubmitJobResponse(BaseModel):
+    """
+    Schema for the response for the public submit job endpoint.
+    """
+
+    model_config = ConfigDict(
+        frozen=True,
+    )
+    job: JobUser
+    response: RRQueued
+
+
 class UnknownJob(BaseModel):
     model_config = ConfigDict(
         frozen=True,
@@ -223,7 +341,7 @@ class Circuit(RootModel[List[OperationModel]]):
                     {"operation": "MEASURE"},
                 ]
             ],
-            max_length=10000,
+            max_length=2500,
             min_length=1,
             title="Circuit",
         ),
@@ -288,9 +406,9 @@ class QuantumCircuit(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    number_of_qubits: Annotated[int, Field(gt=0, title="Number Of Qubits")]
+    number_of_qubits: Annotated[int, Field(ge=1, le=20, title="Number Of Qubits")]
     quantum_circuit: Circuit
-    repetitions: Annotated[int, Field(gt=0, title="Repetitions")]
+    repetitions: Annotated[int, Field(ge=1, le=2000, title="Repetitions")]
 
 
 class QuantumCircuits(BaseModel):
@@ -301,7 +419,24 @@ class QuantumCircuits(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    circuits: Annotated[List[QuantumCircuit], Field(min_length=1, title="Circuits")]
+    circuits: Annotated[
+        List[QuantumCircuit], Field(max_length=50, min_length=1, title="Circuits")
+    ]
+
+
+class ResourceDetails(BaseModel):
+    """
+    Schema for the response of the public resource details endpoint.
+    """
+
+    model_config = ConfigDict(
+        frozen=True,
+    )
+    available_qubits: Annotated[int, Field(title="Available Qubits")]
+    id: Annotated[str, Field(title="Id")]
+    name: Annotated[str, Field(title="Name")]
+    status: ResourceStates
+    type: Annotated[Type, Field(title="Type")]
 
 
 class ResultResponse(
@@ -539,7 +674,11 @@ class ResultResponse(
     ]
 
 
-class JobSubmission(BaseModel):
+class SubmitJobRequest(BaseModel):
+    """
+    Schema for the request for the public submit job endpoint.
+    """
+
     model_config = ConfigDict(
         frozen=True,
     )

@@ -54,7 +54,7 @@ def test_just_measure_circuit() -> None:
     qc = QuantumCircuit(1)
     qc.measure_all()
 
-    expected = api_models.JobSubmission(
+    expected = api_models.SubmitJobRequest(
         job_type="quantum_circuit",
         label="qiskit",
         payload=api_models.QuantumCircuits(
@@ -83,7 +83,7 @@ def test_valid_circuit() -> None:
 
     result = circuits_to_aqt_job([qc], shots=1)
 
-    expected = api_models.JobSubmission(
+    expected = api_models.SubmitJobRequest(
         job_type="quantum_circuit",
         label="qiskit",
         payload=api_models.QuantumCircuits(
@@ -138,7 +138,7 @@ def test_invalid_measurements() -> None:
     qc.measure([1], [1])
 
     result = circuits_to_aqt_job([qc], shots=1)
-    expected = api_models.JobSubmission(
+    expected = api_models.SubmitJobRequest(
         job_type="quantum_circuit",
         label="qiskit",
         payload=api_models.QuantumCircuits(
@@ -174,7 +174,7 @@ def test_convert_multiple_circuits() -> None:
 
     result = circuits_to_aqt_job([qc0, qc1], shots=1)
 
-    expected = api_models.JobSubmission(
+    expected = api_models.SubmitJobRequest(
         job_type="quantum_circuit",
         label="qiskit",
         payload=api_models.QuantumCircuits(
