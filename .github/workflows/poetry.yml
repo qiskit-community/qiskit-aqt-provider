@@ -102,7 +102,7 @@ jobs:
         with:
           name: code-coverage-report
           path: htmlcov
-          if: startsWith(matrix.os, 'ubuntu')
+        if: startsWith(matrix.os, 'ubuntu') && startsWith(matrix.python-version, '3.12')
 
   finish:
     needs: tests
