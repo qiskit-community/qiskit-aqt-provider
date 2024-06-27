@@ -69,7 +69,7 @@ components:
       type: object
     GateRXX:
       additionalProperties: false
-      description: "### A two-qubit entangling gate of M\xF8lmer-S\xF8renson-type.\n\
+      description: "### A two-qubit entangling gate of M\xF8lmer-S\xF8rensen-type.\n\
         \nThe MS-gate on qubits j and k with pulse area \u03B8 in units of \u03C0\
         \ is defined as\n    $$\n    \\begin{aligned}\n    U_{\\mathrm{MS}}^{j,k}\
         \ \\left (\\theta \\right) & =\n    e^{\\mathrm{i}\\theta\\frac{\\pi}{2}}\\\
@@ -805,7 +805,7 @@ info:
   description: "\n## AQT Quantum Gates\nThe available quantum gate set for AQT backends\
     \ consists of the following gates:\n\n* R-gate - rotation around an arbitrary\
     \ axis on the Bloch sphere's equatorial plane\n* Rz-gate - rotation around the\
-    \ Bloch sphere's z-axis\n* MS-gate - entangling gate of M\xF8lmer-S\xF8renson-type\n\
+    \ Bloch sphere's z-axis\n* MS-gate - entangling gate of M\xF8lmer-S\xF8rensen-type\n\
     \nAll quantum gates are defined in terms of the Pauli matrices $\n    \\sigma_x\
     \ =\n    \\begin{pmatrix}\n    0 & 1 \\\\ 1 & 0\n    \\end{pmatrix}\n$, $\n  \
     \ \\sigma_y =\n    \\begin{pmatrix}\n    0 & -\\mathrm{i} \\\\ \\mathrm{i} & 0\n\

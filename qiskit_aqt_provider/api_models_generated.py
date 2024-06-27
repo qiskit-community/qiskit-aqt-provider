@@ -64,7 +64,7 @@ class Qubit(RootModel[int]):
 
 
 class GateRXX(BaseModel):
-    r"""### A two-qubit entangling gate of Mølmer-Sørenson-type.
+    r"""### A two-qubit entangling gate of Mølmer-Sørensen-type.
 
     The MS-gate on qubits j and k with pulse area θ in units of π is defined as
         $$
