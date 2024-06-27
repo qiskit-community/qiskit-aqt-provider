@@ -25,10 +25,10 @@ from typing_extensions import Self, TypeAlias
 from qiskit_aqt_provider import api_models_generated as api_models
 from qiskit_aqt_provider.api_models_generated import (
     Circuit,
-    JobSubmission,
     OperationModel,
     QuantumCircuit,
     QuantumCircuits,
+    SubmitJobRequest,
 )
 from qiskit_aqt_provider.api_models_generated import Type as ResourceType
 from qiskit_aqt_provider.versions import USER_AGENT
@@ -36,7 +36,7 @@ from qiskit_aqt_provider.versions import USER_AGENT
 __all__ = [
     "Circuit",
     "JobResponse",
-    "JobSubmission",
+    "SubmitJobRequest",
     "Operation",
     "OperationModel",
     "QuantumCircuit",

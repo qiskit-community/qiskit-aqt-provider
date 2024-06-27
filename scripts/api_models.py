@@ -13,11 +13,11 @@
 
 import shlex
 import subprocess
-import sys
 import tempfile
 from functools import lru_cache
 from pathlib import Path
 
+import tomlkit
 import typer
 
 app = typer.Typer()
@@ -47,25 +47,46 @@ def default_models_path() -> Path:
     return repo_root() / "qiskit_aqt_provider" / "api_models_generated.py"
 
 
-def generate_models(schema_path: Path) -> str:
+def generate_models(schema_path: Path, dest_path: Path, *, ruff_lint_extra_args: str = "") -> None:
     """Generate Pydantic models from a given schema.
 
     Args:
         schema_path: path to the file that contains the schema.
+        dest_path: path to the file to write the generated models to.
+        ruff_lint_extra_args: extra command-line arguments passed to the ruff linter.
+
+    """
+    dest_path.write_text(run_command(f"datamodel-codegen --input {schema_path}"))
+    # First optimistically fix pydocstyle errors.
+    # Addresses in particular D301 (escape-sequence-in-docstring).
+    run_command(f"ruff check --fix --unsafe-fixes --select D {ruff_lint_extra_args} {dest_path}")
+    run_command(f"ruff check {ruff_lint_extra_args} --fix {dest_path}")
+    run_command(f"ruff format {dest_path}")
+
+
+def run_command(cmd: str) -> str:
+    """Run a command as subprocess.
+
+    Args:
+        cmd: command to execute.
 
     Returns:
-        Source code of the Pydantic models.
+        Content of the standard output produced by the command.
+
+    Raises:
+        typer.Exit: the command failed. The exit status code is 1.
     """
     try:
         proc = subprocess.run(
-            shlex.split(f"datamodel-codegen --input {schema_path}"),  # noqa: S603
-            capture_output=True,
+            shlex.split(cmd),  # noqa: S603
             check=True,
+            capture_output=True,
         )
     except subprocess.CalledProcessError as e:
+        print(e.stdout.decode())
         print(e.stderr.decode())
         print("-------------------------------------------------")
-        print(f"datamodel-codegen failed with error code: {e.returncode}")
+        print(f"'{cmd}' failed with error code: {e.returncode}")
         raise typer.Exit(code=1)
 
     return proc.stdout.decode()
@@ -84,7 +105,7 @@ def generate(
         schema_path: path to the file that contains the schema
         models_path: path of the file to write the generated models to.
     """
-    models_path.write_text(generate_models(schema_path))
+    generate_models(schema_path, models_path)
 
 
 @app.command()
@@ -97,20 +118,19 @@ def check(
     For the check to succeed, `models_path` must contain exactly what the
     generator produces with `schema_path` as input.
     """
+    # Retrieve target-file-specific ignored linter rules.
+    pyproject_path = Path(__file__).parent.parent / "pyproject.toml"
+    pyproject = tomlkit.parse(pyproject_path.read_text())
+    ignored_rules = pyproject["tool"]["ruff"]["lint"]["per-file-ignores"][  # type: ignore[index]
+        str(models_path.relative_to(pyproject_path.parent))
+    ]
+    ruff_lint_extra_args = f"--ignore {','.join(ignored_rules)}"  # type: ignore[arg-type]
+
     with tempfile.NamedTemporaryFile(mode="w") as reference_models:
         filepath = Path(reference_models.name)
-        filepath.write_text(generate_models(schema_path))
+        generate_models(schema_path, filepath, ruff_lint_extra_args=ruff_lint_extra_args)
 
-        proc = subprocess.run(
-            shlex.split(f"diff -u {filepath} {models_path}"),  # noqa: S603
-            capture_output=True,
-            check=True,
-        )
-
-        if proc.returncode != 0:
-            print(proc.stdout.decode())
-            sys.exit(proc.returncode)
-
+        run_command(f"diff -u {filepath} {models_path}")
         print("OK")
 
 

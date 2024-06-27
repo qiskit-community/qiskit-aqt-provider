@@ -18,15 +18,29 @@ components:
         - operation: MEASURE
       items:
         $ref: '#/components/schemas/OperationModel'
-      maxItems: 10000
+      maxItems: 2500
       minItems: 1
       title: Circuit
       type: array
     GateR:
       additionalProperties: false
-      description: "A single-qubit rotation.\n\nDescribes a rotation of angle \u03B8\
-        \ around axis \u03C6 in the equatorial plane of the Bloch sphere.\n\nAngles\
-        \ are expressed in units of \u03C0."
+      description: "### A single-qubit rotation around an arbitrary axis on the Bloch\
+        \ sphere's equatorial plane.\n\nThe R-gate on qubit j with pulse area \u03B8\
+        \ and mixing angle \u03C6, both in units of \u03C0, is defined as\n    $$\n\
+        \    U_{\\mathrm{R}}^j(\\theta,\\varphi) =\n    \\exp\\left( -\\mathrm{i}\
+        \ \\theta \\frac{\\pi}{2}\n    \\left[\\sin(\\varphi \\pi)\\sigma_y^j + \\\
+        cos(\\varphi \\pi)\\sigma_x^j \\right] \\right) =\n    \\begin{pmatrix}\n\
+        \    \\cos(\\theta \\frac{\\pi}{2}) && -\\mathrm{i} e^{-\\mathrm{i} \\varphi\
+        \ \\pi}\\sin(\\theta \\frac{\\pi}{2})\\\\\n    -\\mathrm{i} e^{\\mathrm{i}\
+        \ \\varphi \\pi}\\sin(\\theta \\frac{\\pi}{2}) && \\cos(\\theta \\frac{\\\
+        pi}{2})\n    \\end{pmatrix}\n    $$\nwith the Pauli matrices\n    $$\n   \
+        \ \\sigma_x =\n    \\begin{pmatrix}\n    0 & 1 \\\\ 1 & 0\n    \\end{pmatrix}\
+        \ ,\n    \\sigma_y =\n    \\begin{pmatrix}\n    0 & -\\mathrm{i} \\\\ \\mathrm{i}\
+        \ & 0\n    \\end{pmatrix}.\n    $$\n\n**Examples:**\n    $$\n    \\begin{align*}\n\
+        \    U_{\\mathrm{R}}^j(0.5, 0) \\ket{0_j} &=\n    \\frac{1}{\\sqrt{2}}\\left\
+        \ (\\ket{0_j} - \\mathrm{i}\\ket{1_j} \\right )\\\\\n    U_{\\mathrm{R}}^j(0.5,\
+        \ 0.5) \\ket{0_j} &=\n    \\frac{1}{\\sqrt{2}}\\left (\\ket{0_j} + \\ket{1_j}\
+        \ \\right )\n    \\end{align*}\n    $$"
       properties:
         operation:
           const: R
@@ -55,9 +69,29 @@ components:
       type: object
     GateRXX:
       additionalProperties: false
-      description: "A parametric 2-qubits X\u2297X gate with angle \u03B8.\n\nThe\
-        \ angle is expressed in units of \u03C0. The gate is maximally entangling\n\
-        for \u03B8=0.5 (\u03C0/2)."
+      description: "### A two-qubit entangling gate of M\xF8lmer-S\xF8rensen-type.\n\
+        \nThe MS-gate on qubits j and k with pulse area \u03B8 in units of \u03C0\
+        \ is defined as\n    $$\n    \\begin{aligned}\n    U_{\\mathrm{MS}}^{j,k}\
+        \ \\left (\\theta \\right) & =\n    e^{\\mathrm{i}\\theta\\frac{\\pi}{2}}\\\
+        exp{\\left(-\\mathrm{i} \\theta \\pi {S_x}^2 \\right) }\n    = \\begin{pmatrix}\n\
+        \    \\cos(\\theta \\frac{\\pi}{2}) & 0 & 0 && -\\mathrm{i}\\sin(\\theta \\\
+        frac{\\pi}{2}) \\\\\n    0 & \\cos(\\theta \\frac{\\pi}{2}) & -\\mathrm{i}\\\
+        sin(\\theta \\frac{\\pi}{2}) && 0 \\\\\n    0 & -\\mathrm{i}\\sin(\\theta\\\
+        frac{\\pi}{2}) & \\cos(\\theta \\frac{\\pi}{2}) && 0 \\\\\n    -\\mathrm{i}\\\
+        sin(\\theta \\frac{\\pi}{2}) & 0 & 0 && \\cos(\\theta \\frac{\\pi}{2})\n \
+        \   \\end{pmatrix}\n    \\end{aligned}\n    $$\nwith\n    $$\n    S_x =\\\
+        frac{1}{2}\\left (\\sigma_x^j + \\sigma_x^k \\right)\n    $$\nand the Pauli\
+        \ matrix\n    $$\n    \\sigma_x =\n    \\begin{pmatrix}\n    0 & 1 \\\\ 1\
+        \ & 0\n    \\end{pmatrix}.\n    $$\n\nA fully-entangling gate between qubit\
+        \ 0 and qubit 1 therefore is\n    $$\n    U_{\\mathrm{MS}}^{0,1} \\left (0.5\
+        \ \\right) = \\frac{1}{\\sqrt{2}}\n    \\begin{pmatrix}\n    1 && 0 && 0 &&\
+        \ -\\mathrm{i} \\\\ 0 && 1 && -\\mathrm{i} && 0 \\\\\n    0 && -\\mathrm{i}\
+        \ && 1 && 0 \\\\ -\\mathrm{i} && 0 && 0 && 1\n    \\end{pmatrix}\n    $$\n\
+        \n**Examples:**\n    $$\n    \\begin{align*}\n    U_{\\mathrm{MS}}^{j,k}(0.5)\
+        \ \\ket{0_j0_k} &=\n    \\frac{1}{\\sqrt{2}}\\left (\\ket{0_j0_k} -\\mathrm{i}\
+        \ \\ket{1_j1_k} \\right ) \\\\\n    U_{\\mathrm{MS}}^{j,k}(0.5) \\ket{1_j1_k}\
+        \ &=\n    \\frac{1}{\\sqrt{2}}\\left ( -\\mathrm{i}\\ket{0_j0_k} + \\ket{1_j1_k}\
+        \ \\right )\n    \\end{align*}\n    $$"
       properties:
         operation:
           const: RXX
@@ -84,8 +118,20 @@ components:
       type: object
     GateRZ:
       additionalProperties: false
-      description: "A single-qubit rotation of angle \u03C6 around the Z axis of the\
-        \ Bloch sphere."
+      description: "### A single-qubit rotation rotation around the Bloch sphere's\
+        \ z-axis.\n\nThe Rz-gate on qubit j with pulse area \u03B8 in units of \u03C0\
+        \ is defined as\n    $$\n    U_{\\mathrm{R_z}}^j(\\theta) =\n    \\exp\\left(\
+        \ -\\mathrm{i} \\theta \\frac{\\pi}{2} \\sigma_z^j \\right) =\n    \\begin{pmatrix}\n\
+        \    \\cos(\\theta \\frac{\\pi}{2}) -\\mathrm{i}\\sin(\\theta \\frac{\\pi}{2})\
+        \ && 0 \\\\\n    0 && \\cos(\\theta \\frac{\\pi}{2}) +\\mathrm{i}\\sin(\\\
+        theta \\frac{\\pi}{2})\n    \\end{pmatrix}\n    $$\nwith the Pauli matrix\n\
+        \    $$\n    \\sigma_z =\n    \\begin{pmatrix}\n    1 & 0 \\\\ 0 & -1\n  \
+        \  \\end{pmatrix}.\n    $$\n\n**Examples:**\n    $$\n    \\begin{align*}\n\
+        \    U_{\\mathrm{R_z}}^j(1)\\frac{1}{\\sqrt{2}}\\left( \\ket{0_j} + \\ket{1_j}\\\
+        right) &=\n    \\frac{1}{\\sqrt{2}}\\left (\\ket{0_j} - \\ket{1_j} \\right\
+        \ ) \\\\\n    U_{\\mathrm{R_z}}^j(0.5)\\frac{1}{\\sqrt{2}}\\left (\\ket{0_j}\
+        \ + \\ket{1_j} \\right) &=\n    \\frac{1}{\\sqrt{2}}\\left (\\ket{0_j} +\\\
+        mathrm{i}\\ket{1_j} \\right )\n    \\end{align*}\n    $$"
       properties:
         operation:
           const: RZ
@@ -168,51 +214,13 @@ components:
       - response
       title: JobResponse[RRQueued]
       type: object
-    JobSubmission:
-      examples:
-      - job_type: quantum_circuit
-        label: Example computation
-        payload:
-          circuits:
-          - number_of_qubits: 2
-            quantum_circuit:
-            - operation: RZ
-              phi: 0.5
-              qubit: 0
-            - operation: R
-              phi: 0.25
-              qubit: 1
-              theta: 0.5
-            - operation: RXX
-              qubits:
-              - 0
-              - 1
-              theta: 0.5
-            - operation: MEASURE
-            repetitions: 5
-      properties:
-        job_type:
-          const: quantum_circuit
-          default: quantum_circuit
-          title: Job Type
-        label:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Label
-        payload:
-          $ref: '#/components/schemas/QuantumCircuits'
-      required:
-      - payload
-      title: JobSubmission
-      type: object
     JobUser:
       examples:
       - job_id: ccaa39de-d0f3-4c8b-bdb1-4d74f0c2f450
         job_type: quantum_circuit
         label: Example computation
-        resource_id: ''
-        workspace_id: ''
+        resource_id: simulator
+        workspace_id: default
       properties:
         job_id:
           description: Id that uniquely identifies the job. This is used to request
@@ -299,13 +307,15 @@ components:
         repetitions: 5
       properties:
         number_of_qubits:
-          exclusiveMinimum: 0.0
+          maximum: 20.0
+          minimum: 1.0
           title: Number Of Qubits
           type: integer
         quantum_circuit:
           $ref: '#/components/schemas/Circuit'
         repetitions:
-          exclusiveMinimum: 0.0
+          maximum: 2000.0
+          minimum: 1.0
           title: Repetitions
           type: integer
       required:
@@ -338,6 +348,7 @@ components:
         circuits:
           items:
             $ref: '#/components/schemas/QuantumCircuit'
+          maxItems: 50
           minItems: 1
           title: Circuits
           type: array
@@ -472,6 +483,42 @@ components:
       - type
       title: Resource
       type: object
+    ResourceDetails:
+      description: Schema for the response of the public resource details endpoint.
+      properties:
+        available_qubits:
+          title: Available Qubits
+          type: integer
+        id:
+          title: Id
+          type: string
+        name:
+          title: Name
+          type: string
+        status:
+          $ref: '#/components/schemas/ResourceStates'
+        type:
+          enum:
+          - simulator
+          - device
+          title: Type
+          type: string
+      required:
+      - id
+      - name
+      - type
+      - status
+      - available_qubits
+      title: ResourceDetails
+      type: object
+    ResourceStates:
+      description: Possible states of a quantum resource.
+      enum:
+      - online
+      - maintenance
+      - offline
+      title: ResourceStates
+      type: string
     ResultResponse:
       anyOf:
       - $ref: '#/components/schemas/JobResponse_RRQueued_'
@@ -639,6 +686,57 @@ components:
           job_id: 3aa8b827-4ff0-4a36-b1a6-f9ff6dee59ce
           message: unknown job_id
       title: ResultResponse
+    SubmitJobRequest:
+      description: Schema for the request for the public submit job endpoint.
+      examples:
+      - job_type: quantum_circuit
+        label: Example computation
+        payload:
+          circuits:
+          - number_of_qubits: 2
+            quantum_circuit:
+            - operation: RZ
+              phi: 0.5
+              qubit: 0
+            - operation: R
+              phi: 0.25
+              qubit: 1
+              theta: 0.5
+            - operation: RXX
+              qubits:
+              - 0
+              - 1
+              theta: 0.5
+            - operation: MEASURE
+            repetitions: 5
+      properties:
+        job_type:
+          const: quantum_circuit
+          default: quantum_circuit
+          title: Job Type
+        label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Label
+        payload:
+          $ref: '#/components/schemas/QuantumCircuits'
+      required:
+      - payload
+      title: SubmitJobRequest
+      type: object
+    SubmitJobResponse:
+      description: Schema for the response for the public submit job endpoint.
+      properties:
+        job:
+          $ref: '#/components/schemas/JobUser'
+        response:
+          $ref: '#/components/schemas/RRQueued'
+      required:
+      - job
+      - response
+      title: SubmitJobResponse
+      type: object
     UnknownJob:
       properties:
         job_id:
@@ -704,6 +802,16 @@ components:
       scheme: bearer
       type: http
 info:
+  description: "\n## AQT Quantum Gates\nThe available quantum gate set for AQT backends\
+    \ consists of the following gates:\n\n* R-gate - rotation around an arbitrary\
+    \ axis on the Bloch sphere's equatorial plane\n* Rz-gate - rotation around the\
+    \ Bloch sphere's z-axis\n* MS-gate - entangling gate of M\xF8lmer-S\xF8rensen-type\n\
+    \nAll quantum gates are defined in terms of the Pauli matrices $\n    \\sigma_x\
+    \ =\n    \\begin{pmatrix}\n    0 & 1 \\\\ 1 & 0\n    \\end{pmatrix}\n$, $\n  \
+    \ \\sigma_y =\n    \\begin{pmatrix}\n    0 & -\\mathrm{i} \\\\ \\mathrm{i} & 0\n\
+    \    \\end{pmatrix}\n$ and $\\sigma_z =\n    \\begin{pmatrix}\n    1 & 0 \\\\\
+    \ 0 & -1\n    \\end{pmatrix}.\n$\n\nThe formal definitions of the gates can be\
+    \ found in their respective schema descriptions.\n"
   title: AQT Public API
   version: 0.4.0
 openapi: 3.1.0
@@ -720,7 +828,7 @@ paths:
 
 
         Any results already processed will not be deleted.'
-      operationId: cancel_job_jobs__job_id__delete
+      operationId: cancel_job_handler_jobs__job_id__delete
       parameters:
       - in: path
         name: job_id
@@ -746,7 +854,42 @@ paths:
           description: Validation Error
       security:
       - Bearer Token: []
-      summary: Cancel Job
+      summary: Cancel Job Handler
+      tags:
+      - jobs
+  /resources/{resource_id}:
+    get:
+      description: Provides details for the resource identified by 'resource_id'
+      operationId: get_resource_resources__resource_id__get
+      parameters:
+      - in: path
+        name: resource_id
+        required: true
+        schema:
+          title: Resource Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceDetails'
+          description: Information about the resource
+        '401':
+          description: Unauthorized
+        '403':
+          description: Resource not available.
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - Bearer Token: []
+      summary: Get Resource
+      tags:
+      - resources
   /result/{job_id}:
     get:
       description: Request job results
@@ -960,14 +1103,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/JobSubmission'
+              $ref: '#/components/schemas/SubmitJobRequest'
         required: true
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JobResponse_RRQueued_'
+                $ref: '#/components/schemas/SubmitJobResponse'
           description: Successful Response
         '401':
           description: Unauthorized
