@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## qiskit-aqt-provider v1.7.0
+
 * Update API specification and associated constraints (#176)
 
 ## qiskit-aqt-provider v1.6.0
