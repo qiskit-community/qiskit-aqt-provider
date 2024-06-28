@@ -104,9 +104,9 @@ def test_options_types_and_constraints_cloud_resource(
     assert offline_simulator_no_noise.options.max_shots() == 2000
 
     # Check that the default options in Qiskit format match the Pydantic model.
-    assert {
+    assert offline_simulator_no_noise.options.model_dump() == {
         **offline_simulator_no_noise.__class__._default_options()
-    } == offline_simulator_no_noise.options.model_dump()
+    }
 
 
 def test_options_types_and_constraints_direct_access_resource() -> None:
@@ -118,7 +118,7 @@ def test_options_types_and_constraints_direct_access_resource() -> None:
     assert backend.options.max_shots() == 200
 
     # Check that the default options in Qiskit format match the Pydantic model.
-    assert {**backend.__class__._default_options()} == backend.options.model_dump()
+    assert backend.options.model_dump() == {**backend.__class__._default_options()}
 
 
 def test_query_timeout_propagation() -> None:

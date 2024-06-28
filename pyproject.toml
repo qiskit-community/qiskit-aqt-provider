@@ -70,6 +70,10 @@ tabulate = ">=0.9.0"
 tqdm = ">=4"
 typing-extensions = ">=4.0.0"
 
+# Pin numpy revision (transitive dependency)
+# See qiskit-aqt-provider#179
+numpy = "^1"
+
 [tool.poetry.group.dev.dependencies]
 autodoc-pydantic = "^2.0.1"
 coverage = "^7.2.1"
@@ -94,7 +98,7 @@ qiskit = { version = "^1", extras = [
   "visualization",
 ] }
 rich = "^13.5.3"
-ruff = "^0.4.9"
+ruff = "^0.5.0"
 sphinx = ">=7,<7.3"
 sphinx-toolbox = "^3.5.0"
 tomlkit = "^0.12.1"

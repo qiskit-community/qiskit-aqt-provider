@@ -26,8 +26,8 @@ class Renderer(BaseRenderer):
 def default_changelog_path() -> Path:
     """Path to the 'CHANGELOG.md' file at the repository root."""
     repo_root = Path(
-        subprocess.run(
-            shlex.split("git rev-parse --show-toplevel"),  # noqa: S603
+        subprocess.run(  # noqa: S603
+            shlex.split("git rev-parse --show-toplevel"),
             capture_output=True,
             check=True,
         )

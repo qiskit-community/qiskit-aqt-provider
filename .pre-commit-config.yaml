@@ -14,7 +14,7 @@ repos:
       - id: no-commit-to-branch
         args: [--branch, master]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.4.9"
+    rev: "v0.5.0"
     hooks:
       - id: ruff
         args: [ --fix ]
@@ -24,7 +24,7 @@ repos:
     hooks:
       - id: pyproject-fmt
   - repo: https://github.com/crate-ci/typos
-    rev: "v1.22.7"
+    rev: "v1.22.9"
     hooks:
       - id: typos
   - repo: https://github.com/econchick/interrogate

@@ -27,8 +27,8 @@ app = typer.Typer()
 def repo_root() -> Path:
     """Absolute path to the repository root."""
     return Path(
-        subprocess.run(
-            shlex.split("git rev-parse --show-toplevel"),  # noqa: S603
+        subprocess.run(  # noqa: S603
+            shlex.split("git rev-parse --show-toplevel"),
             capture_output=True,
             check=True,
         )
@@ -77,8 +77,8 @@ def run_command(cmd: str) -> str:
         typer.Exit: the command failed. The exit status code is 1.
     """
     try:
-        proc = subprocess.run(
-            shlex.split(cmd),  # noqa: S603
+        proc = subprocess.run(  # noqa: S603
+            shlex.split(cmd),
             check=True,
             capture_output=True,
         )
