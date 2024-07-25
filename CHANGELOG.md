@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* reduce gates per circuit to 2000 and circuits per batch to 50 (#181)
+
 ## qiskit-aqt-provider v1.7.0
 
 * Update API specification and associated constraints (#176)
