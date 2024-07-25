@@ -132,7 +132,7 @@ class _ResourceBase(Generic[_OptionsType], Backend):
     @property
     def max_circuits(self) -> int:
         """Maximum number of circuits per batch."""
-        return 2000
+        return 50
 
     @property
     def target(self) -> Target:

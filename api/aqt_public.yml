@@ -18,7 +18,7 @@ components:
         - operation: MEASURE
       items:
         $ref: '#/components/schemas/OperationModel'
-      maxItems: 2500
+      maxItems: 2000
       minItems: 1
       title: Circuit
       type: array
@@ -45,7 +45,10 @@ components:
         operation:
           const: R
           default: R
+          enum:
+          - R
           title: Operation
+          type: string
         phi:
           maximum: 2.0
           minimum: 0.0
@@ -96,7 +99,10 @@ components:
         operation:
           const: RXX
           default: RXX
+          enum:
+          - RXX
           title: Operation
+          type: string
         qubits:
           items:
             minimum: 0.0
@@ -136,7 +142,10 @@ components:
         operation:
           const: RZ
           default: RZ
+          enum:
+          - RZ
           title: Operation
+          type: string
         phi:
           title: Phi
           type: number
@@ -231,7 +240,10 @@ components:
         job_type:
           const: quantum_circuit
           default: quantum_circuit
+          enum:
+          - quantum_circuit
           title: Job Type
+          type: string
         label:
           anyOf:
           - type: string
@@ -261,7 +273,10 @@ components:
         operation:
           const: MEASURE
           default: MEASURE
+          enum:
+          - MEASURE
           title: Operation
+          type: string
       required:
       - operation
       title: Measure
@@ -363,7 +378,10 @@ components:
         status:
           const: cancelled
           default: cancelled
+          enum:
+          - cancelled
           title: Status
+          type: string
       title: RRCancelled
       type: object
     RRError:
@@ -377,7 +395,10 @@ components:
         status:
           const: error
           default: error
+          enum:
+          - error
           title: Status
+          type: string
       required:
       - message
       title: RRError
@@ -418,7 +439,10 @@ components:
         status:
           const: finished
           default: finished
+          enum:
+          - finished
           title: Status
+          type: string
       required:
       - result
       title: RRFinished
@@ -435,7 +459,10 @@ components:
         status:
           const: ongoing
           default: ongoing
+          enum:
+          - ongoing
           title: Status
+          type: string
       required:
       - finished_count
       title: RROngoing
@@ -447,7 +474,10 @@ components:
         status:
           const: queued
           default: queued
+          enum:
+          - queued
           title: Status
+          type: string
       title: RRQueued
       type: object
     Resource:
@@ -713,7 +743,10 @@ components:
         job_type:
           const: quantum_circuit
           default: quantum_circuit
+          enum:
+          - quantum_circuit
           title: Job Type
+          type: string
         label:
           anyOf:
           - type: string
@@ -746,7 +779,10 @@ components:
         message:
           const: unknown job_id
           default: unknown job_id
+          enum:
+          - unknown job_id
           title: Message
+          type: string
       required:
       - job_id
       title: UnknownJob
