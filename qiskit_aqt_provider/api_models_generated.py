@@ -325,7 +325,7 @@ class Circuit(RootModel[List[OperationModel]]):
                     {"operation": "MEASURE"},
                 ]
             ],
-            max_length=2500,
+            max_length=2000,
             min_length=1,
             title="Circuit",
         ),
