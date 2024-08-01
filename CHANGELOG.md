@@ -3,6 +3,9 @@
 ## Unreleased
 
 
+## qiskit-aqt-provider v1.8.1
+
+* Added test dependency extras (#183)
 
 ## qiskit-aqt-provider v1.8.0
 
