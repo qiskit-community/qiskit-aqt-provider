@@ -37,9 +37,9 @@ jobs:
         run: |
           poetry run pip install coverage[toml]
         if: startsWith(matrix.os, 'ubuntu')
-      - name: Install examples dependencies
+      - name: Install examples and test dependencies
         run: |
-          poetry install --only main --extras examples
+          poetry install --only main --extras "examples test"
       - name: Run examples (linux)
         run: |
           poetry run examples/run_all.sh -c
