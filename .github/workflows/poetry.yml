@@ -39,7 +39,7 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu')
       - name: Install examples and test dependencies
         run: |
-          poetry install --only main --extras "examples test"
+          poetry install --only main --extras examples
       - name: Run examples (linux)
         run: |
           poetry run examples/run_all.sh -c
@@ -65,7 +65,7 @@ jobs:
           poetry run python examples/number_partition.py
         if: startsWith(matrix.os, 'windows')
       - name: Install all dependencies
-        run: poetry install --sync
+        run: poetry install --sync --extras test
       - name: Check version numbers consistency
         run: poetry run poe version_check
         if: startsWith(matrix.os, 'ubuntu')
