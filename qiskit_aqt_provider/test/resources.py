@@ -131,7 +131,7 @@ class TestResource(AQTResource):  # pylint: disable=too-many-instance-attributes
 
     __test__ = False  # disable pytest collection
 
-    def __init__(  # noqa: PLR0913
+    def __init__(
         self,
         *,
         min_queued_duration: float = 0.0,
