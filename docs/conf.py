@@ -17,9 +17,9 @@ copyright = "2023, Qiskit and AQT development teams"
 author = "Qiskit and AQT development teams"
 
 # The short X.Y version
-version = "1.8.0"
+version = "1.8.1"
 # The full version, including alpha/beta/rc tags
-release = "1.8.0"
+release = "1.8.1"
 
 extensions = [
     "sphinx.ext.napoleon",
