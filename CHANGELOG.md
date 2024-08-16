@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* Fix source installation problem caused by removed debugpy 1.8.3 package (#188)
 
 ## qiskit-aqt-provider v1.8.1
 
