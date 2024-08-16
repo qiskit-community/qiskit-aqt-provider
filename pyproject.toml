@@ -56,7 +56,7 @@ aqt = "qiskit_aqt_provider.transpiler_plugin:AQTTranslationPlugin"
 pytest_qiskit_aqt = "qiskit_aqt_provider.test.fixtures"
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.13"
+python = ">=3.9,<3.14"
 
 annotated-types = ">=0.7.0"
 httpx = ">=0.24.0"
