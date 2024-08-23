@@ -22,7 +22,7 @@ from collections.abc import Sequence
 
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import TwoLocal
-from qiskit.primitives import BaseEstimator
+from qiskit.primitives import BaseEstimatorV1
 from qiskit.quantum_info import SparsePauliOp
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 from scipy.optimize import minimize
@@ -60,7 +60,7 @@ def cost_function(
     params: Sequence[float],
     ansatz: QuantumCircuit,
     hamiltonian: BaseOperator,
-    estimator: BaseEstimator,
+    estimator: BaseEstimatorV1,
 ) -> float:
     """Cost function for the VQE.
 
