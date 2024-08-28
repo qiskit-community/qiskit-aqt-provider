@@ -39,7 +39,7 @@ Loading a local environment override file can be controlled by further arguments
 Listing remote and simulator resources
 ======================================
 
-A configured provider can be used to list available remote and local simlator quantum computing backends.
+A configured provider can be used to list available remote and local simulator quantum computing backends.
 
 Each backend is identified by a *workspace* it belongs to, and a unique *resource* identifier within that workspace. The *resource type* helps distinguishing between real hardware (``device``), hosted simulators (``simulator``) and offline simulators (``offline_simulator``).
 
@@ -89,7 +89,7 @@ Direct-access resources handles are obtained from a provider using the :meth:`ge
 
 .. jupyter-execute::
 
-   direct_access_backend = provider.get_direct_access_backend("https://example")
+   direct_access_backend = provider.get_direct_access_backend("http://URL")
 
 Contact your local system administrator to determine the exact base URL to access your local quantum computing system.
 
