@@ -4,7 +4,7 @@
 User guide
 ==========
 
-This guide covers usage of the Qiskit AQT provider package with the AQT cloud portal beyond the :ref:`quick start <quick-start>` example.
+This guide covers usage of the Qiskit AQT provider package with the AQT cloud portal and direct-access computing resources beyond the :ref:`quick start <quick-start>` example.
 
 .. jupyter-execute::
     :hide-code:
@@ -15,9 +15,9 @@ This guide covers usage of the Qiskit AQT provider package with the AQT cloud po
 Provider configuration
 ======================
 
-The primary interface to the AQT cloud portal exposed by this package is the :class:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider>` class. Instances of it are able to authenticate to the AQT cloud with an access token, list available resources, and retrieve handles to resources for executing quantum circuits jobs.
+Handles to computing resources are obtained through the :class:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider>` class. For remote resources, it also handles authentication to the AQT cloud and listing of available resources.
 
-.. tip:: If no access token to the AQT cloud is available, the :class:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider>` can nevertheless provide access to AQT-compatible simulators running on the local machine. This is the default behavior if the ``access_token`` argument to :meth:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider.__init__>` is empty or invalid.
+.. tip:: If no access token to the AQT cloud is available, the :class:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider>` can nevertheless provide handles to direct-access resources and AQT-compatible simulators running on the local machine. This is the default behavior if the ``access_token`` argument to :meth:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider.__init__>` is empty or invalid.
 
 The access token can be configured by passing it as the first argument to the
 :class:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider>` initializer:
@@ -36,10 +36,10 @@ Alternatively, the access token can be provided by the environment variable ``AQ
 
 Loading a local environment override file can be controlled by further arguments to :meth:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider.__init__>`.
 
-Available backends
-==================
+Listing remote and simulator resources
+======================================
 
-A configured provider can be used to list available quantum computing backends.
+A configured provider can be used to list available remote and local simlator quantum computing backends.
 
 Each backend is identified by a *workspace* it belongs to, and a unique *resource* identifier within that workspace. The *resource type* helps distinguishing between real hardware (``device``), hosted simulators (``simulator``) and offline simulators (``offline_simulator``).
 
@@ -53,10 +53,10 @@ The :meth:`AQTProvider.backends <qiskit_aqt_provider.aqt_provider.AQTProvider.ba
 
 .. hint:: The exact list of available backends depends on the authorizations carried by the configured access token. In this guide, an invalid token is used and the only available backends are simulators running on the local machine.
 
-Backend selection
-=================
+Remote backend selection
+========================
 
-Backends are selected by passing criteria that uniquely identify a backend within the available backends to the :meth:`AQTProvider.get_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_backend>` method.
+Remote backends are selected by passing criteria that uniquely identify a backend within the available backends to the :meth:`AQTProvider.get_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_backend>` method.
 
 The available filtering criteria are the resource identifier (``name``), the containing workspace (``workspace``), and the resource type (``backend_type``). Each criterion can be expressed as a string that must exactly match, or a regular expression pattern using the Python `syntax <https://docs.python.org/3/library/re.html#regular-expression-syntax>`_.
 
@@ -81,6 +81,19 @@ If the filtering criteria correspond to multiple or no backends, a :class:`Qiski
 
    backend.options.with_progress_bar = False
    backend.simulator.options.seed_simulator = 1000
+
+Direct-access backends
+======================
+
+Direct-access resources handles are obtained from a provider using the :meth:`get_direct_access_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_direct_access_backend>` method:
+
+.. jupyter-execute::
+
+   direct_access_backend = provider.get_direct_access_backend("https://example")
+
+Contact your local system administrator to determine the exact base URL to access your local quantum computing system.
+
+.. tip:: Resources handles returned by :meth:`get_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_backend>` and :meth:`get_direct_access_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_direct_access_backend>` both implement the Qiskit :class:`BackendV2 <qiskit.providers.BackendV2>` interface can be used exchangeably in the following examples.
 
 Quantum circuit evaluation
 ==========================
