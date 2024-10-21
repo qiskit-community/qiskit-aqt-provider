@@ -16,9 +16,11 @@
 set -euo pipefail
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+readonly SCRIPT_DIR
 
 # Tools to check.
 TOOLS=(ruff typos pyproject-fmt interrogate)
+readonly TOOLS
 
 # Entry point: check version consistency for all tools in TOOLS.
 do_check() {
@@ -41,9 +43,9 @@ do_check() {
 
 # Retrieve the version of a Python package installed by Poetry.
 installed_package_version() {
-    package_name="$1"
+    declare -r package_name="$1"
     # FIXME: install poetry-export plugin to not need to silence the warning here.
-    package_version=$(poetry export \
+    declare -r package_version=$(poetry export \
            --only dev \
 	   --format requirements.txt \
 	   --without-hashes \
@@ -54,9 +56,9 @@ installed_package_version() {
 
 # Retrieve the version of a pre-commit hook.
 pre_commit_hook_version() {
-    tool_name="$1"
-    config_path="$SCRIPT_DIR/../.pre-commit-config.yaml"
-    hook_version=$(yq -r ".repos[] | select(.repo | test(\"$tool_name\")).rev" "$config_path")
+    declare -r tool_name="$1"
+    declare -r config_path="$SCRIPT_DIR/../.pre-commit-config.yaml"
+    declare -r hook_version=$(yq -r ".repos[] | select(.repo | test(\"$tool_name\")).rev" "$config_path")
     echo "${hook_version#v}"
 }
 
