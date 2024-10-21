@@ -89,6 +89,7 @@ def test_job_persistence_transaction_offline_simulator(
     assert len(job.result().get_counts()) == len(circuits)
 
 
+@pytest.mark.httpx_mock(can_send_already_matched_responses=True)
 def test_job_persistence_transaction_online_backend(httpx_mock: HTTPXMock, tmp_path: Path) -> None:
     """Persist and restore a job on mocked online resources."""
     # Set up a fake online resource

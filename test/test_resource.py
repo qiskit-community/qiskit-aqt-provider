@@ -585,6 +585,7 @@ def test_direct_access_mocked_successful_transaction(token: str, httpx_mock: HTT
     assert result.get_counts() == {"00": shots // 2, "01": shots // 2}
 
 
+@pytest.mark.httpx_mock(can_send_already_matched_responses=True)
 def test_direct_access_mocked_failed_transaction(httpx_mock: HTTPXMock) -> None:
     """Mock a failed multi-circuit transaction on a direct-access resource.
 

@@ -113,6 +113,7 @@ def test_default_to_empty_token() -> None:
     assert list(aqt.backends().by_workspace()) == ["default"]
 
 
+@pytest.mark.httpx_mock(can_send_already_matched_responses=True)
 def test_remote_workspaces_table(httpx_mock: HTTPXMock) -> None:
     """Check that the AQTProvider.backends() methods can fetch a list of available
     workspaces and associated resources over HTTP.
@@ -158,6 +159,7 @@ def test_remote_workspaces_table(httpx_mock: HTTPXMock) -> None:
     }
 
 
+@pytest.mark.httpx_mock(can_send_already_matched_responses=True)
 def test_remote_workspaces_filtering_prefix_collision(httpx_mock: HTTPXMock) -> None:
     """Check the string and pattern variants of filters in AQTProvider.backends.
 
