@@ -87,7 +87,7 @@ interrogate = "^1.5.0"
 ipykernel = "^6.22.0"
 jupyter-sphinx = "^0.4.0"
 mistletoe = "^1.1.0"
-mypy = "=1.11.2"
+mypy = "^1.12.0"
 poethepoet = "^0.27.0"
 polyfactory = "^2.0.0"
 pre-commit = "^3.1.1"
@@ -98,7 +98,7 @@ qiskit = { version = "^1", extras = [
   "visualization",
 ] }
 rich = "^13.5.3"
-ruff = "^0.6.0"
+ruff = "^0.7.0"
 sphinx = ">=7,<7.3"
 sphinx-toolbox = "^3.5.0"
 tomlkit = "^0.13.2"
