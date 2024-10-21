@@ -108,6 +108,7 @@ types-setuptools = "^65.7.0"
 types-tabulate = "^0.9.0.1"
 types-tqdm = "^4.65.0.1"
 typos = "^1.22.0"
+yq = "^3.4.3"
 
 [tool.poetry.extras]
 examples = [
@@ -298,6 +299,9 @@ shell = "pyproject-fmt --check ."
 [tool.poe.tasks.typecheck]
 shell = "mypy ."
 
+[tool.poe.tasks.check_pre_commit_consistency]
+shell = "./scripts/check_pre_commit_consistency.sh"
+
 [tool.poe.tasks.check_api_models]
 shell = "./scripts/api_models.py check"
 
@@ -312,6 +316,7 @@ shell = "typos ."
 
 [tool.poe.tasks]
 lint = [
+  "check_pre_commit_consistency",
   "check_api_models",
   "docstring_coverage",
   "ruff_check",
