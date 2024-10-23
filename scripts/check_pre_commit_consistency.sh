@@ -29,11 +29,10 @@ do_check() {
     for tool in "${TOOLS[@]}"; do
 	package=$(installed_package_version "$tool")
 	hook=$(pre_commit_hook_version "$tool")
-	echo -n "$tool: package=$package hook=$hook "
 	if [ -n "$package" ] && [ "$package" = "$hook" ]; then
-	    echo " OK"
+	    echo "$tool: version=$package OK"
 	else
-	    echo " FAIL"
+	    echo "$tool: package=$package hook=$hook FAIL" >&2
 	    exit_code=1
 	fi
     done
