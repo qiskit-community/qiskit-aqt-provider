@@ -33,19 +33,6 @@ from qiskit_aqt_provider.test.circuits import assert_circuits_equal
 from qiskit_aqt_provider.test.fixtures import MockSimulator
 
 
-@pytest.fixture(scope="module")
-def assert_all_responses_were_requested() -> bool:
-    """Disable pytest-httpx check that all mocked responses are used for this module.
-
-    Some tests in this module request the offline_simulator_no_noise_direct_access
-    fixture without using it, thus not calling the mocked HTTP responses it contains.
-
-    # TODO: use alternative HTTPXMock setup when available.
-    # See: https://github.com/Colin-b/pytest_httpx/issues/137
-    """
-    return False
-
-
 def test_backend_primitives_are_v1() -> None:
     """Check that `BackendSampler` and `BackendEstimator` have primitives V1 interfaces.
 
@@ -77,6 +64,7 @@ def test_backend_primitives_are_v1() -> None:
         lambda backend: AQTSampler(backend),
     ],
 )
+@pytest.mark.httpx_mock(assert_all_responses_were_requested=False)
 def test_circuit_sampling_primitive(
     get_sampler: Callable[[Backend], BaseSamplerV1], any_offline_simulator_no_noise: BackendV2
 ) -> None:
