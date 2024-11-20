@@ -12,9 +12,11 @@
 
 """Thin convenience wrappers around generated API models."""
 
+import importlib.metadata
+import platform
 import re
 from re import Pattern
-from typing import Any, Literal, Optional, Union
+from typing import Any, Final, Literal, Optional, Union
 from uuid import UUID
 
 import httpx
@@ -22,16 +24,15 @@ import pydantic as pdt
 from qiskit.providers.exceptions import JobError
 from typing_extensions import Self, TypeAlias
 
-from qiskit_aqt_provider import api_models_generated as api_models
-from qiskit_aqt_provider.api_models_generated import (
+from . import models_generated as api_models
+from .models_generated import (
     Circuit,
     OperationModel,
     QuantumCircuit,
     QuantumCircuits,
     SubmitJobRequest,
 )
-from qiskit_aqt_provider.api_models_generated import Type as ResourceType
-from qiskit_aqt_provider.versions import USER_AGENT
+from .models_generated import Type as ResourceType
 
 __all__ = [
     "Circuit",
@@ -50,14 +51,27 @@ class UnknownJobError(JobError):
     """An unknown job was requested from the AQT cloud portal."""
 
 
-def http_client(*, base_url: str, token: str) -> httpx.Client:
+PACKAGE_VERSION: Final = importlib.metadata.version("qiskit-aqt-provider")
+USER_AGENT: Final = " ".join(
+    [
+        f"aqt-api-client/{PACKAGE_VERSION}",
+        f"({platform.system()}; {platform.python_implementation()}/{platform.python_version()})",
+    ]
+)
+
+
+def http_client(
+    *, base_url: str, token: str, user_agent_extra: Optional[str] = None
+) -> httpx.Client:
     """A pre-configured httpx Client.
 
     Args:
         base_url: base URL of the server
         token: access token for the remote service.
+        user_agent_extra: optional extra data to add to the user-agent string.
     """
-    headers = {"User-Agent": USER_AGENT}
+    user_agent_extra = f" {user_agent_extra}" if user_agent_extra else ""
+    headers = {"User-Agent": USER_AGENT + user_agent_extra}
     if token:
         headers["Authorization"] = f"Bearer {token}"
 

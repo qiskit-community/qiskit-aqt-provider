@@ -33,8 +33,9 @@ from qiskit.utils.lazy_tester import contextlib
 from tqdm import tqdm
 from typing_extensions import Self, TypeAlias, assert_never
 
-from qiskit_aqt_provider import api_models_generated, persistence
-from qiskit_aqt_provider.api_models_direct import JobResultError
+from qiskit_aqt_provider import persistence
+from qiskit_aqt_provider.api_client import models_generated as api_models_generated
+from qiskit_aqt_provider.api_client.models_direct import JobResultError
 from qiskit_aqt_provider.aqt_options import AQTOptions
 from qiskit_aqt_provider.circuit_to_aqt import circuits_to_aqt_job
 

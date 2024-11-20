@@ -18,7 +18,7 @@ import qiskit
 from pydantic import ValidationError
 from qiskit import QuantumCircuit
 
-from qiskit_aqt_provider import api_models
+from qiskit_aqt_provider.api_client import models as api_models
 from qiskit_aqt_provider.aqt_resource import AQTResource
 from qiskit_aqt_provider.circuit_to_aqt import (
     aqt_to_qiskit_circuit,

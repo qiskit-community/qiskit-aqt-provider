@@ -33,6 +33,12 @@ repos:
       - id: interrogate
         args: [-v, qiskit_aqt_provider, test]
         pass_filenames: false  # needed if excluding files with pyproject.toml or setup.cfg
+  - repo: https://github.com/airwoodix/tach-pre-commit
+    rev: "v0.14.3-external"
+    hooks:
+      - id: tach
+      - id: tach-external
+        args: ["-e", "test/"]
   - repo: local
     hooks:
       - id: check-api-models

@@ -35,12 +35,13 @@ from qiskit.providers.exceptions import QiskitBackendNotFoundError
 from tabulate import tabulate
 from typing_extensions import TypeAlias, override
 
-from qiskit_aqt_provider import api_models
+from qiskit_aqt_provider.api_client import models as api_models
 from qiskit_aqt_provider.aqt_resource import (
     AQTDirectAccessResource,
     AQTResource,
     OfflineSimulatorResource,
 )
+from qiskit_aqt_provider.versions import USER_AGENT_EXTRA
 
 StrPath: TypeAlias = Union[str, Path]
 
@@ -201,7 +202,9 @@ class AQTProvider:
     @property
     def _http_client(self) -> httpx.Client:
         """HTTP client for communicating with the AQT cloud service."""
-        return api_models.http_client(base_url=self.portal_url, token=self.access_token)
+        return api_models.http_client(
+            base_url=self.portal_url, token=self.access_token, user_agent_extra=USER_AGENT_EXTRA
+        )
 
     def backends(
         self,

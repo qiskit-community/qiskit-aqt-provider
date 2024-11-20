@@ -30,7 +30,8 @@ from qiskit.providers import JobStatus
 from qiskit.providers.exceptions import JobTimeoutError
 from typing_extensions import assert_type
 
-from qiskit_aqt_provider import api_models, api_models_direct
+from qiskit_aqt_provider.api_client import models as api_models
+from qiskit_aqt_provider.api_client import models_direct as api_models_direct
 from qiskit_aqt_provider.aqt_job import AQTJob
 from qiskit_aqt_provider.aqt_options import AQTDirectAccessOptions, AQTOptions
 from qiskit_aqt_provider.aqt_resource import AQTResource
@@ -42,7 +43,7 @@ from qiskit_aqt_provider.test.resources import (
     DummyResource,
     TestResource,
 )
-from qiskit_aqt_provider.versions import USER_AGENT
+from qiskit_aqt_provider.versions import USER_AGENT_EXTRA
 
 
 class OptionsFactory(ModelFactory[AQTOptions]):
@@ -269,7 +270,7 @@ def test_submit_valid_response(httpx_mock: HTTPXMock) -> None:
     expected_job_id = uuid.uuid4()
 
     def handle_submit(request: httpx.Request) -> httpx.Response:
-        assert request.headers["user-agent"] == USER_AGENT
+        assert USER_AGENT_EXTRA in request.headers["user-agent"]
         assert request.headers["authorization"] == f"Bearer {token}"
 
         return httpx.Response(
@@ -299,7 +300,7 @@ def test_submit_payload_matches(httpx_mock: HTTPXMock) -> None:
     expected_job_id = uuid.uuid4()
 
     def handle_submit(request: httpx.Request) -> httpx.Response:
-        assert request.headers["user-agent"] == USER_AGENT
+        assert USER_AGENT_EXTRA in request.headers["user-agent"]
         assert request.url.path.endswith(
             f"submit/{backend.resource_id.workspace_id}/{backend.resource_id.resource_id}"
         )
@@ -353,7 +354,7 @@ def test_result_valid_response(httpx_mock: HTTPXMock) -> None:
     )
 
     def handle_result(request: httpx.Request) -> httpx.Response:
-        assert request.headers["user-agent"] == USER_AGENT
+        assert USER_AGENT_EXTRA in request.headers["user-agent"]
         assert request.headers["authorization"] == f"Bearer {token}"
         assert request.url.path.endswith(f"result/{job_id}")
 
@@ -487,12 +488,12 @@ def test_direct_access_job_status(success: bool, httpx_mock: HTTPXMock) -> None:
     shots = 100
 
     def handle_submit(request: httpx.Request) -> httpx.Response:
-        assert request.headers["user-agent"] == USER_AGENT
+        assert USER_AGENT_EXTRA in request.headers["user-agent"]
 
         return httpx.Response(status_code=httpx.codes.OK, text=f'"{uuid.uuid4()}"')
 
     def handle_result(request: httpx.Request) -> httpx.Response:
-        assert request.headers["user-agent"] == USER_AGENT
+        assert USER_AGENT_EXTRA in request.headers["user-agent"]
 
         _, job_id = request.url.path.rsplit("/", maxsplit=1)
 
@@ -546,7 +547,7 @@ def test_direct_access_mocked_successful_transaction(token: str, httpx_mock: HTT
             assert "authorization" not in headers
 
     def handle_submit(request: httpx.Request) -> httpx.Response:
-        assert request.headers["user-agent"] == USER_AGENT
+        assert USER_AGENT_EXTRA in request.headers["user-agent"]
         assert_valid_token(request.headers)
 
         data = api_models.QuantumCircuit.model_validate_json(request.content.decode("utf-8"))
@@ -558,7 +559,7 @@ def test_direct_access_mocked_successful_transaction(token: str, httpx_mock: HTT
         )
 
     def handle_result(request: httpx.Request) -> httpx.Response:
-        assert request.headers["user-agent"] == USER_AGENT
+        assert USER_AGENT_EXTRA in request.headers["user-agent"]
         assert_valid_token(request.headers)
 
         _, job_id = request.url.path.rsplit("/", maxsplit=1)
@@ -611,7 +612,7 @@ def test_direct_access_mocked_failed_transaction(httpx_mock: HTTPXMock) -> None:
     circuit_submissions = 0
 
     def handle_submit(request: httpx.Request) -> httpx.Response:
-        assert request.headers["user-agent"] == USER_AGENT
+        assert USER_AGENT_EXTRA in request.headers["user-agent"]
 
         data = api_models.QuantumCircuit.model_validate_json(request.content.decode("utf-8"))
         assert data.repetitions == shots
@@ -625,7 +626,7 @@ def test_direct_access_mocked_failed_transaction(httpx_mock: HTTPXMock) -> None:
         )
 
     def handle_result(request: httpx.Request) -> httpx.Response:
-        assert request.headers["user-agent"] == USER_AGENT
+        assert USER_AGENT_EXTRA in request.headers["user-agent"]
 
         _, job_id = request.url.path.rsplit("/", maxsplit=1)
         assert job_id == next(job_ids_iter)

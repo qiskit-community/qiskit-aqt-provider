@@ -44,7 +44,7 @@ def default_schema_path() -> Path:
 
 def default_models_path() -> Path:
     """Default destination of generated Pydantic models."""
-    return repo_root() / "qiskit_aqt_provider" / "api_models_generated.py"
+    return repo_root() / "qiskit_aqt_provider" / "api_client" / "models_generated.py"
 
 
 def generate_models(schema_path: Path, dest_path: Path, *, ruff_lint_extra_args: str = "") -> None:

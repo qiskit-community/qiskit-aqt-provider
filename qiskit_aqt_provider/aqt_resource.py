@@ -35,10 +35,12 @@ from qiskit.transpiler import Target
 from qiskit_aer import AerJob, AerSimulator, noise
 from typing_extensions import override
 
-from qiskit_aqt_provider import api_models, api_models_direct
+from qiskit_aqt_provider.api_client import models as api_models
+from qiskit_aqt_provider.api_client import models_direct as api_models_direct
 from qiskit_aqt_provider.aqt_job import AQTDirectAccessJob, AQTJob
 from qiskit_aqt_provider.aqt_options import AQTDirectAccessOptions, AQTOptions
 from qiskit_aqt_provider.circuit_to_aqt import aqt_to_qiskit_circuit
+from qiskit_aqt_provider.versions import USER_AGENT_EXTRA
 
 if TYPE_CHECKING:  # pragma: no cover
     from qiskit_aqt_provider.aqt_provider import AQTProvider
@@ -306,7 +308,9 @@ class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):
             options_type=AQTDirectAccessOptions,
         )
 
-        self._http_client = api_models.http_client(base_url=base_url, token=provider.access_token)
+        self._http_client = api_models.http_client(
+            base_url=base_url, token=provider.access_token, user_agent_extra=USER_AGENT_EXTRA
+        )
 
     def run(
         self, circuits: Union[QuantumCircuit, list[QuantumCircuit]], **options: Any

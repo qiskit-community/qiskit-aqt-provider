@@ -24,7 +24,9 @@ from pytest_httpx import HTTPXMock
 from pytest_mock import MockerFixture
 from qiskit.providers import JobStatus
 
-from qiskit_aqt_provider import api_models, api_models_generated, persistence
+from qiskit_aqt_provider import persistence
+from qiskit_aqt_provider.api_client import models as api_models
+from qiskit_aqt_provider.api_client import models_generated as api_models_generated
 from qiskit_aqt_provider.aqt_job import AQTJob
 from qiskit_aqt_provider.aqt_options import AQTOptions
 from qiskit_aqt_provider.aqt_provider import AQTProvider
