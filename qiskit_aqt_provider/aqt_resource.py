@@ -35,6 +35,7 @@ from qiskit.transpiler import Target
 from qiskit_aer import AerJob, AerSimulator, noise
 from typing_extensions import override
 
+from qiskit_aqt_provider import api_client
 from qiskit_aqt_provider.api_client import models as api_models
 from qiskit_aqt_provider.api_client import models_direct as api_models_direct
 from qiskit_aqt_provider.aqt_job import AQTDirectAccessJob, AQTJob
@@ -107,7 +108,7 @@ class _ResourceBase(Generic[_OptionsType], Backend):
             {
                 "backend_name": name,
                 "backend_version": 2,
-                "url": provider.portal_url,
+                "url": str(provider._portal_client.portal_url),
                 "simulator": True,
                 "local": False,
                 "coupling_map": None,
@@ -209,7 +210,7 @@ class AQTResource(_ResourceBase[AQTOptions]):
     def __init__(
         self,
         provider: "AQTProvider",
-        resource_id: api_models.ResourceId,
+        resource_id: api_client.Resource,
     ) -> None:
         """Initialize the backend.
 
@@ -223,7 +224,7 @@ class AQTResource(_ResourceBase[AQTOptions]):
             options_type=AQTOptions,
         )
 
-        self._http_client: httpx.Client = provider._http_client
+        self._http_client: httpx.Client = provider._portal_client._http_client
         self.resource_id = resource_id
 
     def run(self, circuits: Union[QuantumCircuit, list[QuantumCircuit]], **options: Any) -> AQTJob:
@@ -434,7 +435,7 @@ class OfflineSimulatorResource(AQTResource):
     def __init__(
         self,
         provider: "AQTProvider",
-        resource_id: api_models.ResourceId,
+        resource_id: api_client.Resource,
         with_noise_model: bool,
     ) -> None:
         """Initialize an offline simulator resource.

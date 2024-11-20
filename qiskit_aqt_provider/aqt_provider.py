@@ -16,14 +16,13 @@ import os
 import re
 import warnings
 from collections import defaultdict
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 from operator import attrgetter
 from pathlib import Path
 from re import Pattern
 from typing import (
     Final,
-    Literal,
     Optional,
     Union,
     overload,
@@ -35,7 +34,7 @@ from qiskit.providers.exceptions import QiskitBackendNotFoundError
 from tabulate import tabulate
 from typing_extensions import TypeAlias, override
 
-from qiskit_aqt_provider.api_client import models as api_models
+from qiskit_aqt_provider.api_client import PortalClient, Resource, ResourceType, Workspace
 from qiskit_aqt_provider.aqt_resource import (
     AQTDirectAccessResource,
     AQTResource,
@@ -146,9 +145,6 @@ class BackendsTable(Sequence[AQTResource]):
 class AQTProvider:
     """Provider for backends from Alpine Quantum Technologies (AQT)."""
 
-    # Set AQT_PORTAL_URL environment variable to override
-    DEFAULT_PORTAL_URL: Final = "https://arnica.aqt.eu"
-
     def __init__(
         self,
         access_token: Optional[str] = None,
@@ -183,9 +179,6 @@ class AQTProvider:
         if load_dotenv or dotenv_path is not None:
             dotenv.load_dotenv(dotenv_path)
 
-        portal_base_url = os.environ.get("AQT_PORTAL_URL", AQTProvider.DEFAULT_PORTAL_URL)
-        self.portal_url = f"{portal_base_url}/api/v1"
-
         if access_token is None:
             self.access_token = os.environ.get("AQT_TOKEN", "")
         else:
@@ -200,17 +193,18 @@ class AQTProvider:
         self.name = "aqt_provider"
 
     @property
-    def _http_client(self) -> httpx.Client:
-        """HTTP client for communicating with the AQT cloud service."""
-        return api_models.http_client(
-            base_url=self.portal_url, token=self.access_token, user_agent_extra=USER_AGENT_EXTRA
+    def _portal_client(self) -> PortalClient:
+        """API client."""
+        return PortalClient(
+            token=self.access_token,
+            user_agent_extra=USER_AGENT_EXTRA,
         )
 
     def backends(
         self,
         name: Optional[Union[str, Pattern[str]]] = None,
         *,
-        backend_type: Optional[Literal["device", "simulator", "offline_simulator"]] = None,
+        backend_type: Optional[ResourceType] = None,
         workspace: Optional[Union[str, Pattern[str]]] = None,
     ) -> BackendsTable:
         """Search for cloud backends matching given criteria.
@@ -236,17 +230,14 @@ class AQTProvider:
         if isinstance(workspace, str):
             workspace = re.compile(f"^{workspace}$")
 
-        remote_workspaces = api_models.Workspaces(root=[])
+        remote_workspaces: Iterable[Workspace] = []
 
+        # Only query if remote resources are requested.
         if backend_type != "offline_simulator":
             with contextlib.suppress(httpx.HTTPError, httpx.NetworkError):
-                with self._http_client as client:
-                    resp = client.get("/workspaces")
-                    resp.raise_for_status()
-
-                remote_workspaces = api_models.Workspaces.model_validate(resp.json()).filter(
+                remote_workspaces = self._portal_client.workspaces().filter(
                     name_pattern=name,
-                    backend_type=api_models.ResourceType(backend_type) if backend_type else None,
+                    backend_type=backend_type if backend_type else None,
                     workspace_pattern=workspace,
                 )
 
@@ -262,7 +253,7 @@ class AQTProvider:
                 backends.append(
                     OfflineSimulatorResource(
                         self,
-                        resource_id=api_models.ResourceId(
+                        resource_id=Resource(
                             workspace_id="default",
                             resource_id=simulator.id,
                             resource_name=simulator.name,
@@ -278,14 +269,9 @@ class AQTProvider:
             + [
                 AQTResource(
                     self,
-                    resource_id=api_models.ResourceId(
-                        workspace_id=_workspace.id,
-                        resource_id=resource.id,
-                        resource_name=resource.name,
-                        resource_type=resource.type.value,
-                    ),
+                    resource_id=resource,
                 )
-                for _workspace in remote_workspaces.root
+                for _workspace in remote_workspaces
                 for resource in _workspace.resources
             ]
         )
@@ -294,7 +280,7 @@ class AQTProvider:
         self,
         name: Optional[Union[str, Pattern[str]]] = None,
         *,
-        backend_type: Optional[Literal["device", "simulator", "offline_simulator"]] = None,
+        backend_type: Optional[ResourceType] = None,
         workspace: Optional[Union[str, Pattern[str]]] = None,
     ) -> AQTResource:
         """Return a handle for a cloud quantum computing resource matching the specified filtering.

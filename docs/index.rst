@@ -72,6 +72,7 @@ For more details see the :ref:`user guide <user-guide>`, a selection of `example
   Options <apidoc/options>
   Qiskit primitives <apidoc/primitives>
   Transpiler plugin <apidoc/transpiler_plugin>
+  API client <apidoc/api_client>
 
 .. toctree::
   :hidden:

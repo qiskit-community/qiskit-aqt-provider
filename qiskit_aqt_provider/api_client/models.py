@@ -15,6 +15,8 @@
 import importlib.metadata
 import platform
 import re
+import typing
+from collections.abc import Collection, Iterator
 from re import Pattern
 from typing import Any, Final, Literal, Optional, Union
 from uuid import UUID
@@ -22,7 +24,7 @@ from uuid import UUID
 import httpx
 import pydantic as pdt
 from qiskit.providers.exceptions import JobError
-from typing_extensions import Self, TypeAlias
+from typing_extensions import Self, TypeAlias, override
 
 from . import models_generated as api_models
 from .models_generated import (
@@ -32,7 +34,6 @@ from .models_generated import (
     QuantumCircuits,
     SubmitJobRequest,
 )
-from .models_generated import Type as ResourceType
 
 __all__ = [
     "Circuit",
@@ -43,7 +44,6 @@ __all__ = [
     "QuantumCircuit",
     "QuantumCircuits",
     "Response",
-    "ResourceType",
 ]
 
 
@@ -78,10 +78,152 @@ def http_client(
     return httpx.Client(headers=headers, base_url=base_url, timeout=10.0, follow_redirects=True)
 
 
-class Workspaces(pdt.RootModel[list[api_models.Workspace]]):
-    """List of available workspaces and devices."""
+ResourceType: TypeAlias = Literal["device", "simulator", "offline_simulator"]
+
+
+class Resource(pdt.BaseModel):
+    """Description of a resource.
+
+    This is the element type in :py:attr:`Workspace.resources`.
+    """
+
+    model_config = pdt.ConfigDict(frozen=True)
+
+    workspace_id: str
+    """Identifier of the workspace this resource belongs to."""
+
+    resource_id: str
+    """Resource identifier."""
+
+    resource_name: str
+    """Resource name."""
+
+    resource_type: ResourceType
+    """Type of resource."""
+
+
+class Workspace(pdt.BaseModel):
+    """Description of a workspace and the resources it contains.
+
+    This is the element type in the :py:class:`Workspaces` container.
+    """
+
+    model_config = pdt.ConfigDict(frozen=True)
+
+    workspace_id: str
+    """Workspace identifier."""
+
+    resources: list[Resource]
+    """Resources in the workspace."""
+
+
+class Workspaces(
+    pdt.RootModel,  # type: ignore[type-arg]
+    Collection[Workspace],
+):
+    """List of available workspaces and devices.
+
+    ..
+        >>> workspaces = Workspaces(
+        ...     root=[
+        ...         api_models.Workspace(
+        ...             id="workspace0",
+        ...             resources=[
+        ...                 api_models.Resource(
+        ...                     id="resource0",
+        ...                     name="resource0",
+        ...                     type=api_models.Type.device,
+        ...                 ),
+        ...             ],
+        ...         ),
+        ...        api_models.Workspace(
+        ...            id="workspace1",
+        ...            resources=[
+        ...                api_models.Resource(
+        ...                    id="resource0",
+        ...                    name="resource0",
+        ...                    type=api_models.Type.device,
+        ...                ),
+        ...                api_models.Resource(
+        ...                    id="resource1",
+        ...                    name="resource1",
+        ...                    type=api_models.Type.simulator,
+        ...                ),
+        ...            ],
+        ...        ),
+        ...    ]
+        ... )
+
+    Examples:
+        Assume a :py:class:`Workspaces` instance retrieved from the API with
+        the following contents:
+
+        .. code-block::
+
+            | Workspace ID | Resource ID | Resource Type |
+            |--------------+-------------+---------------|
+            | workspace0   | resource0   | device        |
+            | workspace1   | resource0   | device        |
+            | workspace1   | resource1   | simulator     |
+
+        Gather basic information:
+
+        >>> # workspaces = PortalClient(...).workspaces()
+        >>> len(workspaces)
+        2
+        >>> [ws.workspace_id for ws in workspaces]
+        ['workspace0', 'workspace1']
+
+        Inclusion tests rely only on the identifier:
+
+        >>> Workspace(workspace_id="workspace0", resources=[]) in workspaces
+        True
+
+        The :py:meth:`Workspaces.filter` method allows for complex filtering. For example
+        by workspace identifier ending in ``0``:
+
+        >>> [ws.workspace_id for ws in workspaces.filter(workspace_pattern=re.compile(".+0$"))]
+        ['workspace0']
+
+        or only the non-simulated devices:
+
+        >>> workspaces_devices = workspaces.filter(backend_type="device")
+        >>> [(ws.workspace_id, resource.resource_id)
+        ...  for ws in workspaces_devices for resource in ws.resources]
+        [('workspace0', 'resource0'), ('workspace1', 'resource0')]
+    """
 
     root: list[api_models.Workspace]
+
+    @override
+    def __len__(self) -> int:
+        """Number of available workspaces."""
+        return len(self.root)
+
+    @override
+    def __iter__(self) -> Iterator[Workspace]:  # type: ignore[override]
+        """Iterator over the workspaces."""
+        for ws in self.root:
+            yield Workspace(
+                workspace_id=ws.id,
+                resources=[
+                    Resource(
+                        workspace_id=ws.id,
+                        resource_id=res.id,
+                        resource_name=res.name,
+                        resource_type=typing.cast(ResourceType, res.type.value),
+                    )
+                    for res in ws.resources
+                ],
+            )
+
+    @override
+    def __contains__(self, obj: object) -> bool:
+        """Whether a given workspace is in this workspaces collection."""
+        if not isinstance(obj, Workspace):  # pragma: no cover
+            return False
+
+        return any(ws.id == obj.workspace_id for ws in self.root)
 
     def filter(
         self,
@@ -100,7 +242,7 @@ class Workspaces(pdt.RootModel[list[api_models.Workspace]]):
             backend_type: backend type to select.
 
         Returns:
-            Workspaces model that only contains matching resources.
+            :py:class:`Workspaces` instance that only contains matching resources.
         """
         filtered_workspaces = []
         for workspace in self.root:
@@ -110,7 +252,7 @@ class Workspaces(pdt.RootModel[list[api_models.Workspace]]):
             filtered_resources = []
 
             for resource in workspace.resources:
-                if backend_type is not None and resource.type is not backend_type:
+                if backend_type is not None and resource.type.value != backend_type:
                     continue
 
                 if name_pattern is not None and not re.match(name_pattern, resource.id):
@@ -123,27 +265,6 @@ class Workspaces(pdt.RootModel[list[api_models.Workspace]]):
             )
 
         return self.__class__(root=filtered_workspaces)
-
-
-GeneralResourceType: TypeAlias = Literal["device", "simulator", "offline_simulator"]
-
-
-class ResourceId(pdt.BaseModel):
-    """Resource identification and metadata."""
-
-    model_config = pdt.ConfigDict(frozen=True)
-
-    workspace_id: str
-    """Workspace containing the resource."""
-
-    resource_id: str
-    """Unique identifier of the resource in the containing workspace."""
-
-    resource_name: str
-    """Pretty display name for the resource."""
-
-    resource_type: GeneralResourceType
-    """Resource type, also includes offline simulators."""
 
 
 class Operation:

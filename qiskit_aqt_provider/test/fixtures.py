@@ -27,6 +27,7 @@ from qiskit.providers import BackendV2
 from qiskit_aer import AerSimulator
 from typing_extensions import override
 
+from qiskit_aqt_provider import api_client
 from qiskit_aqt_provider.api_client import models as api_models
 from qiskit_aqt_provider.api_client import models_direct as api_models_direct
 from qiskit_aqt_provider.aqt_job import AQTJob
@@ -47,7 +48,7 @@ class MockSimulator(OfflineSimulatorResource):
         """Initialize the mocked simulator backend."""
         super().__init__(
             AQTProvider(""),
-            resource_id=api_models.ResourceId(
+            resource_id=api_client.Resource(
                 workspace_id="default",
                 resource_id="mock_simulator",
                 resource_name="mock_simulator",
