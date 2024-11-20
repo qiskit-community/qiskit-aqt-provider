@@ -58,6 +58,7 @@ pytest_qiskit_aqt = "qiskit_aqt_provider.test.fixtures"
 [tool.poetry.dependencies]
 python = ">=3.9,<3.13"
 
+annotated-types = ">=0.7.0"
 httpx = ">=0.24.0"
 platformdirs = ">=3"
 pydantic = ">=2.5.0"
@@ -100,6 +101,7 @@ rich = "^13.5.3"
 ruff = "^0.7.0"
 sphinx = ">=7,<7.3"
 sphinx-toolbox = "^3.5.0"
+tach = "^0.14.3"
 tomlkit = "^0.13.2"
 typer = "^0.13.0"
 types-requests = "^2.28.11"
@@ -313,6 +315,14 @@ shell = "interrogate -v qiskit_aqt_provider test"
 [tool.poe.tasks.spellcheck]
 shell = "typos ."
 
+[tool.poe.tasks.check_internal_dependencies]
+shell = "tach check"
+
+[tool.poe.tasks.check_external_dependencies]
+# Exclude the test module because tach doesn't collect
+# dependencies outside the main group.
+shell = "tach check-external -e test/"
+
 [tool.poe.tasks]
 lint = [
   "check_pre_commit_consistency",
@@ -320,6 +330,8 @@ lint = [
   "docstring_coverage",
   "ruff_check",
   "spellcheck",
+  "check_internal_dependencies",
+  "check_external_dependencies",
 ]
 format_check = [
   "python_format_check",

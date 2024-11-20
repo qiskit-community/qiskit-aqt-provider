@@ -1,0 +1,54 @@
+exclude = [
+    ".*__pycache__",
+    "docs",
+]
+exact = true
+ignore_type_checking_imports = true
+forbid_circular_dependencies = true
+
+source_roots = [
+    ".",
+]
+
+[[modules]]
+path = "qiskit_aqt_provider"
+depends_on = [
+    { path = "qiskit_aqt_provider.api_client" },
+]
+
+[[modules]]
+path = "qiskit_aqt_provider.api_client"
+depends_on = []
+
+[[modules]]
+path = "test"
+depends_on = [
+    { path = "qiskit_aqt_provider" },
+    { path = "qiskit_aqt_provider.api_client" },
+]
+
+[[modules]]
+path = "examples"
+depends_on = [
+    { path = "qiskit_aqt_provider" },
+]
+strict = true
+
+[external]
+exclude = [
+    "python",
+    # if dotenv is not install (like e.g. in the pre-commit hook's environment)
+    # tach cannot know that this is the distribution for dotenv
+    # https://github.com/gauge-sh/tach/issues/414
+    "python_dotenv",
+    "dotenv",
+    # pydantic-core always comes with pydantic
+    "pydantic_core",
+    # testing dependencies:
+    "pytest",
+    "pytest_sugar",
+    "pytest_mock",
+    # example dependencies:
+    "qiskit_algorithms",
+    "qiskit_optimization",
+]
