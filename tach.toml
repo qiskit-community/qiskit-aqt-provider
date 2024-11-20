@@ -37,7 +37,7 @@ strict = true
 [external]
 exclude = [
     "python",
-    # if dotenv is not install (like e.g. in the pre-commit hook's environment)
+    # if dotenv is not installed (like e.g. in the pre-commit hook's environment)
     # tach cannot know that this is the distribution for dotenv
     # https://github.com/gauge-sh/tach/issues/414
     "python_dotenv",
