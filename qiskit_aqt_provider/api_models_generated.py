@@ -50,7 +50,7 @@ class GateR(BaseModel):
         extra="forbid",
         frozen=True,
     )
-    operation: Annotated[Literal["R"], Field("R", title="Operation")]
+    operation: Annotated[Literal["R"], Field(title="Operation")]
     phi: Annotated[float, Field(ge=0.0, le=2.0, title="Phi")]
     qubit: Annotated[int, Field(ge=0, title="Qubit")]
     theta: Annotated[float, Field(ge=0.0, le=1.0, title="Theta")]
@@ -115,7 +115,7 @@ class GateRXX(BaseModel):
         extra="forbid",
         frozen=True,
     )
-    operation: Annotated[Literal["RXX"], Field("RXX", title="Operation")]
+    operation: Annotated[Literal["RXX"], Field(title="Operation")]
     qubits: Annotated[List[Qubit], Field(max_length=2, min_length=2, title="Qubits")]
     theta: Annotated[float, Field(ge=0.0, le=0.5, title="Theta")]
 
@@ -155,7 +155,7 @@ class GateRZ(BaseModel):
         extra="forbid",
         frozen=True,
     )
-    operation: Annotated[Literal["RZ"], Field("RZ", title="Operation")]
+    operation: Annotated[Literal["RZ"], Field(title="Operation")]
     phi: Annotated[float, Field(title="Phi")]
     qubit: Annotated[int, Field(ge=0, title="Qubit")]
 
@@ -168,10 +168,10 @@ class JobUser(BaseModel):
     """
     Id that uniquely identifies the job. This is used to request results.
     """
-    job_type: Annotated[Literal["quantum_circuit"], Field("quantum_circuit", title="Job Type")]
-    label: Annotated[Optional[str], Field(None, title="Label")]
-    resource_id: Annotated[str, Field("", title="Resource Id")]
-    workspace_id: Annotated[str, Field("", title="Workspace Id")]
+    job_type: Annotated[Literal["quantum_circuit"], Field(title="Job Type")] = "quantum_circuit"
+    label: Annotated[Optional[str], Field(title="Label")] = None
+    resource_id: Annotated[str, Field(title="Resource Id")] = ""
+    workspace_id: Annotated[str, Field(title="Workspace Id")] = ""
 
 
 class Measure(BaseModel):
@@ -185,7 +185,7 @@ class Measure(BaseModel):
         extra="forbid",
         frozen=True,
     )
-    operation: Annotated[Literal["MEASURE"], Field("MEASURE", title="Operation")]
+    operation: Annotated[Literal["MEASURE"], Field(title="Operation")]
 
 
 class OperationModel(RootModel[Union[GateRZ, GateR, GateRXX, Measure]]):
@@ -208,7 +208,7 @@ class RRCancelled(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    status: Annotated[Literal["cancelled"], Field("cancelled", title="Status")]
+    status: Annotated[Literal["cancelled"], Field(title="Status")] = "cancelled"
 
 
 class RRError(BaseModel):
@@ -216,7 +216,7 @@ class RRError(BaseModel):
         frozen=True,
     )
     message: Annotated[str, Field(title="Message")]
-    status: Annotated[Literal["error"], Field("error", title="Status")]
+    status: Annotated[Literal["error"], Field(title="Status")] = "error"
 
 
 class ResultItem(RootModel[int]):
@@ -233,7 +233,7 @@ class RRFinished(BaseModel):
         frozen=True,
     )
     result: Annotated[Dict[str, List[List[ResultItem]]], Field(title="Result")]
-    status: Annotated[Literal["finished"], Field("finished", title="Status")]
+    status: Annotated[Literal["finished"], Field(title="Status")] = "finished"
 
 
 class RROngoing(BaseModel):
@@ -241,14 +241,14 @@ class RROngoing(BaseModel):
         frozen=True,
     )
     finished_count: Annotated[int, Field(ge=0, title="Finished Count")]
-    status: Annotated[Literal["ongoing"], Field("ongoing", title="Status")]
+    status: Annotated[Literal["ongoing"], Field(title="Status")] = "ongoing"
 
 
 class RRQueued(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    status: Annotated[Literal["queued"], Field("queued", title="Status")]
+    status: Annotated[Literal["queued"], Field(title="Status")] = "queued"
 
 
 class Type(Enum):
@@ -288,7 +288,7 @@ class UnknownJob(BaseModel):
         frozen=True,
     )
     job_id: Annotated[UUID, Field(title="Job Id")]
-    message: Annotated[Literal["unknown job_id"], Field("unknown job_id", title="Message")]
+    message: Annotated[Literal["unknown job_id"], Field(title="Message")] = "unknown job_id"
 
 
 class ValidationError(BaseModel):
@@ -339,7 +339,7 @@ class HTTPValidationError(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    detail: Annotated[Optional[List[ValidationError]], Field(None, title="Detail")]
+    detail: Annotated[Optional[List[ValidationError]], Field(title="Detail")] = None
 
 
 class JobResponseRRCancelled(BaseModel):
@@ -654,6 +654,6 @@ class SubmitJobRequest(BaseModel):
     model_config = ConfigDict(
         frozen=True,
     )
-    job_type: Annotated[Literal["quantum_circuit"], Field("quantum_circuit", title="Job Type")]
-    label: Annotated[Optional[str], Field(None, title="Label")]
+    job_type: Annotated[Literal["quantum_circuit"], Field(title="Job Type")] = "quantum_circuit"
+    label: Annotated[Optional[str], Field(title="Label")] = None
     payload: QuantumCircuits
