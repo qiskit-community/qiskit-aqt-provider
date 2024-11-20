@@ -27,7 +27,8 @@ from qiskit.providers import BackendV2
 from qiskit_aer import AerSimulator
 from typing_extensions import override
 
-from qiskit_aqt_provider import api_models, api_models_direct
+from qiskit_aqt_provider.api_client import models as api_models
+from qiskit_aqt_provider.api_client import models_direct as api_models_direct
 from qiskit_aqt_provider.aqt_job import AQTJob
 from qiskit_aqt_provider.aqt_provider import AQTProvider
 from qiskit_aqt_provider.aqt_resource import (

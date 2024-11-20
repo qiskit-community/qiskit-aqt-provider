@@ -15,7 +15,8 @@ from numpy import pi
 from qiskit import QuantumCircuit
 from typing_extensions import assert_never
 
-from qiskit_aqt_provider import api_models, api_models_generated
+from qiskit_aqt_provider.api_client import models as api_models
+from qiskit_aqt_provider.api_client import models_generated as api_models_generated
 
 
 def qiskit_to_aqt_circuit(circuit: QuantumCircuit) -> api_models.Circuit:

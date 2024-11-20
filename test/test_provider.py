@@ -22,7 +22,8 @@ from urllib.parse import urlparse
 import pytest
 from pytest_httpx import HTTPXMock
 
-from qiskit_aqt_provider import api_models, api_models_generated
+from qiskit_aqt_provider.api_client import models as api_models
+from qiskit_aqt_provider.api_client import models_generated as api_models_generated
 from qiskit_aqt_provider.aqt_provider import OFFLINE_SIMULATORS, AQTProvider, NoTokenWarning
 
 

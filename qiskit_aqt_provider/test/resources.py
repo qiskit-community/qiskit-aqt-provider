@@ -22,7 +22,7 @@ from typing import Optional
 from qiskit import QuantumCircuit
 from typing_extensions import assert_never, override
 
-from qiskit_aqt_provider import api_models
+from qiskit_aqt_provider.api_client import models as api_models
 from qiskit_aqt_provider.aqt_job import AQTJob
 from qiskit_aqt_provider.aqt_provider import AQTProvider
 from qiskit_aqt_provider.aqt_resource import AQTDirectAccessResource, AQTResource

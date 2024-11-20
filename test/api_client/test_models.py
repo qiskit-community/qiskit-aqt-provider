@@ -10,7 +10,8 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-from qiskit_aqt_provider import api_models, api_models_generated
+from qiskit_aqt_provider.api_client import models as api_models
+from qiskit_aqt_provider.api_client import models_generated as api_models_generated
 
 
 def test_workspaces_filter_by_workspace() -> None:

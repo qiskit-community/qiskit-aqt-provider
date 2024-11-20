@@ -191,7 +191,7 @@ lint.ignore = [
 lint.per-file-ignores."examples/*.py" = [
   "T201", # allow prints
 ]
-lint.per-file-ignores."qiskit_aqt_provider/api_models_generated.py" = [
+lint.per-file-ignores."qiskit_aqt_provider/api_client/models_generated.py" = [
   "D100",   # undocumented-public-module
   "D101",   # undocumented-public-class
   "E501",   # line-too-long
@@ -257,7 +257,7 @@ ignore-module = true
 ignore-nested-functions = true
 ignore-magic = true
 exclude = [
-  "qiskit_aqt_provider/api_models_generated.py",
+  "qiskit_aqt_provider/api_client/models_generated.py",
 ]
 fail-under = 100
 
