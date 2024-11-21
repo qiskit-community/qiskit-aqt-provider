@@ -6,6 +6,7 @@
 * User guide: add section on direct-access resources (#191)
 * Split Qiskit-agnostic client resources to separate sub-package (#198)
 * Allow using `numpy` v2 (#199)
+* Implement `workspaces` endpoint in Qiskit-agnostic API client (#200)
 
 ## qiskit-aqt-provider v1.8.1
 
