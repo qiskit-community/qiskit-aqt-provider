@@ -34,7 +34,7 @@ repos:
         args: [-v, qiskit_aqt_provider, test]
         pass_filenames: false  # needed if excluding files with pyproject.toml or setup.cfg
   - repo: https://github.com/airwoodix/tach-pre-commit
-    rev: "v0.14.3-external"
+    rev: "v0.15.2-external"
     hooks:
       - id: tach
       - id: tach-external
