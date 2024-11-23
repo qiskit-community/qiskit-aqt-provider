@@ -1,13 +1,18 @@
 exclude = [
     ".*__pycache__",
     "docs",
+    ".*test",
 ]
-exact = true
-ignore_type_checking_imports = true
-forbid_circular_dependencies = true
-
 source_roots = [
     ".",
+]
+exact = true
+forbid_circular_dependencies = true
+
+[[modules]]
+path = "examples"
+depends_on = [
+    { path = "qiskit_aqt_provider" },
 ]
 
 [[modules]]
@@ -20,19 +25,21 @@ depends_on = [
 path = "qiskit_aqt_provider.api_client"
 depends_on = []
 
-[[modules]]
-path = "test"
-depends_on = [
-    { path = "qiskit_aqt_provider" },
-    { path = "qiskit_aqt_provider.api_client" },
+[[interfaces]]
+expose = [
+    "DEFAULT_PORTAL_URL",
+    "PortalClient",
+    "Resource",
+    "ResourceType",
+    "Workspace",
+    "Workspaces",
+    "__version__",
+    # There are some instances of this, although not included in __all__
+    "models.*",
 ]
-
-[[modules]]
-path = "examples"
-depends_on = [
-    { path = "qiskit_aqt_provider" },
+from = [
+    "qiskit_aqt_provider.api_client",
 ]
-strict = true
 
 [external]
 exclude = [
