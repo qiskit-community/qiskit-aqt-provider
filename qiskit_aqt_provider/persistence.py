@@ -24,7 +24,7 @@ from qiskit import qpy
 from qiskit.circuit import QuantumCircuit
 from typing_extensions import Self
 
-from qiskit_aqt_provider.api_client.models import ResourceId
+from qiskit_aqt_provider.api_client import Resource
 from qiskit_aqt_provider.aqt_options import AQTOptions
 from qiskit_aqt_provider.utils import map_exceptions
 from qiskit_aqt_provider.versions import QISKIT_AQT_PROVIDER_VERSION
@@ -91,7 +91,7 @@ class Job(pdt.BaseModel):
 
     model_config = ConfigDict(frozen=True, json_encoders={Circuits: Circuits.json_encoder})
 
-    resource: ResourceId
+    resource: Resource
     circuits: Circuits
     options: AQTOptions
 

@@ -22,6 +22,7 @@ from typing import Optional
 from qiskit import QuantumCircuit
 from typing_extensions import assert_never, override
 
+from qiskit_aqt_provider import api_client
 from qiskit_aqt_provider.api_client import models as api_models
 from qiskit_aqt_provider.aqt_job import AQTJob
 from qiskit_aqt_provider.aqt_provider import AQTProvider
@@ -151,7 +152,7 @@ class TestResource(AQTResource):  # pylint: disable=too-many-instance-attributes
         """
         super().__init__(
             AQTProvider(""),
-            resource_id=api_models.ResourceId(
+            resource_id=api_client.Resource(
                 workspace_id="test-workspace",
                 resource_id="test",
                 resource_name="test-resource",
@@ -222,7 +223,7 @@ class DummyResource(AQTResource):
         """Initialize the dummy backend."""
         super().__init__(
             AQTProvider(token),
-            resource_id=api_models.ResourceId(
+            resource_id=api_client.Resource(
                 workspace_id="dummy",
                 resource_id="dummy",
                 resource_name="dummy",

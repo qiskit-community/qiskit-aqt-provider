@@ -17,11 +17,12 @@ import re
 import uuid
 from pathlib import Path
 from unittest import mock
-from urllib.parse import urlparse
 
+import httpx
 import pytest
 from pytest_httpx import HTTPXMock
 
+from qiskit_aqt_provider.api_client import DEFAULT_PORTAL_URL
 from qiskit_aqt_provider.api_client import models as api_models
 from qiskit_aqt_provider.api_client import models_generated as api_models_generated
 from qiskit_aqt_provider.aqt_provider import OFFLINE_SIMULATORS, AQTProvider, NoTokenWarning
@@ -32,26 +33,18 @@ def test_default_portal_url() -> None:
     with mock.patch.object(os, "environ", {}):
         aqt = AQTProvider("my-token")
 
-    result = urlparse(aqt.portal_url)
-    expected = urlparse(AQTProvider.DEFAULT_PORTAL_URL)
-
-    assert result.scheme == expected.scheme
-    assert result.netloc == expected.netloc
+    assert aqt._portal_client.portal_url == DEFAULT_PORTAL_URL
 
 
 def test_portal_url_envvar(monkeypatch: pytest.MonkeyPatch) -> None:
     """Check that one can set the portal url via the environment variable."""
-    env_url = "https://new-portal.aqt.eu"
-    assert env_url != AQTProvider.DEFAULT_PORTAL_URL
-    monkeypatch.setenv("AQT_PORTAL_URL", env_url)
+    env_url = httpx.URL("https://new-portal.aqt.eu")
+    assert env_url != DEFAULT_PORTAL_URL
+    monkeypatch.setenv("AQT_PORTAL_URL", str(env_url))
 
     aqt = AQTProvider("my-token")
 
-    result = urlparse(aqt.portal_url)
-    expected = urlparse(env_url)
-
-    assert result.scheme == expected.scheme
-    assert result.netloc == expected.netloc
+    assert aqt._portal_client.portal_url == env_url
 
 
 def test_access_token_argument() -> None:

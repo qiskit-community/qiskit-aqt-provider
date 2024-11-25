@@ -25,6 +25,7 @@ from pytest_mock import MockerFixture
 from qiskit.providers import JobStatus
 
 from qiskit_aqt_provider import persistence
+from qiskit_aqt_provider.api_client import Resource
 from qiskit_aqt_provider.api_client import models as api_models
 from qiskit_aqt_provider.api_client import models_generated as api_models_generated
 from qiskit_aqt_provider.aqt_job import AQTJob
@@ -97,7 +98,7 @@ def test_job_persistence_transaction_online_backend(httpx_mock: HTTPXMock, tmp_p
     # Set up a fake online resource
     token = str(uuid.uuid4())
     provider = AQTProvider(token)
-    resource_id = api_models.ResourceId(
+    resource_id = Resource(
         workspace_id=str(uuid.uuid4()),
         resource_id=str(uuid.uuid4()),
         resource_name=str(uuid.uuid4()),
