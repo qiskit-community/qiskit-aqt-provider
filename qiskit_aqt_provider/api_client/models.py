@@ -38,12 +38,12 @@ from .models_generated import (
 __all__ = [
     "Circuit",
     "JobResponse",
-    "SubmitJobRequest",
     "Operation",
     "OperationModel",
     "QuantumCircuit",
     "QuantumCircuits",
     "Response",
+    "SubmitJobRequest",
 ]
 
 

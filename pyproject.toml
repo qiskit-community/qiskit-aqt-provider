@@ -162,8 +162,6 @@ lint.select = [
   "YTT",  # flake8-2020
 ]
 lint.ignore = [
-  "ANN101", # missing-type-self (deprecated)
-  "ANN102", # missing-type-cls (deprecated)
   "ANN401", # any-type
   "COM812", # missing-trailing-comma
   "COM819", # prohibited-trailing-comma
@@ -265,6 +263,13 @@ ignore-hidden = false
 ignore-vcs = true
 extend-exclude = [
   ".git",
+]
+
+[tool.typos.default]
+extend-ignore-words-re = [
+  # For consistency with pytest, prefer 'parametrize' to 'parameterize'
+  "parametrized?",
+  "parametrization",
 ]
 
 [tool.typos.default.extend-words]
