@@ -19,8 +19,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 readonly SCRIPT_DIR
 
 # Tools to check.
-# FIXME: add tach when using upstream tag again
-TOOLS=(ruff typos pyproject-fmt interrogate)
+TOOLS=(ruff typos pyproject-fmt interrogate tach)
 readonly TOOLS
 
 # Entry point: check version consistency for all tools in TOOLS.
