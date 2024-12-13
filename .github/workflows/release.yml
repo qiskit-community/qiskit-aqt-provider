@@ -2,7 +2,7 @@ name: Release Artifacts
 on:
   push:
     tags:
-      - 'v*'
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 jobs:
   wheel-build:
     name: Build and Publish Release Artifacts
@@ -14,14 +14,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
       - name: Install Poetry
         uses: abatilo/actions-poetry@v2
         with:
-          poetry-version: '1.7.1'
+          poetry-version: '1.8.3'
       - name: Install release dependencies
         run: pip install -U typer mistletoe
       - name: Build packages
@@ -33,11 +35,12 @@ jobs:
         with:
           path: ./dist/qiskit*
       - name: Extract changelog
-        run: python scripts/extract-changelog.py ${{ github.ref_name }} | tee ${{ github.workspace }}-CHANGELOG.txt
+        run: |
+          python scripts/extract-changelog.py "${{ github.ref_name }}" | tee "${{ github.workspace }}-CHANGELOG.txt"
       - name: Create Github release
         uses: softprops/action-gh-release@v1
         with:
           files: ./dist/qiskit*
-          body_path: ${{ github.workspace }}-CHANGELOG.txt
+          body_path: "${{ github.workspace }}-CHANGELOG.txt"
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
