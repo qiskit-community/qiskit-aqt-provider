@@ -29,7 +29,10 @@ jobs:
         shell: bash
       - name: Extract changelog
         run: |
-          python scripts/extract-changelog.py "${{ github.ref_name }}" | tee RELEASE_CHANGELOG.txt
+          python scripts/extract-changelog.py "${TAG_NAME}" | tee RELEASE_CHANGELOG.txt
+        shell: bash
+        env:
+          TAG_NAME: ${{ github.ref_name }}
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
