@@ -67,7 +67,7 @@ jobs:
           poetry run python examples/number_partition.py
         if: startsWith(matrix.os, 'windows')
       - name: Install all dependencies
-        run: poetry install --sync --extras test
+        run: poetry install --sync --all-extras
       - name: Check version numbers consistency
         run: poetry run poe version_check
         if: startsWith(matrix.os, 'ubuntu')
