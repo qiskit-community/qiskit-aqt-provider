@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-* Fix source installation problem caused by removed debugpy 1.8.3 package (#188)
+## qiskit-aqt-provider v1.9.0
+
+* Fix source installation problem caused by removed `debugpy` 1.8.3 package (#188)
 * User guide: add section on direct-access resources (#191)
 * Split Qiskit-agnostic client resources to separate sub-package (#198)
 * Allow using `numpy` v2 (#199)
