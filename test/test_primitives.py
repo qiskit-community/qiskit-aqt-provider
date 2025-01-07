@@ -23,10 +23,11 @@ from qiskit.primitives import (
     BaseSamplerV1,
     Sampler,
 )
-from qiskit.providers import Backend, BackendV2
+from qiskit.providers import Backend
 from qiskit.quantum_info import SparsePauliOp
 from qiskit.transpiler.exceptions import TranspilerError
 
+from qiskit_aqt_provider.aqt_resource import AnyAQTResource
 from qiskit_aqt_provider.primitives import AQTSampler
 from qiskit_aqt_provider.primitives.estimator import AQTEstimator
 from qiskit_aqt_provider.test.circuits import assert_circuits_equal
@@ -66,7 +67,8 @@ def test_backend_primitives_are_v1() -> None:
 )
 @pytest.mark.httpx_mock(assert_all_responses_were_requested=False)
 def test_circuit_sampling_primitive(
-    get_sampler: Callable[[Backend], BaseSamplerV1], any_offline_simulator_no_noise: BackendV2
+    get_sampler: Callable[[Backend], BaseSamplerV1],
+    any_offline_simulator_no_noise: AnyAQTResource,
 ) -> None:
     """Check that a `Sampler` primitive using an AQT backend can sample parametric circuits."""
     theta = Parameter("θ")

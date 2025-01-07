@@ -16,17 +16,17 @@ from typing import Any, Optional
 from qiskit.primitives import BackendSampler
 
 from qiskit_aqt_provider import transpiler_plugin
-from qiskit_aqt_provider.aqt_resource import AQTResource, make_transpiler_target
+from qiskit_aqt_provider.aqt_resource import AnyAQTResource, make_transpiler_target
 
 
 class AQTSampler(BackendSampler):
     """:class:`BaseSamplerV1 <qiskit.primitives.BaseSamplerV1>` primitive for AQT backends."""
 
-    _backend: AQTResource
+    _backend: AnyAQTResource
 
     def __init__(
         self,
-        backend: AQTResource,
+        backend: AnyAQTResource,
         options: Optional[dict[str, Any]] = None,
         skip_transpilation: bool = False,
     ) -> None:
@@ -101,6 +101,6 @@ class AQTSampler(BackendSampler):
         )
 
     @property
-    def backend(self) -> AQTResource:
+    def backend(self) -> AnyAQTResource:
         """Computing resource used for circuit evaluation."""
         return self._backend

@@ -33,7 +33,7 @@ from qiskit.providers import Options as QiskitOptions
 from qiskit.providers.models import BackendConfiguration
 from qiskit.transpiler import Target
 from qiskit_aer import AerJob, AerSimulator, noise
-from typing_extensions import override
+from typing_extensions import TypeAlias, override
 
 from qiskit_aqt_provider import api_client
 from qiskit_aqt_provider.api_client import models as api_models
@@ -543,3 +543,7 @@ class OfflineSimulatorResource(AQTResource):
             resource_id=self.resource_id.resource_id,
             results=results,
         )
+
+
+AnyAQTResource: TypeAlias = Union[AQTResource, AQTDirectAccessResource]
+"""Type of any remote or direct access resource."""

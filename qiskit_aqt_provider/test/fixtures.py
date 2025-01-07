@@ -17,13 +17,13 @@ This module is exposed as pytest plugin for this project.
 
 import json
 import re
+import typing
 import uuid
 
 import httpx
 import pytest
 from pytest_httpx import HTTPXMock
 from qiskit.circuit import QuantumCircuit
-from qiskit.providers import BackendV2
 from qiskit_aer import AerSimulator
 from typing_extensions import override
 
@@ -33,6 +33,7 @@ from qiskit_aqt_provider.api_client import models_direct as api_models_direct
 from qiskit_aqt_provider.aqt_job import AQTJob
 from qiskit_aqt_provider.aqt_provider import AQTProvider
 from qiskit_aqt_provider.aqt_resource import (
+    AnyAQTResource,
     AQTDirectAccessResource,
     OfflineSimulatorResource,
     qubit_states_from_int,
@@ -142,10 +143,11 @@ def fixture_offline_simulator_no_noise_direct_access(
     name="any_offline_simulator_no_noise",
     params=["offline_simulator_no_noise", "offline_simulator_no_noise_direct_access"],
 )
-def fixture_any_offline_simulator_no_noise(request: pytest.FixtureRequest) -> BackendV2:
+def fixture_any_offline_simulator_no_noise(request: pytest.FixtureRequest) -> AnyAQTResource:
     """Noiseless, offline simulator backend.
 
     The fixture is parametrized to successively run the dependent tests
     with a regular cloud-bound backend, and a direct-access one.
     """
-    return request.getfixturevalue(request.param)
+    # cast: all fixture parameters have types compatible with this function's return type.
+    return typing.cast(AnyAQTResource, request.getfixturevalue(request.param))
