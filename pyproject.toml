@@ -213,6 +213,9 @@ relative_files = true
 [tool.coverage.report]
 fail_under = 99
 
+[tool.coverage.html]
+show_contexts = true
+
 [tool.pyright]
 exclude = [
   "**/__pycache__",

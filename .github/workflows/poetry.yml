@@ -89,6 +89,9 @@ jobs:
       - name: Generate coverage report
         run: poetry run coverage lcov -o coverage.lcov
         if: startsWith(matrix.os, 'ubuntu')
+      - name: Generate coverage HTML report
+        run: poetry run coverage html
+        if: startsWith(matrix.os, 'ubuntu')
       - name: Upload coverage report
         uses: coverallsapp/github-action@v2
         with:
@@ -96,6 +99,13 @@ jobs:
           parallel: true
           flag-name: run ${{ join(matrix.*, ' - ') }}
         if: startsWith(matrix.os, 'ubuntu')
+      - name: Upload coverage HTML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage-report
+          path: htmlcov
+        if: startsWith(matrix.os, 'ubuntu') && startsWith(matrix.python-version, '3.12')
+
   finish:
     needs: tests
     runs-on: ubuntu-latest
