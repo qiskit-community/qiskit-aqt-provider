@@ -33,7 +33,7 @@ from qiskit.providers import Options as QiskitOptions
 from qiskit.providers.models import BackendConfiguration
 from qiskit.transpiler import Target
 from qiskit_aer import AerJob, AerSimulator, noise
-from typing_extensions import override
+from typing_extensions import TypeAlias, override
 
 from qiskit_aqt_provider import api_client
 from qiskit_aqt_provider.api_client import models as api_models
@@ -452,7 +452,7 @@ class OfflineSimulatorResource(AQTResource):
             resource_id=resource_id,
         )
 
-        self.job: Optional[SimulatorJob] = None
+        self.jobs: dict[UUID, SimulatorJob] = {}
 
         if not with_noise_model:
             noise_model = None
@@ -491,12 +491,17 @@ class OfflineSimulatorResource(AQTResource):
             for circuit in job.api_submit_payload.payload.circuits
         ]
 
-        self.job = SimulatorJob(
+        sim_job = SimulatorJob(
             job=self.simulator.run(circuits, shots=job.options.shots),
             circuits=job.circuits,
             shots=job.options.shots,
         )
-        return self.job.job_id
+
+        # The Aer job is freshly created above, so its ID is unique
+        # among the keys in self.jobs.
+        self.jobs[sim_job.job_id] = sim_job
+
+        return sim_job.job_id
 
     @override
     def result(self, job_id: UUID) -> api_models.JobResponse:
@@ -514,13 +519,13 @@ class OfflineSimulatorResource(AQTResource):
         Raises:
             UnknownJobError: ``job_id`` doesn't correspond to a simulator job on this resource.
         """
-        if self.job is None or job_id != self.job.job_id:
+        if (job := self.jobs.get(job_id)) is None:
             raise api_models.UnknownJobError(str(job_id))
 
-        qiskit_result = self.job.job.result()
+        qiskit_result = job.job.result()
 
         results: dict[str, list[list[int]]] = {}
-        for circuit_index, circuit in enumerate(self.job.circuits):
+        for circuit_index, circuit in enumerate(job.circuits):
             samples: list[list[int]] = []
 
             # Use data()["counts"] instead of get_counts() to access the raw counts
@@ -543,3 +548,7 @@ class OfflineSimulatorResource(AQTResource):
             resource_id=self.resource_id.resource_id,
             results=results,
         )
+
+
+AnyAQTResource: TypeAlias = Union[AQTResource, AQTDirectAccessResource]
+"""Type of any remote or direct access resource."""

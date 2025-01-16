@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* Fix issue with oversized batches on offline simulators (#210)
+
 ## qiskit-aqt-provider v1.9.0
 
 * Fix source installation problem caused by removed `debugpy` 1.8.3 package (#188)

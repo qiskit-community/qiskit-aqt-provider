@@ -16,17 +16,17 @@ from typing import Any, Optional
 from qiskit.primitives import BackendEstimator
 
 from qiskit_aqt_provider import transpiler_plugin
-from qiskit_aqt_provider.aqt_resource import AQTResource, make_transpiler_target
+from qiskit_aqt_provider.aqt_resource import AnyAQTResource, make_transpiler_target
 
 
 class AQTEstimator(BackendEstimator):
     """:class:`BaseEstimatorV1 <qiskit.primitives.BaseEstimatorV1>` primitive for AQT backends."""
 
-    _backend: AQTResource
+    _backend: AnyAQTResource
 
     def __init__(
         self,
-        backend: AQTResource,
+        backend: AnyAQTResource,
         options: Optional[dict[str, Any]] = None,
         abelian_grouping: bool = True,
         skip_transpilation: bool = False,
@@ -66,6 +66,6 @@ class AQTEstimator(BackendEstimator):
         )
 
     @property
-    def backend(self) -> AQTResource:
+    def backend(self) -> AnyAQTResource:
         """Computing resource used for circuit evaluation."""
         return self._backend
