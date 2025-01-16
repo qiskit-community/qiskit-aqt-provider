@@ -520,7 +520,7 @@ class OfflineSimulatorResource(AQTResource):
             UnknownJobError: ``job_id`` doesn't correspond to a simulator job on this resource.
         """
         if (job := self.jobs.get(job_id)) is None:
-            raise api_models.UnknownJobError(str(job_id)) from None
+            raise api_models.UnknownJobError(str(job_id))
 
         qiskit_result = job.job.result()
 
