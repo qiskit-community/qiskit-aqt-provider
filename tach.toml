@@ -37,6 +37,7 @@ expose = [
     "__version__",
     # There are some instances of this, although not included in __all__
     "models.*",
+    "errors.*",
 ]
 from = [
     "qiskit_aqt_provider.api_client",

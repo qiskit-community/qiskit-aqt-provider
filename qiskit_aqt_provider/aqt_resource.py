@@ -38,6 +38,7 @@ from typing_extensions import TypeAlias, override
 from qiskit_aqt_provider import api_client
 from qiskit_aqt_provider.api_client import models as api_models
 from qiskit_aqt_provider.api_client import models_direct as api_models_direct
+from qiskit_aqt_provider.api_client.errors import http_response_raise_for_status
 from qiskit_aqt_provider.aqt_job import AQTDirectAccessJob, AQTJob
 from qiskit_aqt_provider.aqt_options import AQTDirectAccessOptions, AQTOptions
 from qiskit_aqt_provider.circuit_to_aqt import aqt_to_qiskit_circuit
@@ -256,12 +257,12 @@ class AQTResource(_ResourceBase[AQTOptions]):
         Returns:
             The unique identifier of the submitted job.
         """
-        resp = self._http_client.post(
-            f"/submit/{self.resource_id.workspace_id}/{self.resource_id.resource_id}",
-            json=job.api_submit_payload.model_dump(),
+        resp = http_response_raise_for_status(
+            self._http_client.post(
+                f"/submit/{self.resource_id.workspace_id}/{self.resource_id.resource_id}",
+                json=job.api_submit_payload.model_dump(),
+            )
         )
-
-        resp.raise_for_status()
         return api_models.Response.model_validate(resp.json()).job.job_id
 
     def result(self, job_id: UUID) -> api_models.JobResponse:
@@ -278,8 +279,7 @@ class AQTResource(_ResourceBase[AQTOptions]):
         Returns:
             AQT API payload with the job results.
         """
-        resp = self._http_client.get(f"/result/{job_id}")
-        resp.raise_for_status()
+        resp = http_response_raise_for_status(self._http_client.get(f"/result/{job_id}"))
         return api_models.Response.model_validate(resp.json())
 
 
@@ -343,8 +343,9 @@ class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):
         Returns:
             The unique identifier of the submitted job.
         """
-        resp = self._http_client.put("/circuit", json=circuit.model_dump())
-        resp.raise_for_status()
+        resp = http_response_raise_for_status(
+            self._http_client.put("/circuit", json=circuit.model_dump())
+        )
         return UUID(resp.json())
 
     def result(self, job_id: UUID, *, timeout: Optional[float]) -> api_models_direct.JobResult:
@@ -359,8 +360,9 @@ class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):
         Returns:
             Job result, as API payload.
         """
-        resp = self._http_client.get(f"/circuit/result/{job_id}", timeout=timeout)
-        resp.raise_for_status()
+        resp = http_response_raise_for_status(
+            self._http_client.get(f"/circuit/result/{job_id}", timeout=timeout)
+        )
         return api_models_direct.JobResult.model_validate(resp.json())
 
 

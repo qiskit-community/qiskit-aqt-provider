@@ -13,6 +13,8 @@ from typing import Final, Optional
 
 import httpx
 
+from qiskit_aqt_provider.api_client.errors import http_response_raise_for_status
+
 from . import models
 from .versions import make_user_agent
 
@@ -58,10 +60,9 @@ class PortalClient:
 
         Raises:
             httpx.NetworkError: connection to the remote portal failed.
-            httpx.HTTPStatusError: something went wrong with the request to the remote portal.
+            APIError: something went wrong with the request to the remote portal.
         """
         with self._http_client as client:
-            response = client.get("/workspaces")
+            response = http_response_raise_for_status(client.get("/workspaces"))
 
-        response.raise_for_status()
         return models.Workspaces.model_validate(response.json())
