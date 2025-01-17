@@ -3,6 +3,7 @@
 ## Unreleased
 
 * Fix issue with oversized batches on offline simulators (#210)
+* Improve reporting of known API calls error scenarios (#211)
 
 ## qiskit-aqt-provider v1.9.0
 
