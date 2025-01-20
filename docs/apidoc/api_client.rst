@@ -25,3 +25,7 @@ API client
    :members:
    :show-inheritance:
    :exclude-members: __init__, __new__, model_fields, model_computed_fields, model_config
+
+.. autoclass:: qiskit_aqt_provider.api_client.errors.APIError
+   :show-inheritance:
+   :exclude-members: __init__, __new__

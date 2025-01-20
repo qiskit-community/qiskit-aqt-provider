@@ -278,6 +278,7 @@ class AQTJob(JobV1):
 
         Raises:
             RuntimeError: this job was already submitted.
+            APIError: the operation failed on the remote portal.
         """
         if self.job_id():
             raise RuntimeError(f"Job already submitted (ID: {self.job_id()})")
@@ -290,6 +291,9 @@ class AQTJob(JobV1):
 
         Returns:
             Aggregated job status for all the circuits in this job.
+
+        Raises:
+            APIError: the operation failed on the remote portal.
         """
         payload = self._backend.result(uuid.UUID(self.job_id()))
 
@@ -343,6 +347,9 @@ class AQTJob(JobV1):
 
         Returns:
             The combined result of all circuit evaluations.
+
+        Raises:
+            APIError: the operation failed on the remote portal.
         """
         if self.options.with_progress_bar:
             context: Union[tqdm[NoReturn], _MockProgressBar] = tqdm(total=len(self.circuits))
@@ -438,6 +445,9 @@ class AQTDirectAccessJob(JobV1):
 
         Returns:
             The combined result of all circuit evaluations.
+
+        Raises:
+            APIError: the operation failed on the target resource.
         """
         if self.options.with_progress_bar:
             context: Union[tqdm[NoReturn], _MockProgressBar] = tqdm(total=len(self.circuits))

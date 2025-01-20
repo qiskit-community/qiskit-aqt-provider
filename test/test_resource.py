@@ -32,6 +32,7 @@ from typing_extensions import assert_type
 
 from qiskit_aqt_provider.api_client import models as api_models
 from qiskit_aqt_provider.api_client import models_direct as api_models_direct
+from qiskit_aqt_provider.api_client.errors import APIError
 from qiskit_aqt_provider.aqt_job import AQTJob
 from qiskit_aqt_provider.aqt_options import AQTDirectAccessOptions, AQTOptions
 from qiskit_aqt_provider.aqt_resource import AQTResource
@@ -328,15 +329,19 @@ def test_submit_payload_matches(httpx_mock: HTTPXMock) -> None:
 
 
 def test_submit_bad_request(httpx_mock: HTTPXMock) -> None:
-    """Check that AQTResource.submit raises an HTTPError if the request
+    """Check that AQTResource.submit raises an APIError if the request
     is flagged invalid by the server.
     """
     backend = DummyResource("")
     httpx_mock.add_response(status_code=httpx.codes.BAD_REQUEST)
 
     job = AQTJob(backend, circuits=[empty_circuit(2)], options=AQTOptions(shots=10))
-    with pytest.raises(httpx.HTTPError):
+    with pytest.raises(APIError) as excinfo:
         job.submit()
+
+    status_error = excinfo.value.__cause__
+    assert isinstance(status_error, httpx.HTTPStatusError)
+    assert status_error.response.status_code == httpx.codes.BAD_REQUEST
 
 
 def test_result_valid_response(httpx_mock: HTTPXMock) -> None:
@@ -369,14 +374,18 @@ def test_result_valid_response(httpx_mock: HTTPXMock) -> None:
 
 
 def test_result_bad_request(httpx_mock: HTTPXMock) -> None:
-    """Check that AQTResource.result raises an HTTPError if the request
+    """Check that AQTResource.result raises an APIError if the request
     is flagged invalid by the server.
     """
     backend = DummyResource("")
     httpx_mock.add_response(status_code=httpx.codes.BAD_REQUEST)
 
-    with pytest.raises(httpx.HTTPError):
+    with pytest.raises(APIError) as excinfo:
         backend.result(uuid.uuid4())
+
+    status_error = excinfo.value.__cause__
+    assert isinstance(status_error, httpx.HTTPStatusError)
+    assert status_error.response.status_code == httpx.codes.BAD_REQUEST
 
 
 def test_result_unknown_job(httpx_mock: HTTPXMock) -> None:
@@ -467,13 +476,35 @@ def test_offline_simulator_resource_propagate_memory_option(
 
 
 def test_direct_access_bad_request(httpx_mock: HTTPXMock) -> None:
-    """Check that direct-access resources raise a httpx.HTTPError on bad requests."""
+    """Check that direct-access resources raise an APIError on bad requests."""
     backend = DummyDirectAccessResource("token")
     httpx_mock.add_response(status_code=httpx.codes.BAD_REQUEST)
 
     job = backend.run(empty_circuit(2))
-    with pytest.raises(httpx.HTTPError):
+    with pytest.raises(APIError) as excinfo:
         job.result()
+
+    status_error = excinfo.value.__cause__
+    assert isinstance(status_error, httpx.HTTPStatusError)
+    assert status_error.response.status_code == httpx.codes.BAD_REQUEST
+
+
+def test_direct_access_too_few_ions_error_message(httpx_mock: HTTPXMock) -> None:
+    """Check error reporting when requesting more qubits than loaded ions."""
+    backend = DummyDirectAccessResource("token")
+    detail_str = "requested qubits > available qubits"
+    httpx_mock.add_response(
+        status_code=httpx.codes.REQUEST_ENTITY_TOO_LARGE, json={"detail": detail_str}
+    )
+
+    job = backend.run(empty_circuit(2))
+    with pytest.raises(APIError, match=detail_str) as excinfo:
+        job.result()
+
+    # The exception chain contains the original HTTP status error
+    status_error = excinfo.value.__cause__
+    assert isinstance(status_error, httpx.HTTPStatusError)
+    assert status_error.response.status_code == httpx.codes.REQUEST_ENTITY_TOO_LARGE
 
 
 @pytest.mark.parametrize("success", [False, True])

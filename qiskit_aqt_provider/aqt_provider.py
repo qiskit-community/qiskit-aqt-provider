@@ -35,6 +35,7 @@ from tabulate import tabulate
 from typing_extensions import TypeAlias, override
 
 from qiskit_aqt_provider.api_client import PortalClient, Resource, ResourceType, Workspace
+from qiskit_aqt_provider.api_client.errors import APIError
 from qiskit_aqt_provider.aqt_resource import (
     AQTDirectAccessResource,
     AQTResource,
@@ -234,7 +235,7 @@ class AQTProvider:
 
         # Only query if remote resources are requested.
         if backend_type != "offline_simulator":
-            with contextlib.suppress(httpx.HTTPError, httpx.NetworkError):
+            with contextlib.suppress(APIError, httpx.NetworkError):
                 remote_workspaces = self._portal_client.workspaces().filter(
                     name_pattern=name,
                     backend_type=backend_type if backend_type else None,
