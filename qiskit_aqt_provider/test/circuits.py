@@ -40,7 +40,7 @@ def assert_circuits_equal_ignore_global_phase(
 def assert_circuits_equivalent(result: QuantumCircuit, expected: QuantumCircuit) -> None:
     """Assert that the passed circuits are equivalent up to a global phase."""
     msg = f"\nexpected:\n{expected}\nresult:\n{result}"
-    assert Operator(expected).equiv(Operator(result)), msg  # noqa: S101
+    assert Operator.from_circuit(expected).equiv(Operator.from_circuit(result)), msg  # noqa: S101
 
 
 def empty_circuit(num_qubits: int, with_final_measurement: bool = True) -> QuantumCircuit:
