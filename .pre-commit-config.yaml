@@ -14,7 +14,7 @@ repos:
       - id: no-commit-to-branch
         args: [--branch, master]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.8.6"
+    rev: "v0.9.2"
     hooks:
       - id: ruff
         args: [ --fix ]
@@ -34,7 +34,7 @@ repos:
         args: [-v, qiskit_aqt_provider, test]
         pass_filenames: false  # needed if excluding files with pyproject.toml or setup.cfg
   - repo: https://github.com/gauge-sh/tach-pre-commit
-    rev: "v0.19.4"
+    rev: "v0.21.0"
     hooks:
       - id: tach
       - id: tach-external
