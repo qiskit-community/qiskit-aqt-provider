@@ -443,7 +443,7 @@ class ResultResponse(
             examples=[
                 {
                     "description": (
-                        "Job waiting in the queue to be picked up by the Quantum" " computer"
+                        "Job waiting in the queue to be picked up by the Quantum computer"
                     ),
                     "summary": "Queued Job",
                     "value": {
@@ -517,7 +517,7 @@ class ResultResponse(
                 },
                 {
                     "description": (
-                        "Job that created an error while being processed by the Quantum" " computer"
+                        "Job that created an error while being processed by the Quantum computer"
                     ),
                     "summary": "Failed Job",
                     "value": {
