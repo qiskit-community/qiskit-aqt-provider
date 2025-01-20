@@ -32,7 +32,6 @@ from qiskit_aqt_provider.test.circuits import (
     qft_circuit,
     random_circuit,
 )
-from qiskit_aqt_provider.versions import QISKIT_VERSION
 
 
 def test_no_circuit() -> None:
@@ -215,11 +214,7 @@ def test_convert_multiple_circuits() -> None:
         pytest.param(random_circuit(2, with_final_measurement=False), id="random-2"),
         pytest.param(random_circuit(3, with_final_measurement=False), id="random-3"),
         pytest.param(random_circuit(5, with_final_measurement=False), id="random-5"),
-        pytest.param(
-            qft_circuit(5),
-            id="qft-5",
-            marks=pytest.mark.xfail(QISKIT_VERSION >= "1.3", reason="See qiskit/qiskit#13693"),
-        ),
+        pytest.param(qft_circuit(5), id="qft-5"),
     ],
 )
 def test_convert_circuit_round_trip(
