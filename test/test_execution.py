@@ -394,9 +394,7 @@ def test_initialize_not_supported(offline_simulator_no_noise: AQTResource) -> No
 
     with pytest.raises(
         TranspilerError,
-        match=re.compile(
-            r"high\s?level\s?synthesis was unable to synthesize instruction", re.IGNORECASE
-        ),
+        match=re.compile(r"unable to translate the operations in the circuit", re.IGNORECASE),
     ):
         qiskit.transpile(qc, offline_simulator_no_noise)
 
