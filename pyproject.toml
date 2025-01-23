@@ -27,6 +27,7 @@ classifiers = [
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Topic :: Scientific/Engineering",
 ]
 keywords = [
@@ -60,7 +61,6 @@ python = ">=3.9,<3.14"
 
 annotated-types = ">=0.7.0"
 httpx = ">=0.24.0"
-numpy = ">=1"
 platformdirs = ">=3"
 pydantic = ">=2.5.0"
 pytest = { version = ">=8", optional = true }
@@ -75,6 +75,19 @@ qiskit-optimization = { version = ">=0.6.0", optional = true }
 tabulate = ">=0.9.0"
 tqdm = ">=4"
 typing-extensions = ">=4.0.0"
+
+# Restrict to versions with published wheels.
+scipy = [
+  { version = "^1.15", python = ">=3.10" },
+  { version = "^1,<1.15", python = "<3.10" },
+]
+
+# Restrict to versions with published wheels.
+numpy = [
+  { version = ">=1,<2.1", python = "<=3.9" },
+  { version = ">=1", python = ">3.9,<3.13" },
+  { version = ">=2.1", python = ">=3.13" },
+]
 
 [tool.poetry.group.dev.dependencies]
 autodoc-pydantic = "^2.0.1"

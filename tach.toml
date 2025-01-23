@@ -60,4 +60,6 @@ exclude = [
     # example dependencies:
     "qiskit_algorithms",
     "qiskit_optimization",
+    # transitive dependencies that are pinned in the project file
+    "scipy",
 ]
