@@ -85,7 +85,7 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu')
       - name: Docs
         run: poetry run poe docs
-        if: startsWith(matrix.os, 'ubuntu')
+        if: startsWith(matrix.os, 'ubuntu') && (matrix.python-version < '3.13')
       - name: Generate coverage report
         run: poetry run coverage lcov -o coverage.lcov
         if: startsWith(matrix.os, 'ubuntu')
