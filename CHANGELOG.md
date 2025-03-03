@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* Add support for Python 3.13 (#187)
+
 ## qiskit-aqt-provider v1.10.0
 
 * Fix issue with oversized batches on offline simulators (#210)
