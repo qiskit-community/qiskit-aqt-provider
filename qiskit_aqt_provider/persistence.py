@@ -19,7 +19,7 @@ from typing import Any, Optional, Union
 import platformdirs
 import pydantic as pdt
 from pydantic import ConfigDict, GetCoreSchemaHandler
-from pydantic_core import CoreSchema, core_schema
+from pydantic.types import CoreSchema, core_schema
 from qiskit import qpy
 from qiskit.circuit import QuantumCircuit
 from typing_extensions import Self

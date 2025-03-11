@@ -37,8 +37,10 @@ repos:
     rev: "v0.27.3"
     hooks:
       - id: tach
-      - id: tach-external
-        args: ["-e", "test/"]
+  - repo: https://github.com/fpgmaas/deptry
+    rev: "0.23.0"
+    hooks:
+      - id: deptry
   - repo: local
     hooks:
       - id: check-api-models
