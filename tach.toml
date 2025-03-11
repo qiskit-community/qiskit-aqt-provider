@@ -2,6 +2,8 @@ exclude = [
     "**/*__pycache__",
     "test",
     "docs",
+    "scripts",
+    "conftest.py",
 ]
 source_roots = [
     ".",
