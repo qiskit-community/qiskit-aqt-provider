@@ -19,7 +19,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 readonly SCRIPT_DIR
 
 # Tools to check.
-TOOLS=(ruff typos pyproject-fmt interrogate tach)
+TOOLS=(ruff typos pyproject-fmt interrogate tach deptry)
 readonly TOOLS
 
 # Entry point: check version consistency for all tools in TOOLS.
