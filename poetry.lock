@@ -1356,7 +1356,7 @@ testing = ["pygments", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdo
 name = "iniconfig"
 version = "2.0.0"
 description = "brain-dead simple config-ini parsing"
-optional = true
+optional = false
 python-versions = ">=3.7"
 files = [
     {file = "iniconfig-2.0.0-py3-none-any.whl", hash = "sha256:b6a85871a79d2e3b22d2d1b94ac2824226a63c6b741c88f7ae975f18b6778374"},
@@ -2684,7 +2684,7 @@ type = ["mypy (>=1.11.2)"]
 name = "pluggy"
 version = "1.5.0"
 description = "plugin and hook calling mechanisms for python"
-optional = true
+optional = false
 python-versions = ">=3.8"
 files = [
     {file = "pluggy-1.5.0-py3-none-any.whl", hash = "sha256:44e1ad92c8ca002de6377e165f3e0f1be63266ab4d554740532335b9d75ea669"},
@@ -3087,7 +3087,7 @@ toml-fmt-common = "1.0.1"
 name = "pytest"
 version = "8.3.5"
 description = "pytest: simple powerful testing with Python"
-optional = true
+optional = false
 python-versions = ">=3.8"
 files = [
     {file = "pytest-8.3.5-py3-none-any.whl", hash = "sha256:c69214aa47deac29fad6c2a4f590b9c4a9fdb16a403176fe154b79c0b4d4d820"},
@@ -3127,7 +3127,7 @@ testing = ["pytest-asyncio (==0.24.*)", "pytest-cov (==5.*)"]
 name = "pytest-mock"
 version = "3.14.0"
 description = "Thin-wrapper around the mock package for easier use with pytest"
-optional = true
+optional = false
 python-versions = ">=3.8"
 files = [
     {file = "pytest-mock-3.14.0.tar.gz", hash = "sha256:2719255a1efeceadbc056d6bf3df3d1c5015530fb40cf347c0f9afac88410bd0"},
@@ -3144,7 +3144,7 @@ dev = ["pre-commit", "pytest-asyncio", "tox"]
 name = "pytest-sugar"
 version = "1.0.0"
 description = "pytest-sugar is a plugin for pytest that changes the default look and feel of pytest (e.g. progressbar, show tests that fail instantly)."
-optional = true
+optional = false
 python-versions = "*"
 files = [
     {file = "pytest-sugar-1.0.0.tar.gz", hash = "sha256:6422e83258f5b0c04ce7c632176c7732cab5fdb909cb39cca5c9139f81276c0a"},
@@ -4513,7 +4513,7 @@ dev = ["build (==1.1.1)", "build (==1.2.1)", "coverage (==7.2.7)", "coverage (==
 name = "termcolor"
 version = "2.5.0"
 description = "ANSI color formatting for output in terminal"
-optional = true
+optional = false
 python-versions = ">=3.9"
 files = [
     {file = "termcolor-2.5.0-py3-none-any.whl", hash = "sha256:37b17b5fc1e604945c2642c872a3764b5d547a48009871aea3edd3afa180afb8"},
@@ -4907,9 +4907,9 @@ type = ["pytest-mypy"]
 
 [extras]
 examples = ["qiskit-algorithms", "qiskit-optimization"]
-test = ["pytest", "pytest-httpx", "pytest-mock", "pytest-sugar"]
+test = ["pytest", "pytest-httpx"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.14"
-content-hash = "c57b53134ea2356ff954ab3748f8dc770a5f436e6394edab401bc3f42412b411"
+content-hash = "223457130017585582c8d98528b24223d307fbd34efa7a7e6ce0d88903e2790b"
