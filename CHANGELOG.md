@@ -3,6 +3,7 @@
 ## Unreleased
 
 * Add support for Python 3.13 (#187)
+* Remove `pytest-mock` and `pytest-sugar` from the `test` dependencies group (#219)
 
 ## qiskit-aqt-provider v1.10.0
 
