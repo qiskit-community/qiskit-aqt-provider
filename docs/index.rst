@@ -79,5 +79,5 @@ For more details see the :ref:`user guide <user-guide>`, a selection of `example
   :caption: External links
 
   Repository <https://github.com/qiskit-community/qiskit-aqt-provider>
-  AQT <https://www.aqt.eu/qc-systems>
+  AQT <https://www.aqt.eu/products/arnica>
   API reference <https://arnica.aqt.eu/api/v1/docs>
