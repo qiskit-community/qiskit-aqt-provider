@@ -62,12 +62,12 @@ python = ">=3.9,<3.14"
 annotated-types = ">=0.7.0"
 httpx = ">=0.24.0"
 platformdirs = ">=3"
-pydantic = ">=2.5.0"
+pydantic = { version = ">=2.5.0", allow-prereleases = false }
 pydantic-core = ">=2"
 pytest = { version = ">=8", optional = true }
 pytest-httpx = { version = "^0.34.0", optional = true }
 python-dotenv = ">=1"
-qiskit = "^1"
+qiskit = { version = "^1", allow-prereleases = false }
 qiskit-aer = ">=0.13.2"
 qiskit-algorithms = { version = ">=0.2.1", optional = true }
 qiskit-optimization = { version = ">=0.6.0", optional = true }
@@ -110,10 +110,10 @@ qiskit = { version = "^1", extras = [
   "visualization",
 ] }
 rich = "^13.5.3"
-ruff = "^0.9.0"
+ruff = "^0.11.0"
 sphinx = ">=7,<7.3"
 sphinx-toolbox = "^3.5.0"
-tach = "^0.27.0"
+tach = "^0.28.0"
 tomlkit = "^0.13.2"
 typer = "^0.15.0"
 types-requests = "^2.28.11"
