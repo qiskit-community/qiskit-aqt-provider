@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## qiskit-aqt-provider v1.11.0
+
 * Add support for Python 3.13 (#187)
 * Remove `pytest-mock` and `pytest-sugar` from the `test` dependencies group (#219)
 * Fix outdated AQT website link in the docs (#221)
