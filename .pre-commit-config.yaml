@@ -14,7 +14,7 @@ repos:
       - id: no-commit-to-branch
         args: [--branch, master]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: "v0.11.2"
+    rev: "v0.11.4"
     hooks:
       - id: ruff
         args: [ --fix ]
@@ -24,7 +24,7 @@ repos:
     hooks:
       - id: pyproject-fmt
   - repo: https://github.com/crate-ci/typos
-    rev: "v1.30.2"
+    rev: "v1.31.1"
     hooks:
       - id: typos
   - repo: https://github.com/econchick/interrogate
@@ -34,7 +34,7 @@ repos:
         args: [-v, qiskit_aqt_provider, test]
         pass_filenames: false  # needed if excluding files with pyproject.toml or setup.cfg
   - repo: https://github.com/gauge-sh/tach-pre-commit
-    rev: "v0.28.3"
+    rev: "v0.28.5"
     hooks:
       - id: tach
   - repo: https://github.com/fpgmaas/deptry
