@@ -235,8 +235,6 @@ AQT backends only natively implement a limited but complete set of quantum gates
 
    print(list(backend.target.operation_names))
 
-.. warning:: For implementation reasons, the transpilation target declares :class:`RXGate <qiskit.circuit.library.RXGate>` as basis gate. The AQT API, however, only accepts the more general :class:`RGate <qiskit.circuit.library.RGate>`, in addition to :class:`RZGate <qiskit.circuit.library.RZGate>`, the entangling :class:`RXXGate <qiskit.circuit.library.RXXGate>`, and the :class:`Measure <qiskit.circuit.measure.Measure>` operation.
-
 The transpiler's entry point is the :func:`qiskit.transpile <qiskit.compiler.transpile>` function. The optimization level can be tuned using the ``optimization_level=0,1,2,3`` argument. One can inspect how the circuit is converted from the original one:
 
 .. jupyter-execute::
@@ -286,7 +284,7 @@ Transpiler plugin
 The built-in transpiler largely leverages the :mod:`qiskit.transpiler`. Custom passes are registered in addition to the presets, irrespective of the optimization level, to ensure that the transpiled circuit is compatible with the restricted parameter ranges accepted by the `AQT API <https://arnica.aqt.eu/api/v1/docs>`_:
 
 * in the translation stage, the :class:`WrapRxxAngles <qiskit_aqt_provider.transpiler_plugin.WrapRxxAngles>` pass exploits the periodicity of the :class:`RXXGate <qiskit.circuit.library.RXXGate>` to wrap its angle :math:`\theta` to the :math:`[0,\,\pi/2]` range. This may come at the expense of extra single-qubit rotations.
-* in the scheduling stage, the :class:`RewriteRxAsR <qiskit_aqt_provider.transpiler_plugin.RewriteRxAsR>` pass rewrites :class:`RXGate <qiskit.circuit.library.RXGate>` operations as :class:`RGate <qiskit.circuit.library.RGate>` and wraps the angles :math:`\theta\in[0,\,\pi]` and :math:`\phi\in[0,\,2\pi]`. This does not restrict the generality of quantum circuits and enables efficient native implementations.
+* in the scheduling stage, single-qubit gates runs are decomposed as ZXZ products using Qiskit's :class:`OneQubitEulerDecompose <qiskit.synthesis.OneQubitEulerDecomposer>`, taking advantage of the virtual nature of the Z gate on AQT's architecture. The :class:`RewriteRxAsR <qiskit_aqt_provider.transpiler_plugin.RewriteRxAsR>` pass subsequently rewrites :class:`RXGate <qiskit.circuit.library.RXGate>` operations as :class:`RGate <qiskit.circuit.library.RGate>`, wrapping the angle arguments to :math:`\theta\in[0,\,\pi]` and :math:`\phi\in[0,\,2\pi]`) in order to satisfy the AQT API constraints.
 
 .. tip:: AQT computing resources natively implement :class:`RXXGate <qiskit.circuit.library.RXXGate>` with :math:`\theta` continuously varying in :math:`(0,\,\pi/2]`. For optimal performance, the transpiler output should be inspected to make sure :class:`RXXGate <qiskit.circuit.library.RXXGate>` instances are not transpiled to unified angles (often :math:`\theta=\pi/2`).
 

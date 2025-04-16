@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* Match the gate sets used by the transpilation target and the API (#226)
+
 ## qiskit-aqt-provider v1.11.0
 
 * Add support for Python 3.13 (#187)

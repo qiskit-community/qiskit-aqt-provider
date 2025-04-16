@@ -37,14 +37,11 @@ class UnboundParametersTarget(Target):
     """Marker class for transpilation targets to disable passes that require bound parameters."""
 
 
-def bound_pass_manager(target: Target) -> PassManager:
+def bound_pass_manager() -> PassManager:
     """Transpilation passes to apply on circuits after the parameters are bound.
 
     This assumes that a preset pass manager was applied to the unbound circuits
     (by setting the target to an instance of `UnboundParametersTarget`).
-
-    Args:
-        target: transpilation target.
     """
     return PassManager(
         [
@@ -52,8 +49,8 @@ def bound_pass_manager(target: Target) -> PassManager:
             WrapRxxAngles(),
             # decompose the substituted Rxx gates
             Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]),
-            # collapse the single qubit runs as ZXZ
-            Optimize1qGatesDecomposition(target=target),
+            # collapse the single-qubit gates runs as ZXZ
+            Optimize1qGatesDecomposition(basis=["rx", "rz"]),
             # wrap the Rx angles, rewrite as R
             RewriteRxAsR(),
         ]
@@ -68,7 +65,11 @@ def rewrite_rx_as_r(theta: float) -> Instruction:
 
 
 class RewriteRxAsR(TransformationPass):
-    """Rewrite Rx(θ) as R(θ, φ) with θ ∈ [0, π] and φ ∈ [0, 2π]."""
+    """Rewrite Rx(θ) and R(θ, φ) as R(θ, φ) with θ ∈ [0, π] and φ ∈ [0, 2π].
+
+    Since the pass needs to determine if the relevant angles are in range,
+    target circuits must have all these angles bound when applying the pass.
+    """
 
     @map_exceptions(TranspilerError)
     def run(self, dag: DAGCircuit) -> DAGCircuit:
@@ -84,7 +85,8 @@ class AQTSchedulingPlugin(PassManagerStagePlugin):
     """Scheduling stage plugin for the :mod:`qiskit.transpiler`.
 
     If the transpilation target is not :class:`UnboundParametersTarget`,
-    register a :class:`RewriteRxAsR` pass irrespective of the optimization level.
+    register a single-qubit gates run decomposition and a :class:`RewriteRxAsR` pass,
+    irrespective of the optimization level.
     """
 
     def pass_manager(
@@ -97,11 +99,15 @@ class AQTSchedulingPlugin(PassManagerStagePlugin):
             return PassManager([])
 
         passes: list[BasePass] = [
-            # The Qiskit Target declares RX/RZ as basis gates.
-            # This allows decomposing any run of rotations into the ZXZ form, taking
-            # advantage of the free Z rotations.
-            # Since the API expects R/RZ as single-qubit operations,
-            # we rewrite all RX gates as R gates after optimizations have been performed.
+            # The transpilation target defines R/RZ/RXX as basis gates, so the
+            # single-qubit gates decomposition pass uses a RR decomposition, which
+            # emits code that requires two pulses per single-qubit gates run.
+            # Since Z gates are virtual, a ZXZ decomposition is better, because
+            # it only requires a single pulse.
+            # Apply the single-qubit gates decomposition assuming the basis gates are
+            # RX/RZ/RXX, then rewrite RX → R, also wrapping the angles to match
+            # the API constraints.
+            Optimize1qGatesDecomposition(basis=["rx", "rz"]),
             RewriteRxAsR(),
         ]
 

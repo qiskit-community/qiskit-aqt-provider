@@ -298,7 +298,7 @@ aer = "aer"
 shell = """
 set -eu
 coverage run ${cov_opts} -m pytest --hypothesis-profile=ci
-coverage report
+coverage report --show-missing
 """
 
 [[tool.poe.tasks.test.args]]

@@ -25,7 +25,7 @@ from uuid import UUID
 
 import httpx
 from qiskit import QuantumCircuit
-from qiskit.circuit.library import RXGate, RXXGate, RZGate
+from qiskit.circuit.library import RGate, RXXGate, RZGate
 from qiskit.circuit.measure import Measure
 from qiskit.circuit.parameter import Parameter
 from qiskit.providers import BackendV2 as Backend
@@ -68,12 +68,11 @@ def make_transpiler_target(target_cls: type[TargetT], num_qubits: int) -> Target
     target: TargetT = target_cls(num_qubits=num_qubits)
 
     theta = Parameter("θ")
+    phi = Parameter("φ")
     lam = Parameter("λ")
 
-    # configure the transpiler to use RX/RZ/RXX
-    # the custom scheduling pass rewrites RX to R to comply to the Arnica API format.
     target.add_instruction(RZGate(lam))
-    target.add_instruction(RXGate(theta))
+    target.add_instruction(RGate(theta, phi))
     target.add_instruction(RXXGate(theta))
     target.add_instruction(Measure())
 
@@ -114,7 +113,7 @@ class _ResourceBase(Generic[_OptionsType], Backend):
                 "local": False,
                 "coupling_map": None,
                 "description": "AQT trapped-ion device simulator",
-                "basis_gates": ["r", "rz", "rxx"],  # the actual basis gates
+                "basis_gates": [name for name in self.target.operation_names if name != "measure"],
                 "memory": True,
                 "n_qubits": num_qubits,
                 "conditional": False,
