@@ -55,6 +55,28 @@ class OptionsFactory(ModelFactory[AQTOptions]):
     query_timeout_seconds = 10.0
 
 
+def test_basis_gates_legacy_config_and_transpiler_match(
+    offline_simulator_no_noise: AQTResource,
+) -> None:
+    """Check that the basis gates sets are consistent.
+
+    The backend advertises the basis gate set in the legacy backend configuration namespace
+    and the transpiler target. Check that these two match.
+
+    Also check that the basis gate set and the gates constraints in the legacy configuration
+    namespace are consistent.
+    """
+    legacy_config = offline_simulator_no_noise.configuration()
+    legacy_basis_gates = set(legacy_config.basis_gates)
+    legacy_gates = {entry.name for entry in legacy_config.gates}
+
+    target_operations = set(offline_simulator_no_noise.target.operation_names)
+
+    # The transpilation target also advertises the 'measure' operation, which is not a gate.
+    assert target_operations - legacy_basis_gates == {"measure"}
+    assert legacy_basis_gates == legacy_gates
+
+
 def test_options_set_query_timeout(offline_simulator_no_noise: AQTResource) -> None:
     """Set the query timeout for job status queries with different values."""
     backend = offline_simulator_no_noise

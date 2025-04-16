@@ -113,7 +113,7 @@ class _ResourceBase(Generic[_OptionsType], Backend):
                 "local": False,
                 "coupling_map": None,
                 "description": "AQT trapped-ion device simulator",
-                "basis_gates": ["r", "rz", "rxx"],
+                "basis_gates": [name for name in self.target.operation_names if name != "measure"],
                 "memory": True,
                 "n_qubits": num_qubits,
                 "conditional": False,
