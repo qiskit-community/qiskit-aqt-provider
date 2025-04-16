@@ -49,7 +49,7 @@ def bound_pass_manager() -> PassManager:
             WrapRxxAngles(),
             # decompose the substituted Rxx gates
             Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]),
-            # collapse the 1-qubit gates runs as ZXZ
+            # collapse the single-qubit gates runs as ZXZ
             Optimize1qGatesDecomposition(basis=["rx", "rz"]),
             # wrap the Rx angles, rewrite as R
             RewriteRxAsR(),
@@ -85,7 +85,7 @@ class AQTSchedulingPlugin(PassManagerStagePlugin):
     """Scheduling stage plugin for the :mod:`qiskit.transpiler`.
 
     If the transpilation target is not :class:`UnboundParametersTarget`,
-    register a 1-qubit gates run decomposition and a :class:`RewriteRxAsR` pass,
+    register a single-qubit gates run decomposition and a :class:`RewriteRxAsR` pass,
     irrespective of the optimization level.
     """
 
@@ -100,11 +100,11 @@ class AQTSchedulingPlugin(PassManagerStagePlugin):
 
         passes: list[BasePass] = [
             # The transpilation target defines R/RZ/RXX as basis gates, so the
-            # 1-qubit gates decomposition pass uses a RR decomposition, which
-            # emits code that requires two pulses per 1-qubit gates run.
+            # single-qubit gates decomposition pass uses a RR decomposition, which
+            # emits code that requires two pulses per single-qubit gates run.
             # Since Z gates are virtual, a ZXZ decomposition is better, because
             # it only requires a single pulse.
-            # Apply the 1-qubit gates decomposition assuming the basis gates are
+            # Apply the single-qubit gates decomposition assuming the basis gates are
             # RX/RZ/RXX, then rewrite RX → R, also wrapping the angles to match
             # the API constraints.
             Optimize1qGatesDecomposition(basis=["rx", "rz"]),
