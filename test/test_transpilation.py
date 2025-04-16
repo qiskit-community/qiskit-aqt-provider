@@ -47,7 +47,7 @@ def test_rx_rewrite_example(
 ) -> None:
     """Snapshot test for the Rx(θ) → R(θ, φ) rule."""
     result = QuantumCircuit(1)
-    result.append(rewrite_rx_as_r(input_theta), (0,))
+    result.append(rewrite_rx_as_r(input_theta, wrap_angles=True), (0,))
 
     expected = QuantumCircuit(1)
     expected.r(output_theta, output_phi, 0)

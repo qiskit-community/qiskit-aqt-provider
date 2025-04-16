@@ -37,14 +37,11 @@ class UnboundParametersTarget(Target):
     """Marker class for transpilation targets to disable passes that require bound parameters."""
 
 
-def bound_pass_manager(target: Target) -> PassManager:
+def bound_pass_manager() -> PassManager:
     """Transpilation passes to apply on circuits after the parameters are bound.
 
     This assumes that a preset pass manager was applied to the unbound circuits
     (by setting the target to an instance of `UnboundParametersTarget`).
-
-    Args:
-        target: transpilation target.
     """
     return PassManager(
         [
@@ -52,23 +49,30 @@ def bound_pass_manager(target: Target) -> PassManager:
             WrapRxxAngles(),
             # decompose the substituted Rxx gates
             Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]),
-            # collapse the single qubit runs as ZXZ
-            Optimize1qGatesDecomposition(target=target),
+            # collapse the 1-qubit gates runs as ZXZ
+            Optimize1qGatesDecomposition(basis=["rx", "rz"]),
             # wrap the Rx angles, rewrite as R
-            RewriteRxAsR(),
+            RewriteRxAsRWrap(),
         ]
     )
 
 
-def rewrite_rx_as_r(theta: float) -> Instruction:
+def rewrite_rx_as_r(theta: float, wrap_angles: bool) -> Instruction:
     """Instruction equivalent to Rx(θ) as R(θ, φ) with θ ∈ [0, π] and φ ∈ [0, 2π]."""
+    if not wrap_angles:
+        return RGate(theta, 0.0)
+
     theta = math.atan2(math.sin(theta), math.cos(theta))
     phi = math.pi if theta < 0.0 else 0.0
     return RGate(abs(theta), phi)
 
 
-class RewriteRxAsR(TransformationPass):
-    """Rewrite Rx(θ) as R(θ, φ) with θ ∈ [0, π] and φ ∈ [0, 2π]."""
+class RewriteRxAsRWrap(TransformationPass):
+    """Rewrite Rx(θ) and R(θ, φ) as R(θ, φ) with θ ∈ [0, π] and φ ∈ [0, 2π].
+
+    Since the pass needs to determine if the relevant angles are in range,
+    target circuits must have all these angles bound when applying the pass.
+    """
 
     @map_exceptions(TranspilerError)
     def run(self, dag: DAGCircuit) -> DAGCircuit:
@@ -76,7 +80,23 @@ class RewriteRxAsR(TransformationPass):
         for node in dag.gate_nodes():
             if node.name == "rx":
                 (theta,) = node.op.params
-                dag.substitute_node(node, rewrite_rx_as_r(float(theta)))
+                dag.substitute_node(node, rewrite_rx_as_r(float(theta), wrap_angles=True))
+        return dag
+
+
+class RewriteRxAsRNoWrap(TransformationPass):
+    """Rewrite Rx(θ) as R(θ, 0).
+
+    This transformation pass can be applied to circuits with unbound parameters.
+    """
+
+    @map_exceptions(TranspilerError)
+    def run(self, dag: DAGCircuit) -> DAGCircuit:
+        """Apply the transformation pass."""
+        for node in dag.gate_nodes():
+            if node.name == "rx":
+                (theta,) = node.op.params
+                dag.substitute_node(node, rewrite_rx_as_r(float(theta), wrap_angles=False))
         return dag
 
 
@@ -84,7 +104,8 @@ class AQTSchedulingPlugin(PassManagerStagePlugin):
     """Scheduling stage plugin for the :mod:`qiskit.transpiler`.
 
     If the transpilation target is not :class:`UnboundParametersTarget`,
-    register a :class:`RewriteRxAsR` pass irrespective of the optimization level.
+    register a 1-qubit gates run decomposition and a :class:`RewriteRxAsRWrap` pass,
+    irrespective of the optimization level.
     """
 
     def pass_manager(
@@ -97,12 +118,16 @@ class AQTSchedulingPlugin(PassManagerStagePlugin):
             return PassManager([])
 
         passes: list[BasePass] = [
-            # The Qiskit Target declares RX/RZ as basis gates.
-            # This allows decomposing any run of rotations into the ZXZ form, taking
-            # advantage of the free Z rotations.
-            # Since the API expects R/RZ as single-qubit operations,
-            # we rewrite all RX gates as R gates after optimizations have been performed.
-            RewriteRxAsR(),
+            # The transpilation target defines R/RZ/RXX as basis gates, so the
+            # 1-qubit gates decomposition pass uses a RR decomposition, which
+            # emits code that requires two pulses per 1-qubit gates run.
+            # Since Z gates are virtual, a ZXZ decomposition is better, because
+            # it only requires a single pulse.
+            # Apply the 1-qubit gates decomposition assuming the basis gates are
+            # RX/RZ/RXX, then rewrite RX → R, also wrapping the angles to match
+            # the API constraints.
+            Optimize1qGatesDecomposition(basis=["rx", "rz"]),
+            RewriteRxAsRWrap(),
         ]
 
         return PassManager(passes)

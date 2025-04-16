@@ -12,7 +12,7 @@ Transpiler plugin
    :show-inheritance:
    :exclude-members: __init__, __new__
 
-.. autoclass:: qiskit_aqt_provider.transpiler_plugin.RewriteRxAsR
+.. autoclass:: qiskit_aqt_provider.transpiler_plugin.RewriteRxAsRWrap
    :show-inheritance:
    :exclude-members: __init__, __new__
 

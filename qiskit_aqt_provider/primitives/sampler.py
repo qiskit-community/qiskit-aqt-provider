@@ -95,7 +95,7 @@ class AQTSampler(BackendSampler):
 
         super().__init__(
             mod_backend,
-            bound_pass_manager=transpiler_plugin.bound_pass_manager(mod_backend.target),
+            bound_pass_manager=transpiler_plugin.bound_pass_manager(),
             options=options_copy,
             skip_transpilation=skip_transpilation,
         )
