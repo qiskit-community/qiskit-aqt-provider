@@ -52,22 +52,19 @@ def bound_pass_manager() -> PassManager:
             # collapse the 1-qubit gates runs as ZXZ
             Optimize1qGatesDecomposition(basis=["rx", "rz"]),
             # wrap the Rx angles, rewrite as R
-            RewriteRxAsRWrap(),
+            RewriteRxAsR(),
         ]
     )
 
 
-def rewrite_rx_as_r(theta: float, wrap_angles: bool) -> Instruction:
+def rewrite_rx_as_r(theta: float) -> Instruction:
     """Instruction equivalent to Rx(θ) as R(θ, φ) with θ ∈ [0, π] and φ ∈ [0, 2π]."""
-    if not wrap_angles:
-        return RGate(theta, 0.0)
-
     theta = math.atan2(math.sin(theta), math.cos(theta))
     phi = math.pi if theta < 0.0 else 0.0
     return RGate(abs(theta), phi)
 
 
-class RewriteRxAsRWrap(TransformationPass):
+class RewriteRxAsR(TransformationPass):
     """Rewrite Rx(θ) and R(θ, φ) as R(θ, φ) with θ ∈ [0, π] and φ ∈ [0, 2π].
 
     Since the pass needs to determine if the relevant angles are in range,
@@ -80,23 +77,7 @@ class RewriteRxAsRWrap(TransformationPass):
         for node in dag.gate_nodes():
             if node.name == "rx":
                 (theta,) = node.op.params
-                dag.substitute_node(node, rewrite_rx_as_r(float(theta), wrap_angles=True))
-        return dag
-
-
-class RewriteRxAsRNoWrap(TransformationPass):
-    """Rewrite Rx(θ) as R(θ, 0).
-
-    This transformation pass can be applied to circuits with unbound parameters.
-    """
-
-    @map_exceptions(TranspilerError)
-    def run(self, dag: DAGCircuit) -> DAGCircuit:
-        """Apply the transformation pass."""
-        for node in dag.gate_nodes():
-            if node.name == "rx":
-                (theta,) = node.op.params
-                dag.substitute_node(node, rewrite_rx_as_r(float(theta), wrap_angles=False))
+                dag.substitute_node(node, rewrite_rx_as_r(float(theta)))
         return dag
 
 
@@ -104,7 +85,7 @@ class AQTSchedulingPlugin(PassManagerStagePlugin):
     """Scheduling stage plugin for the :mod:`qiskit.transpiler`.
 
     If the transpilation target is not :class:`UnboundParametersTarget`,
-    register a 1-qubit gates run decomposition and a :class:`RewriteRxAsRWrap` pass,
+    register a 1-qubit gates run decomposition and a :class:`RewriteRxAsR` pass,
     irrespective of the optimization level.
     """
 
@@ -127,7 +108,7 @@ class AQTSchedulingPlugin(PassManagerStagePlugin):
             # RX/RZ/RXX, then rewrite RX → R, also wrapping the angles to match
             # the API constraints.
             Optimize1qGatesDecomposition(basis=["rx", "rz"]),
-            RewriteRxAsRWrap(),
+            RewriteRxAsR(),
         ]
 
         return PassManager(passes)
