@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* Point Qiskit docs links to quantum.cloud.ibm.com/docs (#229)
 * Match the gate sets used by the transpilation target and the API (#226)
 
 ## qiskit-aqt-provider v1.11.0
