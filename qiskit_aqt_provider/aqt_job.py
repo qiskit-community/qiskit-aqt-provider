@@ -215,8 +215,11 @@ class AQTJob(JobV1):
         Raises:
             JobNotFoundError: the target job was not found in persistent storage.
         """
-        from qiskit_aqt_provider.aqt_provider import AQTProvider
-        from qiskit_aqt_provider.aqt_resource import AQTResource, OfflineSimulatorResource
+        from qiskit_aqt_provider.aqt_provider import AQTProvider  # noqa: PLC0415
+        from qiskit_aqt_provider.aqt_resource import (  # noqa: PLC0415
+            AQTResource,
+            OfflineSimulatorResource,
+        )
 
         store_path = persistence.get_store_path(store_path)
         data = persistence.Job.restore(job_id, store_path)
