@@ -15,7 +15,6 @@
 import importlib.metadata
 import platform
 import re
-import typing
 from collections.abc import Collection, Iterator
 from re import Pattern
 from typing import Any, Final, Literal, Optional, Union
@@ -211,7 +210,7 @@ class Workspaces(
                         workspace_id=ws.id,
                         resource_id=res.id,
                         resource_name=res.name,
-                        resource_type=typing.cast(ResourceType, res.type.value),
+                        resource_type=res.type.value,
                     )
                     for res in ws.resources
                 ],
