@@ -54,6 +54,7 @@ class MockSimulator(OfflineSimulatorResource):
                 resource_id="mock_simulator",
                 resource_name="mock_simulator",
                 resource_type="offline_simulator",
+                available_qubits=20,
             ),
             with_noise_model=noisy,
         )
@@ -134,6 +135,10 @@ def fixture_offline_simulator_no_noise_direct_access(
     httpx_mock.add_callback(handle_submit, method="PUT", url=re.compile(".+/circuit/?$"))
     httpx_mock.add_callback(
         handle_result, method="GET", url=re.compile(".+/circuit/result/[0-9a-f-]+$")
+    )
+    httpx_mock.add_response(
+        json=json.loads(api_models_direct.NumIons(num_ions=21).model_dump_json()),
+        url=re.compile(".+/status/ions"),
     )
 
     return DummyDirectAccessResource("token")

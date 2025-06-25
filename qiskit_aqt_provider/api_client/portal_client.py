@@ -9,6 +9,7 @@
 # that they have been altered from the originals.
 
 import os
+from collections.abc import Iterator
 from typing import Final, Optional
 
 import httpx
@@ -16,6 +17,7 @@ import httpx
 from qiskit_aqt_provider.api_client.errors import http_response_raise_for_status
 
 from . import models
+from . import models_generated as api_models
 from .versions import make_user_agent
 
 DEFAULT_PORTAL_URL: Final = httpx.URL("https://arnica.aqt.eu")
@@ -63,6 +65,41 @@ class PortalClient:
             APIError: something went wrong with the request to the remote portal.
         """
         with self._http_client as client:
-            response = http_response_raise_for_status(client.get("/workspaces"))
+            return models.Workspaces(list(_fetch_workspaces_detailed(client)))
 
-        return models.Workspaces.model_validate(response.json())
+
+def _fetch_workspaces_summary(client: httpx.Client) -> models.ApiWorkspaces:
+    """Fetch the workspaces summary.
+
+    The returned payload contains all accessible workspaces and their contained
+    devices. The device information does not include detailed data.
+    """
+    response = http_response_raise_for_status(client.get("/workspaces"))
+    return models.ApiWorkspaces.model_validate(response.json())
+
+
+def _fetch_resource(workspace_id: str, resource_id: str, client: httpx.Client) -> models.Resource:
+    """Fetch all available information about a remote resource."""
+    response = http_response_raise_for_status(client.get(f"/resources/{resource_id}"))
+    details = api_models.ResourceDetails.model_validate(response.json())
+
+    return models.Resource(
+        workspace_id=workspace_id,
+        resource_id=resource_id,
+        resource_name=details.name,
+        resource_type=details.type.value,
+        available_qubits=details.available_qubits,
+    )
+
+
+def _fetch_workspaces_detailed(client: httpx.Client) -> Iterator[models.Workspace]:
+    """Fetch all available information about workspaces and their contained devices."""
+    workspaces = _fetch_workspaces_summary(client)
+    for workspace in workspaces.root:
+        yield models.Workspace(
+            workspace_id=workspace.id,
+            resources=[
+                _fetch_resource(workspace.id, resource.id, client)
+                for resource in workspace.resources
+            ],
+        )

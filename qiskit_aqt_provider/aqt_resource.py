@@ -37,6 +37,7 @@ from typing_extensions import TypeAlias, override
 
 from qiskit_aqt_provider import api_client
 from qiskit_aqt_provider.api_client import models as api_models
+from qiskit_aqt_provider.api_client import models_direct
 from qiskit_aqt_provider.api_client import models_direct as api_models_direct
 from qiskit_aqt_provider.api_client.errors import http_response_raise_for_status
 from qiskit_aqt_provider.aqt_job import AQTDirectAccessJob, AQTJob
@@ -89,7 +90,11 @@ class _ResourceBase(Generic[_OptionsType], Backend):
     """Common setup for AQT backends."""
 
     def __init__(
-        self, provider: "AQTProvider", name: str, options_type: type[_OptionsType]
+        self,
+        provider: "AQTProvider",
+        name: str,
+        options_type: type[_OptionsType],
+        available_qubits: int,
     ) -> None:
         """Initialize the Qiskit backend.
 
@@ -97,11 +102,11 @@ class _ResourceBase(Generic[_OptionsType], Backend):
             provider: Qiskit provider that owns this backend.
             name: name of the backend.
             options_type: options model. Must be default-initializable.
+            available_qubits: number of qubits jobs on this resource can use.
         """
         super().__init__(name=name, provider=provider)
 
-        num_qubits = 20
-        self._target = make_transpiler_target(Target, num_qubits)
+        self._target = make_transpiler_target(Target, available_qubits)
         self._options = options_type()
 
         self._configuration = BackendConfiguration.from_dict(
@@ -115,7 +120,7 @@ class _ResourceBase(Generic[_OptionsType], Backend):
                 "description": "AQT trapped-ion device simulator",
                 "basis_gates": [name for name in self.target.operation_names if name != "measure"],
                 "memory": True,
-                "n_qubits": num_qubits,
+                "n_qubits": available_qubits,
                 "conditional": False,
                 "max_shots": self._options.max_shots(),
                 "max_experiments": 1,
@@ -222,6 +227,7 @@ class AQTResource(_ResourceBase[AQTOptions]):
             name=resource_id.resource_id,
             provider=provider,
             options_type=AQTOptions,
+            available_qubits=resource_id.available_qubits,
         )
 
         self._http_client: httpx.Client = provider._portal_client._http_client
@@ -302,14 +308,19 @@ class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):
             provider: Qiskit provider that owns the backend.
             base_url: URL of the direct-access interface.
         """
+        self._http_client = api_models.http_client(
+            base_url=base_url, token=provider.access_token, user_agent_extra=USER_AGENT_EXTRA
+        )
+
+        available_qubits = models_direct.NumIons.model_validate(
+            http_response_raise_for_status(self._http_client.get("/status/ions")).json()
+        ).num_ions
+
         super().__init__(
             provider=provider,
             name="direct-access",
             options_type=AQTDirectAccessOptions,
-        )
-
-        self._http_client = api_models.http_client(
-            base_url=base_url, token=provider.access_token, user_agent_extra=USER_AGENT_EXTRA
+            available_qubits=available_qubits,
         )
 
     def run(
@@ -445,6 +456,7 @@ class OfflineSimulatorResource(AQTResource):
             provider: Qiskit provider that owns this backend.
             resource_id: identification of the offline simulator resource.
             with_noise_model: whether to configure a noise model in the simulator backend.
+            available_qubits: size of the quantum register to simulate.
         """
         assert resource_id.resource_type == "offline_simulator"  # noqa: S101
 

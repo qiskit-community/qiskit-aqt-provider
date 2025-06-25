@@ -87,13 +87,22 @@ Direct-access backends
 
 Direct-access resources handles are obtained from a provider using the :meth:`get_direct_access_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_direct_access_backend>` method:
 
-.. jupyter-execute::
+.. code-block:: python
 
    direct_access_backend = provider.get_direct_access_backend("http://URL")
 
 Contact your local system administrator to determine the exact base URL to access your local quantum computing system.
 
 .. tip:: Resources handles returned by :meth:`get_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_backend>` and :meth:`get_direct_access_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_direct_access_backend>` both implement the Qiskit :class:`BackendV2 <qiskit.providers.BackendV2>` interface can be used exchangeably in the following examples.
+
+Quantum register size
+=====================
+
+The number of qubits available on a given resource may vary. This is because the number of ions loaded in an AQT quantum computing resource is adjustable. All-to-all connectivity is always guaranteed, independently of the number of available qubits.
+
+The number of qubits available for remote and direct-access resources cannot be configured with this provider. For offline simulator, the `available_qubits` argument in :meth:`get_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_backend>` can be used to set the size of the simulated quantum register. By default, offline simulator are configured with 20 qubits.
+
+.. warning:: For remote and direct-access resources, the number of qubits is fetched from the resource when initializing the resource handle, i.e. when calling :meth:`get_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_backend>`. Subsequent transpilation calls will assume that at least this number of qubits is available.
 
 Quantum circuit evaluation
 ==========================

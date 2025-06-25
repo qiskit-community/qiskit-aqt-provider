@@ -35,7 +35,7 @@ from qiskit_aqt_provider.api_client import models_direct as api_models_direct
 from qiskit_aqt_provider.api_client.errors import APIError
 from qiskit_aqt_provider.aqt_job import AQTJob
 from qiskit_aqt_provider.aqt_options import AQTDirectAccessOptions, AQTOptions
-from qiskit_aqt_provider.aqt_resource import AQTResource
+from qiskit_aqt_provider.aqt_resource import AQTDirectAccessResource, AQTResource
 from qiskit_aqt_provider.circuit_to_aqt import circuits_to_aqt_job
 from qiskit_aqt_provider.test.circuits import assert_circuits_equal, empty_circuit, random_circuit
 from qiskit_aqt_provider.test.fixtures import MockSimulator
@@ -133,9 +133,12 @@ def test_options_types_and_constraints_cloud_resource(
     }
 
 
-def test_options_types_and_constraints_direct_access_resource() -> None:
+@pytest.mark.httpx_mock(assert_all_responses_were_requested=False)
+def test_options_types_and_constraints_direct_access_resource(
+    offline_simulator_no_noise_direct_access: AQTDirectAccessResource,
+) -> None:
     """Check that the options models and constraints are as expected for direct-access backends."""
-    backend = DummyDirectAccessResource("token")
+    backend = offline_simulator_no_noise_direct_access
 
     assert_type(backend.options, AQTDirectAccessOptions)
     assert isinstance(backend.options, AQTDirectAccessOptions)
@@ -499,8 +502,13 @@ def test_offline_simulator_resource_propagate_memory_option(
 
 def test_direct_access_bad_request(httpx_mock: HTTPXMock) -> None:
     """Check that direct-access resources raise an APIError on bad requests."""
-    backend = DummyDirectAccessResource("token")
+    httpx_mock.add_response(
+        json=json.loads(api_models_direct.NumIons(num_ions=2).model_dump_json()),
+        url=re.compile(".+/status/ions"),
+    )
     httpx_mock.add_response(status_code=httpx.codes.BAD_REQUEST)
+
+    backend = DummyDirectAccessResource("token")
 
     job = backend.run(empty_circuit(2))
     with pytest.raises(APIError) as excinfo:
@@ -513,11 +521,17 @@ def test_direct_access_bad_request(httpx_mock: HTTPXMock) -> None:
 
 def test_direct_access_too_few_ions_error_message(httpx_mock: HTTPXMock) -> None:
     """Check error reporting when requesting more qubits than loaded ions."""
-    backend = DummyDirectAccessResource("token")
     detail_str = "requested qubits > available qubits"
+
+    httpx_mock.add_response(
+        json=json.loads(api_models_direct.NumIons(num_ions=1).model_dump_json()),
+        url=re.compile(".+/status/ions"),
+    )
     httpx_mock.add_response(
         status_code=httpx.codes.REQUEST_ENTITY_TOO_LARGE, json={"detail": detail_str}
     )
+
+    backend = DummyDirectAccessResource("token")
 
     job = backend.run(empty_circuit(2))
     with pytest.raises(APIError, match=detail_str) as excinfo:
@@ -567,6 +581,10 @@ def test_direct_access_job_status(success: bool, httpx_mock: HTTPXMock) -> None:
     httpx_mock.add_callback(
         handle_result, method="GET", url=re.compile(".+/circuit/result/[0-9a-f-]+$")
     )
+    httpx_mock.add_response(
+        json=json.loads(api_models_direct.NumIons(num_ions=5).model_dump_json()),
+        url=re.compile(".+/status/ions"),
+    )
 
     backend = DummyDirectAccessResource("token")
     job = backend.run(empty_circuit(1), shots=shots)
@@ -585,6 +603,11 @@ def test_direct_access_job_status(success: bool, httpx_mock: HTTPXMock) -> None:
 @pytest.mark.parametrize("token", [str(uuid.uuid4()), ""])
 def test_direct_access_mocked_successful_transaction(token: str, httpx_mock: HTTPXMock) -> None:
     """Mock a successful single-circuit transaction on a direct-access resource."""
+    httpx_mock.add_response(
+        json=json.loads(api_models_direct.NumIons(num_ions=5).model_dump_json()),
+        url=re.compile(".+/status/ions"),
+    )
+
     backend = DummyDirectAccessResource(token)
     backend.options.with_progress_bar = False
 
@@ -646,6 +669,11 @@ def test_direct_access_mocked_failed_transaction(httpx_mock: HTTPXMock) -> None:
     The first two circuits succeed, the third one not. The fourth circuit would succeed,
     but is never executed.
     """
+    httpx_mock.add_response(
+        json=json.loads(api_models_direct.NumIons(num_ions=5).model_dump_json()),
+        url=re.compile(".+/status/ions"),
+    )
+
     token = str(uuid.uuid4())
     backend = DummyDirectAccessResource(token)
     backend.options.with_progress_bar = False

@@ -13,7 +13,6 @@
 import pytest
 
 from qiskit_aqt_provider.api_client import models as api_models
-from qiskit_aqt_provider.api_client import models_generated as api_models_generated
 
 
 def test_workspaces_container_empty() -> None:
@@ -31,7 +30,7 @@ def test_workspaces_contains() -> None:
     """Test the Workspaces.__contains__ implementation."""
     workspaces = api_models.Workspaces(
         root=[
-            api_models_generated.Workspace(id="w1", resources=[]),
+            api_models.Workspace(workspace_id="w1", resources=[]),
         ]
     )
 
@@ -43,8 +42,8 @@ def test_workspaces_filter_by_workspace() -> None:
     """Test filtering the Workspaces model content by workspace ID."""
     workspaces = api_models.Workspaces(
         root=[
-            api_models_generated.Workspace(id="w1", resources=[]),
-            api_models_generated.Workspace(id="w2", resources=[]),
+            api_models.Workspace(workspace_id="w1", resources=[]),
+            api_models.Workspace(workspace_id="w2", resources=[]),
         ]
     )
 
@@ -59,22 +58,34 @@ def test_workspaces_filter_by_name() -> None:
     """Test filtering the Workspaces model content by backend ID."""
     workspaces = api_models.Workspaces(
         root=[
-            api_models_generated.Workspace(
-                id="w1",
+            api_models.Workspace(
+                workspace_id="w1",
                 resources=[
-                    api_models_generated.Resource(
-                        id="r10", name="r10", type=api_models_generated.Type.device
+                    api_models.Resource(
+                        workspace_id="w1",
+                        resource_id="r10",
+                        resource_name="r10",
+                        resource_type="device",
+                        available_qubits=20,
                     ),
-                    api_models_generated.Resource(
-                        id="r20", name="r20", type=api_models_generated.Type.device
+                    api_models.Resource(
+                        workspace_id="w1",
+                        resource_id="r20",
+                        resource_name="r20",
+                        resource_type="device",
+                        available_qubits=20,
                     ),
                 ],
             ),
-            api_models_generated.Workspace(
-                id="w2",
+            api_models.Workspace(
+                workspace_id="w2",
                 resources=[
-                    api_models_generated.Resource(
-                        id="r11", name="r11", type=api_models_generated.Type.simulator
+                    api_models.Resource(
+                        workspace_id="w2",
+                        resource_id="r11",
+                        resource_name="r11",
+                        resource_type="simulator",
+                        available_qubits=20,
                     )
                 ],
             ),
@@ -85,19 +96,27 @@ def test_workspaces_filter_by_name() -> None:
 
     assert filtered == api_models.Workspaces(
         root=[
-            api_models_generated.Workspace(
-                id="w1",
+            api_models.Workspace(
+                workspace_id="w1",
                 resources=[
-                    api_models_generated.Resource(
-                        id="r10", name="r10", type=api_models_generated.Type.device
+                    api_models.Resource(
+                        workspace_id="w1",
+                        resource_id="r10",
+                        resource_name="r10",
+                        resource_type="device",
+                        available_qubits=20,
                     ),
                 ],
             ),
-            api_models_generated.Workspace(
-                id="w2",
+            api_models.Workspace(
+                workspace_id="w2",
                 resources=[
-                    api_models_generated.Resource(
-                        id="r11", name="r11", type=api_models_generated.Type.simulator
+                    api_models.Resource(
+                        workspace_id="w2",
+                        resource_id="r11",
+                        resource_name="r11",
+                        resource_type="simulator",
+                        available_qubits=20,
                     )
                 ],
             ),
@@ -109,14 +128,22 @@ def test_workspaces_filter_by_backend_type() -> None:
     """Test filtering the Workspaces model content by backend type."""
     workspaces = api_models.Workspaces(
         root=[
-            api_models_generated.Workspace(
-                id="w1",
+            api_models.Workspace(
+                workspace_id="w1",
                 resources=[
-                    api_models_generated.Resource(
-                        id="r1", name="r1", type=api_models_generated.Type.device
+                    api_models.Resource(
+                        workspace_id="w1",
+                        resource_id="r1",
+                        resource_name="r1",
+                        resource_type="device",
+                        available_qubits=20,
                     ),
-                    api_models_generated.Resource(
-                        id="r2", name="r2", type=api_models_generated.Type.simulator
+                    api_models.Resource(
+                        workspace_id="w1",
+                        resource_id="r2",
+                        resource_name="r2",
+                        resource_type="simulator",
+                        available_qubits=20,
                     ),
                 ],
             )
@@ -129,7 +156,11 @@ def test_workspaces_filter_by_backend_type() -> None:
         workspace_id="w1",
         resources=[
             api_models.Resource(
-                workspace_id="w1", resource_id="r2", resource_name="r2", resource_type="simulator"
+                workspace_id="w1",
+                resource_id="r2",
+                resource_name="r2",
+                resource_type="simulator",
+                available_qubits=20,
             )
         ],
     )

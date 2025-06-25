@@ -157,6 +157,7 @@ class TestResource(AQTResource):  # pylint: disable=too-many-instance-attributes
                 resource_id="test",
                 resource_name="test-resource",
                 resource_type="simulator",
+                available_qubits=20,
             ),
         )
 
@@ -228,6 +229,7 @@ class DummyResource(AQTResource):
                 resource_id="dummy",
                 resource_name="dummy",
                 resource_type="simulator",
+                available_qubits=20,
             ),
         )
 
@@ -239,5 +241,5 @@ class DummyDirectAccessResource(AQTDirectAccessResource):
         """Initialize the dummy backend."""
         super().__init__(
             AQTProvider(token),
-            base_url="direct-access-example.aqt.eu:6020",
+            base_url="https://direct-access-example.aqt.eu:6020",
         )
