@@ -19,6 +19,13 @@ import pydantic as pdt
 from typing_extensions import Self
 
 
+class NumIons(pdt.BaseModel):
+    """Response model for the `GET /status/ions` query."""
+
+    num_ions: int
+    """Number of ions loaded on the direct-access resource."""
+
+
 class JobResultError(pdt.BaseModel):
     """Failed job result payload."""
 

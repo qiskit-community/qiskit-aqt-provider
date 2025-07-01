@@ -100,6 +100,9 @@ class Resource(pdt.BaseModel):
     resource_type: ResourceType
     """Type of resource."""
 
+    available_qubits: int
+    """Number of qubits jobs on this resource can use."""
+
 
 class Workspace(pdt.BaseModel):
     """Description of a workspace and the resources it contains.
@@ -116,6 +119,14 @@ class Workspace(pdt.BaseModel):
     """Resources in the workspace."""
 
 
+class ApiWorkspaces(
+    pdt.RootModel  # type: ignore[type-arg]
+):
+    """List of available workspaces and devices, in API format."""
+
+    root: list[api_models.Workspace]
+
+
 class Workspaces(
     pdt.RootModel,  # type: ignore[type-arg]
     Collection[Workspace],
@@ -125,28 +136,34 @@ class Workspaces(
     ..
         >>> workspaces = Workspaces(
         ...     root=[
-        ...         api_models.Workspace(
-        ...             id="workspace0",
+        ...         Workspace(
+        ...             workspace_id="workspace0",
         ...             resources=[
-        ...                 api_models.Resource(
-        ...                     id="resource0",
-        ...                     name="resource0",
-        ...                     type=api_models.Type.device,
+        ...                 Resource(
+        ...                     workspace_id="workspace0",
+        ...                     resource_id="resource0",
+        ...                     resource_name="resource0",
+        ...                     resource_type="device",
+        ...                     available_qubits=10,
         ...                 ),
         ...             ],
         ...         ),
-        ...        api_models.Workspace(
-        ...            id="workspace1",
+        ...        Workspace(
+        ...            workspace_id="workspace1",
         ...            resources=[
-        ...                api_models.Resource(
-        ...                    id="resource0",
-        ...                    name="resource0",
-        ...                    type=api_models.Type.device,
+        ...                Resource(
+        ...                    workspace_id="workspace1",
+        ...                    resource_id="resource0",
+        ...                    resource_name="resource0",
+        ...                    resource_type="device",
+        ...                    available_qubits=20,
         ...                ),
-        ...                api_models.Resource(
-        ...                    id="resource1",
-        ...                    name="resource1",
-        ...                    type=api_models.Type.simulator,
+        ...                Resource(
+        ...                    workspace_id="workspace1",
+        ...                    resource_id="resource1",
+        ...                    resource_name="resource1",
+        ...                    resource_type="simulator",
+        ...                    available_qubits=12,
         ...                ),
         ...            ],
         ...        ),
@@ -159,11 +176,11 @@ class Workspaces(
 
         .. code-block::
 
-            | Workspace ID | Resource ID | Resource Type |
-            |--------------+-------------+---------------|
-            | workspace0   | resource0   | device        |
-            | workspace1   | resource0   | device        |
-            | workspace1   | resource1   | simulator     |
+            | Workspace ID | Resource ID | Resource Type | Available Qubits |
+            |--------------+-------------+---------------|--------|
+            | workspace0   | resource0   | device        |     10 |
+            | workspace1   | resource0   | device        |     20 |
+            | workspace1   | resource1   | simulator     |     12 |
 
         Gather basic information:
 
@@ -192,7 +209,7 @@ class Workspaces(
         [('workspace0', 'resource0'), ('workspace1', 'resource0')]
     """
 
-    root: list[api_models.Workspace]
+    root: list[Workspace]
 
     @override
     def __len__(self) -> int:
@@ -202,19 +219,7 @@ class Workspaces(
     @override
     def __iter__(self) -> Iterator[Workspace]:  # type: ignore[override]
         """Iterator over the workspaces."""
-        for ws in self.root:
-            yield Workspace(
-                workspace_id=ws.id,
-                resources=[
-                    Resource(
-                        workspace_id=ws.id,
-                        resource_id=res.id,
-                        resource_name=res.name,
-                        resource_type=res.type.value,
-                    )
-                    for res in ws.resources
-                ],
-            )
+        yield from self.root
 
     @override
     def __contains__(self, obj: object) -> bool:
@@ -222,7 +227,7 @@ class Workspaces(
         if not isinstance(obj, Workspace):  # pragma: no cover
             return False
 
-        return any(ws.id == obj.workspace_id for ws in self.root)
+        return any(ws.workspace_id == obj.workspace_id for ws in self.root)
 
     def filter(
         self,
@@ -245,22 +250,24 @@ class Workspaces(
         """
         filtered_workspaces = []
         for workspace in self.root:
-            if workspace_pattern is not None and not re.match(workspace_pattern, workspace.id):
+            if workspace_pattern is not None and not re.match(
+                workspace_pattern, workspace.workspace_id
+            ):
                 continue
 
             filtered_resources = []
 
             for resource in workspace.resources:
-                if backend_type is not None and resource.type.value != backend_type:
+                if backend_type is not None and resource.resource_type != backend_type:
                     continue
 
-                if name_pattern is not None and not re.match(name_pattern, resource.id):
+                if name_pattern is not None and not re.match(name_pattern, resource.resource_id):
                     continue
 
                 filtered_resources.append(resource)
 
             filtered_workspaces.append(
-                api_models.Workspace(id=workspace.id, resources=filtered_resources)
+                Workspace(workspace_id=workspace.workspace_id, resources=filtered_resources)
             )
 
         return self.__class__(root=filtered_workspaces)

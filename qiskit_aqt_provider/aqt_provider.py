@@ -30,7 +30,9 @@ from typing import (
 
 import dotenv
 import httpx
+from qiskit.exceptions import QiskitError
 from qiskit.providers.exceptions import QiskitBackendNotFoundError
+from qiskit.transpiler import Target
 from tabulate import tabulate
 from typing_extensions import TypeAlias, override
 
@@ -40,6 +42,7 @@ from qiskit_aqt_provider.aqt_resource import (
     AQTDirectAccessResource,
     AQTResource,
     OfflineSimulatorResource,
+    make_transpiler_target,
 )
 from qiskit_aqt_provider.versions import USER_AGENT_EXTRA
 
@@ -85,7 +88,13 @@ class BackendsTable(Sequence[AQTResource]):
             backends: list of available backends.
         """
         self.backends = backends
-        self.headers = ["Workspace ID", "Resource ID", "Description", "Resource type"]
+        self.headers = [
+            "Workspace ID",
+            "Resource ID",
+            "Description",
+            "Resource type",
+            "Available qubits",
+        ]
 
     @overload
     def __getitem__(self, index: int) -> AQTResource: ...
@@ -133,6 +142,7 @@ class BackendsTable(Sequence[AQTResource]):
                     resource.resource_id.resource_id,
                     resource.resource_id.resource_name,
                     resource.resource_id.resource_type,
+                    resource.target.num_qubits,
                 ]
                 if count != 0:
                     # don't repeat the workspace id
@@ -259,6 +269,7 @@ class AQTProvider:
                             resource_id=simulator.id,
                             resource_name=simulator.name,
                             resource_type="offline_simulator",
+                            available_qubits=20,
                         ),
                         with_noise_model=simulator.noisy,
                     )
@@ -283,6 +294,7 @@ class AQTProvider:
         *,
         backend_type: Optional[ResourceType] = None,
         workspace: Optional[Union[str, Pattern[str]]] = None,
+        available_qubits: Optional[int] = None,
     ) -> AQTResource:
         """Return a handle for a cloud quantum computing resource matching the specified filtering.
 
@@ -290,6 +302,8 @@ class AQTProvider:
             name: filter for the backend name.
             backend_type: if given, restrict the search to the given backend type.
             workspace: if given, restrict to matching workspace IDs.
+            available_qubits: only valid for ``offline_simulator``-type backends. If given,
+              set the size of the quantum register to simulate.
 
         Returns:
             Backend: backend matching the filtering.
@@ -302,12 +316,22 @@ class AQTProvider:
         # after ProviderV1 deprecation.
         # See: https://github.com/Qiskit/qiskit/pull/12145.
         backends = self.backends(name, backend_type=backend_type, workspace=workspace)
-        if len(backends) > 1:
+        if len(backends) > 1:  # pragma: no cover
             raise QiskitBackendNotFoundError("More than one backend matches the criteria")
-        if not backends:
+        if not backends:  # pragma: no cover
             raise QiskitBackendNotFoundError("No backend matches the criteria")
 
-        return backends[0]
+        selected_backend = backends[0]
+
+        if available_qubits is not None:
+            if not isinstance(selected_backend, OfflineSimulatorResource):
+                raise QiskitError(
+                    "available_qubits can only be used when selecting an offline simulator"
+                )
+
+            selected_backend._target = make_transpiler_target(Target, available_qubits)
+
+        return selected_backend
 
     def get_direct_access_backend(self, base_url: str, /) -> AQTDirectAccessResource:
         """Return a handle for a direct-access quantum computing resource.

@@ -103,6 +103,7 @@ def test_job_persistence_transaction_online_backend(httpx_mock: HTTPXMock, tmp_p
         resource_id=str(uuid.uuid4()),
         resource_name=str(uuid.uuid4()),
         resource_type="device",
+        available_qubits=32,
     )
     backend = AQTResource(provider, resource_id)
 

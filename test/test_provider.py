@@ -16,16 +16,20 @@ import os
 import re
 import uuid
 from pathlib import Path
+from typing import Optional
 from unittest import mock
 
 import httpx
 import pytest
 from pytest_httpx import HTTPXMock
+from qiskit.exceptions import QiskitError
 
 from qiskit_aqt_provider.api_client import DEFAULT_PORTAL_URL
 from qiskit_aqt_provider.api_client import models as api_models
+from qiskit_aqt_provider.api_client import models_direct as api_models_direct
 from qiskit_aqt_provider.api_client import models_generated as api_models_generated
 from qiskit_aqt_provider.aqt_provider import OFFLINE_SIMULATORS, AQTProvider, NoTokenWarning
+from qiskit_aqt_provider.test.resources import DummyDirectAccessResource
 
 
 def test_default_portal_url() -> None:
@@ -127,8 +131,10 @@ def test_remote_workspaces_table(httpx_mock: HTTPXMock) -> None:
 
     httpx_mock.add_response(
         url=re.compile(".+/workspaces$"),
-        json=json.loads(api_models.Workspaces(root=remote_workspaces).model_dump_json()),
+        json=json.loads(api_models.ApiWorkspaces(root=remote_workspaces).model_dump_json()),
     )
+
+    httpx_mock.add_callback(sample_resource_details, url=re.compile(".+/resources/.+"))
 
     provider = AQTProvider("my-token")
 
@@ -182,8 +188,10 @@ def test_remote_workspaces_filtering_prefix_collision(httpx_mock: HTTPXMock) -> 
 
     httpx_mock.add_response(
         url=re.compile(".+/workspaces$"),
-        json=json.loads(api_models.Workspaces(root=remote_workspaces).model_dump_json()),
+        json=json.loads(api_models.ApiWorkspaces(root=remote_workspaces).model_dump_json()),
     )
+
+    httpx_mock.add_callback(sample_resource_details, url=re.compile(".+/resources/.+"))
 
     provider = AQTProvider("my-token")
 
@@ -224,3 +232,139 @@ def test_remote_workspaces_filtering_prefix_collision(httpx_mock: HTTPXMock) -> 
         for workspace in ("workspace", "workspace_extra")
         for backend in both_ws[workspace]
     } == {"foo", "foo-extra"}
+
+
+def test_remote_resource_target_matches_available_qubits(httpx_mock: HTTPXMock) -> None:
+    """Check that the remote resources' targets have the expected number of qubits.
+
+    When enumerating devices, the provider also fetches the number of qubits available
+    per device. This value is used to configure the transpilation target for that device.
+    """
+    available_qubits = 42
+
+    remote_workspaces = [
+        api_models_generated.Workspace(
+            id="w1",
+            resources=[
+                api_models_generated.Resource(
+                    id="r1", name="r1-name", type=api_models_generated.Type.device
+                )
+            ],
+        )
+    ]
+
+    httpx_mock.add_response(
+        url=re.compile(".+/workspaces$"),
+        json=json.loads(api_models.ApiWorkspaces(root=remote_workspaces).model_dump_json()),
+    )
+
+    httpx_mock.add_response(
+        url=re.compile(".+/resources/r1$"),
+        json=json.loads(
+            api_models_generated.ResourceDetails(
+                id="r1",
+                name="r1_name",
+                status=api_models_generated.ResourceStates.online,
+                type=api_models_generated.Type.device,
+                available_qubits=available_qubits,
+            ).model_dump_json()
+        ),
+    )
+
+    provider = AQTProvider("my-token")
+
+    # There's only one resource in workspace w1.
+    resource = provider.backends().by_workspace()["w1"][0]
+    assert resource.target.num_qubits == available_qubits
+
+
+def test_direct_access_resource_target_matches_available_qubits(httpx_mock: HTTPXMock) -> None:
+    """Check that the direct-access resources' targets have the expected number of qubits.
+
+    When initializing direct-access devices, we fetch the number of available qubits.
+    This value is used to configure the transpilation target for that device.
+
+    This is a *resource* test but is placed in this module since it mirrors the one above
+    that checks the same property for remote devices.
+    """
+    available_qubits = 24
+
+    httpx_mock.add_response(
+        json=json.loads(api_models_direct.NumIons(num_ions=available_qubits).model_dump_json()),
+        url=re.compile(".+/status/ions"),
+    )
+
+    assert DummyDirectAccessResource("token").target.num_qubits == available_qubits
+
+
+@pytest.mark.parametrize("available_qubits", [None, 32])
+def test_offline_simulator_set_qubits(available_qubits: Optional[int]) -> None:
+    """Check that one can configure the offline simulators' number of qubits in `get_backend()`."""
+    provider = AQTProvider("my-token")
+    backend = provider.get_backend("offline_simulator_no_noise", available_qubits=available_qubits)
+
+    # 20 is the default number of qubits for the offline simulators
+    assert backend.target.num_qubits == available_qubits if available_qubits is not None else 20
+
+
+@pytest.mark.parametrize("try_set_qubits", [False, True])
+def test_cannot_set_qubits_for_remote_resource(try_set_qubits: bool, httpx_mock: HTTPXMock) -> None:
+    """Check that `get_backend(available_qubits=...)` is not valid for remote resources."""
+    remote_workspaces = [
+        api_models_generated.Workspace(
+            id="w1",
+            resources=[
+                api_models_generated.Resource(
+                    id="r1", name="r1-name", type=api_models_generated.Type.device
+                )
+            ],
+        )
+    ]
+
+    httpx_mock.add_response(
+        url=re.compile(".+/workspaces$"),
+        json=json.loads(api_models.ApiWorkspaces(root=remote_workspaces).model_dump_json()),
+    )
+
+    httpx_mock.add_response(
+        url=re.compile(".+/resources/r1$"),
+        json=json.loads(
+            api_models_generated.ResourceDetails(
+                id="r1",
+                name="r1_name",
+                status=api_models_generated.ResourceStates.online,
+                type=api_models_generated.Type.device,
+                available_qubits=123,
+            ).model_dump_json()
+        ),
+    )
+
+    provider = AQTProvider("my-token")
+
+    if try_set_qubits:
+        with pytest.raises(QiskitError, match=r"available_qubits"):
+            backend = provider.get_backend("r1", available_qubits=321)
+    else:
+        backend = provider.get_backend("r1")
+        assert backend.target.num_qubits == 123
+
+
+def sample_resource_details(request: httpx.Request) -> httpx.Response:
+    """Mock response for the `GET /resources/<resource_id>` query.
+
+    Return details for an online remote device with 20 qubits.
+    """
+    _, resource_id = request.url.path.rstrip("/").rsplit("/", maxsplit=1)
+
+    return httpx.Response(
+        status_code=httpx.codes.OK,
+        json=json.loads(
+            api_models_generated.ResourceDetails(
+                id=resource_id,
+                name=resource_id,
+                status=api_models_generated.ResourceStates.online,
+                type=api_models_generated.Type.device,
+                available_qubits=20,
+            ).model_dump_json()
+        ),
+    )
