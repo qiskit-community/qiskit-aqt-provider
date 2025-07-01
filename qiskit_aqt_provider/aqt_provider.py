@@ -93,7 +93,7 @@ class BackendsTable(Sequence[AQTResource]):
             "Resource ID",
             "Description",
             "Resource type",
-            "Available Qubits",
+            "Available qubits",
         ]
 
     @overload

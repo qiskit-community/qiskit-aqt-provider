@@ -176,7 +176,7 @@ class Workspaces(
 
         .. code-block::
 
-            | Workspace ID | Resource ID | Resource Type | Qubits |
+            | Workspace ID | Resource ID | Resource Type | Available Qubits |
             |--------------+-------------+---------------|--------|
             | workspace0   | resource0   | device        |     10 |
             | workspace1   | resource0   | device        |     20 |
