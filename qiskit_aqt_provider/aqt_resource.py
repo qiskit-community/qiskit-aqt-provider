@@ -412,7 +412,7 @@ def qubit_states_from_int(state: int, num_qubits: int) -> list[int]:
     return [(state >> qubit) & 1 for qubit in range(num_qubits)]
 
 
-@dataclass(frozen=True)
+@dataclass
 class SimulatorJob:
     """Data for a job running on a local simulator."""
 
@@ -424,6 +424,9 @@ class SimulatorJob:
 
     shots: int
     """Number of repetitions of each circuit."""
+
+    retrieved: bool
+    """Whether the job result was already retrieved."""
 
     @property
     def job_id(self) -> UUID:
@@ -508,6 +511,7 @@ class OfflineSimulatorResource(AQTResource):
             job=self.simulator.run(circuits, shots=job.options.shots),
             circuits=job.circuits,
             shots=job.options.shots,
+            retrieved=False,
         )
 
         # The Aer job is freshly created above, so its ID is unique
@@ -531,9 +535,14 @@ class OfflineSimulatorResource(AQTResource):
 
         Raises:
             UnknownJobError: ``job_id`` doesn't correspond to a simulator job on this resource.
+            HTTPStatusError: If the job result has already been retrieved.
         """
         if (job := self.jobs.get(job_id)) is None:
             raise api_models.UnknownJobError(str(job_id))
+
+        if job.retrieved:
+            fake_response: httpx.Response = httpx.Response(status_code=410, text="This job has already been retrieved")
+            raise httpx.HTTPStatusError(message="This job has already been retrieved", request=httpx.Request(method="GET", url=""), response=fake_response)
 
         qiskit_result = job.job.result()
 
@@ -555,6 +564,7 @@ class OfflineSimulatorResource(AQTResource):
 
             results[str(circuit_index)] = samples
 
+        job.retrieved = True
         return api_models.Response.finished(
             job_id=job_id,
             workspace_id=self.resource_id.workspace_id,
