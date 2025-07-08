@@ -2,9 +2,12 @@
 
 ## Unreleased
 
+## qiskit-aqt-provider v1.13.0
+
 * Configure resources transpilation targets with the actual number of available qubits (#237)
 
 ## qiskit-aqt-provider v1.12.0
+
 * Point Qiskit docs links to quantum.cloud.ibm.com/docs (#229)
 * Match the gate sets used by the transpilation target and the API (#226)
 
