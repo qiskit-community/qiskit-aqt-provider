@@ -12,7 +12,6 @@
 
 import base64
 import io
-import typing
 from pathlib import Path
 from typing import Any, Optional, Union
 
@@ -60,7 +59,7 @@ class Circuits:
         already formed instances of this class and returns them unvalidated.
         """
         if isinstance(value, Circuits):  # self bypass
-            return typing.cast(Self, value)
+            return value
 
         if not isinstance(value, str):
             raise ValueError(f"Expected string, received {type(value)}")
