@@ -124,7 +124,7 @@ components:
       type: object
     GateRZ:
       additionalProperties: false
-      description: "### A single-qubit rotation rotation around the Bloch sphere's\
+      description: "### A single-qubit rotation around the Bloch sphere's\
         \ z-axis.\n\nThe Rz-gate on qubit j with pulse area \u03B8 in units of \u03C0\
         \ is defined as\n    $$\n    U_{\\mathrm{R_z}}^j(\\theta) =\n    \\exp\\left(\
         \ -\\mathrm{i} \\theta \\frac{\\pi}{2} \\sigma_z^j \\right) =\n    \\begin{pmatrix}\n\

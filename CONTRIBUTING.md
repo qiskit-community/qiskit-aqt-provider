@@ -9,7 +9,7 @@ the [issue tracker](https://github.com/Qiskit/qiskit-aqt-provider/issues).
 
 ### Improvement proposal
 
-If you have an idea for a new feature please open an **Feature Requestt** issue
+If you have an idea for a new feature please open an **Feature Request** issue
 in the [issue tracker](https://github.com/Qiskit/qiskit-aqt-provider/issues). Opening
 an issue starts a discussion with the team about your idea, how it fits in with
 the project, how it can be implemented, etc.
@@ -97,7 +97,6 @@ statement as to what the original problem is. The bug is merely interesting
 historical background on *how* the problem was identified. It should be
 possible to review a proposed patch for correctness from the commit message,
  without needing to read the bug ticket.
-bug ticket.
 
 * Do not assume the code is self-evident/self-documenting.
 
@@ -221,7 +220,7 @@ tox -epy37 -- -n test.test_examples.TestPythonExamples.test_all_examples
 
 To enforce a consistent code style in the project we use
 [Pylint](https://www.pylint.org) and
-[pycodesytle](https://pycodestyle.readthedocs.io/en/latest/)
+[pycodestyle](https://pycodestyle.readthedocs.io/en/latest/)
 to verify that code contributions conform respect the projects
 style guide. To verify that your changes conform to the style
 guide you can run: `tox -elint`
@@ -229,7 +228,7 @@ guide you can run: `tox -elint`
 ## Documentation
 
 The documentation for the Python SDK is auto-generated from Python
-docstrings using [Sphinx](http://www.sphinx-doc.org. Please follow [Google's Python Style
+docstrings using [Sphinx](http://www.sphinx-doc.org). Please follow [Google's Python Style
 Guide](https://google.github.io/styleguide/pyguide.html?showone=Comments#Comments)
 for docstrings. A good example of the style can also be found with
 [Sphinx's napoleon converter
