@@ -214,7 +214,7 @@ For example, the :class:`AQTSampler <qiskit_aqt_provider.primitives.sampler.AQTS
    plot_distribution(data, figsize=(5, 4), color="#d1e0e0")
 
 
-In this Bell state, the expectation value of the the :math:`\sigma_z\otimes\sigma_z` operator is :math:`1`. This expectation value can be evaluated by applying the :class:`AQTEstimator <qiskit_aqt_provider.primitives.estimator.AQTEstimator>`:
+In this Bell state, the expectation value of the :math:`\sigma_z\otimes\sigma_z` operator is :math:`1`. This expectation value can be evaluated by applying the :class:`AQTEstimator <qiskit_aqt_provider.primitives.estimator.AQTEstimator>`:
 
 .. jupyter-execute::
 
