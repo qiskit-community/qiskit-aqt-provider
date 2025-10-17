@@ -19,6 +19,48 @@ Handles to computing resources are obtained through the :class:`AQTProvider <qis
 
 .. tip:: If no access token to the AQT cloud is available, the :class:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider>` can nevertheless provide handles to direct-access resources and AQT-compatible simulators running on the local machine. This is the default behavior if the ``access_token`` argument to :meth:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider.__init__>` is empty or invalid.
 
+
+Authentication with an Arnica account
+-------------------------------------
+.. tip:: Use this method if you were asked to create your own account to use the AQT Arnica portal.
+   
+Use the `ArnicaApp` helper class to log in and store your access token securely on the local machine.
+
+.. jupyter-execute::
+
+   from qiskit_aqt_provider import AQTProvider
+   from qiskit_aqt_provider.aqt_provider import ArnicaApp, log_in
+
+   arnica = ArnicaApp()
+   log_in(arnica)
+   provider = AQTProvider(None, arnica)
+
+
+Authentication with client credentials
+-------------------------------------
+.. tip:: Use this method if you received client credentials from AQT to use the Arnica portal.
+
+Use the `ArnicaConfig` helper class to configure an instance of `ArnicaApp`. These credentials will be exchanged for an
+access token, which is stored on the local machine when you log in.
+
+.. jupyter-execute::
+
+   from qiskit_aqt_provider import AQTProvider
+   from qiskit_aqt_provider.aqt_provider import ArnicaApp, ArnicaConfig, log_in
+
+   config = ArnicaConfig(
+       client_id="YOUR_CLIENT_ID",
+       client_secret="YOUR_CLIENT_SECRET",
+   )
+   arnica = ArnicaApp(config)
+   log_in(arnica)
+   provider = AQTProvider(None, arnica)
+
+
+Authentication with an API token
+--------------------------------
+.. tip:: If you received an access token from AQT, you can use it to authenticate with the AQT cloud portal and access remote quantum computing resources.
+
 The access token can be configured by passing it as the first argument to the
 :class:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider>` initializer:
 

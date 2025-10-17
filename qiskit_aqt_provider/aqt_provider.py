@@ -30,6 +30,7 @@ from typing import (
 
 import dotenv
 import httpx
+from aqt_connector import ArnicaApp, ArnicaConfig, get_access_token, log_in
 from qiskit.exceptions import QiskitError
 from qiskit.providers.exceptions import QiskitBackendNotFoundError
 from qiskit.transpiler import Target
@@ -45,6 +46,19 @@ from qiskit_aqt_provider.aqt_resource import (
     make_transpiler_target,
 )
 from qiskit_aqt_provider.versions import USER_AGENT_EXTRA
+
+__all__ = [
+    "OFFLINE_SIMULATORS",
+    "AQTProvider",
+    "ArnicaApp",
+    "ArnicaConfig",
+    "BackendsTable",
+    "NoTokenWarning",
+    "OfflineSimulator",
+    "StrPath",
+    "get_access_token",
+    "log_in",
+]
 
 StrPath: TypeAlias = Union[str, Path]
 
@@ -159,17 +173,19 @@ class AQTProvider:
     def __init__(
         self,
         access_token: Optional[str] = None,
+        arnica: Optional[ArnicaApp] = None,
         *,
         load_dotenv: bool = True,
         dotenv_path: Optional[StrPath] = None,
     ) -> None:
         """Initialize the AQT provider.
 
-        The access token for the AQT cloud can be provided either through the
-        ``access_token`` argument or the ``AQT_TOKEN`` environment variable.
+        The access token for the AQT cloud can be provided either by:
+          - passing an authorised :class:`ArnicaApp` instance as the ``arnica`` argument, or;
+          - passing an access token as the ``access_token`` argument, or;
+          - setting the access token to the ``AQT_TOKEN`` environment variable.
 
-        .. hint:: If no token is set (neither through the ``access_token`` argument nor
-            through the ``AQT_TOKEN`` environment variable), the provider is initialized
+        .. hint:: If no access token is given, the provider is initialized
             with access to the offline simulators only and :class:`NoTokenWarning` is
             emitted.
 
@@ -184,13 +200,16 @@ class AQTProvider:
 
         Args:
             access_token: AQT cloud access token.
+            arnica: Arnica application instance.
             load_dotenv: whether to load environment variables from a ``.env`` file.
             dotenv_path: path to the environment file. This implies ``load_dotenv``.
         """
         if load_dotenv or dotenv_path is not None:
             dotenv.load_dotenv(dotenv_path)
 
-        if access_token is None:
+        if arnica and (stored_token := get_access_token(arnica)):
+            self.access_token = stored_token
+        elif access_token is None:
             self.access_token = os.environ.get("AQT_TOKEN", "")
         else:
             self.access_token = access_token

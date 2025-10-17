@@ -16,7 +16,7 @@ import os
 import re
 import uuid
 from pathlib import Path
-from typing import Optional
+from typing import Optional, cast
 from unittest import mock
 
 import httpx
@@ -28,7 +28,12 @@ from qiskit_aqt_provider.api_client import DEFAULT_PORTAL_URL
 from qiskit_aqt_provider.api_client import models as api_models
 from qiskit_aqt_provider.api_client import models_direct as api_models_direct
 from qiskit_aqt_provider.api_client import models_generated as api_models_generated
-from qiskit_aqt_provider.aqt_provider import OFFLINE_SIMULATORS, AQTProvider, NoTokenWarning
+from qiskit_aqt_provider.aqt_provider import (
+    OFFLINE_SIMULATORS,
+    AQTProvider,
+    ArnicaApp,
+    NoTokenWarning,
+)
 from qiskit_aqt_provider.test.resources import DummyDirectAccessResource
 
 
@@ -79,6 +84,26 @@ def test_access_token_argument_precedence_over_envvar(monkeypatch: pytest.Monkey
 
     aqt = AQTProvider(arg_token)
     assert aqt.access_token == arg_token
+
+
+def test_access_token_from_arnica_app() -> None:
+    """Check that when an ArnicaApp instance is passed, the access token is
+    retrieved via get_access_token and used by the provider.
+    """
+    token = str(uuid.uuid4())
+
+    class DummyArnica:
+        pass
+
+    dummy_arnica = DummyArnica()
+
+    with mock.patch(
+        "qiskit_aqt_provider.aqt_provider.get_access_token", return_value=token
+    ) as mocked_get:
+        provider = AQTProvider(arnica=cast(ArnicaApp, dummy_arnica))
+
+        mocked_get.assert_called_once_with(dummy_arnica)
+        assert provider.access_token == token
 
 
 def test_autoload_env(tmp_path: Path) -> None:
