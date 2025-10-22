@@ -57,7 +57,7 @@ access token, which is stored on the local machine when you log in.
    provider = AQTProvider(None, arnica)
 
 
-Authentication with an API token
+Authentication with a static API token
 --------------------------------
 .. tip:: If you received an access token from AQT, you can use it to authenticate with the AQT cloud portal and access remote quantum computing resources.
 
