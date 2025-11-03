@@ -523,7 +523,22 @@ def _partial_qiskit_result_dict(
     data: dict[str, Any] = {"counts": _format_counts(samples, meas_map)}
 
     if memory:
-        data["memory"] = ["".join(str(x) for x in reversed(states)) for states in samples]
+        # build per-shot classical memory strings using the measurement mapping
+        mem_slots = circuit.num_clbits
+        memory_list: list[str] = []
+        for states in samples:
+            # initialize classical register (all 0)
+            creg = ["0"] * mem_slots
+            for src_index, dest_indices in meas_map.items():
+                if src_index < len(states):
+                    src_bit = str(states[src_index])
+                    for dest_index in dest_indices:
+                        # place measured bit into the classical register position(s)
+                        if 0 <= dest_index < mem_slots:
+                            creg[dest_index] = src_bit
+            # Qiskit orders memory strings with bit 0 as least-significant (rightmost)
+            memory_list.append("".join(reversed(creg)))
+        data["memory"] = memory_list
 
     return {
         "shots": shots,
