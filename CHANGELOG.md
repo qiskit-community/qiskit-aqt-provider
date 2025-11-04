@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* Add unavailable as possible resource state (#244)
+
 ## qiskit-aqt-provider v1.13.0
 
 * Configure resources transpilation targets with the actual number of available qubits (#237)
