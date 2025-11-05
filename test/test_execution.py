@@ -239,6 +239,39 @@ def test_get_memory_ancilla_qubits(
     assert len(memory) == shots
 
 
+@pytest.mark.parametrize(
+    ("clbits", "flip", "measure", "expected"),
+    [
+        (5, [1], [0, 1, 2, 3, 4], "00010"),
+        (3, [1], [0, 1, 2], "010"),
+        (2, [2, 4], [3, 4], "10"),
+        (3, [2, 3], [1, 2, 3], "110"),
+        (3, [2, 4], [0, 2, 4], "110"),
+    ],
+)
+def test_memory_ignores_unmeasured_qubits(
+    clbits: int,
+    flip: list[int],
+    measure: list[int],
+    expected: str,
+    any_offline_simulator_no_noise: AnyAQTResource,
+) -> None:
+    """Regression test: memory should only contain measured classical bits."""
+    qc = QuantumCircuit(5, clbits)
+    for i in flip:
+        qc.x(i)
+    qc.measure(measure, range(clbits))
+
+    job = any_offline_simulator_no_noise.run(
+        qiskit.transpile(qc, any_offline_simulator_no_noise), shots=2, memory=True
+    )
+
+    memory = job.result().get_memory()
+
+    assert set(memory) == {expected}
+    assert len(memory) == 2
+
+
 @pytest.mark.parametrize("shots", [123])
 def test_get_memory_bit_ordering(
     shots: int, any_offline_simulator_no_noise: AnyAQTResource
