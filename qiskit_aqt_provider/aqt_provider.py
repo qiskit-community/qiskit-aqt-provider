@@ -63,11 +63,27 @@ StrPath: TypeAlias = Union[str, Path]
 
 
 class ArnicaConfig(BaseArnicaConfig):
-    """Configuration for the AQT Arnica service."""
+    """Configuration for the SDK.
 
-    def __init__(self) -> None:
-        """Initializes the configuration."""
-        super().__init__(get_store_path())
+    Attributes:
+        arnica_url (str): the base URL of the Arnica API. Defaults to "https://arnica.aqt.eu/api".
+        client_id (str | None): the ID to use for authentication with client credentials. Defaults
+            to None.
+        client_secret (str | None): the secret to use for authentication with client credentials.
+            Defaults to None.
+        store_access_token (bool): when True, the access (and any refresh) token will be persisted
+            to the ``store_path`` passed at initialisation. Defaults to True.
+        oidc_config (object): configuration for the OIDC provider. You will not
+            normally need to modify this.
+    """
+
+    def __init__(self, store_path: Optional[Path] = None) -> None:
+        """Initializes the configuration.
+
+        Args:
+            store_path: Local persistent storage directory. Defaults to a standard cache directory.
+        """
+        super().__init__(get_store_path(store_path))
 
 
 class NoTokenWarning(UserWarning):
