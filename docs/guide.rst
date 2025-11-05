@@ -24,37 +24,34 @@ Authentication with an Arnica account
 -------------------------------------
 .. tip:: Use this method if you were asked to create your own account to use the AQT Arnica portal.
    
-Use the `ArnicaApp` helper class to log in and store your access token securely on the local machine.
+Call :meth:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider.__init__>` to log in and store your access token securely on the local machine.
 
 .. jupyter-execute::
 
    from qiskit_aqt_provider import AQTProvider
-   from qiskit_aqt_provider.aqt_provider import ArnicaApp, log_in
 
-   arnica = ArnicaApp()
-   log_in(arnica)
-   provider = AQTProvider(None, arnica)
+   provider = AQTProvider()
+   provider.log_in()
 
 
 Authentication with client credentials
 -------------------------------------
 .. tip:: Use this method if you received client credentials from AQT to use the Arnica portal.
 
-Use the `ArnicaConfig` helper class to configure an instance of `ArnicaApp`. These credentials will be exchanged for an
-access token, which is stored on the local machine when you log in.
+Use the `ArnicaConfig` helper class to configure the provider, then call :meth:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider.__init__>` to exchange your credentials for an
+access token, which is stored on the local machine.
 
 .. jupyter-execute::
 
    from qiskit_aqt_provider import AQTProvider
-   from qiskit_aqt_provider.aqt_provider import ArnicaApp, ArnicaConfig, log_in
+   from qiskit_aqt_provider.aqt_provider import ArnicaConfig
 
    config = ArnicaConfig(
        client_id="YOUR_CLIENT_ID",
        client_secret="YOUR_CLIENT_SECRET",
    )
-   arnica = ArnicaApp(config)
-   log_in(arnica)
-   provider = AQTProvider(None, arnica)
+   provider = AQTProvider(None, config)
+   provider.log_in()
 
 
 Authentication with a static API token
