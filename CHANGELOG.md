@@ -2,7 +2,13 @@
 
 ## Unreleased
 
+
+## qiskit-aqt-provider v1.14.0
+
+* Fix typos (#243)
 * Add unavailable as possible resource state (#244)
+* Fix memory handling in result formatting to include only measured bits (#245)
+* Add aqt-connector and use OIDC authentication feature (#246)
 
 ## qiskit-aqt-provider v1.13.0
 
