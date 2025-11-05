@@ -547,6 +547,7 @@ components:
       - online
       - maintenance
       - offline
+      - unavailable
       title: ResourceStates
       type: string
     ResultResponse:

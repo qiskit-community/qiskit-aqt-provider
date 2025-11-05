@@ -271,6 +271,7 @@ class ResourceStates(Enum):
     online = "online"
     maintenance = "maintenance"
     offline = "offline"
+    unavailable = "unavailable"
 
 
 class SubmitJobResponse(BaseModel):
