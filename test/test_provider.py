@@ -102,7 +102,7 @@ def test_log_in_uses_config(monkeypatch: pytest.MonkeyPatch) -> None:
     aqt = AQTProvider(None, expected_config)
     aqt.log_in()
 
-    assert used_config == expected_config
+    assert used_config is expected_config
 
 
 def test_log_in_sets_token(monkeypatch: pytest.MonkeyPatch) -> None:
