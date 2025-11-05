@@ -239,31 +239,37 @@ def test_get_memory_ancilla_qubits(
     assert len(memory) == shots
 
 
-@pytest.mark.parametrize("shots", [123])
+@pytest.mark.parametrize(
+    ("clbits", "flip", "measure", "expected"),
+    [
+        (5, [1], [0, 1, 2, 3, 4], "00010"),
+        (3, [1], [0, 1, 2], "010"),
+        (2, [2, 4], [3, 4], "10"),
+        (3, [2, 3], [1, 2, 3], "110"),
+        (3, [2, 4], [0, 2, 4], "110"),
+    ],
+)
 def test_memory_ignores_unmeasured_qubits(
-    shots: int, any_offline_simulator_no_noise: AnyAQTResource
+    clbits: int,
+    flip: list[int],
+    measure: list[int],
+    expected: str,
+    any_offline_simulator_no_noise: AnyAQTResource,
 ) -> None:
-    """Regression test: memory should only contain measured classical bits.
-
-    Create a 3-qubit circuit, flip the 3rd qubit (index 2) and only measure
-    qubits 0 and 1 into a 2-bit classical register. The memory strings must
-    therefore only contain the two measured bits (e.g. '00'), not the state of
-    the unmeasured qubit.
-    """
-    qc = QuantumCircuit(3, 2)
-    qc.x(2)
-    qc.measure([0, 1], [0, 1])
+    """Regression test: memory should only contain measured classical bits."""
+    qc = QuantumCircuit(5, clbits)
+    for i in flip:
+        qc.x(i)
+    qc.measure(measure, range(clbits))
 
     job = any_offline_simulator_no_noise.run(
-        qiskit.transpile(qc, any_offline_simulator_no_noise), shots=shots, memory=True
+        qiskit.transpile(qc, any_offline_simulator_no_noise), shots=2, memory=True
     )
 
     memory = job.result().get_memory()
 
-    # All shots should yield only the two measured bits; the unmeasured qubit
-    # (index 2) must not appear in the memory strings.
-    assert set(memory) == {"00"}
-    assert len(memory) == shots
+    assert set(memory) == {expected}
+    assert len(memory) == 2
 
 
 @pytest.mark.parametrize("shots", [123])
