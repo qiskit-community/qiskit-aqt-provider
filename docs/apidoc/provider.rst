@@ -4,10 +4,14 @@
 AQTProvider
 ===========
 
+
 .. autoclass:: qiskit_aqt_provider.aqt_provider.AQTProvider
    :members:
    :show-inheritance:
    :inherited-members:
+
+.. autoclass:: qiskit_aqt_provider.aqt_provider.ArnicaConfig
+   :members:
 
 .. autoclass:: qiskit_aqt_provider.aqt_provider.BackendsTable
    :members:

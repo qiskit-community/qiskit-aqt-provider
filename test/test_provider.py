@@ -16,11 +16,12 @@ import os
 import re
 import uuid
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 from unittest import mock
 
 import httpx
 import pytest
+from aqt_connector import ArnicaApp
 from pytest_httpx import HTTPXMock
 from qiskit.exceptions import QiskitError
 
@@ -28,7 +29,12 @@ from qiskit_aqt_provider.api_client import DEFAULT_PORTAL_URL
 from qiskit_aqt_provider.api_client import models as api_models
 from qiskit_aqt_provider.api_client import models_direct as api_models_direct
 from qiskit_aqt_provider.api_client import models_generated as api_models_generated
-from qiskit_aqt_provider.aqt_provider import OFFLINE_SIMULATORS, AQTProvider, NoTokenWarning
+from qiskit_aqt_provider.aqt_provider import (
+    OFFLINE_SIMULATORS,
+    AQTProvider,
+    ArnicaConfig,
+    NoTokenWarning,
+)
 from qiskit_aqt_provider.test.resources import DummyDirectAccessResource
 
 
@@ -79,6 +85,39 @@ def test_access_token_argument_precedence_over_envvar(monkeypatch: pytest.Monkey
 
     aqt = AQTProvider(arg_token)
     assert aqt.access_token == arg_token
+
+
+def test_log_in_uses_config(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Check that calling `log_in` uses the provided ArnicaConfig for authentication."""
+    used_config: Any = None
+
+    def mock_log_in(arnica: ArnicaApp) -> str:
+        nonlocal used_config
+        used_config = arnica.config
+        return "dummy-token"
+
+    monkeypatch.setattr("qiskit_aqt_provider.aqt_provider.log_in", mock_log_in)
+
+    expected_config = ArnicaConfig()
+    aqt = AQTProvider(None, expected_config)
+    aqt.log_in()
+
+    assert used_config is expected_config
+
+
+def test_log_in_sets_token(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Check that calling `log_in` sets the access token in the provider."""
+    expected_token = str(uuid.uuid4())
+
+    def mock_log_in(_arnica: ArnicaApp) -> str:
+        return expected_token
+
+    monkeypatch.setattr("qiskit_aqt_provider.aqt_provider.log_in", mock_log_in)
+
+    aqt = AQTProvider(None, ArnicaConfig())
+    aqt.log_in()
+
+    assert aqt.access_token == expected_token
 
 
 def test_autoload_env(tmp_path: Path) -> None:
