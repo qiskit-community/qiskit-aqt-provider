@@ -16,7 +16,7 @@ import os
 import re
 import uuid
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 from unittest import mock
 
 import httpx
@@ -89,7 +89,7 @@ def test_access_token_argument_precedence_over_envvar(monkeypatch: pytest.Monkey
 
 def test_log_in_uses_config(monkeypatch: pytest.MonkeyPatch) -> None:
     """Check that calling `log_in` uses the provided ArnicaConfig for authentication."""
-    used_config: Optional[ArnicaConfig] = None
+    used_config: Any = None
 
     def mock_log_in(arnica: ArnicaApp) -> str:
         nonlocal used_config
