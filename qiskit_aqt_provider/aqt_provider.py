@@ -30,7 +30,8 @@ from typing import (
 
 import dotenv
 import httpx
-from aqt_connector import ArnicaApp, ArnicaConfig, log_in
+from aqt_connector import ArnicaApp, log_in
+from aqt_connector import ArnicaConfig as BaseArnicaConfig
 from qiskit.exceptions import QiskitError
 from qiskit.providers.exceptions import QiskitBackendNotFoundError
 from qiskit.transpiler import Target
@@ -45,6 +46,7 @@ from qiskit_aqt_provider.aqt_resource import (
     OfflineSimulatorResource,
     make_transpiler_target,
 )
+from qiskit_aqt_provider.persistence import get_store_path
 from qiskit_aqt_provider.versions import USER_AGENT_EXTRA
 
 __all__ = [
@@ -58,6 +60,14 @@ __all__ = [
 ]
 
 StrPath: TypeAlias = Union[str, Path]
+
+
+class ArnicaConfig(BaseArnicaConfig):
+    """Configuration for the AQT Arnica service."""
+
+    def __init__(self) -> None:
+        """Initializes the configuration."""
+        super().__init__(get_store_path())
 
 
 class NoTokenWarning(UserWarning):
