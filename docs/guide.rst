@@ -35,7 +35,7 @@ Call :meth:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider.__init__>`
 
 
 Authentication with client credentials
--------------------------------------
+--------------------------------------
 .. tip:: Use this method if you received client credentials from AQT to use the Arnica portal.
 
 Use the `ArnicaConfig` helper class to configure the provider, then call :meth:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider.__init__>` to exchange your credentials for an
@@ -55,7 +55,7 @@ access token, which is stored on the local machine.
 
 
 Authentication with a static API token
---------------------------------
+--------------------------------------
 .. tip:: If you received an access token from AQT, you can use it to authenticate with the AQT cloud portal and access remote quantum computing resources.
 
 The access token can be configured by passing it as the first argument to the
