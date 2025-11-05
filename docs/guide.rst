@@ -26,7 +26,7 @@ Authentication with an Arnica account
    
 Call :meth:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider.__init__>` to log in and store your access token securely on the local machine.
 
-.. jupyter-execute::
+.. code-block::
 
    from qiskit_aqt_provider import AQTProvider
 
@@ -41,7 +41,7 @@ Authentication with client credentials
 Use the `ArnicaConfig` helper class to configure the provider, then call :meth:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider.__init__>` to exchange your credentials for an
 access token, which is stored on the local machine.
 
-.. jupyter-execute::
+.. code-block::
 
    from qiskit_aqt_provider import AQTProvider
    from qiskit_aqt_provider.aqt_provider import ArnicaConfig
