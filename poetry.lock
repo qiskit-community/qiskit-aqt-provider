@@ -5877,4 +5877,4 @@ test = ["pytest", "pytest-httpx"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.14"
-content-hash = "a559cf78a9cda86c371f77d246d05af2b3150cf9c0df32a42b64c53490ca753b"
+content-hash = "6b12c47c097d100f4f20cb5e3b8aadd944c60612d97dbf1bb087e6aa5aaf6738"
