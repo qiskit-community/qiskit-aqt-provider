@@ -24,6 +24,8 @@ from typing import (
 from uuid import UUID
 
 import httpx
+from aqt_connector.models.arnica.response_bodies.jobs import ResultResponse, SubmitJobResponse
+from aqt_connector.models.circuits import QuantumCircuit as AQTQuantumCircuit
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import RGate, RXXGate, RZGate
 from qiskit.circuit.measure import Measure
@@ -268,9 +270,9 @@ class AQTResource(_ResourceBase[AQTOptions]):
                 json=job.api_submit_payload.model_dump(),
             )
         )
-        return api_models.Response.model_validate(resp.json()).job.job_id
+        return SubmitJobResponse.model_validate(resp.json()).job.job_id
 
-    def result(self, job_id: UUID) -> api_models.JobResponse:
+    def result(self, job_id: UUID) -> ResultResponse:
         """Query the result for a specific job.
 
         .. tip:: This is a low-level method. Use the
@@ -285,7 +287,7 @@ class AQTResource(_ResourceBase[AQTOptions]):
             AQT API payload with the job results.
         """
         resp = http_response_raise_for_status(self._http_client.get(f"/result/{job_id}"))
-        return api_models.Response.model_validate(resp.json())
+        return ResultResponse.model_validate(resp.json())
 
 
 class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):
@@ -344,7 +346,7 @@ class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):
         """
         return self._create_job(AQTDirectAccessJob, circuits, **options)
 
-    def submit(self, circuit: api_models.QuantumCircuit) -> UUID:
+    def submit(self, circuit: AQTQuantumCircuit) -> UUID:
         """Submit a quantum circuit job to the AQT resource.
 
         Args:
@@ -517,7 +519,7 @@ class OfflineSimulatorResource(AQTResource):
         return sim_job.job_id
 
     @override
-    def result(self, job_id: UUID) -> api_models.JobResponse:
+    def result(self, job_id: UUID) -> ResultResponse:
         """Query results for a simulator job.
 
         .. tip:: This is a low-level method. Use

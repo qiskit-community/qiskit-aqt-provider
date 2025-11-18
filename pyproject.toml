@@ -87,7 +87,7 @@ numpy = [
   { version = ">=1", python = ">3.9,<3.13" },
   { version = ">=2.1", python = ">=3.13" },
 ]
-aqt-connector = "0.1.0"
+aqt-connector = "0.2.0"
 
 [tool.poetry.group.dev.dependencies]
 autodoc-pydantic = "^2.0.1"

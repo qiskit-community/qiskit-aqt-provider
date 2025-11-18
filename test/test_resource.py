@@ -23,6 +23,13 @@ import httpx
 import pydantic as pdt
 import pytest
 import qiskit
+from aqt_connector.models.arnica.jobs import BasicJobMetadata
+from aqt_connector.models.arnica.request_bodies.jobs import SubmitJobRequest
+from aqt_connector.models.arnica.response_bodies.jobs import (
+    ResultResponse,
+    RRQueued,
+)
+from aqt_connector.models.circuits import QuantumCircuit as AQTQuantumCircuit
 from polyfactory.factories.pydantic_factory import ModelFactory
 from pytest_httpx import HTTPXMock
 from qiskit import QuantumCircuit
@@ -331,7 +338,7 @@ def test_submit_payload_matches(httpx_mock: HTTPXMock) -> None:
             f"submit/{backend.resource_id.workspace_id}/{backend.resource_id.resource_id}"
         )
 
-        data = api_models.SubmitJobRequest.model_validate_json(request.content.decode("utf-8"))
+        data = SubmitJobRequest.model_validate_json(request.content.decode("utf-8"))
         assert data == expected_job_payload
 
         return httpx.Response(
@@ -420,11 +427,21 @@ def test_result_unknown_job(httpx_mock: HTTPXMock) -> None:
     backend = DummyResource("")
     job_id = uuid.uuid4()
 
-    httpx_mock.add_response(
-        json=json.loads(api_models.Response.unknown_job(job_id=job_id).model_dump_json())
+    payload = json.loads(
+        ResultResponse(
+            job=BasicJobMetadata(
+                job_id=job_id,
+                resource_id=backend.resource_id.resource_id,
+                workspace_id=backend.resource_id.workspace_id,
+            ),
+            response=RRQueued(),
+        ).model_dump_json()
     )
+    payload["response"]["status"] = "unknown status"
 
-    with pytest.raises(api_models.UnknownJobError, match=str(job_id)):
+    httpx_mock.add_response(json=payload)
+
+    with pytest.raises(pdt.ValidationError, match="8 validation errors for ResultResponse"):
         backend.result(job_id)
 
 
@@ -626,7 +643,7 @@ def test_direct_access_mocked_successful_transaction(token: str, httpx_mock: HTT
         assert USER_AGENT_EXTRA in request.headers["user-agent"]
         assert_valid_token(request.headers)
 
-        data = api_models.QuantumCircuit.model_validate_json(request.content.decode("utf-8"))
+        data = AQTQuantumCircuit.model_validate_json(request.content.decode("utf-8"))
         assert data.repetitions == shots
 
         return httpx.Response(
@@ -695,7 +712,7 @@ def test_direct_access_mocked_failed_transaction(httpx_mock: HTTPXMock) -> None:
     def handle_submit(request: httpx.Request) -> httpx.Response:
         assert USER_AGENT_EXTRA in request.headers["user-agent"]
 
-        data = api_models.QuantumCircuit.model_validate_json(request.content.decode("utf-8"))
+        data = AQTQuantumCircuit.model_validate_json(request.content.decode("utf-8"))
         assert data.repetitions == shots
 
         nonlocal circuit_submissions

@@ -11,15 +11,24 @@
 # that they have been altered from the originals.
 
 
+from aqt_connector.models.arnica.jobs import JobType
+from aqt_connector.models.arnica.request_bodies.jobs import QuantumCircuits as AQTQuantumCircuits
+from aqt_connector.models.arnica.request_bodies.jobs import SubmitJobRequest
+from aqt_connector.models.circuits import Circuit
+from aqt_connector.models.circuits import QuantumCircuit as AQTQuantumCircuit
+from aqt_connector.models.operations import (
+    GateR,
+    GateRXX,
+    GateRZ,
+    Measure,
+    OperationModel,
+)
 from numpy import pi
 from qiskit import QuantumCircuit
 from typing_extensions import assert_never
 
-from qiskit_aqt_provider.api_client import models as api_models
-from qiskit_aqt_provider.api_client import models_generated as api_models_generated
 
-
-def qiskit_to_aqt_circuit(circuit: QuantumCircuit) -> api_models.Circuit:
+def qiskit_to_aqt_circuit(circuit: QuantumCircuit) -> Circuit:
     """Convert a Qiskit `QuantumCircuit` into a payload for AQT's quantum_circuit job type.
 
     Args:
@@ -28,7 +37,7 @@ def qiskit_to_aqt_circuit(circuit: QuantumCircuit) -> api_models.Circuit:
     Returns:
         AQT API circuit payload.
     """
-    ops: list[api_models.OperationModel] = []
+    ops: list[OperationModel] = []
     num_measurements = 0
 
     for instruction in circuit.data:
@@ -41,28 +50,34 @@ def qiskit_to_aqt_circuit(circuit: QuantumCircuit) -> api_models.Circuit:
             (phi,) = instruction.operation.params
             (qubit,) = instruction.qubits
             ops.append(
-                api_models.Operation.rz(
-                    phi=float(phi) / pi,
-                    qubit=circuit.find_bit(qubit).index,
+                OperationModel(
+                    root=GateRZ(
+                        phi=float(phi) / pi,
+                        qubit=circuit.find_bit(qubit).index,
+                    )
                 )
             )
         elif instruction.operation.name == "r":
             theta, phi = instruction.operation.params
             (qubit,) = instruction.qubits
             ops.append(
-                api_models.Operation.r(
-                    phi=float(phi) / pi,
-                    theta=float(theta) / pi,
-                    qubit=circuit.find_bit(qubit).index,
+                OperationModel(
+                    root=GateR(
+                        phi=float(phi) / pi,
+                        theta=float(theta) / pi,
+                        qubit=circuit.find_bit(qubit).index,
+                    )
                 )
             )
         elif instruction.operation.name == "rxx":
             (theta,) = instruction.operation.params
             q0, q1 = instruction.qubits
             ops.append(
-                api_models.Operation.rxx(
-                    theta=float(theta) / pi,
-                    qubits=[circuit.find_bit(q0).index, circuit.find_bit(q1).index],
+                OperationModel(
+                    root=GateRXX(
+                        theta=float(theta) / pi,
+                        qubits=[circuit.find_bit(q0).index, circuit.find_bit(q1).index],
+                    )
                 )
             )
         elif instruction.operation.name == "measure":
@@ -77,11 +92,11 @@ def qiskit_to_aqt_circuit(circuit: QuantumCircuit) -> api_models.Circuit:
     if not num_measurements:
         raise ValueError("Circuit must have at least one measurement operation.")
 
-    ops.append(api_models.Operation.measure())
-    return api_models.Circuit(root=ops)
+    ops.append(OperationModel(root=Measure()))
+    return Circuit(root=ops)
 
 
-def aqt_to_qiskit_circuit(circuit: api_models.Circuit, number_of_qubits: int) -> QuantumCircuit:
+def aqt_to_qiskit_circuit(circuit: Circuit, number_of_qubits: int) -> QuantumCircuit:
     """Convert an AQT API quantum circuit payload to an equivalent Qiskit representation.
 
     Args:
@@ -95,19 +110,17 @@ def aqt_to_qiskit_circuit(circuit: api_models.Circuit, number_of_qubits: int) ->
     qiskit_circuit = QuantumCircuit(number_of_qubits)
 
     for operation in circuit.root:
-        if isinstance(operation.root, api_models_generated.GateRZ):
+        if isinstance(operation.root, GateRZ):
             qiskit_circuit.rz(operation.root.phi * pi, operation.root.qubit)
-        elif isinstance(operation.root, api_models_generated.GateR):
+        elif isinstance(operation.root, GateR):
             qiskit_circuit.r(
                 operation.root.theta * pi,
                 operation.root.phi * pi,
                 operation.root.qubit,
             )
-        elif isinstance(operation.root, api_models_generated.GateRXX):
-            qiskit_circuit.rxx(
-                operation.root.theta * pi, *[mod.root for mod in operation.root.qubits]
-            )
-        elif isinstance(operation.root, api_models_generated.Measure):
+        elif isinstance(operation.root, GateRXX):
+            qiskit_circuit.rxx(operation.root.theta * pi, *list(operation.root.qubits))
+        elif isinstance(operation.root, Measure):
             qiskit_circuit.measure_all()
         else:
             assert_never(operation.root)  # pragma: no cover
@@ -115,7 +128,7 @@ def aqt_to_qiskit_circuit(circuit: api_models.Circuit, number_of_qubits: int) ->
     return qiskit_circuit
 
 
-def circuits_to_aqt_job(circuits: list[QuantumCircuit], shots: int) -> api_models.SubmitJobRequest:
+def circuits_to_aqt_job(circuits: list[QuantumCircuit], shots: int) -> SubmitJobRequest:
     """Convert a list of circuits to the corresponding AQT API job request payload.
 
     Args:
@@ -125,12 +138,12 @@ def circuits_to_aqt_job(circuits: list[QuantumCircuit], shots: int) -> api_model
     Returns:
         JobSubmission: AQT API payload for submitting the quantum circuits job.
     """
-    return api_models.SubmitJobRequest(
-        job_type="quantum_circuit",
+    return SubmitJobRequest(
+        job_type=JobType.QUANTUM_CIRCUIT,
         label="qiskit",
-        payload=api_models.QuantumCircuits(
+        payload=AQTQuantumCircuits(
             circuits=[
-                api_models.QuantumCircuit(
+                AQTQuantumCircuit(
                     repetitions=shots,
                     quantum_circuit=qiskit_to_aqt_circuit(circuit),
                     number_of_qubits=circuit.num_qubits,

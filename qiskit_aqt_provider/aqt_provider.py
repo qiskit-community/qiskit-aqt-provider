@@ -38,8 +38,9 @@ from qiskit.transpiler import Target
 from tabulate import tabulate
 from typing_extensions import TypeAlias, override
 
-from qiskit_aqt_provider.api_client import PortalClient, Resource, ResourceType, Workspace
+from qiskit_aqt_provider.api_client import PortalClient, Resource, Workspace
 from qiskit_aqt_provider.api_client.errors import APIError
+from qiskit_aqt_provider.api_client.models import AQTBackendType
 from qiskit_aqt_provider.aqt_resource import (
     AQTDirectAccessResource,
     AQTResource,
@@ -264,7 +265,7 @@ class AQTProvider:
         self,
         name: Optional[Union[str, Pattern[str]]] = None,
         *,
-        backend_type: Optional[ResourceType] = None,
+        backend_type: Optional[AQTBackendType] = None,
         workspace: Optional[Union[str, Pattern[str]]] = None,
     ) -> BackendsTable:
         """Search for cloud backends matching given criteria.
@@ -341,7 +342,7 @@ class AQTProvider:
         self,
         name: Optional[Union[str, Pattern[str]]] = None,
         *,
-        backend_type: Optional[ResourceType] = None,
+        backend_type: Optional[AQTBackendType] = None,
         workspace: Optional[Union[str, Pattern[str]]] = None,
         available_qubits: Optional[int] = None,
     ) -> AQTResource:

@@ -15,6 +15,7 @@ import json
 import os
 import re
 import uuid
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
 from unittest import mock
@@ -22,13 +23,15 @@ from unittest import mock
 import httpx
 import pytest
 from aqt_connector import ArnicaApp
+from aqt_connector.models.arnica.resources import ResourceStatus, ResourceType
+from aqt_connector.models.arnica.response_bodies.resources import ResourceDetails, WorkspaceResource
+from aqt_connector.models.arnica.response_bodies.workspaces import Workspace
 from pytest_httpx import HTTPXMock
 from qiskit.exceptions import QiskitError
 
 from qiskit_aqt_provider.api_client import DEFAULT_PORTAL_URL
-from qiskit_aqt_provider.api_client import models as api_models
 from qiskit_aqt_provider.api_client import models_direct as api_models_direct
-from qiskit_aqt_provider.api_client import models_generated as api_models_generated
+from qiskit_aqt_provider.api_client.models import ApiWorkspaces
 from qiskit_aqt_provider.aqt_provider import (
     OFFLINE_SIMULATORS,
     AQTProvider,
@@ -158,19 +161,17 @@ def test_remote_workspaces_table(httpx_mock: HTTPXMock) -> None:
     Check that the offline simulators are added if they match the search criteria.
     """
     remote_workspaces = [
-        api_models_generated.Workspace(
+        Workspace(
             id="w1",
-            resources=[
-                api_models_generated.Resource(
-                    id="r1", name="r1", type=api_models_generated.Type.device
-                )
-            ],
+            accepting_job_submissions=True,
+            jobs_being_processed=True,
+            resources=[WorkspaceResource(id="r1", name="r1", type=ResourceType.DEVICE)],
         )
     ]
 
     httpx_mock.add_response(
         url=re.compile(".+/workspaces$"),
-        json=json.loads(api_models.ApiWorkspaces(root=remote_workspaces).model_dump_json()),
+        json=json.loads(ApiWorkspaces(root=remote_workspaces).model_dump_json()),
     )
 
     httpx_mock.add_callback(sample_resource_details, url=re.compile(".+/resources/.+"))
@@ -207,27 +208,27 @@ def test_remote_workspaces_filtering_prefix_collision(httpx_mock: HTTPXMock) -> 
     while passing a pattern matches according to the pattern.
     """
     remote_workspaces = [
-        api_models_generated.Workspace(
+        Workspace(
             id="workspace",
+            accepting_job_submissions=True,
+            jobs_being_processed=True,
             resources=[
-                api_models_generated.Resource(
-                    id="foo", name="foo", type=api_models_generated.Type.device
-                ),
+                WorkspaceResource(id="foo", name="foo", type=ResourceType.DEVICE),
             ],
         ),
-        api_models_generated.Workspace(
+        Workspace(
             id="workspace_extra",
+            accepting_job_submissions=True,
+            jobs_being_processed=True,
             resources=[
-                api_models_generated.Resource(
-                    id="foo-extra", name="foo-extra", type=api_models_generated.Type.device
-                ),
+                WorkspaceResource(id="foo-extra", name="foo-extra", type=ResourceType.DEVICE),
             ],
         ),
     ]
 
     httpx_mock.add_response(
         url=re.compile(".+/workspaces$"),
-        json=json.loads(api_models.ApiWorkspaces(root=remote_workspaces).model_dump_json()),
+        json=json.loads(ApiWorkspaces(root=remote_workspaces).model_dump_json()),
     )
 
     httpx_mock.add_callback(sample_resource_details, url=re.compile(".+/resources/.+"))
@@ -282,30 +283,29 @@ def test_remote_resource_target_matches_available_qubits(httpx_mock: HTTPXMock) 
     available_qubits = 42
 
     remote_workspaces = [
-        api_models_generated.Workspace(
+        Workspace(
             id="w1",
-            resources=[
-                api_models_generated.Resource(
-                    id="r1", name="r1-name", type=api_models_generated.Type.device
-                )
-            ],
+            accepting_job_submissions=True,
+            jobs_being_processed=True,
+            resources=[WorkspaceResource(id="r1", name="r1-name", type=ResourceType.DEVICE)],
         )
     ]
 
     httpx_mock.add_response(
         url=re.compile(".+/workspaces$"),
-        json=json.loads(api_models.ApiWorkspaces(root=remote_workspaces).model_dump_json()),
+        json=json.loads(ApiWorkspaces(root=remote_workspaces).model_dump_json()),
     )
 
     httpx_mock.add_response(
         url=re.compile(".+/resources/r1$"),
         json=json.loads(
-            api_models_generated.ResourceDetails(
+            ResourceDetails(
                 id="r1",
                 name="r1_name",
-                status=api_models_generated.ResourceStates.online,
-                type=api_models_generated.Type.device,
+                status=ResourceStatus.ONLINE,
+                type=ResourceType.DEVICE,
                 available_qubits=available_qubits,
+                status_updated_at=datetime.now(),
             ).model_dump_json()
         ),
     )
@@ -350,30 +350,29 @@ def test_offline_simulator_set_qubits(available_qubits: Optional[int]) -> None:
 def test_cannot_set_qubits_for_remote_resource(try_set_qubits: bool, httpx_mock: HTTPXMock) -> None:
     """Check that `get_backend(available_qubits=...)` is not valid for remote resources."""
     remote_workspaces = [
-        api_models_generated.Workspace(
+        Workspace(
             id="w1",
-            resources=[
-                api_models_generated.Resource(
-                    id="r1", name="r1-name", type=api_models_generated.Type.device
-                )
-            ],
+            accepting_job_submissions=True,
+            jobs_being_processed=True,
+            resources=[WorkspaceResource(id="r1", name="r1-name", type=ResourceType.DEVICE)],
         )
     ]
 
     httpx_mock.add_response(
         url=re.compile(".+/workspaces$"),
-        json=json.loads(api_models.ApiWorkspaces(root=remote_workspaces).model_dump_json()),
+        json=json.loads(ApiWorkspaces(root=remote_workspaces).model_dump_json()),
     )
 
     httpx_mock.add_response(
         url=re.compile(".+/resources/r1$"),
         json=json.loads(
-            api_models_generated.ResourceDetails(
+            ResourceDetails(
                 id="r1",
                 name="r1_name",
-                status=api_models_generated.ResourceStates.online,
-                type=api_models_generated.Type.device,
+                status=ResourceStatus.ONLINE,
+                type=ResourceType.DEVICE,
                 available_qubits=123,
+                status_updated_at=datetime.now(),
             ).model_dump_json()
         ),
     )
@@ -398,12 +397,13 @@ def sample_resource_details(request: httpx.Request) -> httpx.Response:
     return httpx.Response(
         status_code=httpx.codes.OK,
         json=json.loads(
-            api_models_generated.ResourceDetails(
+            ResourceDetails(
                 id=resource_id,
                 name=resource_id,
-                status=api_models_generated.ResourceStates.online,
-                type=api_models_generated.Type.device,
+                status=ResourceStatus.ONLINE,
+                type=ResourceType.DEVICE,
                 available_qubits=20,
+                status_updated_at=datetime.now(),
             ).model_dump_json()
         ),
     )

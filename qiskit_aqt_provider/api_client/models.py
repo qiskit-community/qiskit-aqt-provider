@@ -10,40 +10,31 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-"""Thin convenience wrappers around generated API models."""
+"""Thin convenience wrappers around aqt-connector models."""
 
 import importlib.metadata
 import platform
 import re
 from collections.abc import Collection, Iterator
 from re import Pattern
-from typing import Any, Final, Literal, Optional, Union
+from typing import Final, Literal, Optional, Union
 from uuid import UUID
 
 import httpx
-import pydantic as pdt
+from aqt_connector.models.arnica.jobs import BasicJobMetadata
+from aqt_connector.models.arnica.response_bodies.jobs import (
+    ResultResponse,
+    RRCancelled,
+    RRError,
+    RRFinished,
+    RROngoing,
+    RRQueued,
+)
+from aqt_connector.models.arnica.response_bodies.workspaces import Workspace as AQTWorkspace
+from aqt_connector.models.operations import GateR, GateRXX, GateRZ, Measure, OperationModel
+from pydantic import BaseModel, ConfigDict, NonNegativeInt, RootModel
 from qiskit.providers.exceptions import JobError
 from typing_extensions import Self, TypeAlias, override
-
-from . import models_generated as api_models
-from .models_generated import (
-    Circuit,
-    OperationModel,
-    QuantumCircuit,
-    QuantumCircuits,
-    SubmitJobRequest,
-)
-
-__all__ = [
-    "Circuit",
-    "JobResponse",
-    "Operation",
-    "OperationModel",
-    "QuantumCircuit",
-    "QuantumCircuits",
-    "Response",
-    "SubmitJobRequest",
-]
 
 
 class UnknownJobError(JobError):
@@ -77,16 +68,16 @@ def http_client(
     return httpx.Client(headers=headers, base_url=base_url, timeout=10.0, follow_redirects=True)
 
 
-ResourceType: TypeAlias = Literal["device", "simulator", "offline_simulator"]
+AQTBackendType: TypeAlias = Literal["device", "simulator", "offline_simulator"]
 
 
-class Resource(pdt.BaseModel):
+class Resource(BaseModel):
     """Description of a resource.
 
     This is the element type in :py:attr:`Workspace.resources`.
     """
 
-    model_config = pdt.ConfigDict(frozen=True)
+    model_config = ConfigDict(frozen=True)
 
     workspace_id: str
     """Identifier of the workspace this resource belongs to."""
@@ -97,20 +88,20 @@ class Resource(pdt.BaseModel):
     resource_name: str
     """Resource name."""
 
-    resource_type: ResourceType
+    resource_type: AQTBackendType
     """Type of resource."""
 
     available_qubits: int
     """Number of qubits jobs on this resource can use."""
 
 
-class Workspace(pdt.BaseModel):
+class Workspace(BaseModel):
     """Description of a workspace and the resources it contains.
 
     This is the element type in the :py:class:`Workspaces` container.
     """
 
-    model_config = pdt.ConfigDict(frozen=True)
+    model_config = ConfigDict(frozen=True)
 
     workspace_id: str
     """Workspace identifier."""
@@ -120,15 +111,15 @@ class Workspace(pdt.BaseModel):
 
 
 class ApiWorkspaces(
-    pdt.RootModel  # type: ignore[type-arg]
+    RootModel  # type: ignore[type-arg]
 ):
     """List of available workspaces and devices, in API format."""
 
-    root: list[api_models.Workspace]
+    root: list[AQTWorkspace]
 
 
 class Workspaces(
-    pdt.RootModel,  # type: ignore[type-arg]
+    RootModel,  # type: ignore[type-arg]
     Collection[Workspace],
 ):
     """List of available workspaces and devices.
@@ -234,7 +225,7 @@ class Workspaces(
         *,
         workspace_pattern: Optional[Union[str, Pattern[str]]] = None,
         name_pattern: Optional[Union[str, Pattern[str]]] = None,
-        backend_type: Optional[ResourceType] = None,
+        backend_type: Optional[AQTBackendType] = None,
     ) -> Self:
         """Filtered copy of the list of available workspaces and devices.
 
@@ -277,48 +268,36 @@ class Operation:
     """Factories for API payloads of circuit operations."""
 
     @staticmethod
-    def rz(*, phi: float, qubit: int) -> api_models.OperationModel:
+    def rz(*, phi: float, qubit: int) -> OperationModel:
         """RZ gate."""
-        return api_models.OperationModel(
-            root=api_models.GateRZ(operation="RZ", phi=phi, qubit=qubit)
-        )
+        return OperationModel(root=GateRZ(operation="RZ", phi=phi, qubit=qubit))
 
     @staticmethod
-    def r(*, phi: float, theta: float, qubit: int) -> api_models.OperationModel:
+    def r(*, phi: float, theta: float, qubit: int) -> OperationModel:
         """R gate."""
-        return api_models.OperationModel(
-            root=api_models.GateR(operation="R", phi=phi, theta=theta, qubit=qubit)
-        )
+        return OperationModel(root=GateR(operation="R", phi=phi, theta=theta, qubit=qubit))
 
     @staticmethod
-    def rxx(*, theta: float, qubits: list[int]) -> api_models.OperationModel:
+    def rxx(*, theta: float, qubits: list[NonNegativeInt]) -> OperationModel:
         """RXX gate."""
-        return api_models.OperationModel(
-            root=api_models.GateRXX(
+        return OperationModel(
+            root=GateRXX(
                 operation="RXX",
                 theta=theta,
-                qubits=[api_models.Qubit(root=qubit) for qubit in qubits],
+                qubits=list(qubits),
             )
         )
 
     @staticmethod
-    def measure() -> api_models.OperationModel:
+    def measure() -> OperationModel:
         """MEASURE operation."""
-        return api_models.OperationModel(root=api_models.Measure(operation="MEASURE"))
+        return OperationModel(root=Measure(operation="MEASURE"))
 
-
-JobResponse: TypeAlias = Union[
-    api_models.JobResponseRRQueued,
-    api_models.JobResponseRROngoing,
-    api_models.JobResponseRRFinished,
-    api_models.JobResponseRRError,
-    api_models.JobResponseRRCancelled,
-]
 
 JobFinalState: TypeAlias = Union[
-    api_models.JobResponseRRFinished,
-    api_models.JobResponseRRError,
-    api_models.JobResponseRRCancelled,
+    RRFinished,
+    RRError,
+    RRCancelled,
 ]
 
 
@@ -326,105 +305,75 @@ class Response:
     """Factories for API response payloads."""
 
     @staticmethod
-    def model_validate(data: Any) -> JobResponse:
-        """Parse an API response.
-
-        Returns:
-            The corresponding JobResponse object.
-
-        Raises:
-            UnknownJobError: the server answered with an unknown job error.
-        """
-        response = api_models.ResultResponse.model_validate(data).root
-
-        if isinstance(response, api_models.UnknownJob):
-            raise UnknownJobError(str(response.job_id))
-
-        return response
-
-    @staticmethod
-    def queued(*, job_id: UUID, workspace_id: str, resource_id: str) -> JobResponse:
+    def queued(*, job_id: UUID, workspace_id: str, resource_id: str) -> ResultResponse:
         """Queued job."""
-        return api_models.JobResponseRRQueued(
-            job=api_models.JobUser(
-                job_type="quantum_circuit",
+        return ResultResponse(
+            job=BasicJobMetadata(
                 job_id=job_id,
                 label="qiskit",
                 resource_id=resource_id,
                 workspace_id=workspace_id,
             ),
-            response=api_models.RRQueued(status="queued"),
+            response=RRQueued(),
         )
 
     @staticmethod
     def ongoing(
         *, job_id: UUID, workspace_id: str, resource_id: str, finished_count: int
-    ) -> JobResponse:
+    ) -> ResultResponse:
         """Ongoing job."""
-        return api_models.JobResponseRROngoing(
-            job=api_models.JobUser(
-                job_type="quantum_circuit",
+        return ResultResponse(
+            job=BasicJobMetadata(
                 job_id=job_id,
                 label="qiskit",
                 resource_id=resource_id,
                 workspace_id=workspace_id,
             ),
-            response=api_models.RROngoing(status="ongoing", finished_count=finished_count),
+            response=RROngoing(finished_count=finished_count),
         )
 
     @staticmethod
     def finished(
         *, job_id: UUID, workspace_id: str, resource_id: str, results: dict[str, list[list[int]]]
-    ) -> JobResponse:
+    ) -> ResultResponse:
         """Completed job with the given results."""
-        return api_models.JobResponseRRFinished(
-            job=api_models.JobUser(
-                job_type="quantum_circuit",
+        return ResultResponse(
+            job=BasicJobMetadata(
                 job_id=job_id,
                 label="qiskit",
                 resource_id=resource_id,
                 workspace_id=workspace_id,
             ),
-            response=api_models.RRFinished(
-                status="finished",
+            response=RRFinished(
                 result={
-                    circuit_index: [
-                        [api_models.ResultItem(root=state) for state in shot] for shot in samples
-                    ]
+                    int(circuit_index): [list(shot) for shot in samples]
                     for circuit_index, samples in results.items()
                 },
             ),
         )
 
     @staticmethod
-    def error(*, job_id: UUID, workspace_id: str, resource_id: str, message: str) -> JobResponse:
+    def error(*, job_id: UUID, workspace_id: str, resource_id: str, message: str) -> ResultResponse:
         """Failed job."""
-        return api_models.JobResponseRRError(
-            job=api_models.JobUser(
-                job_type="quantum_circuit",
+        return ResultResponse(
+            job=BasicJobMetadata(
                 job_id=job_id,
                 label="qiskit",
                 resource_id=resource_id,
                 workspace_id=workspace_id,
             ),
-            response=api_models.RRError(status="error", message=message),
+            response=RRError(message=message),
         )
 
     @staticmethod
-    def cancelled(*, job_id: UUID, workspace_id: str, resource_id: str) -> JobResponse:
+    def cancelled(*, job_id: UUID, workspace_id: str, resource_id: str) -> ResultResponse:
         """Cancelled job."""
-        return api_models.JobResponseRRCancelled(
-            job=api_models.JobUser(
-                job_type="quantum_circuit",
+        return ResultResponse(
+            job=BasicJobMetadata(
                 job_id=job_id,
                 label="qiskit",
                 resource_id=resource_id,
                 workspace_id=workspace_id,
             ),
-            response=api_models.RRCancelled(status="cancelled"),
+            response=RRCancelled(),
         )
-
-    @staticmethod
-    def unknown_job(*, job_id: UUID) -> api_models.UnknownJob:
-        """Unknown job."""
-        return api_models.UnknownJob(job_id=job_id, message="unknown job_id")

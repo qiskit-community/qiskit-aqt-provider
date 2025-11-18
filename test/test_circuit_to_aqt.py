@@ -15,6 +15,10 @@ from math import pi
 
 import pytest
 import qiskit
+from aqt_connector.models.arnica.jobs import JobType
+from aqt_connector.models.arnica.request_bodies.jobs import QuantumCircuits, SubmitJobRequest
+from aqt_connector.models.circuits import Circuit
+from aqt_connector.models.circuits import QuantumCircuit as AQTQuantumCircuit
 from pydantic import ValidationError
 from qiskit import QuantumCircuit
 
@@ -54,15 +58,15 @@ def test_just_measure_circuit() -> None:
     qc = QuantumCircuit(1)
     qc.measure_all()
 
-    expected = api_models.SubmitJobRequest(
-        job_type="quantum_circuit",
+    expected = SubmitJobRequest(
+        job_type=JobType.QUANTUM_CIRCUIT,
         label="qiskit",
-        payload=api_models.QuantumCircuits(
+        payload=QuantumCircuits(
             circuits=[
-                api_models.QuantumCircuit(
+                AQTQuantumCircuit(
                     repetitions=shots,
                     number_of_qubits=1,
-                    quantum_circuit=api_models.Circuit(root=[api_models.Operation.measure()]),
+                    quantum_circuit=Circuit(root=[api_models.Operation.measure()]),
                 ),
             ]
         ),
@@ -83,15 +87,15 @@ def test_valid_circuit() -> None:
 
     result = circuits_to_aqt_job([qc], shots=1)
 
-    expected = api_models.SubmitJobRequest(
-        job_type="quantum_circuit",
+    expected = SubmitJobRequest(
+        job_type=JobType.QUANTUM_CIRCUIT,
         label="qiskit",
-        payload=api_models.QuantumCircuits(
+        payload=QuantumCircuits(
             circuits=[
-                api_models.QuantumCircuit(
+                AQTQuantumCircuit(
                     number_of_qubits=2,
                     repetitions=1,
-                    quantum_circuit=api_models.Circuit(
+                    quantum_circuit=Circuit(
                         root=[
                             api_models.Operation.r(theta=0.5, phi=0.0, qubit=0),
                             api_models.Operation.rz(phi=0.2, qubit=1),
@@ -138,15 +142,15 @@ def test_invalid_measurements() -> None:
     qc.measure([1], [1])
 
     result = circuits_to_aqt_job([qc], shots=1)
-    expected = api_models.SubmitJobRequest(
-        job_type="quantum_circuit",
+    expected = SubmitJobRequest(
+        job_type=JobType.QUANTUM_CIRCUIT,
         label="qiskit",
-        payload=api_models.QuantumCircuits(
+        payload=QuantumCircuits(
             circuits=[
-                api_models.QuantumCircuit(
+                AQTQuantumCircuit(
                     number_of_qubits=2,
                     repetitions=1,
-                    quantum_circuit=api_models.Circuit(
+                    quantum_circuit=Circuit(
                         root=[
                             api_models.Operation.r(theta=0.5, phi=0.0, qubit=0),
                             api_models.Operation.r(theta=0.5, phi=0.0, qubit=1),
@@ -174,15 +178,15 @@ def test_convert_multiple_circuits() -> None:
 
     result = circuits_to_aqt_job([qc0, qc1], shots=1)
 
-    expected = api_models.SubmitJobRequest(
-        job_type="quantum_circuit",
+    expected = SubmitJobRequest(
+        job_type=JobType.QUANTUM_CIRCUIT,
         label="qiskit",
-        payload=api_models.QuantumCircuits(
+        payload=QuantumCircuits(
             circuits=[
-                api_models.QuantumCircuit(
+                AQTQuantumCircuit(
                     number_of_qubits=2,
                     repetitions=1,
-                    quantum_circuit=api_models.Circuit(
+                    quantum_circuit=Circuit(
                         root=[
                             api_models.Operation.r(theta=0.5, phi=0.0, qubit=0),
                             api_models.Operation.rxx(theta=0.5, qubits=[0, 1]),
@@ -190,10 +194,10 @@ def test_convert_multiple_circuits() -> None:
                         ]
                     ),
                 ),
-                api_models.QuantumCircuit(
+                AQTQuantumCircuit(
                     number_of_qubits=1,
                     repetitions=1,
-                    quantum_circuit=api_models.Circuit(
+                    quantum_circuit=Circuit(
                         root=[
                             api_models.Operation.r(theta=0.25, phi=0.0, qubit=0),
                             api_models.Operation.measure(),

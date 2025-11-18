@@ -41,11 +41,3 @@ repos:
     rev: "0.23.0"
     hooks:
       - id: deptry
-  - repo: local
-    hooks:
-      - id: check-api-models
-        name: check generated API models
-        entry: ./scripts/api_models.py generate
-        language: script
-        pass_filenames: false
-        always_run: true

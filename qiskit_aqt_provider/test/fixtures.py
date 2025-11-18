@@ -22,13 +22,13 @@ import uuid
 
 import httpx
 import pytest
+from aqt_connector.models.circuits import QuantumCircuit as AQTQuantumCircuit
 from pytest_httpx import HTTPXMock
 from qiskit.circuit import QuantumCircuit
 from qiskit_aer import AerSimulator
 from typing_extensions import override
 
 from qiskit_aqt_provider import api_client
-from qiskit_aqt_provider.api_client import models as api_models
 from qiskit_aqt_provider.api_client import models_direct as api_models_direct
 from qiskit_aqt_provider.aqt_job import AQTJob
 from qiskit_aqt_provider.aqt_provider import AQTProvider
@@ -92,10 +92,10 @@ def fixture_offline_simulator_no_noise_direct_access(
     """Noiseless offline simulator resource, as direct-access backend."""
     simulator = AerSimulator(method="statevector")
 
-    inflight_circuits: dict[uuid.UUID, api_models.QuantumCircuit] = {}
+    inflight_circuits: dict[uuid.UUID, AQTQuantumCircuit] = {}
 
     def handle_submit(request: httpx.Request) -> httpx.Response:
-        data = api_models.QuantumCircuit.model_validate_json(request.content.decode("utf-8"))
+        data = AQTQuantumCircuit.model_validate_json(request.content.decode("utf-8"))
 
         job_id = uuid.uuid4()
         inflight_circuits[job_id] = data.model_copy(deep=True)

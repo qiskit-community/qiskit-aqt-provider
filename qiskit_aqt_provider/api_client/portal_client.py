@@ -13,11 +13,11 @@ from collections.abc import Iterator
 from typing import Final, Optional
 
 import httpx
+from aqt_connector.models.arnica.response_bodies.resources import ResourceDetails
 
 from qiskit_aqt_provider.api_client.errors import http_response_raise_for_status
 
 from . import models
-from . import models_generated as api_models
 from .versions import make_user_agent
 
 DEFAULT_PORTAL_URL: Final = httpx.URL("https://arnica.aqt.eu")
@@ -81,7 +81,7 @@ def _fetch_workspaces_summary(client: httpx.Client) -> models.ApiWorkspaces:
 def _fetch_resource(workspace_id: str, resource_id: str, client: httpx.Client) -> models.Resource:
     """Fetch all available information about a remote resource."""
     response = http_response_raise_for_status(client.get(f"/resources/{resource_id}"))
-    details = api_models.ResourceDetails.model_validate(response.json())
+    details = ResourceDetails.model_validate(response.json())
 
     return models.Resource(
         workspace_id=workspace_id,

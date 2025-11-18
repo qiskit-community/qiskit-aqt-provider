@@ -25,16 +25,22 @@ from typing import (
 )
 
 import numpy as np
+from aqt_connector.models.arnica.response_bodies.jobs import (
+    RRCancelled,
+    RRError,
+    RRFinished,
+    RROngoing,
+    RRQueued,
+)
 from qiskit import QuantumCircuit
 from qiskit.providers import JobV1
 from qiskit.providers.jobstatus import JobStatus
 from qiskit.result.result import Result
 from qiskit.utils.lazy_tester import contextlib
 from tqdm import tqdm
-from typing_extensions import Self, TypeAlias, assert_never
+from typing_extensions import Self, TypeAlias
 
 from qiskit_aqt_provider import persistence
-from qiskit_aqt_provider.api_client import models_generated as api_models_generated
 from qiskit_aqt_provider.api_client.models_direct import JobResultError
 from qiskit_aqt_provider.aqt_options import AQTOptions
 from qiskit_aqt_provider.circuit_to_aqt import circuits_to_aqt_job
@@ -298,25 +304,24 @@ class AQTJob(JobV1):
         Raises:
             APIError: the operation failed on the remote portal.
         """
-        payload = self._backend.result(uuid.UUID(self.job_id()))
+        result_response = self._backend.result(uuid.UUID(self.job_id()))
+        job_state = result_response.response
 
-        if isinstance(payload, api_models_generated.JobResponseRRQueued):
+        if isinstance(job_state, RRQueued):
             self.status_payload = JobQueued()
-        elif isinstance(payload, api_models_generated.JobResponseRROngoing):
-            self.status_payload = JobOngoing(finished_count=payload.response.finished_count)
-        elif isinstance(payload, api_models_generated.JobResponseRRFinished):
+        elif isinstance(job_state, RROngoing):
+            self.status_payload = JobOngoing(finished_count=job_state.finished_count)
+        elif isinstance(job_state, RRFinished):
             self.status_payload = JobFinished(
                 results={
-                    int(circuit_index): [[sample.root for sample in shot] for shot in shots]
-                    for circuit_index, shots in payload.response.result.items()
+                    int(circuit_index): [list(shot) for shot in shots]
+                    for circuit_index, shots in job_state.result.items()
                 }
             )
-        elif isinstance(payload, api_models_generated.JobResponseRRError):
-            self.status_payload = JobFailed(error=payload.response.message)
-        elif isinstance(payload, api_models_generated.JobResponseRRCancelled):
+        elif isinstance(job_state, RRError):
+            self.status_payload = JobFailed(error=job_state.message)
+        elif isinstance(job_state, RRCancelled):
             self.status_payload = JobCancelled()
-        else:  # pragma: no cover
-            assert_never(payload)
 
         return self.status_payload.status
 
