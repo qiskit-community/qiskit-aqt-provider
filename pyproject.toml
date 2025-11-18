@@ -324,9 +324,6 @@ shell = "mypy ."
 [tool.poe.tasks.check_pre_commit_consistency]
 shell = "./scripts/check_pre_commit_consistency.sh"
 
-[tool.poe.tasks.check_api_models]
-shell = "./scripts/api_models.py check"
-
 [tool.poe.tasks.ruff_check]
 shell = "ruff check ."
 
@@ -347,7 +344,6 @@ shell = "deptry ."
 [tool.poe.tasks]
 lint = [
   "check_pre_commit_consistency",
-  "check_api_models",
   "docstring_coverage",
   "ruff_check",
   "spellcheck",
@@ -358,7 +354,6 @@ format_check = [
   "python_format_check",
   "pyproject_format_check",
 ]
-generate-models = "./scripts/api_models.py generate"
 version_check = "./scripts/package_version.py --verbose check"
 docs = "sphinx-build -j auto -b html -W docs docs/_build"
 all = [
