@@ -284,7 +284,7 @@ class Operation:
             root=GateRXX(
                 operation="RXX",
                 theta=theta,
-                qubits=list(qubits),
+                qubits=qubits,
             )
         )
 
@@ -345,10 +345,7 @@ class Response:
                 workspace_id=workspace_id,
             ),
             response=RRFinished(
-                result={
-                    int(circuit_index): [list(shot) for shot in samples]
-                    for circuit_index, samples in results.items()
-                },
+                result={int(circuit_index): samples for circuit_index, samples in results.items()},
             ),
         )
 

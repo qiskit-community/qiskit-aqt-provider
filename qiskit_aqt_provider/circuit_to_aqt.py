@@ -119,7 +119,7 @@ def aqt_to_qiskit_circuit(circuit: Circuit, number_of_qubits: int) -> QuantumCir
                 operation.root.qubit,
             )
         elif isinstance(operation.root, GateRXX):
-            qiskit_circuit.rxx(operation.root.theta * pi, *list(operation.root.qubits))
+            qiskit_circuit.rxx(operation.root.theta * pi, *operation.root.qubits)
         elif isinstance(operation.root, Measure):
             qiskit_circuit.measure_all()
         else:
