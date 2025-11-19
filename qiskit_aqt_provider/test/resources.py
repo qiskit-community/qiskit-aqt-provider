@@ -19,6 +19,7 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Optional
 
+from aqt_connector.models.arnica.resources import ResourceType
 from aqt_connector.models.arnica.response_bodies.jobs import ResultResponse
 from qiskit import QuantumCircuit
 from typing_extensions import assert_never, override
@@ -157,7 +158,7 @@ class TestResource(AQTResource):  # pylint: disable=too-many-instance-attributes
                 workspace_id="test-workspace",
                 resource_id="test",
                 resource_name="test-resource",
-                resource_type="simulator",
+                resource_type=ResourceType.SIMULATOR,
                 available_qubits=20,
             ),
         )
@@ -229,7 +230,7 @@ class DummyResource(AQTResource):
                 workspace_id="dummy",
                 resource_id="dummy",
                 resource_name="dummy",
-                resource_type="simulator",
+                resource_type=ResourceType.SIMULATOR,
                 available_qubits=20,
             ),
         )

@@ -187,7 +187,7 @@ def test_remote_workspaces_table(httpx_mock: HTTPXMock) -> None:
     }
 
     # List only the devices
-    only_devices = provider.backends(backend_type="device").by_workspace()
+    only_devices = provider.backends(backend_type=ResourceType.DEVICE).by_workspace()
     assert set(only_devices) == {"w1"}
     assert {backend.resource_id.resource_id for backend in only_devices["w1"]} == {"r1"}
 

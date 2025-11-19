@@ -10,7 +10,7 @@
 
 import os
 from collections.abc import Iterator
-from typing import Final, Optional
+from typing import Final, Optional, cast
 
 import httpx
 from aqt_connector.models.arnica.response_bodies.resources import ResourceDetails
@@ -87,7 +87,7 @@ def _fetch_resource(workspace_id: str, resource_id: str, client: httpx.Client) -
         workspace_id=workspace_id,
         resource_id=resource_id,
         resource_name=details.name,
-        resource_type=details.type.value,
+        resource_type=cast(models.AQTBackendType, details.type.value),
         available_qubits=details.available_qubits,
     )
 

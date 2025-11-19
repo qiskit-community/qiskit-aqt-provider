@@ -21,6 +21,7 @@ import httpx
 import pytest
 import qiskit
 from aqt_connector.models.arnica.request_bodies.jobs import SubmitJobRequest
+from aqt_connector.models.arnica.resources import ResourceType
 from aqt_connector.models.circuits import QuantumCircuit as AQTQuantumCircuit
 from pytest_httpx import HTTPXMock
 from pytest_mock import MockerFixture
@@ -103,7 +104,7 @@ def test_job_persistence_transaction_online_backend(httpx_mock: HTTPXMock, tmp_p
         workspace_id=str(uuid.uuid4()),
         resource_id=str(uuid.uuid4()),
         resource_name=str(uuid.uuid4()),
-        resource_type="device",
+        resource_type=ResourceType.DEVICE,
         available_qubits=32,
     )
     backend = AQTResource(provider, resource_id)

@@ -22,6 +22,7 @@ from uuid import UUID
 
 import httpx
 from aqt_connector.models.arnica.jobs import BasicJobMetadata
+from aqt_connector.models.arnica.resources import ResourceType
 from aqt_connector.models.arnica.response_bodies.jobs import (
     ResultResponse,
     RRCancelled,
@@ -68,7 +69,9 @@ def http_client(
     return httpx.Client(headers=headers, base_url=base_url, timeout=10.0, follow_redirects=True)
 
 
-AQTBackendType: TypeAlias = Literal["device", "simulator", "offline_simulator"]
+AQTBackendType: TypeAlias = Literal[
+    ResourceType.DEVICE, ResourceType.SIMULATOR, "offline_simulator"
+]
 
 
 class Resource(BaseModel):
