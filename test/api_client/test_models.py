@@ -11,6 +11,7 @@
 # that they have been altered from the originals.
 
 import pytest
+from aqt_connector.models.arnica.resources import ResourceType
 
 from qiskit_aqt_provider.api_client import models as api_models
 
@@ -65,14 +66,14 @@ def test_workspaces_filter_by_name() -> None:
                         workspace_id="w1",
                         resource_id="r10",
                         resource_name="r10",
-                        resource_type="device",
+                        resource_type=ResourceType.DEVICE,
                         available_qubits=20,
                     ),
                     api_models.Resource(
                         workspace_id="w1",
                         resource_id="r20",
                         resource_name="r20",
-                        resource_type="device",
+                        resource_type=ResourceType.DEVICE,
                         available_qubits=20,
                     ),
                 ],
@@ -84,7 +85,7 @@ def test_workspaces_filter_by_name() -> None:
                         workspace_id="w2",
                         resource_id="r11",
                         resource_name="r11",
-                        resource_type="simulator",
+                        resource_type=ResourceType.SIMULATOR,
                         available_qubits=20,
                     )
                 ],
@@ -103,7 +104,7 @@ def test_workspaces_filter_by_name() -> None:
                         workspace_id="w1",
                         resource_id="r10",
                         resource_name="r10",
-                        resource_type="device",
+                        resource_type=ResourceType.DEVICE,
                         available_qubits=20,
                     ),
                 ],
@@ -115,7 +116,7 @@ def test_workspaces_filter_by_name() -> None:
                         workspace_id="w2",
                         resource_id="r11",
                         resource_name="r11",
-                        resource_type="simulator",
+                        resource_type=ResourceType.SIMULATOR,
                         available_qubits=20,
                     )
                 ],
@@ -135,14 +136,14 @@ def test_workspaces_filter_by_backend_type() -> None:
                         workspace_id="w1",
                         resource_id="r1",
                         resource_name="r1",
-                        resource_type="device",
+                        resource_type=ResourceType.DEVICE,
                         available_qubits=20,
                     ),
                     api_models.Resource(
                         workspace_id="w1",
                         resource_id="r2",
                         resource_name="r2",
-                        resource_type="simulator",
+                        resource_type=ResourceType.SIMULATOR,
                         available_qubits=20,
                     ),
                 ],
@@ -150,7 +151,7 @@ def test_workspaces_filter_by_backend_type() -> None:
         ]
     )
 
-    filtered = workspaces.filter(backend_type="simulator")
+    filtered = workspaces.filter(backend_type=ResourceType.SIMULATOR)
     assert len(filtered) == 1
     assert next(iter(filtered)) == api_models.Workspace(
         workspace_id="w1",
@@ -159,7 +160,7 @@ def test_workspaces_filter_by_backend_type() -> None:
                 workspace_id="w1",
                 resource_id="r2",
                 resource_name="r2",
-                resource_type="simulator",
+                resource_type=ResourceType.SIMULATOR,
                 available_qubits=20,
             )
         ],

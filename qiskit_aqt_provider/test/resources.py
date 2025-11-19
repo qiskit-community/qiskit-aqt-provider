@@ -19,6 +19,8 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Optional
 
+from aqt_connector.models.arnica.resources import ResourceType
+from aqt_connector.models.arnica.response_bodies.jobs import ResultResponse
 from qiskit import QuantumCircuit
 from typing_extensions import assert_never, override
 
@@ -86,7 +88,7 @@ class TestJob:  # pylint: disable=too-many-instance-attributes
         self.time_finished = time.time()
         self.status = JobStatus.CANCELLED
 
-    def response_payload(self) -> api_models.JobResponse:
+    def response_payload(self) -> ResultResponse:
         """AQT API-compatible response for the current job status."""
         if self.status is JobStatus.QUEUED:
             return api_models.Response.queued(
@@ -156,7 +158,7 @@ class TestResource(AQTResource):  # pylint: disable=too-many-instance-attributes
                 workspace_id="test-workspace",
                 resource_id="test",
                 resource_name="test-resource",
-                resource_type="simulator",
+                resource_type=ResourceType.SIMULATOR,
                 available_qubits=20,
             ),
         )
@@ -185,7 +187,7 @@ class TestResource(AQTResource):  # pylint: disable=too-many-instance-attributes
         return test_job.job_id
 
     @override
-    def result(self, job_id: uuid.UUID) -> api_models.JobResponse:
+    def result(self, job_id: uuid.UUID) -> ResultResponse:
         """Handle a results request for a given job.
 
         Apply the logic configured when initializing the backend to
@@ -228,7 +230,7 @@ class DummyResource(AQTResource):
                 workspace_id="dummy",
                 resource_id="dummy",
                 resource_name="dummy",
-                resource_type="simulator",
+                resource_type=ResourceType.SIMULATOR,
                 available_qubits=20,
             ),
         )

@@ -8,15 +8,15 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-from .models import Resource, ResourceType, Workspace, Workspaces
+from .models import AQTBackendType, Resource, Workspace, Workspaces
 from .portal_client import DEFAULT_PORTAL_URL, PortalClient
 from .versions import __version__
 
 __all__ = [
     "DEFAULT_PORTAL_URL",
+    "AQTBackendType",
     "PortalClient",
     "Resource",
-    "ResourceType",
     "Workspace",
     "Workspaces",
     "__version__",

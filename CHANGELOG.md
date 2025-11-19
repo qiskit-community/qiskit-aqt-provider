@@ -1,7 +1,7 @@
 # Changelog
 
 ## Unreleased
-
+* Use aqt-connector models (#248)
 
 ## qiskit-aqt-provider v1.14.0
 

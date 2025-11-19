@@ -20,6 +20,9 @@ from typing import NamedTuple, Optional
 import httpx
 import pytest
 import qiskit
+from aqt_connector.models.arnica.request_bodies.jobs import SubmitJobRequest
+from aqt_connector.models.arnica.resources import ResourceType
+from aqt_connector.models.circuits import QuantumCircuit as AQTQuantumCircuit
 from pytest_httpx import HTTPXMock
 from pytest_mock import MockerFixture
 from qiskit.providers import JobStatus
@@ -27,7 +30,6 @@ from qiskit.providers import JobStatus
 from qiskit_aqt_provider import persistence
 from qiskit_aqt_provider.api_client import Resource
 from qiskit_aqt_provider.api_client import models as api_models
-from qiskit_aqt_provider.api_client import models_generated as api_models_generated
 from qiskit_aqt_provider.aqt_job import AQTJob
 from qiskit_aqt_provider.aqt_options import AQTOptions
 from qiskit_aqt_provider.aqt_provider import AQTProvider
@@ -102,7 +104,7 @@ def test_job_persistence_transaction_online_backend(httpx_mock: HTTPXMock, tmp_p
         workspace_id=str(uuid.uuid4()),
         resource_id=str(uuid.uuid4()),
         resource_name=str(uuid.uuid4()),
-        resource_type="device",
+        resource_type=ResourceType.DEVICE,
         available_qubits=32,
     )
     backend = AQTResource(provider, resource_id)
@@ -110,7 +112,7 @@ def test_job_persistence_transaction_online_backend(httpx_mock: HTTPXMock, tmp_p
     class PortalJob(NamedTuple):
         """Mocked portal state: holds details of the submitted jobs."""
 
-        circuits: list[api_models_generated.QuantumCircuit]
+        circuits: list[AQTQuantumCircuit]
         workspace_id: str
         resource_id: str
         error_msg: str
@@ -126,7 +128,7 @@ def test_job_persistence_transaction_online_backend(httpx_mock: HTTPXMock, tmp_p
         assert request.headers["authorization"] == f"Bearer {token}"
 
         _, workspace_id, resource_id = request.url.path.rsplit("/", maxsplit=2)
-        data = api_models.SubmitJobRequest.model_validate_json(request.content.decode("utf-8"))
+        data = SubmitJobRequest.model_validate_json(request.content.decode("utf-8"))
         circuits = data.payload.circuits
         job_id = uuid.uuid4()
 
