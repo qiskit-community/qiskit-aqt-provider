@@ -314,8 +314,7 @@ class AQTJob(JobV1):
         elif isinstance(job_state, RRFinished):
             self.status_payload = JobFinished(
                 results={
-                    int(circuit_index): [list(shot) for shot in shots]
-                    for circuit_index, shots in job_state.result.items()
+                    int(circuit_index): shots for circuit_index, shots in job_state.result.items()
                 }
             )
         elif isinstance(job_state, RRError):
