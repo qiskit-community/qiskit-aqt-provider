@@ -12,61 +12,20 @@
 
 """Thin convenience wrappers around aqt-connector models."""
 
-import importlib.metadata
-import platform
 import re
 from collections.abc import Collection, Iterator
 from re import Pattern
-from typing import Final, Literal, Optional, Union
-from uuid import UUID
+from typing import Literal, Optional, Union
 
-import httpx
-from aqt_connector.models.arnica.jobs import BasicJobMetadata
 from aqt_connector.models.arnica.resources import ResourceType
-from aqt_connector.models.arnica.response_bodies.jobs import (
-    ResultResponse,
-    RRCancelled,
-    RRError,
-    RRFinished,
-    RROngoing,
-    RRQueued,
-)
 from aqt_connector.models.arnica.response_bodies.workspaces import Workspace as AQTWorkspace
-from aqt_connector.models.operations import GateR, GateRXX, GateRZ, Measure, OperationModel
-from pydantic import BaseModel, ConfigDict, NonNegativeInt, RootModel
+from pydantic import BaseModel, ConfigDict, RootModel
 from qiskit.providers.exceptions import JobError
 from typing_extensions import Self, TypeAlias, override
 
 
 class UnknownJobError(JobError):
     """An unknown job was requested from the AQT cloud portal."""
-
-
-PACKAGE_VERSION: Final = importlib.metadata.version("qiskit-aqt-provider")
-USER_AGENT: Final = " ".join(
-    [
-        f"aqt-api-client/{PACKAGE_VERSION}",
-        f"({platform.system()}; {platform.python_implementation()}/{platform.python_version()})",
-    ]
-)
-
-
-def http_client(
-    *, base_url: str, token: str, user_agent_extra: Optional[str] = None
-) -> httpx.Client:
-    """A pre-configured httpx Client.
-
-    Args:
-        base_url: base URL of the server
-        token: access token for the remote service.
-        user_agent_extra: optional extra data to add to the user-agent string.
-    """
-    user_agent_extra = f" {user_agent_extra}" if user_agent_extra else ""
-    headers = {"User-Agent": USER_AGENT + user_agent_extra}
-    if token:
-        headers["Authorization"] = f"Bearer {token}"
-
-    return httpx.Client(headers=headers, base_url=base_url, timeout=10.0, follow_redirects=True)
 
 
 AQTBackendType: TypeAlias = Literal[
@@ -265,115 +224,3 @@ class Workspaces(
             )
 
         return self.__class__(root=filtered_workspaces)
-
-
-class Operation:
-    """Factories for API payloads of circuit operations."""
-
-    @staticmethod
-    def rz(*, phi: float, qubit: int) -> OperationModel:
-        """RZ gate."""
-        return OperationModel(root=GateRZ(operation="RZ", phi=phi, qubit=qubit))
-
-    @staticmethod
-    def r(*, phi: float, theta: float, qubit: int) -> OperationModel:
-        """R gate."""
-        return OperationModel(root=GateR(operation="R", phi=phi, theta=theta, qubit=qubit))
-
-    @staticmethod
-    def rxx(*, theta: float, qubits: list[NonNegativeInt]) -> OperationModel:
-        """RXX gate."""
-        return OperationModel(
-            root=GateRXX(
-                operation="RXX",
-                theta=theta,
-                qubits=qubits,
-            )
-        )
-
-    @staticmethod
-    def measure() -> OperationModel:
-        """MEASURE operation."""
-        return OperationModel(root=Measure(operation="MEASURE"))
-
-
-JobFinalState: TypeAlias = Union[
-    RRFinished,
-    RRError,
-    RRCancelled,
-]
-
-
-class Response:
-    """Factories for API response payloads."""
-
-    @staticmethod
-    def queued(*, job_id: UUID, workspace_id: str, resource_id: str) -> ResultResponse:
-        """Queued job."""
-        return ResultResponse(
-            job=BasicJobMetadata(
-                job_id=job_id,
-                label="qiskit",
-                resource_id=resource_id,
-                workspace_id=workspace_id,
-            ),
-            response=RRQueued(),
-        )
-
-    @staticmethod
-    def ongoing(
-        *, job_id: UUID, workspace_id: str, resource_id: str, finished_count: int
-    ) -> ResultResponse:
-        """Ongoing job."""
-        return ResultResponse(
-            job=BasicJobMetadata(
-                job_id=job_id,
-                label="qiskit",
-                resource_id=resource_id,
-                workspace_id=workspace_id,
-            ),
-            response=RROngoing(finished_count=finished_count),
-        )
-
-    @staticmethod
-    def finished(
-        *, job_id: UUID, workspace_id: str, resource_id: str, results: dict[str, list[list[int]]]
-    ) -> ResultResponse:
-        """Completed job with the given results."""
-        return ResultResponse(
-            job=BasicJobMetadata(
-                job_id=job_id,
-                label="qiskit",
-                resource_id=resource_id,
-                workspace_id=workspace_id,
-            ),
-            response=RRFinished(
-                result={int(circuit_index): samples for circuit_index, samples in results.items()},
-            ),
-        )
-
-    @staticmethod
-    def error(*, job_id: UUID, workspace_id: str, resource_id: str, message: str) -> ResultResponse:
-        """Failed job."""
-        return ResultResponse(
-            job=BasicJobMetadata(
-                job_id=job_id,
-                label="qiskit",
-                resource_id=resource_id,
-                workspace_id=workspace_id,
-            ),
-            response=RRError(message=message),
-        )
-
-    @staticmethod
-    def cancelled(*, job_id: UUID, workspace_id: str, resource_id: str) -> ResultResponse:
-        """Cancelled job."""
-        return ResultResponse(
-            job=BasicJobMetadata(
-                job_id=job_id,
-                label="qiskit",
-                resource_id=resource_id,
-                workspace_id=workspace_id,
-            ),
-            response=RRCancelled(),
-        )

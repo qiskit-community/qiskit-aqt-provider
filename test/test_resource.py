@@ -52,6 +52,7 @@ from qiskit_aqt_provider.test.resources import (
     TestResource,
 )
 from qiskit_aqt_provider.versions import USER_AGENT_EXTRA
+from test.helpers import Response
 
 
 class OptionsFactory(ModelFactory[AQTOptions]):
@@ -309,7 +310,7 @@ def test_submit_valid_response(httpx_mock: HTTPXMock) -> None:
         return httpx.Response(
             status_code=httpx.codes.OK,
             json=json.loads(
-                api_models.Response.queued(
+                Response.queued(
                     job_id=expected_job_id,
                     resource_id=backend.resource_id.resource_id,
                     workspace_id=backend.resource_id.workspace_id,
@@ -344,7 +345,7 @@ def test_submit_payload_matches(httpx_mock: HTTPXMock) -> None:
         return httpx.Response(
             status_code=httpx.codes.OK,
             json=json.loads(
-                api_models.Response.queued(
+                Response.queued(
                     job_id=expected_job_id,
                     resource_id=backend.resource_id.resource_id,
                     workspace_id=backend.resource_id.workspace_id,
@@ -384,7 +385,7 @@ def test_result_valid_response(httpx_mock: HTTPXMock) -> None:
     backend = DummyResource(token)
     job_id = uuid.uuid4()
 
-    payload = api_models.Response.cancelled(
+    payload = Response.cancelled(
         job_id=job_id,
         resource_id=backend.resource_id.resource_id,
         workspace_id=backend.resource_id.workspace_id,

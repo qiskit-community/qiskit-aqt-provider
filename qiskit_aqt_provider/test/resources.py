@@ -19,8 +19,16 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Optional
 
+from aqt_connector.models.arnica.jobs import BasicJobMetadata
 from aqt_connector.models.arnica.resources import ResourceType
-from aqt_connector.models.arnica.response_bodies.jobs import ResultResponse
+from aqt_connector.models.arnica.response_bodies.jobs import (
+    ResultResponse,
+    RRCancelled,
+    RRError,
+    RRFinished,
+    RROngoing,
+    RRQueued,
+)
 from qiskit import QuantumCircuit
 from typing_extensions import assert_never, override
 
@@ -91,41 +99,58 @@ class TestJob:  # pylint: disable=too-many-instance-attributes
     def response_payload(self) -> ResultResponse:
         """AQT API-compatible response for the current job status."""
         if self.status is JobStatus.QUEUED:
-            return api_models.Response.queued(
-                job_id=self.job_id,
-                workspace_id=self.workspace,
-                resource_id=self.resource,
+            return ResultResponse(
+                job=BasicJobMetadata(
+                    job_id=self.job_id,
+                    label="qiskit",
+                    resource_id=self.resource,
+                    workspace_id=self.workspace,
+                ),
+                response=RRQueued(),
             )
-
         if self.status is JobStatus.ONGOING:
-            return api_models.Response.ongoing(
-                job_id=self.job_id,
-                workspace_id=self.workspace,
-                resource_id=self.resource,
-                finished_count=1,
+            return ResultResponse(
+                job=BasicJobMetadata(
+                    job_id=self.job_id,
+                    label="qiskit",
+                    resource_id=self.resource,
+                    workspace_id=self.workspace,
+                ),
+                response=RROngoing(finished_count=1),
             )
-
         if self.status is JobStatus.FINISHED:
-            return api_models.Response.finished(
-                job_id=self.job_id,
-                workspace_id=self.workspace,
-                resource_id=self.resource,
-                results=self.results,
+            result = {
+                int(circuit_index): samples for circuit_index, samples in self.results.items()
+            }
+            return ResultResponse(
+                job=BasicJobMetadata(
+                    job_id=self.job_id,
+                    label="qiskit",
+                    resource_id=self.resource,
+                    workspace_id=self.workspace,
+                ),
+                response=RRFinished(result=result),
             )
-
         if self.status is JobStatus.ERROR:
-            return api_models.Response.error(
-                job_id=self.job_id,
-                workspace_id=self.workspace,
-                resource_id=self.resource,
-                message=self.error_message,
+            return ResultResponse(
+                job=BasicJobMetadata(
+                    job_id=self.job_id,
+                    label="qiskit",
+                    resource_id=self.resource,
+                    workspace_id=self.workspace,
+                ),
+                response=RRError(message=self.error_message),
             )
-
         if self.status is JobStatus.CANCELLED:
-            return api_models.Response.cancelled(
-                job_id=self.job_id, workspace_id=self.workspace, resource_id=self.resource
+            return ResultResponse(
+                job=BasicJobMetadata(
+                    job_id=self.job_id,
+                    label="qiskit",
+                    resource_id=self.resource,
+                    workspace_id=self.workspace,
+                ),
+                response=RRCancelled(),
             )
-
         assert_never(self.status)  # pragma: no cover
 
 
