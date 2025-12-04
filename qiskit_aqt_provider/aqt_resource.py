@@ -24,9 +24,8 @@ from typing import (
 from uuid import UUID
 
 import httpx
-from aqt_connector.models.arnica.jobs import BasicJobMetadata
 from aqt_connector.models.arnica.response_bodies.jobs import (
-    ResultResponse,
+    JobState,
     RRFinished,
     SubmitJobResponse,
 )
@@ -277,7 +276,7 @@ class AQTResource(_ResourceBase[AQTOptions]):
         )
         return SubmitJobResponse.model_validate(resp.json()).job.job_id
 
-    def result(self, job_id: UUID) -> ResultResponse:
+    def result(self, job_id: UUID) -> JobState:
         """Query the result for a specific job.
 
         .. tip:: This is a low-level method. Use the
@@ -291,8 +290,7 @@ class AQTResource(_ResourceBase[AQTOptions]):
         Returns:
             AQT API payload with the job results.
         """
-        resp = http_response_raise_for_status(self._http_client.get(f"/result/{job_id}"))
-        return ResultResponse.model_validate(resp.json())
+        return self.provider.get_job_state(job_id)
 
 
 class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):
@@ -524,7 +522,7 @@ class OfflineSimulatorResource(AQTResource):
         return sim_job.job_id
 
     @override
-    def result(self, job_id: UUID) -> ResultResponse:
+    def result(self, job_id: UUID) -> JobState:
         """Query results for a simulator job.
 
         .. tip:: This is a low-level method. Use
@@ -562,16 +560,8 @@ class OfflineSimulatorResource(AQTResource):
 
             results[str(circuit_index)] = samples
 
-        return ResultResponse(
-            job=BasicJobMetadata(
-                job_id=job_id,
-                label="qiskit",
-                resource_id=self.resource_id.resource_id,
-                workspace_id=self.resource_id.workspace_id,
-            ),
-            response=RRFinished(
-                result={int(circuit_index): samples for circuit_index, samples in results.items()},
-            ),
+        return RRFinished(
+            result={int(circuit_index): samples for circuit_index, samples in results.items()},
         )
 
 

@@ -10,6 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+import time
 import uuid
 from collections import Counter, defaultdict
 from dataclasses import dataclass
@@ -18,7 +19,7 @@ from types import TracebackType
 from typing import (
     TYPE_CHECKING,
     Any,
-    ClassVar,
+    Callable,
     NoReturn,
     Optional,
     Union,
@@ -26,19 +27,22 @@ from typing import (
 
 import numpy as np
 from aqt_connector.models.arnica.response_bodies.jobs import (
+    JobState,
     RRCancelled,
     RRError,
     RRFinished,
     RROngoing,
     RRQueued,
 )
+from aqt_connector.models.operations import Bit
 from qiskit import QuantumCircuit
 from qiskit.providers import JobV1
-from qiskit.providers.jobstatus import JobStatus
+from qiskit.providers.exceptions import JobTimeoutError
+from qiskit.providers.jobstatus import JOB_FINAL_STATES, JobStatus
 from qiskit.result.result import Result
 from qiskit.utils.lazy_tester import contextlib
 from tqdm import tqdm
-from typing_extensions import Self, TypeAlias
+from typing_extensions import Self
 
 from qiskit_aqt_provider import persistence
 from qiskit_aqt_provider.api_client.models_direct import JobResultError
@@ -47,48 +51,6 @@ from qiskit_aqt_provider.circuit_to_aqt import circuits_to_aqt_job
 
 if TYPE_CHECKING:  # pragma: no cover
     from qiskit_aqt_provider.aqt_resource import AQTDirectAccessResource, AQTResource
-
-
-# Tags for the status of AQT API jobs
-
-
-@dataclass
-class JobFinished:
-    """The job finished successfully."""
-
-    status: ClassVar = JobStatus.DONE
-    results: dict[int, list[list[int]]]
-
-
-@dataclass
-class JobFailed:
-    """An error occurred during the job execution."""
-
-    status: ClassVar = JobStatus.ERROR
-    error: str
-
-
-class JobQueued:
-    """The job is queued."""
-
-    status: ClassVar = JobStatus.QUEUED
-
-
-@dataclass
-class JobOngoing:
-    """The job is running."""
-
-    status: ClassVar = JobStatus.RUNNING
-    finished_count: int
-
-
-class JobCancelled:
-    """The job was cancelled."""
-
-    status = ClassVar = JobStatus.CANCELLED
-
-
-JobStatusPayload: TypeAlias = Union[JobQueued, JobOngoing, JobFinished, JobFailed, JobCancelled]
 
 
 @dataclass(frozen=True)
@@ -185,7 +147,11 @@ class AQTJob(JobV1):
         self.options = options
         self.api_submit_payload = circuits_to_aqt_job(circuits, options.shots)
 
-        self.status_payload: JobStatusPayload = JobQueued()
+        self.qiskit_status: JobStatus = JobStatus.INITIALIZING
+        self.progress: Progress = Progress(finished_count=0, total_count=len(circuits))
+        self.received_result: Union[dict[int, list[list[Bit]]], None] = None
+        self.received_error: Union[str, None] = None
+        self.polling: bool = False
 
     @classmethod
     def restore(
@@ -304,50 +270,12 @@ class AQTJob(JobV1):
         Raises:
             APIError: the operation failed on the remote portal.
         """
-        result_response = self._backend.result(uuid.UUID(self.job_id()))
-        job_state = result_response.response
+        # check if fresh status is available. if not, fetch it
+        if not self.polling and self.qiskit_status not in JOB_FINAL_STATES:
+            self._process_job_state(self._backend.result(uuid.UUID(self.job_id())))
+        return self.qiskit_status
 
-        if isinstance(job_state, RRQueued):
-            self.status_payload = JobQueued()
-        elif isinstance(job_state, RROngoing):
-            self.status_payload = JobOngoing(finished_count=job_state.finished_count)
-        elif isinstance(job_state, RRFinished):
-            self.status_payload = JobFinished(
-                results={
-                    int(circuit_index): shots for circuit_index, shots in job_state.result.items()
-                }
-            )
-        elif isinstance(job_state, RRError):
-            self.status_payload = JobFailed(error=job_state.message)
-        elif isinstance(job_state, RRCancelled):
-            self.status_payload = JobCancelled()
-
-        return self.status_payload.status
-
-    def progress(self) -> Progress:
-        """Progress information for this job."""
-        num_circuits = len(self.circuits)
-
-        if isinstance(self.status_payload, JobQueued):
-            return Progress(finished_count=0, total_count=num_circuits)
-
-        if isinstance(self.status_payload, JobOngoing):
-            return Progress(
-                finished_count=self.status_payload.finished_count, total_count=num_circuits
-            )
-
-        # if the circuit is finished, failed, or cancelled, it is completed
-        return Progress(finished_count=num_circuits, total_count=num_circuits)
-
-    @property
-    def error_message(self) -> Optional[str]:
-        """Error message for this job (if any)."""
-        if isinstance(self.status_payload, JobFailed):
-            return self.status_payload.error
-
-        return None
-
-    def result(self) -> Result:
+    def result(self) -> Result:  # this is the function used by qiskit to get the result
         """Block until all circuits have been evaluated and return the combined result.
 
         Success or error is signalled by the `success` field in the returned Result instance.
@@ -358,6 +286,16 @@ class AQTJob(JobV1):
         Raises:
             APIError: the operation failed on the remote portal.
         """
+        # TODO: replace this with the aqt_connector's job waiting mechanism. it needs to:
+        # - poll the job state and update status/progress of self on changes
+        # - provide a progress bar if wanted
+        # - (use a timeout if set in the options)
+        # - (use a custom query_period_seconds if set in the options)
+        # - when a JOB_FINAL_STATES is reached:
+        #   - set the result/error of self
+        #   - return Result()
+        self.polling = True
+
         if self.options.with_progress_bar:
             context: Union[tqdm[NoReturn], _MockProgressBar] = tqdm(total=len(self.circuits))
         else:
@@ -365,34 +303,32 @@ class AQTJob(JobV1):
 
         with context as progress_bar:
 
-            def callback(
-                job_id: str,  # noqa: ARG001
-                status: JobStatus,  # noqa: ARG001
-                job: AQTJob,
-            ) -> None:
-                progress = job.progress()
+            def update_progress_bar() -> None:
+                progress = self.progress
                 progress_bar.update(progress.finished_count - progress_bar.n)
 
             # one of DONE, CANCELLED, ERROR
             self.wait_for_final_state(
                 timeout=self.options.query_timeout_seconds,
                 wait=self.options.query_period_seconds,
-                callback=callback,
+                callback=update_progress_bar,
             )
 
             # make sure the progress bar completes
-            progress_bar.update(self.progress().finished_count - progress_bar.n)
+            progress_bar.update(self.progress.finished_count - progress_bar.n)
 
         results = []
 
-        if isinstance(self.status_payload, JobFinished):
+        if self.qiskit_status == JobStatus.DONE and self.received_result:
             for circuit_index, circuit in enumerate(self.circuits):
-                samples = self.status_payload.results[circuit_index]
+                samples = self.received_result[circuit_index]
                 results.append(
                     _partial_qiskit_result_dict(
                         samples, circuit, shots=self.options.shots, memory=self.options.memory
                     )
                 )
+
+        self.polling = False
 
         return Result.from_dict(
             {
@@ -400,12 +336,104 @@ class AQTJob(JobV1):
                 "backend_version": self._backend.version,
                 "qobj_id": id(self.circuits),
                 "job_id": self.job_id(),
-                "success": self.status_payload.status is JobStatus.DONE,
+                "success": self.qiskit_status is JobStatus.DONE,
                 "results": results,
                 # Pass error message as metadata
-                "error": self.error_message,
+                "error": self.received_error,
             }
         )
+
+    def wait_for_final_state(
+        self,
+        timeout: Optional[float] = None,
+        wait: float = 5,
+        callback: Optional[Callable[[], None]] = None,
+    ) -> None:
+        """Poll the job status until it progresses to a final state such as ``DONE`` or ``ERROR``.
+
+        Args:
+            timeout: Seconds to wait for the job. If ``None``, wait indefinitely.
+            wait: Seconds between queries.
+            callback: Callback function invoked after each query.
+                The following positional arguments are provided to the callback function:
+
+                * job_id: Job ID
+                * job_status: Status of the job from the last query
+                * job: This BaseJob instance
+
+                Note: different subclass might provide different arguments to
+                the callback function.
+
+        Raises:
+            JobTimeoutError: If the job does not reach a final state before the
+                specified timeout.
+        """
+
+        # TODO:
+        # - run the polling function provided by the aqt_connector
+        # - run _process_job_state with each received JobState in callback
+        # - return when a status in JOB_FINAL_STATES is reached
+        def receive_state_update(
+            job_state: JobState,
+            notify_progress_bar_callable: Optional[Callable[[], None]] = None,
+        ) -> None:
+            self._process_job_state(job_state)
+            if notify_progress_bar_callable:
+                notify_progress_bar_callable()
+
+        self._placeholder_polling_function(receive_state_update, timeout, wait, callback)
+
+    def _placeholder_polling_function(
+        self,
+        report_state: Callable[[JobState, Optional[Callable[[], None]]], None],
+        timeout: Optional[float] = None,
+        wait: float = 5,
+        notify_progress_bar: Optional[Callable[[], None]] = None,
+    ) -> None:
+        """TODO."""
+        # TODO: put this into the aqt_connector. it needs to:
+        # - poll the job state and update status/progress of self on changes
+        # - (use a timeout if set)
+        # - (use a custom query_period_seconds if set)
+        # - provide the JobState for every iteration to a callback
+        # - return when a JOB_FINAL_STATES is reached
+
+        if not self._async:
+            return
+        start_time = time.time()
+        state = self._backend.result(uuid.UUID(self.job_id()))
+        while not (isinstance(state, (RRFinished, RRError, RRCancelled))):
+            elapsed_time = time.time() - start_time
+            if timeout is not None and elapsed_time >= timeout:
+                raise JobTimeoutError(f"Timeout while waiting for job {self.job_id()}.")
+            report_state(state, notify_progress_bar)
+            time.sleep(wait)
+            state = self._backend.result(uuid.UUID(self.job_id()))
+        return
+
+    def _process_job_state(self, job_state: JobState) -> None:
+        """TODO."""
+        num_circuits = len(self.circuits)
+
+        if isinstance(job_state, RRQueued):
+            self.qiskit_status = JobStatus.QUEUED
+        if isinstance(job_state, RROngoing):
+            self.qiskit_status = JobStatus.RUNNING
+            self.progress = Progress(
+                finished_count=job_state.finished_count,
+                total_count=num_circuits,
+            )
+        elif isinstance(job_state, RRFinished):
+            self.qiskit_status = JobStatus.DONE
+            self.received_result = job_state.result
+        elif isinstance(job_state, RRError):
+            self.qiskit_status = JobStatus.ERROR
+            self.received_error = job_state.message
+        elif isinstance(job_state, RRCancelled):
+            self.qiskit_status = JobStatus.CANCELLED
+
+        if self.qiskit_status in JOB_FINAL_STATES:
+            self.progress = Progress(finished_count=num_circuits, total_count=num_circuits)
 
 
 class AQTDirectAccessJob(JobV1):
