@@ -51,7 +51,9 @@ class PortalClient:
             headers["Authorization"] = f"Bearer {token}"
 
         self._http_client = httpx.Client(
-            base_url=self.portal_url.join("/api/v1"),
+            base_url=self.portal_url.join(
+                "/api/v1"
+            ),  # TODO: align with the URL used in ArnicaConfig
             headers=headers,
             timeout=timeout,
             follow_redirects=True,
