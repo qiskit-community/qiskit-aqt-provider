@@ -260,6 +260,7 @@ class AQTProvider:
         """Log in to the AQT cloud and store the access token."""
         if self._arnica_config is None:
             arnica_config = ArnicaConfig()
+            # TODO: fix this when envvar does not exist
             arnica_config.arnica_url = f"{os.environ.get('AQT_PORTAL_URL')}/api"
             self._arnica_config = arnica_config
         self._arnica = ArnicaApp(self._arnica_config)
