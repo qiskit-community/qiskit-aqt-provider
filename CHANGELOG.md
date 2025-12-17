@@ -2,6 +2,7 @@
 
 ## Unreleased
 * Use aqt-connector models (#248)
+* Update aqt-connector to 0.3.0 (#251)
 
 ## qiskit-aqt-provider v1.14.0
 
