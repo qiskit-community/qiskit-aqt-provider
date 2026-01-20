@@ -22,7 +22,6 @@ from aqt_connector.models.circuits import QuantumCircuit as AQTQuantumCircuit
 from pydantic import ValidationError
 from qiskit import QuantumCircuit
 
-from qiskit_aqt_provider.api_client import models as api_models
 from qiskit_aqt_provider.aqt_resource import AQTResource
 from qiskit_aqt_provider.circuit_to_aqt import (
     aqt_to_qiskit_circuit,
@@ -36,6 +35,7 @@ from qiskit_aqt_provider.test.circuits import (
     qft_circuit,
     random_circuit,
 )
+from test.helpers import Operation
 
 
 def test_no_circuit() -> None:
@@ -66,7 +66,7 @@ def test_just_measure_circuit() -> None:
                 AQTQuantumCircuit(
                     repetitions=shots,
                     number_of_qubits=1,
-                    quantum_circuit=Circuit(root=[api_models.Operation.measure()]),
+                    quantum_circuit=Circuit(root=[Operation.measure()]),
                 ),
             ]
         ),
@@ -97,10 +97,10 @@ def test_valid_circuit() -> None:
                     repetitions=1,
                     quantum_circuit=Circuit(
                         root=[
-                            api_models.Operation.r(theta=0.5, phi=0.0, qubit=0),
-                            api_models.Operation.rz(phi=0.2, qubit=1),
-                            api_models.Operation.rxx(theta=0.5, qubits=[0, 1]),
-                            api_models.Operation.measure(),
+                            Operation.r(theta=0.5, phi=0.0, qubit=0),
+                            Operation.rz(phi=0.2, qubit=1),
+                            Operation.rxx(theta=0.5, qubits=[0, 1]),
+                            Operation.measure(),
                         ]
                     ),
                 ),
@@ -152,9 +152,9 @@ def test_invalid_measurements() -> None:
                     repetitions=1,
                     quantum_circuit=Circuit(
                         root=[
-                            api_models.Operation.r(theta=0.5, phi=0.0, qubit=0),
-                            api_models.Operation.r(theta=0.5, phi=0.0, qubit=1),
-                            api_models.Operation.measure(),
+                            Operation.r(theta=0.5, phi=0.0, qubit=0),
+                            Operation.r(theta=0.5, phi=0.0, qubit=1),
+                            Operation.measure(),
                         ]
                     ),
                 ),
@@ -188,9 +188,9 @@ def test_convert_multiple_circuits() -> None:
                     repetitions=1,
                     quantum_circuit=Circuit(
                         root=[
-                            api_models.Operation.r(theta=0.5, phi=0.0, qubit=0),
-                            api_models.Operation.rxx(theta=0.5, qubits=[0, 1]),
-                            api_models.Operation.measure(),
+                            Operation.r(theta=0.5, phi=0.0, qubit=0),
+                            Operation.rxx(theta=0.5, qubits=[0, 1]),
+                            Operation.measure(),
                         ]
                     ),
                 ),
@@ -199,8 +199,8 @@ def test_convert_multiple_circuits() -> None:
                     repetitions=1,
                     quantum_circuit=Circuit(
                         root=[
-                            api_models.Operation.r(theta=0.25, phi=0.0, qubit=0),
-                            api_models.Operation.measure(),
+                            Operation.r(theta=0.25, phi=0.0, qubit=0),
+                            Operation.measure(),
                         ]
                     ),
                 ),

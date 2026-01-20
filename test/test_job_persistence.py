@@ -29,13 +29,13 @@ from qiskit.providers import JobStatus
 
 from qiskit_aqt_provider import persistence
 from qiskit_aqt_provider.api_client import Resource
-from qiskit_aqt_provider.api_client import models as api_models
 from qiskit_aqt_provider.aqt_job import AQTJob
 from qiskit_aqt_provider.aqt_options import AQTOptions
 from qiskit_aqt_provider.aqt_provider import AQTProvider
 from qiskit_aqt_provider.aqt_resource import AQTResource, OfflineSimulatorResource
 from qiskit_aqt_provider.test.circuits import random_circuit
 from qiskit_aqt_provider.test.fixtures import MockSimulator
+from test.helpers import Response
 
 
 @pytest.mark.parametrize(
@@ -143,7 +143,7 @@ def test_job_persistence_transaction_online_backend(httpx_mock: HTTPXMock, tmp_p
         return httpx.Response(
             status_code=httpx.codes.OK,
             json=json.loads(
-                api_models.Response.queued(
+                Response.queued(
                     job_id=job_id, resource_id=resource_id, workspace_id=workspace_id
                 ).model_dump_json()
             ),
@@ -164,7 +164,7 @@ def test_job_persistence_transaction_online_backend(httpx_mock: HTTPXMock, tmp_p
         return httpx.Response(
             status_code=httpx.codes.OK,
             json=json.loads(
-                api_models.Response.error(
+                Response.error(
                     job_id=uuid.UUID(job_id),
                     workspace_id=job.workspace_id,
                     resource_id=job.resource_id,

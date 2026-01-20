@@ -24,7 +24,12 @@ from typing import (
 from uuid import UUID
 
 import httpx
-from aqt_connector.models.arnica.response_bodies.jobs import ResultResponse, SubmitJobResponse
+from aqt_connector.models.arnica.jobs import BasicJobMetadata
+from aqt_connector.models.arnica.response_bodies.jobs import (
+    ResultResponse,
+    RRFinished,
+    SubmitJobResponse,
+)
 from aqt_connector.models.circuits import QuantumCircuit as AQTQuantumCircuit
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import RGate, RXXGate, RZGate
@@ -310,7 +315,7 @@ class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):
             provider: Qiskit provider that owns the backend.
             base_url: URL of the direct-access interface.
         """
-        self._http_client = api_models.http_client(
+        self._http_client = api_models_direct.http_client(
             base_url=base_url, token=provider.access_token, user_agent_extra=USER_AGENT_EXTRA
         )
 
@@ -557,11 +562,16 @@ class OfflineSimulatorResource(AQTResource):
 
             results[str(circuit_index)] = samples
 
-        return api_models.Response.finished(
-            job_id=job_id,
-            workspace_id=self.resource_id.workspace_id,
-            resource_id=self.resource_id.resource_id,
-            results=results,
+        return ResultResponse(
+            job=BasicJobMetadata(
+                job_id=job_id,
+                label="qiskit",
+                resource_id=self.resource_id.resource_id,
+                workspace_id=self.resource_id.workspace_id,
+            ),
+            response=RRFinished(
+                result={int(circuit_index): samples for circuit_index, samples in results.items()},
+            ),
         )
 
 
