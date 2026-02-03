@@ -324,7 +324,7 @@ class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):
         ).num_ions
 
         resp = http_response_raise_for_status(
-            self._http_client.get(f"/system/name")
+            self._http_client.get("/system/name")
         )
         name = resp.json()
         super().__init__(
