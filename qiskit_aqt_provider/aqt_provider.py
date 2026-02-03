@@ -383,10 +383,17 @@ class AQTProvider:
 
         return selected_backend
 
-    def get_direct_access_backend(self, base_url: str, /) -> AQTDirectAccessResource:
+    def get_direct_access_backend(self, base_url: Optional[str] = None, /) -> AQTDirectAccessResource:
         """Return a handle for a direct-access quantum computing resource.
 
         Args:
-            base_url: URL of the direct-access interface.
+            base_url: URL of the direct-access interface, can be provided by
+                      - passing an url as the ``base_url`` argument, or;
+                      - setting the url to the ``AQT_DIRECT_URL`` environment variable.
         """
+        if base_url is None:
+            base_url = os.environ.get("AQT_DIRECT_URL", None)
+        if base_url is None:
+            raise QiskitBackendNotFoundError("no URL specified for direct access backend")
+
         return AQTDirectAccessResource(self, base_url)
