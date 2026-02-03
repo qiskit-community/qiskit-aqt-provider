@@ -339,6 +339,55 @@ def test_direct_access_resource_target_matches_available_qubits(httpx_mock: HTTP
 
     assert DummyDirectAccessResource("token").target.num_qubits == available_qubits
 
+def test_direct_access_resource_configuration_matches_name(httpx_mock: HTTPXMock) -> None:
+    """Check that the direct-access resources' targets have the expected number of qubits.
+
+    When initializing direct-access devices, we fetch the number of available qubits.
+    This value is used to configure the transpilation target for that device.
+
+    This is a *resource* test but is placed in this module since it mirrors the one above
+    that checks the same property for remote devices.
+    """
+    available_qubits = 24
+
+    httpx_mock.add_response(
+        json=json.loads(api_models_direct.NumIons(num_ions=available_qubits).model_dump_json()),
+        url=re.compile(".+/status/ions"),
+    )
+
+    name = "direct-access-dummy"
+    httpx_mock.add_response(
+        json=f"{name}",
+        url=re.compile(".+/system/name"),
+    )
+
+    assert DummyDirectAccessResource("token").configuration().backend_name == name
+
+def test_direct_access_resource_init_with_env(httpx_mock: HTTPXMock, monkeypatch) -> None:
+    """Check that the direct-access resources' targets have the expected number of qubits.
+
+    When initializing direct-access devices, we fetch the number of available qubits.
+    This value is used to configure the transpilation target for that device.
+
+    This is a *resource* test but is placed in this module since it mirrors the one above
+    that checks the same property for remote devices.
+    """
+    monkeypatch.setenv("AQT_DIRECT_URL", "http://direct-access-example.aqt.eu:6020")
+    available_qubits = 24
+
+    httpx_mock.add_response(
+        json=json.loads(api_models_direct.NumIons(num_ions=available_qubits).model_dump_json()),
+        url=re.compile(".+/status/ions"),
+    )
+
+    name = "direct-access-dummy"
+    httpx_mock.add_response(
+        json=f"{name}",
+        url=re.compile(".+/system/name"),
+    )
+
+    assert DummyDirectAccessResource("token").configuration().backend_name == name
+
 
 @pytest.mark.parametrize("available_qubits", [None, 32])
 def test_offline_simulator_set_qubits(available_qubits: Optional[int]) -> None:
