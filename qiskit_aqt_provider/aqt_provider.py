@@ -42,8 +42,8 @@ from qiskit_aqt_provider.api_client import PortalClient, Resource, Workspace
 from qiskit_aqt_provider.api_client.errors import APIError
 from qiskit_aqt_provider.api_client.models import AQTBackendType
 from qiskit_aqt_provider.aqt_resource import (
-    AQTDirectAccessResource,
     AnyAQTResource,
+    AQTDirectAccessResource,
     AQTResource,
     OfflineSimulatorResource,
     make_transpiler_target,
@@ -295,7 +295,7 @@ class AQTProvider:
         remote_workspaces: Iterable[Workspace] = []
 
         # Only query if remote resources are requested.
-        if backend_type != "offline_simulator" or backend_type != "direct_access":
+        if backend_type not in ["offline_simulator", "direct_access"]:
             with contextlib.suppress(APIError, httpx.NetworkError):
                 remote_workspaces = self._portal_client.workspaces().filter(
                     name_pattern=name,
@@ -360,7 +360,7 @@ class AQTProvider:
         workspace: Optional[Union[str, Pattern[str]]] = None,
         available_qubits: Optional[int] = None,
     ) -> AnyAQTResource:
-        """Return a handle for a cloud or direct-access quantum computing resource matching the specified filtering.
+        """Return a handle for a quantum computing resource matching the specified filtering.
 
         Args:
             name: filter for the backend name.

@@ -43,8 +43,8 @@ from qiskit_aer import AerJob, AerSimulator, noise
 from typing_extensions import TypeAlias, override
 
 from qiskit_aqt_provider import api_client
+from qiskit_aqt_provider.api_client import Resource, models_direct
 from qiskit_aqt_provider.api_client import models as api_models
-from qiskit_aqt_provider.api_client import models_direct, Resource
 from qiskit_aqt_provider.api_client import models_direct as api_models_direct
 from qiskit_aqt_provider.api_client.errors import http_response_raise_for_status
 from qiskit_aqt_provider.aqt_job import AQTDirectAccessJob, AQTJob
