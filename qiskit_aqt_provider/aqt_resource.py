@@ -323,9 +323,7 @@ class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):
             http_response_raise_for_status(self._http_client.get("/status/ions")).json()
         ).num_ions
 
-        resp = http_response_raise_for_status(
-            self._http_client.get("/system/name")
-        )
+        resp = http_response_raise_for_status(self._http_client.get("/system/name"))
         name = resp.json()
         super().__init__(
             provider=provider,
@@ -334,12 +332,12 @@ class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):
             available_qubits=available_qubits,
         )
         self.resource_id = Resource(
-                            workspace_id="default",
-                            resource_id=name,
-                            resource_name="locally available resource",
-                            resource_type="direct_access",
-                            available_qubits=available_qubits
-                        )
+            workspace_id="default",
+            resource_id=name,
+            resource_name="locally available resource",
+            resource_type="direct_access",
+            available_qubits=available_qubits,
+        )
 
     def run(
         self, circuits: Union[QuantumCircuit, list[QuantumCircuit]], **options: Any

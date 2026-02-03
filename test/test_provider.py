@@ -339,6 +339,7 @@ def test_direct_access_resource_target_matches_available_qubits(httpx_mock: HTTP
 
     assert DummyDirectAccessResource("token").target.num_qubits == available_qubits
 
+
 def test_direct_access_resource_configuration_matches_name(httpx_mock: HTTPXMock) -> None:
     """Check that the direct-access resources' targets have the expected number of qubits.
 
@@ -362,6 +363,7 @@ def test_direct_access_resource_configuration_matches_name(httpx_mock: HTTPXMock
     )
 
     assert DummyDirectAccessResource("token").configuration().backend_name == name
+
 
 def test_direct_access_resource_init_with_env(httpx_mock: HTTPXMock, monkeypatch) -> None:
     """Check that the direct-access resources' targets have the expected number of qubits.

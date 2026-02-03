@@ -523,7 +523,7 @@ def test_direct_access_bad_request(httpx_mock: HTTPXMock) -> None:
     httpx_mock.add_response(
         json=json.loads(api_models_direct.NumIons(num_ions=2).model_dump_json()),
         url=re.compile(".+/status/ions"),
-    )    
+    )
     httpx_mock.add_response(
         json="direct-access-dummy",
         url=re.compile(".+/system/name"),

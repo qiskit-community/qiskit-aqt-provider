@@ -325,7 +325,7 @@ class AQTProvider:
                         with_noise_model=simulator.noisy,
                     )
                 )
-         # add offline simulators in the default workspace
+        # add offline simulators in the default workspace
         if (not workspace or workspace.match("default")) and (
             not backend_type or backend_type == "direct_access"
         ):
@@ -336,7 +336,7 @@ class AQTProvider:
                         AQTDirectAccessResource(
                             self,
                             base_url,
-                            )
+                        )
                     )
 
         return BackendsTable(
@@ -397,7 +397,9 @@ class AQTProvider:
 
         return selected_backend
 
-    def get_direct_access_backend(self, base_url: Optional[str] = None, /) -> AQTDirectAccessResource:
+    def get_direct_access_backend(
+        self, base_url: Optional[str] = None, /
+    ) -> AQTDirectAccessResource:
         """Return a handle for a direct-access quantum computing resource.
 
         Args:
