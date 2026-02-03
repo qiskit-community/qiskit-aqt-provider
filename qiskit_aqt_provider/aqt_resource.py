@@ -44,7 +44,7 @@ from typing_extensions import TypeAlias, override
 
 from qiskit_aqt_provider import api_client
 from qiskit_aqt_provider.api_client import models as api_models
-from qiskit_aqt_provider.api_client import models_direct
+from qiskit_aqt_provider.api_client import models_direct, Resource
 from qiskit_aqt_provider.api_client import models_direct as api_models_direct
 from qiskit_aqt_provider.api_client.errors import http_response_raise_for_status
 from qiskit_aqt_provider.aqt_job import AQTDirectAccessJob, AQTJob
@@ -323,12 +323,23 @@ class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):
             http_response_raise_for_status(self._http_client.get("/status/ions")).json()
         ).num_ions
 
+        resp = http_response_raise_for_status(
+            self._http_client.get(f"/system/name")
+        )
+        name = resp.json()
         super().__init__(
             provider=provider,
-            name="direct-access",
+            name=name,
             options_type=AQTDirectAccessOptions,
             available_qubits=available_qubits,
         )
+        self.resource_id = Resource(
+                            workspace_id="default",
+                            resource_id=name,
+                            resource_name="locally available resource",
+                            resource_type="direct_access",
+                            available_qubits=available_qubits
+                        )
 
     def run(
         self, circuits: Union[QuantumCircuit, list[QuantumCircuit]], **options: Any
