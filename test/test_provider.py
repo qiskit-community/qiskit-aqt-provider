@@ -230,13 +230,11 @@ def test_remote_workspaces_table(httpx_mock: HTTPXMock, monkeypatch: pytest.Monk
 
     # List only the direct-access and simulators
     all_backends = provider.backends().by_workspace()
-    default_list = [simulator.id for simulator in OFFLINE_SIMULATORS]
-    default_list.append("direct-access-dummy")
+    default_list = {simulator.id for simulator in OFFLINE_SIMULATORS}
+    default_list.add("direct-access-dummy")
     assert set(all_backends) == {"default", "w1"}
     assert {backend.resource_id.resource_id for backend in all_backends["w1"]} == {"r1"}
-    assert {backend.resource_id.resource_id for backend in all_backends["default"]} == set(
-        default_list
-    )
+    assert {backend.resource_id.resource_id for backend in all_backends["default"]} == default_list
 
 
 @pytest.mark.httpx_mock(can_send_already_matched_responses=True)
