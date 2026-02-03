@@ -332,6 +332,10 @@ def test_direct_access_resource_target_matches_available_qubits(httpx_mock: HTTP
         json=json.loads(api_models_direct.NumIons(num_ions=available_qubits).model_dump_json()),
         url=re.compile(".+/status/ions"),
     )
+    httpx_mock.add_response(
+        json="direct-access-dummy",
+        url=re.compile(".+/system/name"),
+    )
 
     assert DummyDirectAccessResource("token").target.num_qubits == available_qubits
 
