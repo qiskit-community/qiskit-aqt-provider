@@ -401,21 +401,17 @@ def test_direct_access_resource_configuration_matches_name(httpx_mock: HTTPXMock
     assert DummyDirectAccessResource("token").configuration().backend_name == name
 
 
-def test_direct_access_resource_init_with_env(
-    httpx_mock: HTTPXMock, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    """Check that the direct-access resources' targets have the expected number of qubits.
+def test_direct_access_resource_init_with_env_not_found(httpx_mock: HTTPXMock) -> None:
+    """Check that the direct-access resources raises exception if not url is provided.
 
-    When initializing direct-access devices, we fetch the number of available qubits.
-    This value is used to configure the transpilation target for that device.
+    When initializing direct-access devices without a `base_url` and no environment
+    variable to see if the exception is raised.
 
     This is a *resource* test but is placed in this module since it mirrors the one above
     that checks the same property for remote devices.
     """
-    available_qubits = 24
-
     httpx_mock.add_response(
-        json=json.loads(api_models_direct.NumIons(num_ions=available_qubits).model_dump_json()),
+        json=json.loads(api_models_direct.NumIons(num_ions=10).model_dump_json()),
         url=re.compile(".+/status/ions"),
     )
 
@@ -425,12 +421,25 @@ def test_direct_access_resource_init_with_env(
         url=re.compile(".+/system/name"),
     )
     dummy = DummyDirectAccessResource("token")
-
-    with pytest.raises(QiskitBackendNotFoundError):
+    with pytest.raises(
+        QiskitBackendNotFoundError, match="no URL specified for direct access backend"
+    ):
         dummy.provider.get_direct_access_backend()
 
+
+def test_direct_access_resource_init_with_env_found(
+    httpx_mock: HTTPXMock, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Check that the direct-access resources can be initialized via the environment variable.
+
+    When initializing direct-access devices without a `base_url` but with the environment variable
+    the URL from the environment variable should be used.
+
+    This is a *resource* test but is placed in this module since it mirrors the one above
+    that checks the same property for remote devices.
+    """
     httpx_mock.add_response(
-        json=json.loads(api_models_direct.NumIons(num_ions=available_qubits).model_dump_json()),
+        json=json.loads(api_models_direct.NumIons(num_ions=10).model_dump_json()),
         url=re.compile(".+/status/ions"),
     )
 
@@ -439,10 +448,62 @@ def test_direct_access_resource_init_with_env(
         json=f"{name}",
         url=re.compile(".+/system/name"),
     )
+    dummy = DummyDirectAccessResource("token")
+
+    httpx_mock.add_response(
+        json=json.loads(api_models_direct.NumIons(num_ions=10).model_dump_json()),
+        url=re.compile(".+/status/ions"),
+    )
+    httpx_mock.add_response(
+        json=f"{name}",
+        url=re.compile(".+/system/name"),
+    )
+    # Use a different URL to make sure it is not from the DummyDirectAccessResource initialization.
     url = "http://direct-access-example.aqt.eu:6021"
     monkeypatch.setenv("AQT_DIRECT_URL", url)
+
     backend = dummy.provider.get_direct_access_backend()
     assert backend._http_client.base_url == httpx.URL(url)
+
+
+def test_direct_access_resource_init_arg_before_env(
+    httpx_mock: HTTPXMock, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Check that the direct-access resources prioritises argument over environment variable.
+
+    When initializing direct-access devices with `base_url` and with the environment variable
+    the URL from the argument should be used.
+
+    This is a *resource* test but is placed in this module since it mirrors the one above
+    that checks the same property for remote devices.
+    """
+    httpx_mock.add_response(
+        json=json.loads(api_models_direct.NumIons(num_ions=10).model_dump_json()),
+        url=re.compile(".+/status/ions"),
+    )
+
+    name = "direct-access-dummy_new"
+    httpx_mock.add_response(
+        json=f"{name}",
+        url=re.compile(".+/system/name"),
+    )
+    dummy = DummyDirectAccessResource("token")
+
+    httpx_mock.add_response(
+        json=json.loads(api_models_direct.NumIons(num_ions=10).model_dump_json()),
+        url=re.compile(".+/status/ions"),
+    )
+    httpx_mock.add_response(
+        json=f"{name}",
+        url=re.compile(".+/system/name"),
+    )
+    # Use a different URL to make sure it is not from the DummyDirectAccessResource initialization.
+    url = "http://direct-access-example.aqt.eu:6021"
+    url2 = "http://direct-access-example.aqt.eu:6022"
+    monkeypatch.setenv("AQT_DIRECT_URL", url)
+
+    backend = dummy.provider.get_direct_access_backend(url2)
+    assert backend._http_client.base_url == httpx.URL(url2)
 
 
 @pytest.mark.parametrize("available_qubits", [None, 32])
