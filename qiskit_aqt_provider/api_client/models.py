@@ -29,7 +29,7 @@ class UnknownJobError(JobError):
 
 
 AQTBackendType: TypeAlias = Literal[
-    ResourceType.DEVICE, ResourceType.SIMULATOR, "offline_simulator"
+    ResourceType.DEVICE, ResourceType.SIMULATOR, "offline_simulator", "direct_access"
 ]
 
 
