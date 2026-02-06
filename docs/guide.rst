@@ -130,6 +130,11 @@ Direct-access resources handles are obtained from a provider using the :meth:`ge
 
    direct_access_backend = provider.get_direct_access_backend("http://URL")
 
+.. versionadded:: 1.14.1
+
+   The base URL can be provided by the environment variable ``AQT_DIRECT_URL``. 
+   If the environment variable ``AQT_DIRECT_URL`` is set and points to a reachable local quantum computing system it will also be listed in the ``default`` workspace when calling :meth:`backends <qiskit_aqt_provider.aqt_provider.AQTProvider.backends>` and can be a result of :meth:`get_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_backend>`.
+
 Contact your local system administrator to determine the exact base URL to access your local quantum computing system.
 
 .. tip:: Resources handles returned by :meth:`get_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_backend>` and :meth:`get_direct_access_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_direct_access_backend>` both implement the Qiskit :class:`BackendV2 <qiskit.providers.BackendV2>` interface can be used exchangeably in the following examples.
