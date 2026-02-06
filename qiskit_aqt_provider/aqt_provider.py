@@ -325,7 +325,7 @@ class AQTProvider:
                         with_noise_model=simulator.noisy,
                     )
                 )
-        # add offline simulators in the default workspace
+        # add direct access resources to the default workspace
         if (not workspace or workspace.match("default")) and (
             not backend_type or backend_type == "direct_access"
         ):
