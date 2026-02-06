@@ -379,10 +379,10 @@ def test_direct_access_resource_target_matches_available_qubits(httpx_mock: HTTP
 
 
 def test_direct_access_resource_configuration_matches_name(httpx_mock: HTTPXMock) -> None:
-    """Check that the direct-access resources' targets have the expected number of qubits.
+    """Check that the direct-access resources' name is initialized correct.
 
-    When initializing direct-access devices, we fetch the number of available qubits.
-    This value is used to configure the transpilation target for that device.
+    When initializing direct-access devices, we fetch the name via the endpoint.
+    This value is used to identify the backend and checked here.
 
     This is a *resource* test but is placed in this module since it mirrors the one above
     that checks the same property for remote devices.
