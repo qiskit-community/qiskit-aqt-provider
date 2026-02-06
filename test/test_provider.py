@@ -387,10 +387,8 @@ def test_direct_access_resource_configuration_matches_name(httpx_mock: HTTPXMock
     This is a *resource* test but is placed in this module since it mirrors the one above
     that checks the same property for remote devices.
     """
-    available_qubits = 24
-
     httpx_mock.add_response(
-        json=json.loads(api_models_direct.NumIons(num_ions=available_qubits).model_dump_json()),
+        json=json.loads(api_models_direct.NumIons(num_ions=10).model_dump_json()),
         url=re.compile(".+/status/ions"),
     )
 
