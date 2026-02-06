@@ -137,7 +137,7 @@ Direct-access resources handles are obtained from a provider using the :meth:`ge
 
 Contact your local system administrator to determine the exact base URL to access your local quantum computing system.
 
-.. tip:: Resources handles returned by :meth:`get_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_backend>` and :meth:`get_direct_access_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_direct_access_backend>` both implement the Qiskit :class:`BackendV2 <qiskit.providers.BackendV2>` interface can be used exchangeably in the following examples.
+.. tip:: Resources handles returned by :meth:`get_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_backend>` and :meth:`get_direct_access_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_direct_access_backend>` both implement the Qiskit :class:`BackendV2 <qiskit.providers.BackendV2>` interface and can be used exchangeably in the following examples.
 
 Quantum register size
 =====================
