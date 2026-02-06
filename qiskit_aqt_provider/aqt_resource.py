@@ -334,7 +334,7 @@ class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):
         self.resource_id = Resource(
             workspace_id="default",
             resource_id=name,
-            resource_name="locally available resource",
+            resource_name="Local resource",
             resource_type="direct_access",
             available_qubits=available_qubits,
         )
