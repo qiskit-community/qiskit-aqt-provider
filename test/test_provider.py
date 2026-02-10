@@ -426,7 +426,7 @@ def test_direct_access_resource_init_with_env_not_found(httpx_mock: HTTPXMock) -
     )
     dummy = DummyDirectAccessResource("token")
     with pytest.raises(
-        QiskitBackendNotFoundError, match="no URL specified for direct access backend"
+        QiskitBackendNotFoundError, match="no URL specified for direct-access backend"
     ):
         dummy.provider.get_direct_access_backend()
 

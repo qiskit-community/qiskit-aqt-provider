@@ -325,7 +325,7 @@ class AQTProvider:
                         with_noise_model=simulator.noisy,
                     )
                 )
-        # add direct access resources to the default workspace
+        # add direct-access resources to the default workspace
         if (not workspace or workspace.match("default")) and (
             not backend_type or backend_type == "direct_access"
         ):
@@ -410,6 +410,6 @@ class AQTProvider:
         if base_url is None:
             base_url = os.environ.get("AQT_DIRECT_URL", None)
         if base_url is None:
-            raise QiskitBackendNotFoundError("no URL specified for direct access backend")
+            raise QiskitBackendNotFoundError("no URL specified for direct-access backend")
 
         return AQTDirectAccessResource(self, base_url)
