@@ -398,7 +398,11 @@ def test_direct_access_resource_configuration_matches_name(httpx_mock: HTTPXMock
         url=re.compile(".+/system/name"),
     )
 
-    assert DummyDirectAccessResource("token").configuration().backend_name == name
+    resource = DummyDirectAccessResource("token")
+    assert resource.name == name
+    assert resource.configuration().backend_name == name
+    assert resource.resource_id.resource_id == name
+    assert resource.resource_id.resource_name == "Local resource"
 
 
 def test_direct_access_resource_init_with_env_not_found(httpx_mock: HTTPXMock) -> None:

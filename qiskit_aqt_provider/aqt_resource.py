@@ -325,6 +325,7 @@ class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):
 
         resp = http_response_raise_for_status(self._http_client.get("/system/name"))
         name = resp.json()
+        self.name = name
         super().__init__(
             provider=provider,
             name=name,
