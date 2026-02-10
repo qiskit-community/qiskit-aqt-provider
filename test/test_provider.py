@@ -204,7 +204,7 @@ def test_remote_workspaces_table(httpx_mock: HTTPXMock, monkeypatch: pytest.Monk
     only_direct_access = provider.backends(backend_type="direct_access").by_workspace()
     assert only_direct_access == {}
 
-    monkeypatch.setenv("AQT_DIRECT_URL", "http://direct-access-example.aqt.eu:6020")
+    monkeypatch.setenv("AQT_DIRECT_URL", "http://direct-access-example:6020")
     httpx_mock.add_response(
         json=json.loads(api_models_direct.NumIons(num_ions=5).model_dump_json()),
         url=re.compile(".+/status/ions"),
@@ -463,7 +463,7 @@ def test_direct_access_resource_init_with_env_found(
         url=re.compile(".+/system/name"),
     )
     # Use a different URL to make sure it is not from the DummyDirectAccessResource initialization.
-    url = "http://direct-access-example.aqt.eu:6021"
+    url = "http://direct-access-example:6021"
     monkeypatch.setenv("AQT_DIRECT_URL", url)
 
     backend = dummy.provider.get_direct_access_backend()
@@ -502,8 +502,8 @@ def test_direct_access_resource_init_arg_before_env(
         url=re.compile(".+/system/name"),
     )
     # Use a different URL to make sure it is not from the DummyDirectAccessResource initialization.
-    url = "http://direct-access-example.aqt.eu:6021"
-    url2 = "http://direct-access-example.aqt.eu:6022"
+    url = "http://direct-access-example:6021"
+    url2 = "http://direct-access-example:6022"
     monkeypatch.setenv("AQT_DIRECT_URL", url)
 
     backend = dummy.provider.get_direct_access_backend(url2)
