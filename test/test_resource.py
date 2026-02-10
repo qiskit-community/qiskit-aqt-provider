@@ -541,6 +541,22 @@ def test_direct_access_bad_request(httpx_mock: HTTPXMock) -> None:
     assert status_error.response.status_code == httpx.codes.BAD_REQUEST
 
 
+def test_init_direct_access_raises_if_name_cannot_be_retrieved(httpx_mock: HTTPXMock) -> None:
+    """Check that init of direct-access resources raise if their name cannot be retrieved."""
+    httpx_mock.add_response(
+        json=json.loads(api_models_direct.NumIons(num_ions=2).model_dump_json()),
+        url=re.compile(".+/status/ions"),
+    )
+    httpx_mock.add_response(
+        status_code=httpx.codes.NOT_FOUND,
+        url=re.compile(".+/system/name"),
+        json={"detail": "No content"},
+    )
+
+    with pytest.raises(APIError):
+        DummyDirectAccessResource("token")
+
+
 def test_direct_access_too_few_ions_error_message(httpx_mock: HTTPXMock) -> None:
     """Check error reporting when requesting more qubits than loaded ions."""
     detail_str = "requested qubits > available qubits"
