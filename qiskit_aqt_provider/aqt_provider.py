@@ -42,6 +42,7 @@ from qiskit_aqt_provider.api_client import PortalClient, Resource, Workspace
 from qiskit_aqt_provider.api_client.errors import APIError
 from qiskit_aqt_provider.api_client.models import AQTBackendType
 from qiskit_aqt_provider.aqt_resource import (
+    AnyAQTResource,
     AQTDirectAccessResource,
     AQTResource,
     OfflineSimulatorResource,
@@ -268,7 +269,7 @@ class AQTProvider:
         backend_type: Optional[AQTBackendType] = None,
         workspace: Optional[Union[str, Pattern[str]]] = None,
     ) -> BackendsTable:
-        """Search for cloud backends matching given criteria.
+        """Search for cloud and direct-access backends matching given criteria.
 
         With no arguments, return all backends accessible with the configured
         access token.
@@ -294,7 +295,7 @@ class AQTProvider:
         remote_workspaces: Iterable[Workspace] = []
 
         # Only query if remote resources are requested.
-        if backend_type != "offline_simulator":
+        if backend_type not in ["offline_simulator", "direct_access"]:
             with contextlib.suppress(APIError, httpx.NetworkError):
                 remote_workspaces = self._portal_client.workspaces().filter(
                     name_pattern=name,
@@ -324,6 +325,19 @@ class AQTProvider:
                         with_noise_model=simulator.noisy,
                     )
                 )
+        # add direct-access resources to the default workspace
+        if (not workspace or workspace.match("default")) and (
+            not backend_type or backend_type == "direct_access"
+        ):
+            base_url = os.environ.get("AQT_DIRECT_URL", None)
+            if base_url is not None:
+                with contextlib.suppress(APIError, httpx.NetworkError):
+                    backends.append(
+                        AQTDirectAccessResource(
+                            self,
+                            base_url,
+                        )
+                    )
 
         return BackendsTable(
             backends
@@ -345,8 +359,8 @@ class AQTProvider:
         backend_type: Optional[AQTBackendType] = None,
         workspace: Optional[Union[str, Pattern[str]]] = None,
         available_qubits: Optional[int] = None,
-    ) -> AQTResource:
-        """Return a handle for a cloud quantum computing resource matching the specified filtering.
+    ) -> AnyAQTResource:
+        """Return a handle for a quantum computing resource matching the specified filtering.
 
         Args:
             name: filter for the backend name.
@@ -383,10 +397,19 @@ class AQTProvider:
 
         return selected_backend
 
-    def get_direct_access_backend(self, base_url: str, /) -> AQTDirectAccessResource:
+    def get_direct_access_backend(
+        self, base_url: Optional[str] = None, /
+    ) -> AQTDirectAccessResource:
         """Return a handle for a direct-access quantum computing resource.
 
         Args:
-            base_url: URL of the direct-access interface.
+            base_url: URL of the direct-access interface, can be provided by
+                      - passing an url as the ``base_url`` argument, or;
+                      - setting the url to the ``AQT_DIRECT_URL`` environment variable.
         """
+        if base_url is None:
+            base_url = os.environ.get("AQT_DIRECT_URL", None)
+        if base_url is None:
+            raise QiskitBackendNotFoundError("no URL specified for direct-access backend")
+
         return AQTDirectAccessResource(self, base_url)
