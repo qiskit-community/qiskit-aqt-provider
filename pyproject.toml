@@ -240,6 +240,8 @@ default.extend-ignore-words-re = [
 ]
 # 'aer' is the name of the Qiskit simulator backend
 default.extend-words.aer = "aer"
+# 'IZ' is the name of a SparsePauli Operation
+default.extend-words.IZ = "IZ"
 files.ignore-hidden = false
 files.ignore-vcs = true
 files.extend-exclude = [
