@@ -5683,7 +5683,6 @@ description = "Format your pyproject.toml file"
 optional = false
 python-versions = ">=3.9"
 groups = ["dev"]
-markers = "python_version == \"3.9\""
 files = [
     {file = "pyproject_fmt-2.8.0-cp39-abi3-macosx_10_12_x86_64.whl", hash = "sha256:9c9c76c984d2e0d563aaa8cc6bd1d1adfeb139a28a84bfdbbbf2319a9b7f1729"},
     {file = "pyproject_fmt-2.8.0-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:e14feffc413ba2bcbc207dc0ad8847725541a60a4ac3cd68026bb1223d07ed7a"},
@@ -5708,31 +5707,6 @@ files = [
 
 [package.dependencies]
 toml-fmt-common = "1.0.1"
-
-[[package]]
-name = "pyproject-fmt"
-version = "2.16.0"
-description = "Format your pyproject.toml file"
-optional = false
-python-versions = ">=3.10"
-groups = ["dev"]
-markers = "python_version >= \"3.10\""
-files = [
-    {file = "pyproject_fmt-2.16.0-cp39-abi3-macosx_10_12_x86_64.whl", hash = "sha256:4ab38c8b670b5311bb82613f26f6dfa6a94fe58d5dfd966e62a022aa0d12a1c7"},
-    {file = "pyproject_fmt-2.16.0-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:1408124b4cc4732956b414e1e69f8ca42a2cf10f9e01fb05017f568154a0afa5"},
-    {file = "pyproject_fmt-2.16.0-cp39-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:abcc96ce23a44b4a72c9f9531d5091d0720be5ab02688907561ba053c362a781"},
-    {file = "pyproject_fmt-2.16.0-cp39-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:316cab903bd0e702e537b6453851de32acad07281b5a26ad6a4fa0bd6d961c20"},
-    {file = "pyproject_fmt-2.16.0-cp39-abi3-manylinux_2_31_riscv64.whl", hash = "sha256:18d3bf855983d804e18c72780b8ed23e687e60bff2c63a029082cef6b29f249d"},
-    {file = "pyproject_fmt-2.16.0-cp39-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:11212586f360315a2e4ec5dceb5a82db189ef77df8930b030e1b83274ca04c1a"},
-    {file = "pyproject_fmt-2.16.0-cp39-abi3-win_amd64.whl", hash = "sha256:958fc2c6541abdb5ba226d6ba730b3b5de77982d55eb5a83abd43374725f58e9"},
-    {file = "pyproject_fmt-2.16.0-pp311-pypy311_pp73-macosx_10_12_x86_64.whl", hash = "sha256:7c183040f9b3ca82df5068d90ae007d5ae99cd4edea7fc88facfecfb8b8b9810"},
-    {file = "pyproject_fmt-2.16.0-pp311-pypy311_pp73-macosx_11_0_arm64.whl", hash = "sha256:a4111957bbb8c90801bd4c873b7170f208894f2d16655ed24292d2bdb55f1e48"},
-    {file = "pyproject_fmt-2.16.0-pp311-pypy311_pp73-manylinux_2_28_x86_64.whl", hash = "sha256:99c6a3db80ef2bf9aa2d9a1cb84416430cb96b35f55b928af669ac72104e18ef"},
-    {file = "pyproject_fmt-2.16.0.tar.gz", hash = "sha256:7fd1bfc096737d6d57759292f66a1ad34b4c94efbc4949490cb363dbf8df7afa"},
-]
-
-[package.dependencies]
-toml-fmt-common = "*"
 
 [[package]]
 name = "pytest"
@@ -7631,7 +7605,6 @@ description = "Common logic to the TOML formatter."
 optional = false
 python-versions = ">=3.9"
 groups = ["dev"]
-markers = "python_version == \"3.9\""
 files = [
     {file = "toml_fmt_common-1.0.1-py3-none-any.whl", hash = "sha256:7a6542e36a7167fa94b8b997d3f8debadbb4ab757c7d78a77304579bd7a0cc7d"},
     {file = "toml_fmt_common-1.0.1.tar.gz", hash = "sha256:7a29e99e527ffac456043296a0f1d8c03aaa1b06167bd39ad5e3cc5041f31c17"},
@@ -7639,22 +7612,6 @@ files = [
 
 [package.dependencies]
 tomli = {version = ">=2.0.2", markers = "python_version < \"3.11\""}
-
-[[package]]
-name = "toml-fmt-common"
-version = "1.2.0"
-description = "Common logic to the TOML formatter."
-optional = false
-python-versions = ">=3.10"
-groups = ["dev"]
-markers = "python_version >= \"3.10\""
-files = [
-    {file = "toml_fmt_common-1.2.0-py3-none-any.whl", hash = "sha256:f27ba0f4a3594035f3385231d23d437a49bd6ff67ec624424a677c2b304076d3"},
-    {file = "toml_fmt_common-1.2.0.tar.gz", hash = "sha256:9c3630dc9409157e866b27ee0cdacf453636735b26dcf0fff385d3d2c1166698"},
-]
-
-[package.dependencies]
-tomli = {version = ">=2.2.1", markers = "python_version < \"3.11\""}
 
 [[package]]
 name = "tomli"
@@ -8247,4 +8204,4 @@ test = ["pytest", "pytest-httpx"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.9,<3.14"
-content-hash = "502dbc26fe205f2b6d12acf55281af51d749e21e7f938d428f0897535c5b4da4"
+content-hash = "441cad4f0cba56569218165a63c49755faceaf482ffcaebd08714ac3254c4d43"

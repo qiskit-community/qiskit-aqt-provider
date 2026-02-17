@@ -98,7 +98,7 @@ group.dev.dependencies.polyfactory = "^2.0.0"
 group.dev.dependencies.pytest-mock = "^3"
 group.dev.dependencies.pytest-sugar = "^1"
 group.dev.dependencies.pre-commit = "^3.1.1"
-group.dev.dependencies.pyproject-fmt = "^2.1.3"
+group.dev.dependencies.pyproject-fmt = "2.8.0"
 group.dev.dependencies.qiskit-sphinx-theme = ">=1.16.1"
 group.dev.dependencies.qiskit = { version = "^1", extras = [
   "visualization",
@@ -208,20 +208,6 @@ lint.pydocstyle.convention = "google"
 [tool.deptry]
 extend_exclude = [ "scripts", "test", "conftest.py" ]
 
-[tool.typos]
-default.extend-ignore-words-re = [
-  # For consistency with pytest, prefer 'parametrize' to 'parameterize'
-  "parametrized?",
-  "parametrization",
-]
-# 'aer' is the name of the Qiskit simulator backend
-default.extend-words.aer = "aer"
-files.ignore-hidden = false
-files.ignore-vcs = true
-files.extend-exclude = [
-  ".git",
-]
-
 [tool.coverage]
 run.dynamic_context = "test_function"
 run.relative_files = true
@@ -245,6 +231,20 @@ reportUnnecessaryTypeIgnoreComment = false
 reportDuplicateImport = "error"
 pythonVersion = "3.9"
 pythonPlatform = "Linux"
+
+[tool.typos]
+default.extend-ignore-words-re = [
+  # For consistency with pytest, prefer 'parametrize' to 'parameterize'
+  "parametrized?",
+  "parametrization",
+]
+# 'aer' is the name of the Qiskit simulator backend
+default.extend-words.aer = "aer"
+files.ignore-hidden = false
+files.ignore-vcs = true
+files.extend-exclude = [
+  ".git",
+]
 
 [tool.datamodel-codegen]
 disable-timestamp = true
