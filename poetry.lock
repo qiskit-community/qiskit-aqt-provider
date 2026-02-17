@@ -6239,20 +6239,20 @@ scipy = ">=1.0"
 
 [[package]]
 name = "qiskit-algorithms"
-version = "0.4.0"
+version = "0.3.1"
 description = "Qiskit Algorithms: A library of quantum computing algorithms"
 optional = true
-python-versions = ">=3.9"
+python-versions = ">=3.8"
 groups = ["main"]
 markers = "extra == \"examples\""
 files = [
-    {file = "qiskit_algorithms-0.4.0-py3-none-any.whl", hash = "sha256:c8bfc119e270c7cd7d6013e62193914381bd71fd4cdc847c07b50c749fd0114d"},
-    {file = "qiskit_algorithms-0.4.0.tar.gz", hash = "sha256:b945e807c9b94ba2e0d2e02898b1f1e1a33efd3b4a6dc5a45bb787c6832d4093"},
+    {file = "qiskit_algorithms-0.3.1-py3-none-any.whl", hash = "sha256:d6c31d88a1ed65a9c6382c233ef10ecb9562e726f7b1b7823a0d178d63d29a0a"},
+    {file = "qiskit_algorithms-0.3.1.tar.gz", hash = "sha256:cba9c573d47c0f9508745a5a2794298084ec4f8833781b426fa9b2cea0fca794"},
 ]
 
 [package.dependencies]
 numpy = ">=1.17"
-qiskit = ">=1.0"
+qiskit = ">=0.44"
 scipy = ">=1.4"
 
 [[package]]
@@ -8247,4 +8247,4 @@ test = ["pytest", "pytest-httpx"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.9,<3.14"
-content-hash = "c2b4575904bbd9c571e467fbcd634651d66183fe457ec23cc063bd4ad7b77fae"
+content-hash = "502dbc26fe205f2b6d12acf55281af51d749e21e7f938d428f0897535c5b4da4"
