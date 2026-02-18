@@ -8,8 +8,10 @@ from pathlib import Path
 from typing import Final, Optional
 
 import typer
-from mistletoe import Document, block_token
+from mistletoe import block_token
 from mistletoe.base_renderer import BaseRenderer
+from mistletoe.block_token import Document
+from typing_extensions import override
 
 REVISION_HEADER_LEVEL: Final = 2
 HEADER_REGEX: Final = re.compile(r"([a-z-]+)\s+(v\d+\.\d+\.\d+)")
@@ -18,6 +20,7 @@ HEADER_REGEX: Final = re.compile(r"([a-z-]+)\s+(v\d+\.\d+\.\d+)")
 class Renderer(BaseRenderer):
     """Markdown renderer."""
 
+    @override
     def render_list_item(self, token: block_token.ListItem) -> str:
         """Tweak lists rendering. Use '*' as item marker."""
         return f"* {self.render_inner(token)}\n"
@@ -49,16 +52,28 @@ def main(
     changelogs: dict[str, str] = {}
     current_version: Optional[str] = None
 
+    if not md_ast.children:
+        print("Nothing found in changelog.", file=sys.stderr)
+        sys.exit(1)
+
     for node in md_ast.children:
-        if isinstance(node, block_token.Heading) and node.level == REVISION_HEADER_LEVEL:
-            if (match := HEADER_REGEX.search(node.children[0].content)) is not None:
+        current_version = None
+        if (
+            isinstance(node, block_token.Heading)
+            and node.level == REVISION_HEADER_LEVEL
+            and node.children is not None
+        ):
+            first_child = next(iter(node.children), None)
+            if (
+                first_child
+                and hasattr(first_child, "content")
+                and (match := HEADER_REGEX.search(first_child.content))
+            ):
                 _, revision = match.groups()
                 current_version = revision
-            else:
-                current_version = None
 
         if current_version and isinstance(node, block_token.List):
-            with Renderer() as renderer:
+            with Renderer() as renderer:  # type: ignore[no-untyped-call]
                 changelogs[current_version] = renderer.render(node)
 
     if version is None and not changelogs:
