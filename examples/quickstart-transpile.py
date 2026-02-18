@@ -22,8 +22,7 @@ circuit = QuantumVolume(5)
 circuit.measure_all()
 
 # Select an execution backend
-provider = AQTProvider("ACCESS_TOKEN")
-backend = provider.get_backend("offline_simulator_no_noise")
+backend = AQTProvider().get_backend("offline_simulator_no_noise")
 
 # Transpile the circuit to target the selected AQT backend
 transpiled_circuit = qiskit.transpile(circuit, backend, optimization_level=2)

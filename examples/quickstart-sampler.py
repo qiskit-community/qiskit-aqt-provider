@@ -27,8 +27,7 @@ circuit.cx(0, 1)
 circuit.measure_all()
 
 # Select an execution backend
-provider = AQTProvider("ACCESS_TOKEN")
-backend = provider.get_backend("offline_simulator_no_noise")
+backend = AQTProvider().get_backend("offline_simulator_no_noise")
 
 # Instantiate a sampler on the execution backend
 sampler = AQTSampler(backend)
