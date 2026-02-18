@@ -23,7 +23,7 @@ Handles to computing resources are obtained through the :class:`AQTProvider <qis
 Authentication with an Arnica account
 -------------------------------------
 .. tip:: Use this method if you were asked to create your own account to use the AQT Arnica portal.
-   
+
 Call :meth:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider.__init__>` to log in and store your access token securely on the local machine.
 
 .. code-block::
@@ -33,6 +33,7 @@ Call :meth:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider.__init__>`
    provider = AQTProvider()
    provider.log_in()
 
+.. hint:: The access token has an expiration time of 10 hours. After expiration of the stored token, calling the `log_in` method will again prompt you to log in.
 
 Authentication with client credentials
 --------------------------------------
@@ -132,7 +133,7 @@ Direct-access resources handles are obtained from a provider using the :meth:`ge
 
 .. versionadded:: 1.15.0
 
-   The base URL can be provided by the environment variable ``AQT_DIRECT_URL``. 
+   The base URL can be provided by the environment variable ``AQT_DIRECT_URL``.
    If the environment variable ``AQT_DIRECT_URL`` is set and points to a reachable local quantum computing system it will also be listed in the ``default`` workspace when calling :meth:`backends <qiskit_aqt_provider.aqt_provider.AQTProvider.backends>` and can be a result of :meth:`get_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_backend>`.
 
 Contact your local system administrator to determine the exact base URL to access your local quantum computing system.
