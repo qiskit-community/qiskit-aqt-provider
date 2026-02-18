@@ -35,7 +35,6 @@ keywords = [
   "sdk",
   "quantum",
 ]
-
 packages = [
   { include = "qiskit_aqt_provider" },
   { include = "test", format = "sdist" },
@@ -46,100 +45,84 @@ include = [
   "LICENSE.txt",
   "README.md",
 ]
-
-[tool.poetry.plugins."qiskit.transpiler.scheduling"]
-aqt = "qiskit_aqt_provider.transpiler_plugin:AQTSchedulingPlugin"
-
-[tool.poetry.plugins."qiskit.transpiler.translation"]
-aqt = "qiskit_aqt_provider.transpiler_plugin:AQTTranslationPlugin"
-
-[tool.poetry.plugins.pytest11]
-pytest_qiskit_aqt = "qiskit_aqt_provider.test.fixtures"
-
-[tool.poetry.dependencies]
-python = ">=3.9,<3.14"
-
-annotated-types = ">=0.7.0"
-httpx = ">=0.24.0"
-platformdirs = ">=3"
-pydantic = { version = ">=2.5.0", allow-prereleases = false }
-pydantic-core = ">=2"
-pytest = { version = ">=8", optional = true }
-pytest-httpx = { version = "^0.35.0", optional = true }
-python-dotenv = ">=1"
-qiskit = { version = "^1", allow-prereleases = false }
-qiskit-aer = ">=0.13.2"
-qiskit-algorithms = { version = ">=0.2.1", optional = true }
-qiskit-optimization = { version = ">=0.6.0", optional = true }
-tabulate = ">=0.9.0"
-tqdm = ">=4"
-typing-extensions = ">=4.0.0"
-
+dependencies.python = ">=3.9,<3.14"
+dependencies.annotated-types = ">=0.7.0"
+dependencies.httpx = ">=0.24.0"
+dependencies.platformdirs = ">=3"
+dependencies.pydantic = { version = ">=2.5.0", allow-prereleases = false }
+dependencies.pydantic-core = ">=2"
+dependencies.pytest = { version = ">=8", optional = true }
+dependencies.pytest-httpx = { version = "^0.35.0", optional = true }
+dependencies.python-dotenv = ">=1"
+dependencies.qiskit = { version = "^1", allow-prereleases = false }
+dependencies.qiskit-aer = ">=0.13.2"
+dependencies.qiskit-algorithms = { version = ">=0.2.1,<0.4", optional = true }
+dependencies.qiskit-optimization = { version = ">=0.6.0", optional = true }
+dependencies.tabulate = ">=0.9.0"
+dependencies.tqdm = ">=4"
+dependencies.typing-extensions = ">=4.0.0"
 # Restrict to versions with published wheels.
-scipy = [
+dependencies.scipy = [
   { version = "^1.15", python = ">=3.10" },
   { version = "^1,<1.15", python = "<3.10" },
 ]
-
 # Restrict to versions with published wheels.
-numpy = [
+dependencies.numpy = [
   { version = ">=1,<2.1", python = "<=3.9" },
   { version = ">=1", python = ">3.9,<3.13" },
   { version = ">=2.1", python = ">=3.13" },
 ]
-aqt-connector = "0.3.0"
-
-[tool.poetry.group.dev.dependencies]
-autodoc-pydantic = "^2.0.1"
-coverage = "^7.2.1"
-datamodel-code-generator = "^0.31.0"
-deptry = "^0.23.0"
-hypothesis = "^6.82.0"
-interrogate = "^1.5.0"
-ipykernel = "^6.22.0"
-jupyter-sphinx = "^0.5.0"
-mistletoe = "^1.1.0"
-mypy = "^1.14.0"
-poethepoet = "^0.36.0"
-polyfactory = "^2.0.0"
-pytest-mock = "^3"
-pytest-sugar = "^1"
-pre-commit = "^3.1.1"
-pyproject-fmt = "^2.1.3"
-qiskit-sphinx-theme = ">=1.16.1"
-qiskit = { version = "^1", extras = [
-  "visualization",
-] }
-rich = "^13.5.3"
-ruff = "^0.12.0"
-sphinx = ">=7,<7.3"
-sphinx-toolbox = "^3.5.0"
-tach = "^0.29.0"
-tomlkit = "^0.13.2"
-typer = "^0.16.0"
-types-requests = "^2.28.11"
-types-setuptools = ">=65.7.0"
-types-tabulate = "^0.9.0.1"
-types-tqdm = "^4.65.0.1"
-typos = "^1.29.0"
-yq = "^3.4.3"
-
-[tool.poetry.extras]
+dependencies.aqt-connector = "0.3.0"
 # Dependencies for the example scripts.
-examples = [
+extras.examples = [
   "qiskit-algorithms",
   "qiskit-optimization",
 ]
 # Dependencies for the pytest plugin.
-test = [
+extras.test = [
   "pytest",
   "pytest-httpx",
 ]
+group.dev.dependencies.autodoc-pydantic = "^2.0.1"
+group.dev.dependencies.coverage = "^7.2.1"
+group.dev.dependencies.datamodel-code-generator = "^0.31.0"
+group.dev.dependencies.deptry = "^0.23.0"
+group.dev.dependencies.hypothesis = "^6.82.0"
+group.dev.dependencies.interrogate = "^1.5.0"
+group.dev.dependencies.ipykernel = "^6.22.0"
+group.dev.dependencies.jupyter-sphinx = "^0.5.0"
+group.dev.dependencies.mistletoe = "^1.1.0"
+group.dev.dependencies.mypy = "^1.14.0"
+group.dev.dependencies.poethepoet = "^0.36.0"
+group.dev.dependencies.polyfactory = "^2.0.0"
+group.dev.dependencies.pytest-mock = "^3"
+group.dev.dependencies.pytest-sugar = "^1"
+group.dev.dependencies.pre-commit = "^3.1.1"
+group.dev.dependencies.pyproject-fmt = "2.8.0"
+group.dev.dependencies.qiskit-sphinx-theme = ">=1.16.1"
+group.dev.dependencies.qiskit = { version = "^1", extras = [
+  "visualization",
+] }
+group.dev.dependencies.rich = "^13.5.3"
+group.dev.dependencies.ruff = "^0.12.0"
+group.dev.dependencies.sphinx = ">=7,<7.3"
+group.dev.dependencies.sphinx-toolbox = "^3.5.0"
+group.dev.dependencies.tach = "^0.29.0"
+group.dev.dependencies.tomlkit = "^0.13.2"
+group.dev.dependencies.typer = "^0.16.0"
+group.dev.dependencies.types-requests = "^2.28.11"
+group.dev.dependencies.types-setuptools = ">=65.7.0"
+group.dev.dependencies.types-tabulate = "^0.9.0.1"
+group.dev.dependencies.types-tqdm = "^4.65.0.1"
+group.dev.dependencies.typos = "^1.29.0"
+group.dev.dependencies.yq = "^3.4.3"
+plugins."qiskit.transpiler.scheduling".aqt = "qiskit_aqt_provider.transpiler_plugin:AQTSchedulingPlugin"
+plugins."qiskit.transpiler.translation".aqt = "qiskit_aqt_provider.transpiler_plugin:AQTTranslationPlugin"
+plugins.pytest11.pytest_qiskit_aqt = "qiskit_aqt_provider.test.fixtures"
 
 [tool.ruff]
 target-version = "py39"
 line-length = 100
-
 lint.select = [
   "ANN",  # flake8-annotations
   "ARG",  # flake8-unused-arguments
@@ -225,12 +208,10 @@ lint.pydocstyle.convention = "google"
 [tool.deptry]
 extend_exclude = [ "scripts", "test", "conftest.py" ]
 
-[tool.coverage.run]
-dynamic_context = "test_function"
-relative_files = true
-
-[tool.coverage.report]
-fail_under = 99
+[tool.coverage]
+run.dynamic_context = "test_function"
+run.relative_files = true
+report.fail_under = 99
 
 [tool.pyright]
 exclude = [
@@ -238,7 +219,6 @@ exclude = [
   "**/.*",
   "docs/",
 ]
-
 typeCheckingMode = "basic"
 analyzeUnannotatedFunctions = false
 reportShadowedImports = true
@@ -248,11 +228,25 @@ reportMissingImports = false
 reportMissingTypeStubs = false
 reportConstantRedefinition = true
 reportUnnecessaryTypeIgnoreComment = false
-
 reportDuplicateImport = "error"
-
 pythonVersion = "3.9"
 pythonPlatform = "Linux"
+
+[tool.typos]
+default.extend-ignore-words-re = [
+  # For consistency with pytest, prefer 'parametrize' to 'parameterize'
+  "parametrized?",
+  "parametrization",
+]
+# 'aer' is the name of the Qiskit simulator backend
+default.extend-words.aer = "aer"
+# 'IZ' is the name of a SparsePauli Operation
+default.extend-words.IZ = "IZ"
+files.ignore-hidden = false
+files.ignore-vcs = true
+files.extend-exclude = [
+  ".git",
+]
 
 [tool.datamodel-codegen]
 disable-timestamp = true
@@ -261,7 +255,7 @@ enum-field-as-literal = "one"
 field-constraints = true
 output-model-type = "pydantic_v2.BaseModel"
 strict-nullable = true
-target-python-version = '3.9'
+target-python-version = "3.9"
 use-annotated = true
 use-double-quotes = true
 use-field-description = true
@@ -277,72 +271,8 @@ exclude = [
 ]
 fail-under = 100
 
-[tool.typos.files]
-ignore-hidden = false
-ignore-vcs = true
-extend-exclude = [
-  ".git",
-]
-
-[tool.typos.default]
-extend-ignore-words-re = [
-  # For consistency with pytest, prefer 'parametrize' to 'parameterize'
-  "parametrized?",
-  "parametrization",
-]
-
-[tool.typos.default.extend-words]
-# 'aer' is the name of the Qiskit simulator backend
-aer = "aer"
-
-[tool.poe.tasks.test]
-shell = """
-set -eu
-coverage run ${cov_opts} -m pytest --hypothesis-profile=ci
-coverage report --show-missing
-"""
-
-[[tool.poe.tasks.test.args]]
-name = "cov_opts"
-default = ""
-
-[tool.poe.tasks.format]
-shell = """
-ruff format .
-pyproject-fmt .
-"""
-
-[tool.poe.tasks.python_format_check]
-shell = "ruff format --check ."
-
-[tool.poe.tasks.pyproject_format_check]
-shell = "pyproject-fmt --check ."
-
-[tool.poe.tasks.typecheck]
-shell = "mypy ."
-
-[tool.poe.tasks.check_pre_commit_consistency]
-shell = "./scripts/check_pre_commit_consistency.sh"
-
-[tool.poe.tasks.ruff_check]
-shell = "ruff check ."
-
-[tool.poe.tasks.docstring_coverage]
-shell = "interrogate -v qiskit_aqt_provider test"
-
-[tool.poe.tasks.spellcheck]
-shell = "typos ."
-
-[tool.poe.tasks.check_internal_dependencies]
-shell = "tach check"
-
-[tool.poe.tasks.check_external_dependencies]
-# Exclude the test module because tach doesn't collect
-# dependencies outside the main group.
-shell = "deptry ."
-
-[tool.poe.tasks]
-lint = [
+[tool.poe]
+tasks.lint = [
   "check_pre_commit_consistency",
   "docstring_coverage",
   "ruff_check",
@@ -350,13 +280,13 @@ lint = [
   "check_internal_dependencies",
   "check_external_dependencies",
 ]
-format_check = [
+tasks.format_check = [
   "python_format_check",
   "pyproject_format_check",
 ]
-version_check = "./scripts/package_version.py --verbose check"
-docs = "sphinx-build -j auto -b html -W docs docs/_build"
-all = [
+tasks.version_check = "./scripts/package_version.py --verbose check"
+tasks.docs = "sphinx-build -j auto -b html -W docs docs/_build"
+tasks.all = [
   "version_check",
   "format_check",
   "lint",
@@ -364,3 +294,24 @@ all = [
   "test",
   "docs",
 ]
+# Exclude the test module because tach doesn't collect
+# dependencies outside the main group.
+tasks.check_external_dependencies.shell = "deptry ."
+tasks.check_internal_dependencies.shell = "tach check"
+tasks.check_pre_commit_consistency.shell = "./scripts/check_pre_commit_consistency.sh"
+tasks.docstring_coverage.shell = "interrogate -v qiskit_aqt_provider test"
+tasks.format.shell = """
+ruff format .
+pyproject-fmt .
+"""
+tasks.pyproject_format_check.shell = "pyproject-fmt --check ."
+tasks.python_format_check.shell = "ruff format --check ."
+tasks.ruff_check.shell = "ruff check ."
+tasks.spellcheck.shell = "typos ."
+tasks.test.shell = """
+set -eu
+coverage run ${cov_opts} -m pytest --hypothesis-profile=ci
+coverage report --show-missing
+"""
+tasks.test.args = [ { name = "cov_opts", default = "" } ]
+tasks.typecheck.shell = "mypy ."
