@@ -269,7 +269,7 @@ class AQTProvider:
 
     def get_job_state(self, job_id: UUID) -> JobState:
         """Fetch the job state from Arnica."""
-        return fetch_job_state(self._arnica, job_id=job_id)
+        return fetch_job_state(self._arnica, job_id=job_id, api_token=self.access_token)
 
     def backends(
         self,

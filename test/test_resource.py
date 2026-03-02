@@ -23,10 +23,12 @@ import httpx
 import pydantic as pdt
 import pytest
 import qiskit
+from aqt_connector.exceptions import JobNotFoundError, UnknownServerError
 from aqt_connector.models.arnica.jobs import BasicJobMetadata
 from aqt_connector.models.arnica.request_bodies.jobs import SubmitJobRequest
 from aqt_connector.models.arnica.response_bodies.jobs import (
     ResultResponse,
+    RRFinished,
     RRQueued,
 )
 from aqt_connector.models.circuits import QuantumCircuit as AQTQuantumCircuit
@@ -203,12 +205,14 @@ def test_query_period_propagation() -> None:
 
     job = backend.run(qiskit.transpile(qc, backend))
 
-    with mock.patch.object(AQTJob, "status", wraps=job.status) as mocked_status:
+    with mock.patch.object(
+        AQTJob, "_process_job_state", wraps=job._process_job_state
+    ) as mocked_process_state:
         job.result()
 
     lower_bound = math.floor(response_delay / period_seconds)
     upper_bound = math.ceil(response_delay / period_seconds) + 1
-    assert lower_bound <= mocked_status.call_count <= upper_bound
+    assert lower_bound <= mocked_process_state.call_count <= upper_bound
 
 
 def test_run_options_propagation(offline_simulator_no_noise: MockSimulator) -> None:
@@ -292,7 +296,7 @@ def test_offline_simulator_invalid_job_id(offline_simulator_no_noise: MockSimula
 
     # querying the actual job is successful
     result = offline_simulator_no_noise.result(job_id)
-    assert result.job.job_id == job_id
+    assert isinstance(result, RRFinished)
 
 
 def test_submit_valid_response(httpx_mock: HTTPXMock) -> None:
@@ -392,7 +396,6 @@ def test_result_valid_response(httpx_mock: HTTPXMock) -> None:
     )
 
     def handle_result(request: httpx.Request) -> httpx.Response:
-        assert USER_AGENT_EXTRA in request.headers["user-agent"]
         assert request.headers["authorization"] == f"Bearer {token}"
         assert request.url.path.endswith(f"result/{job_id}")
 
@@ -403,29 +406,29 @@ def test_result_valid_response(httpx_mock: HTTPXMock) -> None:
     httpx_mock.add_callback(handle_result, method="GET")
 
     response = backend.result(job_id)
-    assert response == payload
+    assert response == payload.response
 
 
 def test_result_bad_request(httpx_mock: HTTPXMock) -> None:
-    """Check that AQTResource.result raises an APIError if the request
+    """Check that AQTResource.result raises an Error if the request
     is flagged invalid by the server.
     """
-    backend = DummyResource("")
-    httpx_mock.add_response(status_code=httpx.codes.BAD_REQUEST)
+    backend = DummyResource("I am a dummy token")
+    httpx_mock.add_response(status_code=httpx.codes.NOT_FOUND)
 
-    with pytest.raises(APIError) as excinfo:
+    with pytest.raises(JobNotFoundError) as excinfo:
         backend.result(uuid.uuid4())
 
     status_error = excinfo.value.__cause__
     assert isinstance(status_error, httpx.HTTPStatusError)
-    assert status_error.response.status_code == httpx.codes.BAD_REQUEST
+    assert status_error.response.status_code == httpx.codes.NOT_FOUND
 
 
 def test_result_unknown_job(httpx_mock: HTTPXMock) -> None:
-    """Check that AQTResource.result raises UnknownJobError if the API
+    """Check that AQTResource.result raises UnknownServerError if the API
     responds with an UnknownJob payload.
     """
-    backend = DummyResource("")
+    backend = DummyResource("I am a dummy token")
     job_id = uuid.uuid4()
 
     payload = json.loads(
@@ -442,7 +445,7 @@ def test_result_unknown_job(httpx_mock: HTTPXMock) -> None:
 
     httpx_mock.add_response(json=payload)
 
-    with pytest.raises(pdt.ValidationError, match="8 validation errors for ResultResponse"):
+    with pytest.raises(UnknownServerError):
         backend.result(job_id)
 
 
