@@ -206,7 +206,7 @@ def test_query_period_propagation() -> None:
     job = backend.run(qiskit.transpile(qc, backend))
 
     with mock.patch.object(
-        AQTJob, "_process_job_state", wraps=job._process_job_state
+        AQTJob, "_process_job_state_update", wraps=job._process_job_state_update
     ) as mocked_process_state:
         job.result()
 

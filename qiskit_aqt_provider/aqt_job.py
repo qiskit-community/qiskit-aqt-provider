@@ -272,7 +272,7 @@ class AQTJob(JobV1):
         """
         # check if fresh status is available. if not, fetch it
         if not self.polling and self.qiskit_status not in JOB_FINAL_STATES:
-            self._process_job_state(self._backend.result(uuid.UUID(self.job_id())))
+            self._process_job_state_update(self._backend.result(uuid.UUID(self.job_id())))
         return self.qiskit_status
 
     def result(self) -> Result:  # this is the function used by qiskit to get the result
@@ -358,7 +358,7 @@ class AQTJob(JobV1):
         """
 
         def receive_state_update(job_state: JobState) -> None:
-            self._process_job_state(job_state)
+            self._process_job_state_update(job_state)
             if callback:
                 callback()
 
@@ -385,8 +385,13 @@ class AQTJob(JobV1):
                 raise JobTimeoutError(f"Timeout while waiting for job {self.job_id()}.")
             time.sleep(wait)
 
-    def _process_job_state(self, job_state: JobState) -> None:
-        """TODO."""
+    def _process_job_state_update(self, job_state: JobState) -> None:
+        """Process a job state update.
+
+        * Determine and set qiskit_status
+        * Update progress
+        * Set result or error if job ends
+        """
         num_circuits = len(self.circuits)
 
         if isinstance(job_state, RRQueued):
