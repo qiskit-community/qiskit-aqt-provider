@@ -18,12 +18,14 @@ from qiskit import QuantumCircuit
 from qiskit_aqt_provider.aqt_provider import AQTProvider
 
 if __name__ == "__main__":
-    # Ways to specify an access token (in precedence order):
-    # - as argument to the AQTProvider initializer
-    # - in the AQT_TOKEN environment variable
-    # - if none of the above exists, default to an empty string, which restricts access
-    #   to the default workspace only.
-    provider = AQTProvider("token")
+    # Ways to authenticate the AQTProvider with an Arnica account:
+    # - using the `log_in` method
+    # - with a static access token (in precedence order):
+    #   - as argument to the AQTProvider initializer
+    #   - in the AQT_TOKEN environment variable
+    # - if none of the above is provided, no authentication is attempted and
+    #   access is restricted to the default workspace only.
+    provider = AQTProvider()
 
     # The backends() method lists all available computing backends. Printing it
     # renders it as a table that shows each backend's containing workspace.

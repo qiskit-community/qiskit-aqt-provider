@@ -27,7 +27,7 @@ from qiskit_aqt_provider.primitives import AQTEstimator
 RANDOM_SEED: Final = 0
 
 if __name__ == "__main__":
-    backend = AQTProvider("token").get_backend("offline_simulator_no_noise")
+    backend = AQTProvider().get_backend("offline_simulator_no_noise")
     assert isinstance(backend, OfflineSimulatorResource)  # noqa: S101
     estimator = AQTEstimator(backend)
 

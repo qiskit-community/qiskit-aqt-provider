@@ -31,8 +31,7 @@ from qiskit_aqt_provider import AQTProvider
 from qiskit_aqt_provider.primitives import AQTEstimator
 
 # Select an execution backend
-provider = AQTProvider("ACCESS_TOKEN")
-backend = provider.get_backend("offline_simulator_no_noise")
+backend = AQTProvider().get_backend("offline_simulator_no_noise")
 
 # Instantiate an estimator on the execution backend
 estimator = AQTEstimator(backend)

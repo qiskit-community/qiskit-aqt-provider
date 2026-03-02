@@ -28,7 +28,7 @@ from qiskit_aqt_provider.primitives import AQTSampler
 RANDOM_SEED: Final = 0
 
 if __name__ == "__main__":
-    backend = AQTProvider("token").get_backend("offline_simulator_no_noise")
+    backend = AQTProvider().get_backend("offline_simulator_no_noise")
     sampler = AQTSampler(backend)
 
     # fix the random seeds such that the example is reproducible
