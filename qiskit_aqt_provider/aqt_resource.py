@@ -290,7 +290,8 @@ class AQTResource(_ResourceBase[AQTOptions]):
         Returns:
             AQT API payload with the job results.
         """
-        return self.provider.get_job_state(job_id)
+        state: JobState = self.provider.get_job_state(job_id)
+        return state
 
 
 class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):

@@ -248,6 +248,7 @@ class AQTProvider:
             )
 
         self.name = "aqt_provider"
+        self._arnica = ArnicaApp()
 
     @property
     def _portal_client(self) -> PortalClient:
@@ -264,7 +265,7 @@ class AQTProvider:
             # TODO: fix this when envvar does not exist
             arnica_config.arnica_url = f"{os.environ.get('AQT_PORTAL_URL')}/api"
             self._arnica_config = arnica_config
-        self._arnica = ArnicaApp(self._arnica_config)
+            self._arnica = ArnicaApp(self._arnica_config)
         self.access_token = log_in(self._arnica)
 
     def get_job_state(self, job_id: UUID) -> JobState:

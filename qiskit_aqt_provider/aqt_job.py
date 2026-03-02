@@ -304,8 +304,7 @@ class AQTJob(JobV1):
         with context as progress_bar:
 
             def update_progress_bar() -> None:
-                progress = self.progress
-                progress_bar.update(progress.finished_count - progress_bar.n)
+                progress_bar.update(self.progress.finished_count - progress_bar.n)
 
             # one of DONE, CANCELLED, ERROR
             self.wait_for_final_state(
@@ -351,65 +350,48 @@ class AQTJob(JobV1):
     ) -> None:
         """Poll the job status until it progresses to a final state such as ``DONE`` or ``ERROR``.
 
+        This overrides `wait_for_final_state` from JobV1. It
+        - uses the `wait_for_result` function provided by the aqt_connector
+        - receives job state updates & processes these (including running the callback if available)
+        - returns when a status in JOB_FINAL_STATES is reached
+
         Args:
-            timeout: Seconds to wait for the job. If ``None``, wait indefinitely.
+            timeout: Seconds to wait for the job. If `None`, wait indefinitely.
             wait: Seconds between queries.
             callback: Callback function invoked after each query.
-                The following positional arguments are provided to the callback function:
-
-                * job_id: Job ID
-                * job_status: Status of the job from the last query
-                * job: This BaseJob instance
-
-                Note: different subclass might provide different arguments to
-                the callback function.
 
         Raises:
             JobTimeoutError: If the job does not reach a final state before the
                 specified timeout.
         """
 
-        # TODO:
-        # - run the polling function provided by the aqt_connector
-        # - run _process_job_state with each received JobState in callback
-        # - return when a status in JOB_FINAL_STATES is reached
-        def receive_state_update(
-            job_state: JobState,
-            notify_progress_bar_callable: Optional[Callable[[], None]] = None,
-        ) -> None:
+        def receive_state_update(job_state: JobState) -> None:
             self._process_job_state(job_state)
-            if notify_progress_bar_callable:
-                notify_progress_bar_callable()
+            if callback:
+                callback()
 
-        self._placeholder_polling_function(receive_state_update, timeout, wait, callback)
+        self._to_be_replaced_with_aqt_connector_wait_for_result(timeout, wait, receive_state_update)
 
-    def _placeholder_polling_function(
+    def _to_be_replaced_with_aqt_connector_wait_for_result(
         self,
-        report_state: Callable[[JobState, Optional[Callable[[], None]]], None],
         timeout: Optional[float] = None,
         wait: float = 5,
-        notify_progress_bar: Optional[Callable[[], None]] = None,
-    ) -> None:
-        """TODO."""
-        # TODO: put this into the aqt_connector. it needs to:
-        # - poll the job state and update status/progress of self on changes
-        # - (use a timeout if set)
-        # - (use a custom query_period_seconds if set)
-        # - provide the JobState for every iteration to a callback
-        # - return when a JOB_FINAL_STATES is reached
-
+        report_state: Optional[Callable[[JobState], None]] = None,
+    ) -> Union[JobState, None]:
+        """This should be replaced by the `wait_for_result` method in the aqt_connector."""
         if not self._async:
-            return
+            return None
         start_time = time.time()
-        state = self._backend.result(uuid.UUID(self.job_id()))
-        while not (isinstance(state, (RRFinished, RRError, RRCancelled))):
+        while True:
+            state = self._backend.result(uuid.UUID(self.job_id()))
+            if report_state:
+                report_state(state)
+            if isinstance(state, (RRFinished, RRError, RRCancelled)):
+                return state
             elapsed_time = time.time() - start_time
             if timeout is not None and elapsed_time >= timeout:
                 raise JobTimeoutError(f"Timeout while waiting for job {self.job_id()}.")
-            report_state(state, notify_progress_bar)
             time.sleep(wait)
-            state = self._backend.result(uuid.UUID(self.job_id()))
-        return
 
     def _process_job_state(self, job_state: JobState) -> None:
         """TODO."""
