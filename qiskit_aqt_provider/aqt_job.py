@@ -286,14 +286,6 @@ class AQTJob(JobV1):
         Raises:
             APIError: the operation failed on the remote portal.
         """
-        # TODO: replace this with the aqt_connector's job waiting mechanism. it needs to:
-        # - poll the job state and update status/progress of self on changes
-        # - provide a progress bar if wanted
-        # - (use a timeout if set in the options)
-        # - (use a custom query_period_seconds if set in the options)
-        # - when a JOB_FINAL_STATES is reached:
-        #   - set the result/error of self
-        #   - return Result()
         self.polling = True
 
         if self.options.with_progress_bar:
