@@ -33,7 +33,7 @@ Call :meth:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider.__init__>`
    provider = AQTProvider()
    provider.log_in()
 
-.. hint:: The access token has an expiration time of 10 hours. After expiration of the stored token, calling the `log_in` method will again prompt you to log in.
+.. hint:: The access token has an expiration time of 10 hours. After this time, you'll need to call the `log_in` method again to refresh your token. You shouldn't need to enter your password again unless you last logged in a very long time ago. You can safely call `log_in` at any time, as nothing will happen if your access token is still valid.
 
 Authentication with client credentials
 --------------------------------------
