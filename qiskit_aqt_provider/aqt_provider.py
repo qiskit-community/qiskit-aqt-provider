@@ -27,11 +27,13 @@ from typing import (
     Union,
     overload,
 )
+from uuid import UUID
 
 import dotenv
 import httpx
-from aqt_connector import ArnicaApp, log_in
+from aqt_connector import ArnicaApp, fetch_job_state, log_in
 from aqt_connector import ArnicaConfig as BaseArnicaConfig
+from aqt_connector.models.arnica.response_bodies.jobs import JobState
 from qiskit.exceptions import QiskitError
 from qiskit.providers.exceptions import QiskitBackendNotFoundError
 from qiskit.transpiler import Target
@@ -246,6 +248,7 @@ class AQTProvider:
             )
 
         self.name = "aqt_provider"
+        self._arnica = ArnicaApp()
 
     @property
     def _portal_client(self) -> PortalClient:
@@ -259,8 +262,14 @@ class AQTProvider:
         """Log in to the AQT cloud and store the access token."""
         if self._arnica_config is None:
             self._arnica_config = ArnicaConfig()
+            if env_override := os.environ.get("AQT_PORTAL_URL"):
+                self._arnica_config.arnica_url = f"{env_override}/api"
         self._arnica = ArnicaApp(self._arnica_config)
         self.access_token = log_in(self._arnica)
+
+    def get_job_state(self, job_id: UUID) -> JobState:
+        """Fetch the job state from Arnica."""
+        return fetch_job_state(self._arnica, job_id=job_id, api_token=self.access_token)
 
     def backends(
         self,
