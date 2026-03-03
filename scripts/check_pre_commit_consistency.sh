@@ -42,15 +42,13 @@ do_check() {
 
 # Retrieve the version of a Python package installed by Poetry.
 installed_package_version() {
-    declare -r package_name="$1"
-    # FIXME: install poetry-export plugin to not need to silence the warning here.
-    declare -r package_version=$(poetry export \
-           --only dev \
-	   --format requirements.txt \
-	   --without-hashes \
-	   --without-urls 2> /dev/null | \
-	   sed -nr "s/$package_name==([0-9][0-9.]*).*/\1/p")
-    echo "$package_version"
+    local package_name="$1"
+
+    poetry show "$package_name" \
+        --only dev \
+        --format json \
+        --no-ansi 2>/dev/null |
+    jq -r 'if type=="array" then .[0].version else .version end'
 }
 
 # Retrieve the version of a pre-commit hook.
