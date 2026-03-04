@@ -24,9 +24,15 @@ from typing import (
 from uuid import UUID
 
 import httpx
-from aqt_connector.models.arnica.jobs import BasicJobMetadata
+from aqt_connector.exceptions import (
+    InvalidJobIDError,
+    JobNotFoundError,
+    NotAuthenticatedError,
+    RequestError,
+    UnknownServerError,
+)
 from aqt_connector.models.arnica.response_bodies.jobs import (
-    ResultResponse,
+    JobState,
     RRFinished,
     SubmitJobResponse,
 )
@@ -46,7 +52,7 @@ from qiskit_aqt_provider import api_client
 from qiskit_aqt_provider.api_client import Resource, models_direct
 from qiskit_aqt_provider.api_client import models as api_models
 from qiskit_aqt_provider.api_client import models_direct as api_models_direct
-from qiskit_aqt_provider.api_client.errors import http_response_raise_for_status
+from qiskit_aqt_provider.api_client.errors import APIError, http_response_raise_for_status
 from qiskit_aqt_provider.aqt_job import AQTDirectAccessJob, AQTJob
 from qiskit_aqt_provider.aqt_options import AQTDirectAccessOptions, AQTOptions
 from qiskit_aqt_provider.circuit_to_aqt import aqt_to_qiskit_circuit
@@ -277,7 +283,7 @@ class AQTResource(_ResourceBase[AQTOptions]):
         )
         return SubmitJobResponse.model_validate(resp.json()).job.job_id
 
-    def result(self, job_id: UUID) -> ResultResponse:
+    def result(self, job_id: UUID) -> JobState:
         """Query the result for a specific job.
 
         .. tip:: This is a low-level method. Use the
@@ -290,9 +296,22 @@ class AQTResource(_ResourceBase[AQTOptions]):
 
         Returns:
             AQT API payload with the job results.
+
+        Raises:
+            APIError: if `get_job_state` failed with a known error.
         """
-        resp = http_response_raise_for_status(self._http_client.get(f"/result/{job_id}"))
-        return ResultResponse.model_validate(resp.json())
+        try:
+            state: JobState = self.provider.get_job_state(job_id)
+        except (
+            NotAuthenticatedError,
+            RequestError,
+            JobNotFoundError,
+            InvalidJobIDError,
+            UnknownServerError,
+            RuntimeError,
+        ) as ex:
+            raise APIError(detail=str(ex.__cause__))
+        return state
 
 
 class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):
@@ -534,7 +553,7 @@ class OfflineSimulatorResource(AQTResource):
         return sim_job.job_id
 
     @override
-    def result(self, job_id: UUID) -> ResultResponse:
+    def result(self, job_id: UUID) -> JobState:
         """Query results for a simulator job.
 
         .. tip:: This is a low-level method. Use
@@ -572,16 +591,8 @@ class OfflineSimulatorResource(AQTResource):
 
             results[str(circuit_index)] = samples
 
-        return ResultResponse(
-            job=BasicJobMetadata(
-                job_id=job_id,
-                label="qiskit",
-                resource_id=self.resource_id.resource_id,
-                workspace_id=self.resource_id.workspace_id,
-            ),
-            response=RRFinished(
-                result={int(circuit_index): samples for circuit_index, samples in results.items()},
-            ),
+        return RRFinished(
+            result={int(circuit_index): samples for circuit_index, samples in results.items()},
         )
 
 

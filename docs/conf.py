@@ -63,7 +63,7 @@ nitpick_ignore = [
     ("py:exc", "httpx.HTTPStatusError"),
 ]
 nitpick_ignore_regex = [
-    ("py:class", r"qiskit_aqt_provider\.api_models_generated.*"),
+    ("py:class", r"aqt_connector\.models.*"),
     ("py:class", r"typing_extensions.*"),
 ]
 
