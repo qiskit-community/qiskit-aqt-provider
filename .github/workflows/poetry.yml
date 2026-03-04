@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
-        poetry-version: [1.8.3]
+        poetry-version: [2.3.2]
         os: ["ubuntu-latest", "windows-latest"]
     steps:
       - uses: actions/checkout@v4
@@ -67,7 +67,7 @@ jobs:
           poetry run python examples/number_partition.py
         if: startsWith(matrix.os, 'windows')
       - name: Install all dependencies
-        run: poetry install --sync --all-extras
+        run: poetry sync --all-extras
       - name: Check version numbers consistency
         run: poetry run poe version_check
         if: startsWith(matrix.os, 'ubuntu')

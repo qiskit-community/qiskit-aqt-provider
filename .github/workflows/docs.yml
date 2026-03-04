@@ -26,7 +26,7 @@ jobs:
       - name: Install Poetry
         uses: abatilo/actions-poetry@v2
         with:
-          poetry-version: '1.8.3'
+          poetry-version: '2.3.2'
       - name: Install Python
         uses: actions/setup-python@v5
         with:
@@ -35,7 +35,7 @@ jobs:
       - name: Check Poetry lock file consistency
         run: poetry check --lock
       - name: Install dependencies
-        run: poetry install --sync
+        run: poetry sync
       - name: Check version numbers consistency
         run: poetry run poe version_check
       - name: Build documentation
