@@ -200,8 +200,8 @@ def test_job_persistence_transaction_online_backend(httpx_mock: HTTPXMock, tmp_p
     assert job.status() is JobStatus.ERROR
     assert restored_job.status() is JobStatus.ERROR
 
-    assert job.received_error
-    assert job.received_error == restored_job.received_error
+    assert job.error_message
+    assert job.error_message == restored_job.error_message
 
     assert job.result().success is False
     assert restored_job.result().success is False

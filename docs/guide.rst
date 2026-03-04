@@ -192,13 +192,13 @@ Multiple options can be passed to :meth:`AQTResource.run <qiskit_aqt_provider.aq
 Batch circuits evaluation
 -------------------------
 
-The :meth:`AQTResource.run <qiskit_aqt_provider.aqt_resource.AQTResource.run>` method can also be given a list of quantum circuits to execute as a batch. The returned :class:`AQTJob <qiskit_aqt_provider.aqt_job.AQTJob>` is a handle for all the circuit executions. Execution of individual circuits within such a batch job can be monitored using the :attr:`AQTJob.progress <qiskit_aqt_provider.aqt_job.AQTJob.progress>` attribute. The :attr:`with_progress_bar <qiskit_aqt_provider.aqt_options.AQTOptions.with_progress_bar>` option on AQT backends (enabled by default) allows printing an interactive progress bar on the standard error stream (:data:`sys.stderr`).
+The :meth:`AQTResource.run <qiskit_aqt_provider.aqt_resource.AQTResource.run>` method can also be given a list of quantum circuits to execute as a batch. The returned :class:`AQTJob <qiskit_aqt_provider.aqt_job.AQTJob>` is a handle for all the circuit executions. Execution of individual circuits within such a batch job can be monitored using the :meth:`AQTJob.progress <qiskit_aqt_provider.aqt_job.AQTJob.progress>` method. The :attr:`with_progress_bar <qiskit_aqt_provider.aqt_options.AQTOptions.with_progress_bar>` option on AQT backends (enabled by default) allows printing an interactive progress bar on the standard error stream (:data:`sys.stderr`).
 
 .. jupyter-execute::
 
    transpiled_circuit0, transpiled_circuit1 = qiskit.transpile([circuit, circuit], backend)
    job = backend.run([transpiled_circuit0, transpiled_circuit1])
-   print(f"Processed {job.progress.finished_count} of {job.progress.total_count} circuits.")
+   print(job.progress())
 
 The result of a batch job is also a standard Qiskit :class:`Result <qiskit.result.Result>` instance. The `success` marker is true if and only if all individual circuits were successfully executed:
 

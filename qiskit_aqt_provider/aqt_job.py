@@ -370,7 +370,7 @@ class AQTJob(JobV1):
                 "success": self.qiskit_status is JobStatus.DONE,
                 "results": results,
                 # Pass error message as metadata
-                "error": self.received_error,
+                "error": self.error_message,
             }
         )
 
@@ -391,7 +391,7 @@ class AQTJob(JobV1):
             self.received_result = job_state.result
         elif isinstance(job_state, RRError):
             self.qiskit_status = JobStatus.ERROR
-            self.received_error = job_state.message
+            self.error_message = job_state.message
         elif isinstance(job_state, RRCancelled):
             self.qiskit_status = JobStatus.CANCELLED
 
