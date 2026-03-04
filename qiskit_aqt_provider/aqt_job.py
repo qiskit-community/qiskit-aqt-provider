@@ -24,6 +24,13 @@ from typing import (
 )
 
 import numpy as np
+from aqt_connector.exceptions import (
+    InvalidJobIDError,
+    JobNotFoundError,
+    NotAuthenticatedError,
+    RequestError,
+    UnknownServerError,
+)
 from aqt_connector.models.arnica.response_bodies.jobs import (
     JobState,
     RRCancelled,
@@ -42,6 +49,7 @@ from tqdm import tqdm
 from typing_extensions import Self
 
 from qiskit_aqt_provider import persistence
+from qiskit_aqt_provider.api_client.errors import APIError
 from qiskit_aqt_provider.api_client.models_direct import JobResultError
 from qiskit_aqt_provider.aqt_options import AQTOptions
 from qiskit_aqt_provider.circuit_to_aqt import circuits_to_aqt_job
@@ -87,6 +95,16 @@ class _MockProgressBar:
     ) -> None: ...
 
 
+@dataclass
+class JobStatusPayload:
+    """Type used for `AQTJob.status_payload`."""
+
+    status: JobStatus = JobStatus.QUEUED
+    results: Optional[dict[int, list[list[int]]]] = None
+    error: Optional[str] = None
+    finished_count: int = 0
+
+
 class AQTJob(JobV1):
     """Handle for quantum circuits jobs running on AQT cloud backends.
 
@@ -121,9 +139,6 @@ class AQTJob(JobV1):
 
     _backend: "AQTResource"
 
-    progress: Progress
-    """Provides information about the job processing progress."""
-
     def __init__(
         self,
         backend: "AQTResource",
@@ -148,9 +163,26 @@ class AQTJob(JobV1):
         self.api_submit_payload = circuits_to_aqt_job(circuits, options.shots)
 
         self.qiskit_status: JobStatus = JobStatus.INITIALIZING
-        self.progress: Progress = Progress(finished_count=0, total_count=len(circuits))
-        self.received_result: Union[dict[int, list[list[Bit]]], None] = None
-        self.received_error: Union[str, None] = None
+        self.received_result: Optional[dict[int, list[list[Bit]]]] = None
+        self.error_message: Optional[str] = None
+        self.processed_circuits_count = 0
+
+    @property
+    def status_payload(self) -> JobStatusPayload:
+        """Property replacing the attribute of the same name for keeping backwards compatibility."""
+        payload = JobStatusPayload()
+        payload.status = self.qiskit_status
+        payload.results = self.received_result
+        payload.error = self.error_message
+        payload.finished_count = self.processed_circuits_count
+        return payload
+
+    def progress(self) -> Progress:
+        """Provides information about the job processing progress."""
+        circuit_count = len(self.circuits)
+        if self.qiskit_status in JOB_FINAL_STATES:
+            return Progress(finished_count=circuit_count, total_count=circuit_count)
+        return Progress(finished_count=self.processed_circuits_count, total_count=circuit_count)
 
     @classmethod
     def restore(
@@ -296,17 +328,27 @@ class AQTJob(JobV1):
                 status: JobStatus,  # noqa: ARG001
                 job: AQTJob,  # noqa: ARG001
             ) -> None:
-                progress_bar.update(self.progress.finished_count - progress_bar.n)
+                progress_bar.update(self.processed_circuits_count - progress_bar.n)
 
             # one of DONE, CANCELLED, ERROR
-            self.wait_for_final_state(
-                timeout=self.options.query_timeout_seconds,
-                wait=self.options.query_period_seconds,
-                callback=callback,
-            )
+            try:
+                self.wait_for_final_state(
+                    timeout=self.options.query_timeout_seconds,
+                    wait=self.options.query_period_seconds,
+                    callback=callback,
+                )
+            except (
+                NotAuthenticatedError,
+                RequestError,
+                JobNotFoundError,
+                InvalidJobIDError,
+                UnknownServerError,
+                RuntimeError,
+            ) as ex:
+                raise APIError(ex)
 
             # make sure the progress bar completes
-            progress_bar.update(self.progress.finished_count - progress_bar.n)
+            progress_bar.update(self.processed_circuits_count - progress_bar.n)
 
         results = []
 
@@ -336,19 +378,14 @@ class AQTJob(JobV1):
         """Process a job state update.
 
         * Determine and set qiskit_status
-        * Update progress
+        * Update processed_circuits_count
         * Set result or error if job ends
         """
-        num_circuits = len(self.circuits)
-
         if isinstance(job_state, RRQueued):
             self.qiskit_status = JobStatus.QUEUED
         if isinstance(job_state, RROngoing):
             self.qiskit_status = JobStatus.RUNNING
-            self.progress = Progress(
-                finished_count=job_state.finished_count,
-                total_count=num_circuits,
-            )
+            self.processed_circuits_count = job_state.finished_count
         elif isinstance(job_state, RRFinished):
             self.qiskit_status = JobStatus.DONE
             self.received_result = job_state.result
@@ -357,9 +394,6 @@ class AQTJob(JobV1):
             self.received_error = job_state.message
         elif isinstance(job_state, RRCancelled):
             self.qiskit_status = JobStatus.CANCELLED
-
-        if self.qiskit_status in JOB_FINAL_STATES:
-            self.progress = Progress(finished_count=num_circuits, total_count=num_circuits)
 
 
 class AQTDirectAccessJob(JobV1):
