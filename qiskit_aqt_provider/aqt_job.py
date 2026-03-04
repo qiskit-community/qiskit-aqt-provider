@@ -121,6 +121,9 @@ class AQTJob(JobV1):
 
     _backend: "AQTResource"
 
+    progress: Progress
+    """Provides information about the job processing progress."""
+
     def __init__(
         self,
         backend: "AQTResource",
