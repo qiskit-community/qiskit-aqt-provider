@@ -24,13 +24,6 @@ from typing import (
 )
 
 import numpy as np
-from aqt_connector.exceptions import (
-    InvalidJobIDError,
-    JobNotFoundError,
-    NotAuthenticatedError,
-    RequestError,
-    UnknownServerError,
-)
 from aqt_connector.models.arnica.response_bodies.jobs import (
     JobState,
     RRCancelled,
@@ -49,7 +42,6 @@ from tqdm import tqdm
 from typing_extensions import Self
 
 from qiskit_aqt_provider import persistence
-from qiskit_aqt_provider.api_client.errors import APIError
 from qiskit_aqt_provider.api_client.models_direct import JobResultError
 from qiskit_aqt_provider.aqt_options import AQTOptions
 from qiskit_aqt_provider.circuit_to_aqt import circuits_to_aqt_job
@@ -331,21 +323,11 @@ class AQTJob(JobV1):
                 progress_bar.update(self.processed_circuits_count - progress_bar.n)
 
             # one of DONE, CANCELLED, ERROR
-            try:
-                self.wait_for_final_state(
-                    timeout=self.options.query_timeout_seconds,
-                    wait=self.options.query_period_seconds,
-                    callback=callback,
-                )
-            except (
-                NotAuthenticatedError,
-                RequestError,
-                JobNotFoundError,
-                InvalidJobIDError,
-                UnknownServerError,
-                RuntimeError,
-            ) as ex:
-                raise APIError(ex)
+            self.wait_for_final_state(
+                timeout=self.options.query_timeout_seconds,
+                wait=self.options.query_period_seconds,
+                callback=callback,
+            )
 
             # make sure the progress bar completes
             progress_bar.update(self.processed_circuits_count - progress_bar.n)

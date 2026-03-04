@@ -23,7 +23,6 @@ import httpx
 import pydantic as pdt
 import pytest
 import qiskit
-from aqt_connector.exceptions import JobNotFoundError, UnknownServerError
 from aqt_connector.models.arnica.jobs import BasicJobMetadata
 from aqt_connector.models.arnica.request_bodies.jobs import SubmitJobRequest
 from aqt_connector.models.arnica.response_bodies.jobs import (
@@ -410,22 +409,18 @@ def test_result_valid_response(httpx_mock: HTTPXMock) -> None:
 
 
 def test_result_bad_request(httpx_mock: HTTPXMock) -> None:
-    """Check that AQTResource.result raises an Error if the request
+    """Check that AQTResource.result raises an APIError if the request
     is flagged invalid by the server.
     """
     backend = DummyResource("I am a dummy token")
-    httpx_mock.add_response(status_code=httpx.codes.NOT_FOUND)
+    httpx_mock.add_response(status_code=httpx.codes.BAD_REQUEST)
 
-    with pytest.raises(JobNotFoundError) as excinfo:
+    with pytest.raises(APIError):
         backend.result(uuid.uuid4())
-
-    status_error = excinfo.value.__cause__
-    assert isinstance(status_error, httpx.HTTPStatusError)
-    assert status_error.response.status_code == httpx.codes.NOT_FOUND
 
 
 def test_result_unknown_job(httpx_mock: HTTPXMock) -> None:
-    """Check that AQTResource.result raises UnknownServerError if the API
+    """Check that AQTResource.result raises APIError if the API
     responds with an UnknownJob payload.
     """
     backend = DummyResource("I am a dummy token")
@@ -445,7 +440,7 @@ def test_result_unknown_job(httpx_mock: HTTPXMock) -> None:
 
     httpx_mock.add_response(json=payload)
 
-    with pytest.raises(UnknownServerError):
+    with pytest.raises(APIError, match="8 validation errors for ResultResponse"):
         backend.result(job_id)
 
 

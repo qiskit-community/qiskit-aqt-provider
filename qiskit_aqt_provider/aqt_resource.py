@@ -24,6 +24,13 @@ from typing import (
 from uuid import UUID
 
 import httpx
+from aqt_connector.exceptions import (
+    InvalidJobIDError,
+    JobNotFoundError,
+    NotAuthenticatedError,
+    RequestError,
+    UnknownServerError,
+)
 from aqt_connector.models.arnica.response_bodies.jobs import (
     JobState,
     RRFinished,
@@ -45,7 +52,7 @@ from qiskit_aqt_provider import api_client
 from qiskit_aqt_provider.api_client import Resource, models_direct
 from qiskit_aqt_provider.api_client import models as api_models
 from qiskit_aqt_provider.api_client import models_direct as api_models_direct
-from qiskit_aqt_provider.api_client.errors import http_response_raise_for_status
+from qiskit_aqt_provider.api_client.errors import APIError, http_response_raise_for_status
 from qiskit_aqt_provider.aqt_job import AQTDirectAccessJob, AQTJob
 from qiskit_aqt_provider.aqt_options import AQTDirectAccessOptions, AQTOptions
 from qiskit_aqt_provider.circuit_to_aqt import aqt_to_qiskit_circuit
@@ -289,8 +296,21 @@ class AQTResource(_ResourceBase[AQTOptions]):
 
         Returns:
             AQT API payload with the job results.
+
+        Raises:
+            APIError: if `get_job_state` failed with a known error.
         """
-        state: JobState = self.provider.get_job_state(job_id)
+        try:
+            state: JobState = self.provider.get_job_state(job_id)
+        except (
+            NotAuthenticatedError,
+            RequestError,
+            JobNotFoundError,
+            InvalidJobIDError,
+            UnknownServerError,
+            RuntimeError,
+        ) as ex:
+            raise APIError(detail=str(ex.__cause__))
         return state
 
 
