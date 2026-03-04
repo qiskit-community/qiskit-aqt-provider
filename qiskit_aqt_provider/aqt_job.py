@@ -87,16 +87,6 @@ class _MockProgressBar:
     ) -> None: ...
 
 
-@dataclass
-class JobStatusPayload:
-    """Type used for `AQTJob.status_payload`."""
-
-    status: JobStatus = JobStatus.QUEUED
-    results: Optional[dict[int, list[list[int]]]] = None
-    error: Optional[str] = None
-    finished_count: int = 0
-
-
 class AQTJob(JobV1):
     """Handle for quantum circuits jobs running on AQT cloud backends.
 
@@ -158,16 +148,6 @@ class AQTJob(JobV1):
         self.received_result: Optional[dict[int, list[list[Bit]]]] = None
         self.error_message: Optional[str] = None
         self.processed_circuits_count = 0
-
-    @property
-    def status_payload(self) -> JobStatusPayload:
-        """Property replacing the attribute of the same name for keeping backwards compatibility."""
-        payload = JobStatusPayload()
-        payload.status = self.qiskit_status
-        payload.results = self.received_result
-        payload.error = self.error_message
-        payload.finished_count = self.processed_circuits_count
-        return payload
 
     def progress(self) -> Progress:
         """Provides information about the job processing progress."""
