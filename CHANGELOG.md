@@ -5,6 +5,8 @@
 * Update aqt-connector to 0.3.0 (#251)
 * Unify user experience to acquire backends accessed via cloud or directly (#256)
 * Add hint to docs regarding token expiration, remove token from examples (#260)
+* Fix dependency install problem in the github pipeline (#262)
+* Use the aqt-connector `fetch_job_state` method to fetch the job state from Arnica (#263)
 
 ## qiskit-aqt-provider v1.14.0
 
