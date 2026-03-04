@@ -332,12 +332,12 @@ class AQTProvider:
             base_url = os.environ.get("AQT_DIRECT_URL", None)
             if base_url is not None:
                 with contextlib.suppress(APIError, httpx.NetworkError):
-                    backends.append(
-                        AQTDirectAccessResource(
-                            self,
-                            base_url,
-                        )
+                    direct_access_resource = AQTDirectAccessResource(
+                        self,
+                        base_url,
                     )
+                    if not (name and not name.match(direct_access_resource.name)):
+                        backends.append(direct_access_resource)
 
         return BackendsTable(
             backends
