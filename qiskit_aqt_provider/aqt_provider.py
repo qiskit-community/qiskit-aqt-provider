@@ -14,6 +14,8 @@
 import contextlib
 import os
 import re
+import sys
+import time
 import warnings
 from collections import defaultdict
 from collections.abc import Iterable, Sequence
@@ -22,8 +24,10 @@ from operator import attrgetter
 from pathlib import Path
 from re import Pattern
 from typing import (
+    Callable,
     Final,
     Optional,
+    TextIO,
     Union,
     overload,
 )
@@ -33,8 +37,14 @@ import dotenv
 import httpx
 from aqt_connector import ArnicaApp, fetch_job_state, log_in
 from aqt_connector import ArnicaConfig as BaseArnicaConfig
-from aqt_connector.models.arnica.response_bodies.jobs import JobState
+from aqt_connector.models.arnica.response_bodies.jobs import (
+    JobState,
+    RRCancelled,
+    RRError,
+    RRFinished,
+)
 from qiskit.exceptions import QiskitError
+from qiskit.providers import JobTimeoutError
 from qiskit.providers.exceptions import QiskitBackendNotFoundError
 from qiskit.transpiler import Target
 from tabulate import tabulate
@@ -270,6 +280,104 @@ class AQTProvider:
     def get_job_state(self, job_id: UUID) -> JobState:
         """Fetch the job state from Arnica."""
         return fetch_job_state(self._arnica, job_id=job_id, api_token=self.access_token)
+
+    def poll_for_final_state(
+        self,
+        job_id: UUID,
+        timeout: Optional[float] = None,
+        wait: float = 5,
+        report_state: Optional[Callable[[JobState], None]] = None,
+    ) -> Union[JobState, None]:
+        """Start polling repeatedly if timeout is None, otherwise only until timeout is reached.
+
+        This overrides `wait_for_final_state` from JobV1. It
+        - uses the `wait_for_result` function provided by the aqt_connector
+        - receives job state updates & processes these (including running the callback if available)
+        - returns when a status in JOB_FINAL_STATES is reached
+
+        Args:
+            job_id: The ID of the job.
+            timeout: Seconds to wait for the job. If `None`, wait indefinitely.
+            wait: Seconds between queries.
+            report_state: Callback function reporting the state after each query.
+
+        Raises:
+            JobTimeoutError: If the job does not reach a final state before the
+                specified timeout.
+        """
+        MAX_TIMEOUT_FOR_POLLING = 600
+        elapsed_time: float = 0.0
+        while (timeout is None) or elapsed_time <= timeout:
+            start_time = time.time()
+            if timeout is None or float(timeout) - elapsed_time > MAX_TIMEOUT_FOR_POLLING:
+                attempts = MAX_TIMEOUT_FOR_POLLING / wait
+            else:
+                attempts = (float(timeout) - elapsed_time) / wait
+            try:
+                return self._to_be_replaced_with_aqt_connector_wait_for_final_state(
+                    self._arnica,
+                    job_id,
+                    report_state=report_state,
+                    query_interval_seconds=wait,
+                    max_attempts=int(attempts),
+                )
+            except TimeoutError:
+                elapsed_time += time.time() - start_time
+
+        raise JobTimeoutError(f"Timeout while waiting for job {job_id}.")
+
+    def _to_be_replaced_with_aqt_connector_wait_for_final_state(  # noqa: PLR0913
+        self,
+        app: ArnicaApp,  # noqa: ARG002
+        job_id: UUID,
+        *,
+        api_token: Optional[str] = None,  # noqa: ARG002
+        query_interval_seconds: float = 1.0,
+        max_attempts: int = 600,
+        out: TextIO = sys.stdout,  # noqa: ARG002
+        report_state: Optional[Callable[[JobState], None]] = None,
+    ) -> JobState:
+        """Wait for a job to reach a final state.
+
+        Polls the job state until it reaches a finished state or the maximum number of attempts is
+        reached. A finished state includes jobs that have succeeded, failed, or been cancelled.
+
+        Args:
+            app (ArnicaApp): the application instance.
+            job_id (UUID): the unique identifier of the job.
+            api_token (str | None, optional): a static API token to use for authentication. This
+                will be used in place of any token retrieved when logging in. Defaults to None.
+            query_interval_seconds (float, optional): The base interval between job state queries.
+                Defaults to 1.0.
+            max_attempts (int, optional): The maximum number of attempts to query the job state.
+                Defaults to 600.
+            out (TextIO, optional): text stream to send output to. Defaults to sys.stdout.
+            report_state (Callable[[JobState], None], optional): Callable to report state.
+
+        Raises:
+            NotAuthenticatedError: if the user is not authenticated and no access token is available
+            NotAuthenticatedError: If the provided token is invalid or expired.
+            JobNotFoundError: If the job with the specified ID does not exist.
+            InvalidJobIDError: If the provided job ID is not valid.
+            UnknownServerError: If the Arnica API encounters an internal error.
+            RuntimeError: For any other unexpected errors.
+            TimeoutError: If the maximum wait time is exceeded.
+
+        Returns:
+            JobState: the final state of the job.
+        """
+        timeout = query_interval_seconds * max_attempts
+        start_time = time.time()
+        while True:
+            state = self.get_job_state(job_id)
+            if report_state:
+                report_state(state)
+            if isinstance(state, (RRFinished, RRError, RRCancelled)):
+                return state
+            elapsed_time = time.time() - start_time
+            if timeout is not None and elapsed_time >= timeout:
+                raise JobTimeoutError(f"Timeout while waiting for job {job_id}.")
+            time.sleep(query_interval_seconds)
 
     def backends(
         self,
