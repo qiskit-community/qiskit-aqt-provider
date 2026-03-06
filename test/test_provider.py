@@ -318,7 +318,7 @@ def test_remote_workspaces_filter_direct_access(
 ) -> None:
     """Check the string and pattern variants of filters in AQTProvider.get_backends.
 
-    Make sure that the direct-access backend is only selected for, if the string matches.
+    Make sure that if a name is provided for the direct-access backend, it is only selected if it matches.
     """
     remote_workspaces = [
         Workspace(
