@@ -336,7 +336,7 @@ class AQTProvider:
                         self,
                         base_url,
                     )
-                    if not (name and not name.match(direct_access_resource.name)):
+                    if not name or name.match(direct_access_resource.name):
                         backends.append(direct_access_resource)
 
         return BackendsTable(
