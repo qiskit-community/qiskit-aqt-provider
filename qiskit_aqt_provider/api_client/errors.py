@@ -50,9 +50,12 @@ def http_response_raise_for_status(response: httpx.Response) -> httpx.Response:
     try:
         return response.raise_for_status()
     except httpx.HTTPStatusError as status_error:
-        try:
-            detail = response.json().get("detail")
-        except (json.JSONDecodeError, UnicodeDecodeError, AttributeError):
-            detail = None
+        if response.status_code == httpx.codes.GATEWAY_TIMEOUT:
+            detail = "Backend timed out"
+        else:
+            try:
+                detail = response.json().get("detail")
+            except (json.JSONDecodeError, UnicodeDecodeError, AttributeError):
+                detail = None
 
         raise APIError(detail) from status_error
