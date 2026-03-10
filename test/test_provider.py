@@ -219,15 +219,6 @@ def test_remote_workspaces_table(httpx_mock: HTTPXMock, monkeypatch: pytest.Monk
     assert set(only_direct_access) == {"default"}
     assert {type(backend) for backend in only_direct_access["default"]} == {AQTDirectAccessResource}
 
-    httpx_mock.add_response(
-        json=json.loads(api_models_direct.NumIons(num_ions=5).model_dump_json()),
-        url=re.compile(".+/status/ions"),
-    )
-    httpx_mock.add_response(
-        json="direct-access-dummy",
-        url=re.compile(".+/system/name"),
-    )
-
     # List only the direct-access and simulators
     all_backends = provider.backends().by_workspace()
     default_list = {simulator.id for simulator in OFFLINE_SIMULATORS}
@@ -310,6 +301,52 @@ def test_remote_workspaces_filtering_prefix_collision(httpx_mock: HTTPXMock) -> 
         for workspace in ("workspace", "workspace_extra")
         for backend in both_ws[workspace]
     } == {"foo", "foo-extra"}
+
+
+@pytest.mark.httpx_mock(can_send_already_matched_responses=True)
+def test_remote_workspaces_filter_direct_access(
+    httpx_mock: HTTPXMock, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Check the string and pattern variants of filters in AQTProvider.get_backends.
+
+    Make sure that if a name is provided for the direct-access backend, it is only
+    selected if it matches.
+    """
+    remote_workspaces = [
+        Workspace(
+            id="w1",
+            accepting_job_submissions=True,
+            jobs_being_processed=True,
+            resources=[WorkspaceResource(id="r1", name="r1", type=ResourceType.DEVICE)],
+        )
+    ]
+
+    httpx_mock.add_response(
+        url=re.compile(".+/workspaces$"),
+        json=json.loads(ApiWorkspaces(root=remote_workspaces).model_dump_json()),
+    )
+
+    httpx_mock.add_callback(sample_resource_details, url=re.compile(".+/resources/.+"))
+
+    monkeypatch.setenv("AQT_DIRECT_URL", "http://direct-access-example:6020")
+    provider = AQTProvider("my-token")
+
+    httpx_mock.add_response(
+        json=json.loads(api_models_direct.NumIons(num_ions=5).model_dump_json()),
+        url=re.compile(".+/status/ions"),
+    )
+    httpx_mock.add_response(
+        json="direct-access-dummy",
+        url=re.compile(".+/system/name"),
+    )
+
+    # Test that no match is found
+    with pytest.raises(QiskitBackendNotFoundError, match="No backend matches the criteria"):
+        _ = provider.get_backend("name")
+
+    # Test that a match for the name can be found
+    direct_access = provider.get_backend("direct-access-dummy")
+    assert isinstance(direct_access, AQTDirectAccessResource)
 
 
 def test_remote_resource_target_matches_available_qubits(httpx_mock: HTTPXMock) -> None:
@@ -431,6 +468,7 @@ def test_direct_access_resource_init_with_env_not_found(httpx_mock: HTTPXMock) -
         dummy.provider.get_direct_access_backend()
 
 
+@pytest.mark.httpx_mock(can_send_already_matched_responses=True)
 def test_direct_access_resource_init_with_env_found(
     httpx_mock: HTTPXMock, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -458,10 +496,7 @@ def test_direct_access_resource_init_with_env_found(
         json=json.loads(api_models_direct.NumIons(num_ions=10).model_dump_json()),
         url=re.compile(".+/status/ions"),
     )
-    httpx_mock.add_response(
-        json=f"{name}",
-        url=re.compile(".+/system/name"),
-    )
+
     # Use a different URL to make sure it is not from the DummyDirectAccessResource initialization.
     url = "http://direct-access-example:6021"
     monkeypatch.setenv("AQT_DIRECT_URL", url)
