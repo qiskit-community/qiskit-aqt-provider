@@ -295,7 +295,8 @@ def test_offline_simulator_invalid_job_id(offline_simulator_no_noise: MockSimula
 
     # querying the actual job is successful
     result = offline_simulator_no_noise.result(job_id)
-    assert isinstance(result, RRFinished)
+    assert result.job.job_id == job_id
+    assert isinstance(result.response, RRFinished)
 
 
 def test_submit_valid_response(httpx_mock: HTTPXMock) -> None:
@@ -405,7 +406,7 @@ def test_result_valid_response(httpx_mock: HTTPXMock) -> None:
     httpx_mock.add_callback(handle_result, method="GET")
 
     response = backend.result(job_id)
-    assert response == payload.response
+    assert response == payload
 
 
 def test_result_bad_request(httpx_mock: HTTPXMock) -> None:
@@ -465,7 +466,9 @@ def test_offline_simulator_propagate_shots_option(
     """Check various ways of configuring the number of repetitions."""
     qc = qiskit.transpile(random_circuit(2), offline_simulator_no_noise)
 
-    default_shots = sum(offline_simulator_no_noise.run(qc).result().get_counts().values())
+    job = offline_simulator_no_noise.run(qc)
+    result = job.result()
+    default_shots = sum(result.get_counts().values())
     assert default_shots == AQTOptions().shots
 
     shots = min(default_shots + 40, AQTOptions.max_shots())

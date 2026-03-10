@@ -22,7 +22,6 @@ from typing import Optional
 from aqt_connector.models.arnica.jobs import BasicJobMetadata
 from aqt_connector.models.arnica.resources import ResourceType
 from aqt_connector.models.arnica.response_bodies.jobs import (
-    JobState,
     ResultResponse,
     RRCancelled,
     RRError,
@@ -213,7 +212,7 @@ class TestResource(AQTResource):  # pylint: disable=too-many-instance-attributes
         return test_job.job_id
 
     @override
-    def result(self, job_id: uuid.UUID) -> JobState:
+    def result(self, job_id: uuid.UUID) -> ResultResponse:
         """Handle a results request for a given job.
 
         Apply the logic configured when initializing the backend to
@@ -242,7 +241,7 @@ class TestResource(AQTResource):  # pylint: disable=too-many-instance-attributes
             else:
                 self.job.finish()
 
-        return self.job.response_payload().response
+        return self.job.response_payload()
 
 
 class DummyResource(AQTResource):

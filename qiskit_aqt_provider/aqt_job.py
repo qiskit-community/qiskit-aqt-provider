@@ -274,7 +274,7 @@ class AQTJob(JobV1):
             APIError: the operation failed on the remote portal.
         """
         if self.qiskit_status not in JOB_FINAL_STATES:
-            self._process_job_state_update(self._backend.result(uuid.UUID(self.job_id())))
+            self._process_job_state_update(self._backend.result(uuid.UUID(self.job_id())).response)
         return self.qiskit_status
 
     def result(self) -> Result:
@@ -287,6 +287,8 @@ class AQTJob(JobV1):
 
         Raises:
             APIError: the operation failed on the remote portal.
+            JobTimeoutError: If the job does not reach a final state before the
+                specified timeout.
         """
         if self.options.with_progress_bar:
             context: Union[tqdm[NoReturn], _MockProgressBar] = tqdm(total=len(self.circuits))
