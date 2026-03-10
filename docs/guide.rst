@@ -125,7 +125,7 @@ If the filtering criteria correspond to multiple or no backends, a :class:`Qiski
 Direct-access backends
 ======================
 
-Direct-access resources handles are obtained from a provider using the :meth:`get_direct_access_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_direct_access_backend>` method:
+Direct-access resource handles are obtained from a provider using the :meth:`get_direct_access_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_direct_access_backend>` method:
 
 .. code-block:: python
 
@@ -138,7 +138,7 @@ Direct-access resources handles are obtained from a provider using the :meth:`ge
 
 Contact your local system administrator to determine the exact base URL to access your local quantum computing system.
 
-.. tip:: Resources handles returned by :meth:`get_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_backend>` and :meth:`get_direct_access_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_direct_access_backend>` both implement the Qiskit :class:`BackendV2 <qiskit.providers.BackendV2>` interface and can be used exchangeably in the following examples.
+.. tip:: Resource handles returned by :meth:`get_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_backend>` and :meth:`get_direct_access_backend <qiskit_aqt_provider.aqt_provider.AQTProvider.get_direct_access_backend>` both implement the Qiskit :class:`BackendV2 <qiskit.providers.BackendV2>` interface and can be used exchangeably in the following examples.
 
 Quantum register size
 =====================
@@ -176,7 +176,9 @@ The :meth:`AQTResource.run <qiskit_aqt_provider.aqt_resource.AQTResource.run>` m
    transpiled_circuit = qiskit.transpile(circuit, backend)
    job = backend.run(transpiled_circuit)
 
-The :meth:`AQTJob.result <qiskit_aqt_provider.aqt_job.AQTJob.result>` method blocks until the job completes (either successfully or not). The return type is a standard Qiskit :class:`Result <qiskit.result.Result>` instance:
+The :meth:`AQTJob.result <qiskit_aqt_provider.aqt_job.AQTJob.result>` method blocks until the job completes either successfully or not. The return type is a standard Qiskit :class:`Result <qiskit.result.Result>` instance:
+
+.. hint:: For direct-access backends it is possible to set `query_timeout_seconds` in the options of the :meth:`AQTResource.run <qiskit_aqt_provider.aqt_resource.AQTResource.run>` method and :meth:`AQTJob.result <qiskit_aqt_provider.aqt_job.AQTJob.result>` will time out accordingly latest after 24 hours.
 
 .. jupyter-execute::
 

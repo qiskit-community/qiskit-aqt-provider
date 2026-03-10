@@ -382,7 +382,8 @@ class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):
 
         Args:
             job_id: unique identifier of the target job.
-            timeout: query timeout, in seconds. Disabled if `None`.
+            timeout: query timeout, in seconds. Disabled if `None`, but direct-access backends will
+              time out after 24 hours regardlessly.
 
         Returns:
             Job result, as API payload.
