@@ -178,7 +178,7 @@ The :meth:`AQTResource.run <qiskit_aqt_provider.aqt_resource.AQTResource.run>` m
 
 The :meth:`AQTJob.result <qiskit_aqt_provider.aqt_job.AQTJob.result>` method blocks until the job completes either successfully or not. The return type is a standard Qiskit :class:`Result <qiskit.result.Result>` instance:
 
-.. hint:: For direct-access backends it is possible to set `query_timeout_seconds` in the options of the :meth:`AQTResource.run <qiskit_aqt_provider.aqt_resource.AQTResource.run>` method. :meth:`AQTJob.result <qiskit_aqt_provider.aqt_job.AQTJob.result>` will time out accordingly, but there is maximum timeout of 24 hours, which always takes effect. 
+.. hint:: For direct-access backends it is possible to set `query_timeout_seconds` in the options of the :meth:`AQTResource.run <qiskit_aqt_provider.aqt_resource.AQTResource.run>` method and :meth:`AQTJob.result <qiskit_aqt_provider.aqt_job.AQTJob.result>` will time out accordingly latest after 24 hours.
 
 .. jupyter-execute::
 
