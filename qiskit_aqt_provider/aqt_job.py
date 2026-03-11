@@ -367,8 +367,8 @@ class AQTJob(JobV1):
             if callback:
                 callback()
 
-        self._backend.provider.poll_for_final_state(
-            self.job_id(),
+        self._backend.get_final_state(
+            uuid.UUID(self.job_id()),
             timeout,
             wait,
             receive_state_update,

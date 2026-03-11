@@ -16,6 +16,7 @@ from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
     Any,
+    Callable,
     Generic,
     Optional,
     TypeVar,
@@ -323,6 +324,22 @@ class AQTResource(_ResourceBase[AQTOptions]):
             response=state,
         )
 
+    def get_final_state(
+        self,
+        job_id: UUID,
+        timeout: Optional[float] = None,
+        wait: float = 5,
+        report_state: Optional[Callable[[JobState], None]] = None,
+    ) -> Union[JobState, None]:
+        """Gets the final state through the provider polling function."""
+        state: Union[JobState, None] = self.provider.poll_for_final_state(
+            job_id,
+            timeout,
+            wait,
+            report_state,
+        )
+        return state
+
 
 class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):
     """Qiskit backend for AQT direct-access quantum computing resources.
@@ -612,6 +629,20 @@ class OfflineSimulatorResource(AQTResource):
                 result={int(circuit_index): samples for circuit_index, samples in results.items()},
             ),
         )
+
+    @override
+    def get_final_state(
+        self,
+        job_id: UUID,
+        timeout: Optional[float] = None,
+        wait: float = 5,
+        report_state: Optional[Callable[[JobState], None]] = None,
+    ) -> Union[JobState, None]:
+        """Get the final state from self.result()."""
+        response = self.result(job_id).response
+        if report_state:
+            report_state(response)
+        return response
 
 
 AnyAQTResource: TypeAlias = Union[AQTResource, AQTDirectAccessResource]

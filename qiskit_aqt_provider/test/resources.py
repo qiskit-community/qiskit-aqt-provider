@@ -17,11 +17,12 @@ import random
 import time
 import uuid
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Callable, Optional, Union
 
 from aqt_connector.models.arnica.jobs import BasicJobMetadata
 from aqt_connector.models.arnica.resources import ResourceType
 from aqt_connector.models.arnica.response_bodies.jobs import (
+    JobState,
     ResultResponse,
     RRCancelled,
     RRError,
@@ -242,6 +243,20 @@ class TestResource(AQTResource):  # pylint: disable=too-many-instance-attributes
                 self.job.finish()
 
         return self.job.response_payload()
+
+    @override
+    def get_final_state(
+        self,
+        job_id: uuid.UUID,
+        timeout: Optional[float] = None,
+        wait: float = 5,
+        report_state: Optional[Callable[[JobState], None]] = None,
+    ) -> Union[JobState, None]:
+        """Get the final state from self.result()."""
+        response = self.result(job_id).response
+        if report_state:
+            report_state(response)
+        return response
 
 
 class DummyResource(AQTResource):

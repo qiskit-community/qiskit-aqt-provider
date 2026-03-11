@@ -290,7 +290,7 @@ class AQTProvider:
     ) -> Union[JobState, None]:
         """Start polling repeatedly if timeout is None, otherwise only until timeout is reached.
 
-        This overrides `wait_for_final_state` from JobV1. It
+        This replaces `wait_for_final_state` from JobV1. It
         - uses the `wait_for_result` function provided by the aqt_connector
         - receives job state updates & processes these (including running the callback if available)
         - returns when a status in JOB_FINAL_STATES is reached
