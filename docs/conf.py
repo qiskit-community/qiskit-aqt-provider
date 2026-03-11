@@ -56,6 +56,7 @@ nitpick_ignore = [
     ("py:class", "Backend"),
     ("py:class", "Target"),
     ("py:exc", "QiskitBackendNotFoundError"),
+    ("py:exc", "JobTimeoutError"),
     ("py:class", "qiskit_aqt_provider.aqt_resource._OptionsType"),
     # No inventory available for httpx
     # https://github.com/encode/httpx/issues/3145
