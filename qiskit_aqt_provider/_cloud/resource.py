@@ -35,7 +35,7 @@ class CloudResource(BackendV2):
         """Initializes a cloud resource with the given workspace and resource details."""
         self._arnica = arnica
         self._api_client = api_client
-        self._workspace_id = workspace_id
+        self.workspace_id = workspace_id
         self._resource_id = resource_details.id
         super().__init__(name=resource_details.id)
         self._update_target(resource_details.available_qubits)
@@ -89,7 +89,7 @@ class CloudResource(BackendV2):
         request_payload = circuits_to_aqt_job(circuits, shots)
         resp = http_response_raise_for_status(
             self._api_client.post(
-                f"/v1/submit/{self._workspace_id}/{self._resource_id}",
+                f"/v1/submit/{self.workspace_id}/{self._resource_id}",
                 content=request_payload.model_dump_json(),
             )
         )

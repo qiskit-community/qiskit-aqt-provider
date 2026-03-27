@@ -119,7 +119,9 @@ group.dev.dependencies.typos = "^1.29.0"
 group.dev.dependencies.yq = "^3.4.3"
 plugins."qiskit.transpiler.scheduling".aqt = "qiskit_aqt_provider.transpiler_plugin:AQTSchedulingPlugin"
 plugins."qiskit.transpiler.translation".aqt = "qiskit_aqt_provider.transpiler_plugin:AQTTranslationPlugin"
-plugins.pytest11.pytest_qiskit_aqt = "qiskit_aqt_provider.test.fixtures"
+
+group.test.dependencies.fastapi = {version = "^0.128.8", extras = ["standard"] }
+
 
 [tool.ruff]
 target-version = "py39"
