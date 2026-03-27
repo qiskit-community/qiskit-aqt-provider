@@ -1,7 +1,7 @@
 [build-system]
 build-backend = "poetry.core.masonry.api"
 requires = [
-  "poetry-core>=1",
+  "poetry-core>=2",
 ]
 
 [tool.poetry]
@@ -55,7 +55,7 @@ dependencies.pydantic-core = ">=2"
 dependencies.pytest = { version = ">=8", optional = true }
 dependencies.pytest-httpx = { version = "^0.35.0", optional = true }
 dependencies.python-dotenv = ">=1"
-dependencies.qiskit = { version = "^1", allow-prereleases = false }
+dependencies.qiskit = { version = ">=2", allow-prereleases = false }
 dependencies.qiskit-aer = ">=0.13.2"
 dependencies.qiskit-algorithms = { version = ">=0.2.1,<0.4", optional = true }
 dependencies.qiskit-optimization = { version = ">=0.6.0", optional = true }
@@ -101,7 +101,7 @@ group.dev.dependencies.pytest-sugar = "^1"
 group.dev.dependencies.pre-commit = "^3.1.1"
 group.dev.dependencies.pyproject-fmt = "2.8.0"
 group.dev.dependencies.qiskit-sphinx-theme = ">=1.16.1"
-group.dev.dependencies.qiskit = { version = "^1", extras = [
+group.dev.dependencies.qiskit = { version = ">=2", extras = [
   "visualization",
 ] }
 group.dev.dependencies.rich = "^13.5.3"
