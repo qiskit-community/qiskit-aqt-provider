@@ -123,7 +123,7 @@ plugins.pytest11.pytest_qiskit_aqt = "qiskit_aqt_provider.test.fixtures"
 
 [tool.ruff]
 target-version = "py39"
-line-length = 100
+line-length = 120
 lint.select = [
   "ANN",  # flake8-annotations
   "ARG",  # flake8-unused-arguments
