@@ -1,10 +1,9 @@
-from typing import Callable, Final, Union
+from typing import Callable, Final
 
 import aqt_connector
 import httpx
-from aqt_connector import ArnicaApp
+from aqt_connector import ArnicaApp, ArnicaConfig
 
-from qiskit_aqt_provider._cloud.config import ArnicaConfig
 from qiskit_aqt_provider._cloud.workspace_collection import WorkspaceCollection
 from qiskit_aqt_provider.api_client import models
 from qiskit_aqt_provider.api_client.errors import http_response_raise_for_status
@@ -28,14 +27,13 @@ class CloudProvider:
 
     def __init__(
         self,
-        config: Union[ArnicaConfig, None] = None,
+        config: ArnicaConfig,
         *,
         http_client_factory: Callable[[ArnicaConfig], httpx.Client] = _http_client_factory,
     ) -> None:
         """Initializes the cloud provider with the given configuration."""
-        self._arnica_config = config or ArnicaConfig()
-        self._arnica = ArnicaApp(self._arnica_config)
-        self._http_client = http_client_factory(self._arnica_config)
+        self._arnica = ArnicaApp(config)
+        self._http_client = http_client_factory(config)
 
     def log_in(self) -> None:
         """Logs the user into the cloud provider, establishing a session for subsequent API calls."""

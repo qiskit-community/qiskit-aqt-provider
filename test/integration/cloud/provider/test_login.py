@@ -1,9 +1,8 @@
 from typing import Optional
 
 import pytest
-from aqt_connector import ArnicaApp
+from aqt_connector import ArnicaApp, ArnicaConfig
 
-from qiskit_aqt_provider._cloud.config import ArnicaConfig
 from qiskit_aqt_provider._cloud.provider import CloudProvider
 
 

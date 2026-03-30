@@ -1,10 +1,10 @@
 from collections.abc import Callable
 
 import pytest
+from aqt_connector import ArnicaConfig
 from aqt_connector.models.arnica.response_bodies.workspaces import Workspace
 from httpx import Client, MockTransport, Request, Response
 
-from qiskit_aqt_provider._cloud.config import ArnicaConfig
 from qiskit_aqt_provider._cloud.provider import CloudProvider
 from qiskit_aqt_provider.api_client.models import ApiWorkspaces
 
@@ -34,7 +34,7 @@ def test_it_lists_accessible_workspaces(workspaces: ApiWorkspaces) -> None:
             base_url="https://arnica.aqt.eu/api", transport=MockTransport(_create_request_handler(workspaces))
         )
 
-    provider = CloudProvider(http_client_factory=client_factory)
+    provider = CloudProvider(ArnicaConfig(), http_client_factory=client_factory)
 
     workspace_providers = provider.fetch_workspaces()
 
