@@ -34,6 +34,8 @@ class CloudProvider:
         """Initializes the cloud provider with the given configuration."""
         self._arnica = ArnicaApp(config)
         self._http_client = http_client_factory(config)
+        if existing_token := aqt_connector.get_access_token(self._arnica):
+            self._set_access_token(existing_token)
 
     def close(self) -> None:
         """Closes the cloud provider, releasing any resources it holds."""
@@ -43,7 +45,7 @@ class CloudProvider:
     def log_in(self) -> None:
         """Logs the user into the cloud provider, establishing a session for subsequent API calls."""
         access_token = aqt_connector.log_in(self._arnica)
-        self._http_client.headers["Authorization"] = f"Bearer {access_token}"
+        self._set_access_token(access_token)
 
     def fetch_workspaces(self) -> WorkspaceCollection:
         """Fetches workspaces accessible to the user.
@@ -54,3 +56,7 @@ class CloudProvider:
         response = http_response_raise_for_status(self._http_client.get("/v1/workspaces"))
         api_workspaces = models.ApiWorkspaces.model_validate_json(response.text)
         return WorkspaceCollection(api_workspaces.root, self._arnica, self._http_client)
+
+    def _set_access_token(self, access_token: str) -> None:
+        """Sets the access token to use for authentication in API requests."""
+        self._http_client.headers["Authorization"] = f"Bearer {access_token}"
