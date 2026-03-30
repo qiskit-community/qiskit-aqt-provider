@@ -2,6 +2,7 @@ from datetime import datetime
 
 import httpx
 import pytest
+from aqt_connector import ArnicaApp
 from aqt_connector.models.arnica.resources import ResourceStatus, ResourceType
 from aqt_connector.models.arnica.response_bodies.resources import ResourceDetails, WorkspaceResource
 from aqt_connector.models.arnica.response_bodies.workspaces import Workspace as APIWorkspace
@@ -19,6 +20,7 @@ def test_it_gets_backend_by_id() -> None:
     ]
     workspace_provider = WorkspaceProvider(
         data=APIWorkspace(id="w1", accepting_job_submissions=True, jobs_being_processed=False, resources=resources),
+        arnica=ArnicaApp(),
         api_client=Client(
             base_url="https://arnica.aqt.eu/api", transport=MockTransport(_resource_details_request_handler)
         ),
@@ -38,6 +40,7 @@ def test_it_raises_if_backend_id_not_found() -> None:
     ]
     workspace_provider = WorkspaceProvider(
         data=APIWorkspace(id="w1", accepting_job_submissions=True, jobs_being_processed=False, resources=resources),
+        arnica=ArnicaApp(),
         api_client=Client(transport=MockTransport(lambda _: Response(404))),
     )
 

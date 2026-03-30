@@ -50,4 +50,4 @@ class CloudProvider:
         """
         response = http_response_raise_for_status(self._http_client.get("/v1/workspaces"))
         api_workspaces = models.ApiWorkspaces.model_validate_json(response.text)
-        return WorkspaceCollection(api_workspaces.root, self._http_client)
+        return WorkspaceCollection(api_workspaces.root, self._arnica, self._http_client)

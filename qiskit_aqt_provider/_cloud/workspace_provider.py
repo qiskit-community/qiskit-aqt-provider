@@ -1,4 +1,5 @@
 import httpx
+from aqt_connector import ArnicaApp
 from aqt_connector.models.arnica.response_bodies.resources import ResourceDetails, WorkspaceResource
 from aqt_connector.models.arnica.response_bodies.workspaces import Workspace as APIWorkspace
 from qiskit.providers.exceptions import QiskitBackendNotFoundError
@@ -10,10 +11,11 @@ from qiskit_aqt_provider.api_client.errors import http_response_raise_for_status
 class WorkspaceProvider:
     """A provider for a workspace in the AQT cloud."""
 
-    def __init__(self, data: APIWorkspace, api_client: httpx.Client) -> None:
+    def __init__(self, data: APIWorkspace, arnica: ArnicaApp, api_client: httpx.Client) -> None:
         """Initializes a workspace provider from the given API workspace data."""
         self._id = data.id
         self._resources = data.resources
+        self._arnica = arnica
         self._api_client = api_client
 
     @property
@@ -45,6 +47,6 @@ class WorkspaceProvider:
             if resource.id == backend_id:
                 response = http_response_raise_for_status(self._api_client.get(f"/v1/resources/{resource.id}"))
                 details = ResourceDetails.model_validate_json(response.text)
-                return CloudResource(self._api_client, self._id, details)
+                return CloudResource(self._arnica, self._api_client, self._id, details)
 
         raise QiskitBackendNotFoundError(f"Backend with ID '{backend_id}' not found in workspace '{self._id}'.")

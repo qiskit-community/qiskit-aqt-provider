@@ -1,6 +1,7 @@
 from typing import Union
 
 import httpx
+from aqt_connector import ArnicaApp
 from aqt_connector.models.arnica.response_bodies.workspaces import Workspace
 
 from qiskit_aqt_provider._cloud.workspace_provider import WorkspaceProvider
@@ -9,9 +10,9 @@ from qiskit_aqt_provider._cloud.workspace_provider import WorkspaceProvider
 class WorkspaceCollection(list[WorkspaceProvider]):
     """A collection of workspaces accessible to the user in the AQT cloud."""
 
-    def __init__(self, workspaces: list[Workspace], api_client: httpx.Client) -> None:
+    def __init__(self, workspaces: list[Workspace], arnica: ArnicaApp, api_client: httpx.Client) -> None:
         """Initializes a workspace collection from the given list of API workspaces and HTTP client."""
-        providers = [WorkspaceProvider(workspace, api_client) for workspace in workspaces]
+        providers = [WorkspaceProvider(workspace, arnica, api_client) for workspace in workspaces]
         super().__init__(providers)
 
     def get_by_id(self, workspace_id: str) -> Union[WorkspaceProvider, None]:

@@ -1,4 +1,5 @@
 import pytest
+from aqt_connector import ArnicaApp
 from aqt_connector.models.arnica.resources import ResourceType
 from aqt_connector.models.arnica.response_bodies.resources import WorkspaceResource
 from aqt_connector.models.arnica.response_bodies.workspaces import Workspace as APIWorkspace
@@ -24,6 +25,7 @@ def test_it_lists_workspace_resources(resources: list[WorkspaceResource]) -> Non
     """The workspace provider should list the resources available in its workspace."""
     workspace_provider = WorkspaceProvider(
         data=APIWorkspace(id="w1", accepting_job_submissions=True, jobs_being_processed=False, resources=resources),
+        arnica=ArnicaApp(),
         api_client=Client(transport=MockTransport(lambda _: Response(404))),
     )
 

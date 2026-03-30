@@ -1,3 +1,4 @@
+from aqt_connector import ArnicaApp
 from aqt_connector.models.arnica.response_bodies.workspaces import Workspace
 from httpx import Client, MockTransport, Response
 
@@ -11,6 +12,7 @@ def test_get_by_id_returns_workspace_provider_with_matching_id() -> None:
             Workspace(id="w1", accepting_job_submissions=True, jobs_being_processed=False, resources=[]),
             Workspace(id="w2", accepting_job_submissions=True, jobs_being_processed=False, resources=[]),
         ],
+        arnica=ArnicaApp(),
         api_client=Client(transport=MockTransport(lambda _: Response(404))),
     )
 
@@ -24,6 +26,7 @@ def test_get_by_id_returns_none_if_no_matching_id() -> None:
     """The workspace collection's get_by_id method should return None if no workspace provider has the specified ID."""
     workspace_collection = WorkspaceCollection(
         workspaces=[],
+        arnica=ArnicaApp(),
         api_client=Client(transport=MockTransport(lambda _: Response(404))),
     )
 

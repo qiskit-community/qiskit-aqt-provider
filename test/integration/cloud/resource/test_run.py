@@ -5,6 +5,7 @@ from datetime import datetime
 from typing import Optional
 
 import pytest
+from aqt_connector import ArnicaApp
 from aqt_connector.models.arnica.jobs import BasicJobMetadata
 from aqt_connector.models.arnica.resources import ResourceStatus, ResourceType
 from aqt_connector.models.arnica.response_bodies.jobs import SubmitJobResponse
@@ -30,7 +31,8 @@ _RESOURCE_DETAILS = ResourceDetails(
 
 def _make_resource(handler: MockTransport) -> CloudResource:
     client = Client(base_url="https://arnica.aqt.eu/api", transport=handler)
-    return CloudResource(client, "w1", _RESOURCE_DETAILS)
+    arnica = ArnicaApp()
+    return CloudResource(arnica, client, "w1", _RESOURCE_DETAILS)
 
 
 def _ok_handler(_: Request) -> Response:
