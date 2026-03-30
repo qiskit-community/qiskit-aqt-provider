@@ -35,6 +35,11 @@ class CloudProvider:
         self._arnica = ArnicaApp(config)
         self._http_client = http_client_factory(config)
 
+    def close(self) -> None:
+        """Closes the cloud provider, releasing any resources it holds."""
+        # TODO: close arnica app too, once aqt_connector supports that
+        self._http_client.close()
+
     def log_in(self) -> None:
         """Logs the user into the cloud provider, establishing a session for subsequent API calls."""
         access_token = aqt_connector.log_in(self._arnica)

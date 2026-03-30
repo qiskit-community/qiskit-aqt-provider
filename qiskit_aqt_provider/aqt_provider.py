@@ -1,4 +1,5 @@
 from pathlib import Path
+from types import TracebackType
 from typing import Callable, Optional
 
 import pydantic as pdt
@@ -29,12 +30,23 @@ class AQTProvider:
 
     @property
     def cloud(self) -> CloudProvider:
-        """The provider's cloud provider instance.
-
-        Returns:
-            CloudProvider: the provider's cloud provider instance.
-        """
+        """The provider's cloud provider instance."""
         if self._cloud is None:
             config = ArnicaConfig(self._config.store_path_fn(None))
             self._cloud = CloudProvider(config)
         return self._cloud
+
+    def __enter__(self) -> "AQTProvider":
+        """Enters the runtime context for this provider."""
+        return self
+
+    def __exit__(
+        self,
+        exc_type: Optional[type[BaseException]],
+        exc: Optional[BaseException],
+        tb: Optional[TracebackType],
+    ) -> None:
+        """Exit the context manager and clean up resources."""
+        if self._cloud is not None:
+            self._cloud.close()
+            self._cloud = None
