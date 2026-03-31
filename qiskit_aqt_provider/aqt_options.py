@@ -80,6 +80,13 @@ class AQTOptions(pdt.BaseModel, Mapping[str, Any]):
     When enabled, the progress bar is written to :data:`sys.stderr`.
     """
 
+    max_consecutive_polling_errors: int = pdt.Field(ge=1, default=34)
+    """Maximum number of consecutive polling errors before giving up.
+
+    Default is 34, which allows for approximately 10 minutes of consecutive polling errors with the
+    polling retry backoff strategy (1s, 2s, 3s, ..., 34s).
+    """
+
     @pdt.field_validator("query_timeout_seconds")
     @classmethod
     def validate_timeout(cls, value: Optional[float], info: pdt.ValidationInfo) -> Optional[float]:

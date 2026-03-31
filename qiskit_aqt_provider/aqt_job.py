@@ -28,7 +28,6 @@ from typing import (
 )
 
 import numpy as np
-from aqt_connector.exceptions import RequestError
 from aqt_connector.models.arnica.response_bodies.jobs import (
     RRCancelled,
     RRError,
@@ -46,6 +45,7 @@ from tqdm import tqdm
 from typing_extensions import Self, TypeAlias
 
 from qiskit_aqt_provider import persistence
+from qiskit_aqt_provider.api_client.errors import APIError
 from qiskit_aqt_provider.api_client.models_direct import JobResultError
 from qiskit_aqt_provider.aqt_options import AQTOptions
 from qiskit_aqt_provider.circuit_to_aqt import circuits_to_aqt_job
@@ -232,15 +232,19 @@ class AQTJob(JobV1):
                 time.sleep(wait)
                 status = self.status()
                 consecutive_request_errors = 0
-            except RequestError as err:  # noqa: PERF203
+            except APIError as err:  # noqa: PERF203
                 consecutive_request_errors += 1
+                if consecutive_request_errors >= self.options.max_consecutive_polling_errors:
+                    raise RuntimeError(
+                        "Max consecutive request errors "
+                        f"({self.options.max_consecutive_polling_errors}) exceeded while fetching "
+                        "job status"
+                    ) from err
                 warnings.warn(
                     f"Error #{consecutive_request_errors} while fetching job status. "
                     f"Retrying in {consecutive_request_errors} seconds. Error: {err}."
                 )
                 time.sleep(consecutive_request_errors)
-
-        return
 
     @classmethod
     def restore(
