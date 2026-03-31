@@ -1,6 +1,10 @@
+from typing import Optional, Union
+
 import pytest
 from aqt_connector import ArnicaConfig
+from qiskit import QuantumCircuit
 
+from qiskit_aqt_provider._cloud.job import CloudJob
 from qiskit_aqt_provider._cloud.resource import CloudResource
 from qiskit_aqt_provider.aqt_provider import AQTProvider
 
@@ -68,3 +72,28 @@ def acquires_backend_from_workspace(
         if workspace_provider is None:
             raise ValueError(f"Workspace with ID '{workspace_id}' not found.")
         return workspace_provider.get_backend(backend_id)
+
+
+def submits_circuit(
+    cloud_provider_config: ArnicaConfig, workspace_id: str, backend_id: str, circuit: Union[QuantumCircuit, list[QuantumCircuit]], shots: Optional[int] = None
+) -> CloudJob:
+    """Submits a job to a specific backend in a specific workspace.
+
+    Args:
+        cloud_provider_config (ArnicaConfig): The configuration for the cloud provider.
+        workspace_id (str): The ID of the workspace to submit the job to.
+        backend_id (str): The ID of the backend to submit the job to.
+        circuit (Union[QuantumCircuit, list[QuantumCircuit]]): The quantum circuit(s) to submit as a job.
+        shots (Optional[int]): The number of shots to use for the job execution. If None, the default from the backend will be used.
+
+    Returns:
+        CloudJob: The submitted job, with a stable identity and accessible for polling and result retrieval.
+    """
+    with AQTProvider() as provider:
+        workspace_collection = provider.cloud(cloud_provider_config).fetch_workspaces()
+        workspace_provider = workspace_collection.get_by_id(workspace_id)
+        if workspace_provider is None:
+            raise ValueError(f"Workspace with ID '{workspace_id}' not found.")
+        backend = workspace_provider.get_backend(backend_id)
+        return backend.run(circuit, shots=shots)
+

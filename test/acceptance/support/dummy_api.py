@@ -1,8 +1,11 @@
 from datetime import datetime
-from typing import Any
+from typing import Any, Optional
+from uuid import UUID
 
+from aqt_connector.models.arnica.request_bodies.jobs import SubmitJobRequest
 from aqt_connector.models.arnica.resources import ResourceStatus, ResourceType
 from aqt_connector.models.arnica.response_bodies.resources import ResourceDetails, WorkspaceResource
+from aqt_connector.models.arnica.response_bodies.jobs import SubmitJobResponse
 from aqt_connector.models.arnica.response_bodies.workspaces import Workspace
 from fastapi import FastAPI, Request
 from fastapi.encoders import jsonable_encoder
@@ -12,7 +15,7 @@ app = FastAPI()
 _requests = []
 
 
-def _record_request(request: Request) -> None:
+def _record_request(request: Request, body: Optional[Any] = None) -> None:
     _requests.append(
         {
             "method": request.method,
@@ -20,6 +23,7 @@ def _record_request(request: Request) -> None:
             "headers": dict(request.headers),
             "query": dict(request.query_params),
             "client": request.client.host if request.client else None,
+            "body": jsonable_encoder(body) if body is not None else None,
         }
     )
 
@@ -51,6 +55,13 @@ async def workspaces(request: Request) -> Any:
                     resources=[
                         WorkspaceResource(id="r1", name="R1", type=ResourceType.DEVICE),
                     ],
+                ),
+                Workspace(
+                    id="w93",
+                    accepting_job_submissions=True,
+                    jobs_being_processed=True,
+                    resources=[
+                        WorkspaceResource(id="r1", name="R1", type=ResourceType.DEVICE),],
                 ),
             ]
         )
@@ -89,6 +100,28 @@ async def resource_details(resource_id: str, request: Request) -> Any:
 
     return JSONResponse(status_code=404, content={"error": f"Resource with ID '{resource_id}' not found."})
 
+
+@app.post("/v1/submit/{workspace_id}/{resource_id}")
+async def submit_job(workspace_id: str, resource_id: str, request: Request, body: SubmitJobRequest) -> Any:
+    _record_request(request, body)
+
+    if workspace_id not in ("w1", "w2"):
+        return JSONResponse(status_code=404, content={"detail": f"Workspace not available."})
+
+    return JSONResponse(content=jsonable_encoder(
+        SubmitJobResponse.model_validate(
+                {
+                    "job": {
+                        "job_id": UUID('c8919003-1bc1-445f-a968-e7f4c90029d3'),
+                        "job_type": "quantum_circuit",
+                        "resource_id": resource_id,
+                        "workspace_id": workspace_id,
+                    },
+                    "response": {"status": "queued"},
+                }
+            )
+        )
+    )
 
 @app.get("/__requests")
 async def get_requests() -> Any:

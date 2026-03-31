@@ -4,10 +4,11 @@ import pytest
 from aqt_connector import ArnicaConfig
 
 from test.acceptance import dsl
+from test.acceptance.conftest import DummyArnicaServer
 
 
 def test_acquires_backend_by_exact_identifier_from_workspace(
-    monkeypatch: pytest.MonkeyPatch, dummy_server: str, tmp_path: Path
+    monkeypatch: pytest.MonkeyPatch, dummy_server: DummyArnicaServer, tmp_path: Path
 ) -> None:
     """A backend should be acquirable by exact identifier from a workspace.
 
@@ -17,7 +18,7 @@ def test_acquires_backend_by_exact_identifier_from_workspace(
     """
     dsl.user.has_cloud_access(monkeypatch, "arnica_token")
     cloud_provider_config = ArnicaConfig(tmp_path)
-    cloud_provider_config.arnica_url = dummy_server
+    cloud_provider_config.arnica_url = dummy_server.base_url
 
     acquired_backend = dsl.user.acquires_backend_from_workspace(
         cloud_provider_config, workspace_id="w1", backend_id="r1"
@@ -28,7 +29,7 @@ def test_acquires_backend_by_exact_identifier_from_workspace(
 
 
 def test_fails_to_acquire_unknown_backend_in_workspace(
-    monkeypatch: pytest.MonkeyPatch, dummy_server: str, tmp_path: Path
+    monkeypatch: pytest.MonkeyPatch, dummy_server: DummyArnicaServer, tmp_path: Path
 ) -> None:
     """A backend that is not in a workspace should not be acquirable from that workspace.
 
@@ -38,14 +39,14 @@ def test_fails_to_acquire_unknown_backend_in_workspace(
     """
     dsl.user.has_cloud_access(monkeypatch, "arnica_token")
     cloud_provider_config = ArnicaConfig(tmp_path)
-    cloud_provider_config.arnica_url = dummy_server
+    cloud_provider_config.arnica_url = dummy_server.base_url
 
     with dsl.expect.backend_not_found("w1", "r3"):
         dsl.user.acquires_backend_from_workspace(cloud_provider_config, workspace_id="w1", backend_id="r3")
 
 
 def test_acquired_backend_preserves_workspace_context(
-    monkeypatch: pytest.MonkeyPatch, dummy_server: str, tmp_path: Path
+    monkeypatch: pytest.MonkeyPatch, dummy_server: DummyArnicaServer, tmp_path: Path
 ) -> None:
     """A backend acquired from a workspace should retain the identity of that workspace.
 
@@ -55,7 +56,7 @@ def test_acquired_backend_preserves_workspace_context(
     """
     dsl.user.has_cloud_access(monkeypatch, "arnica_token")
     cloud_provider_config = ArnicaConfig(tmp_path)
-    cloud_provider_config.arnica_url = dummy_server
+    cloud_provider_config.arnica_url = dummy_server.base_url
 
     acquired_backend = dsl.user.acquires_backend_from_workspace(
         cloud_provider_config, workspace_id="w1", backend_id="r1"
@@ -65,7 +66,7 @@ def test_acquired_backend_preserves_workspace_context(
 
 
 def test_same_resource_can_be_acquired_from_multiple_workspaces(
-    monkeypatch: pytest.MonkeyPatch, dummy_server: str, tmp_path: Path
+    monkeypatch: pytest.MonkeyPatch, dummy_server: DummyArnicaServer, tmp_path: Path
 ) -> None:
     """The same underlying resource should be acquirable from multiple workspaces.
 
@@ -75,7 +76,7 @@ def test_same_resource_can_be_acquired_from_multiple_workspaces(
     """
     dsl.user.has_cloud_access(monkeypatch, "arnica_token")
     cloud_provider_config = ArnicaConfig(tmp_path)
-    cloud_provider_config.arnica_url = dummy_server
+    cloud_provider_config.arnica_url = dummy_server.base_url
 
     acquired_backend_1 = dsl.user.acquires_backend_from_workspace(
         cloud_provider_config, workspace_id="w1", backend_id="r1"
