@@ -10,7 +10,9 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+import time
 import uuid
+import warnings
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from pathlib import Path
@@ -18,6 +20,7 @@ from types import TracebackType
 from typing import (
     TYPE_CHECKING,
     Any,
+    Callable,
     ClassVar,
     NoReturn,
     Optional,
@@ -25,6 +28,7 @@ from typing import (
 )
 
 import numpy as np
+from aqt_connector.exceptions import RequestError
 from aqt_connector.models.arnica.response_bodies.jobs import (
     RRCancelled,
     RRError,
@@ -34,7 +38,8 @@ from aqt_connector.models.arnica.response_bodies.jobs import (
 )
 from qiskit import QuantumCircuit
 from qiskit.providers import JobV1
-from qiskit.providers.jobstatus import JobStatus
+from qiskit.providers.exceptions import JobTimeoutError
+from qiskit.providers.jobstatus import JOB_FINAL_STATES, JobStatus
 from qiskit.result.result import Result
 from qiskit.utils.lazy_tester import contextlib
 from tqdm import tqdm
@@ -186,6 +191,56 @@ class AQTJob(JobV1):
         self.api_submit_payload = circuits_to_aqt_job(circuits, options.shots)
 
         self.status_payload: JobStatusPayload = JobQueued()
+
+    def wait_for_final_state(
+        self,
+        timeout: Optional[float] = None,
+        wait: float = 5,
+        callback: Optional[Callable[[str, JobStatus, "AQTJob"], None]] = None,
+    ) -> None:
+        """Poll the job status until it progresses to a final state such as ``DONE`` or ``ERROR``.
+
+        Args:
+            timeout: Seconds to wait for the job. If ``None``, wait indefinitely.
+            wait: Seconds between queries.
+            callback: Callback function invoked after each query.
+                The following positional arguments are provided to the callback function:
+
+                * job_id: Job ID
+                * job_status: Status of the job from the last query
+                * job: This BaseJob instance
+
+                Note: different subclass might provide different arguments to
+                the callback function.
+
+        Raises:
+            JobTimeoutError: If the job does not reach a final state before the
+                specified timeout.
+        """
+        if not self._async:
+            return
+        start_time = time.time()
+        status = self.status()
+        consecutive_request_errors = 0
+        while status not in JOB_FINAL_STATES:
+            try:
+                elapsed_time = time.time() - start_time
+                if timeout is not None and elapsed_time >= timeout:
+                    raise JobTimeoutError(f"Timeout while waiting for job {self.job_id()}.")
+                if callback:
+                    callback(self.job_id(), status, self)
+                time.sleep(wait)
+                status = self.status()
+                consecutive_request_errors = 0
+            except RequestError as err:  # noqa: PERF203
+                consecutive_request_errors += 1
+                warnings.warn(
+                    f"Error #{consecutive_request_errors} while fetching job status. "
+                    f"Retrying in {consecutive_request_errors} seconds. Error: {err}."
+                )
+                time.sleep(consecutive_request_errors)
+
+        return
 
     @classmethod
     def restore(
