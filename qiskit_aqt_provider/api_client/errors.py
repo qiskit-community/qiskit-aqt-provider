@@ -15,6 +15,13 @@ from typing import Any
 
 import httpx
 
+TRANSIENT_EXCEPTIONS = (
+    httpx.ConnectError,
+    httpx.ReadTimeout,
+    httpx.WriteTimeout,
+    httpx.RemoteProtocolError,
+)
+
 
 class APIError(Exception):
     """An API request failed.

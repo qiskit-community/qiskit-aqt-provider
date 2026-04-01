@@ -10,6 +10,7 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+import time
 import typing
 import warnings
 from dataclasses import dataclass
@@ -46,7 +47,10 @@ from qiskit_aqt_provider import api_client
 from qiskit_aqt_provider.api_client import Resource, models_direct
 from qiskit_aqt_provider.api_client import models as api_models
 from qiskit_aqt_provider.api_client import models_direct as api_models_direct
-from qiskit_aqt_provider.api_client.errors import http_response_raise_for_status
+from qiskit_aqt_provider.api_client.errors import (
+    TRANSIENT_EXCEPTIONS,
+    http_response_raise_for_status,
+)
 from qiskit_aqt_provider.aqt_job import AQTDirectAccessJob, AQTJob
 from qiskit_aqt_provider.aqt_options import AQTDirectAccessOptions, AQTOptions
 from qiskit_aqt_provider.circuit_to_aqt import aqt_to_qiskit_circuit
@@ -280,6 +284,8 @@ class AQTResource(_ResourceBase[AQTOptions]):
     def result(self, job_id: UUID) -> ResultResponse:
         """Query the result for a specific job.
 
+        If a transient error occurs during the query it is retried until a result is obtained.
+
         .. tip:: This is a low-level method. Use the
             :meth:`AQTJob.result <qiskit_aqt_provider.aqt_job.AQTJob.result>`
             method to retrieve the result of a job described by a
@@ -290,9 +296,23 @@ class AQTResource(_ResourceBase[AQTOptions]):
 
         Returns:
             AQT API payload with the job results.
+
+        Raises:
+            APIError: If a non transient error occurs.
         """
-        resp = http_response_raise_for_status(self._http_client.get(f"/result/{job_id}"))
-        return ResultResponse.model_validate(resp.json())
+        result = None
+        while result is None:
+            try:
+                resp = self._http_client.get(f"/result/{job_id}")
+                resp.raise_for_status()
+                result = ResultResponse.model_validate(resp.json())
+            except (*TRANSIENT_EXCEPTIONS, httpx.HTTPStatusError) as ex:  # noqa: PERF203
+                if isinstance(ex, httpx.HTTPStatusError) and resp.status_code < 500:  # noqa: PLR2004
+                    http_response_raise_for_status(resp)
+                warnings.warn(f"Retrying to retrieve the job status after transient error {ex}.")
+                time.sleep(self.options.query_period_seconds)
+
+        return result
 
 
 class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):
