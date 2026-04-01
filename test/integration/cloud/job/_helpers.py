@@ -2,7 +2,7 @@ import uuid
 from typing import Optional
 
 from aqt_connector import ArnicaApp
-from aqt_connector.models.arnica.response_bodies.jobs import RRQueued
+from aqt_connector.models.arnica.response_bodies.jobs import JobState, RRQueued
 from httpx import Client, MockTransport, Response
 from qiskit import QuantumCircuit
 
@@ -26,10 +26,15 @@ def two_qubit_circuit() -> QuantumCircuit:
     return qc
 
 
-def make_job(*, shots: int = 3, circuits: Optional[list[QuantumCircuit]] = None) -> CloudJob:
+def make_job(
+    *, shots: int = 3, circuits: Optional[list[QuantumCircuit]] = None, initial_state: Optional[JobState] = None
+) -> CloudJob:
     """Create a CloudJob with the given initial state, shots, and circuits."""
     if circuits is None:
         circuits = [single_qubit_circuit()]
+
+    if initial_state is None:
+        initial_state = RRQueued()
 
     return CloudJob(
         arnica=ArnicaApp(),
@@ -39,6 +44,6 @@ def make_job(*, shots: int = 3, circuits: Optional[list[QuantumCircuit]] = None)
             shots=shots,
             backend_name="r1",
             circuits=circuits,
-            initial_state=RRQueued(),
+            initial_state=initial_state,
         ),
     )

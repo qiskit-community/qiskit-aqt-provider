@@ -1,4 +1,4 @@
-from typing import Final
+from typing import Final, Optional
 from uuid import UUID
 
 import aqt_connector
@@ -61,20 +61,24 @@ class CloudJob(JobV1):
 
     def result(
         self,
+        *,
+        timeout: Optional[float] = None,
+        wait: float = 5,
     ) -> Result:
         """Blocks until the job finishes processing then returns the result.
 
         If an error occurs, the remaining circuits are not executed and the whole job is marked as failed.
 
-        Returns:
-            The combined result of all circuit evaluations.
-
         Raises:
             APIError: the operation failed on the target resource.
             AQTJobInvalidStateError: if the job was cancelled.
             AQTJobFailedError: if the job failed with an error.
+            JobTimeoutError: If the job does not reach a final state before the specified timeout.
+
+        Returns:
+            The combined result of all circuit evaluations.
         """
-        self.wait_for_final_state()
+        self.wait_for_final_state(timeout=timeout, wait=wait)
 
         if self._latest_state.status == AQTJobStatus.ERROR:
             error_message = self._latest_state.message or "Unknown error"
@@ -114,6 +118,9 @@ class CloudJob(JobV1):
         Returns:
             JobStatus: The current status of the job.
         """
+        if self._latest_state.status in (AQTJobStatus.FINISHED, AQTJobStatus.ERROR, AQTJobStatus.CANCELLED):
+            return self.STATUS_MAPPING[self._latest_state.status]
+
         try:
             self._latest_state = aqt_connector.fetch_job_state(self._arnica, UUID(self.job_id()))
         except NotAuthenticatedError as e:

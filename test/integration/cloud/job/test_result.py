@@ -1,4 +1,5 @@
 import uuid
+from typing import Union
 
 import pytest
 from aqt_connector import ArnicaApp
@@ -10,7 +11,12 @@ from aqt_connector.models.arnica.response_bodies.jobs import (
     RROngoing,
     RRQueued,
 )
+from httpx import Client, MockTransport, Response
+from qiskit import QuantumCircuit
+from qiskit.providers.exceptions import JobTimeoutError
 
+from qiskit_aqt_provider._cloud.job import CloudJob
+from qiskit_aqt_provider._cloud.job_metadata import CloudJobMetadata
 from qiskit_aqt_provider.exceptions import AQTJobFailedError, AQTJobInvalidStateError
 from test.integration.cloud.job._helpers import JOB_ID, make_job, single_qubit_circuit, two_qubit_circuit
 
@@ -111,3 +117,82 @@ def test_result_aggregates_multiple_circuits_in_order(monkeypatch: pytest.Monkey
     assert result.success
     assert result.get_counts(0) == {"0": 1, "1": 2}
     assert result.get_counts(1) == {"10": 1, "01": 2}
+
+
+def _make_job() -> CloudJob:
+    circuit = QuantumCircuit(1)
+    circuit.measure_all()
+
+    return CloudJob(
+        arnica=ArnicaApp(),
+        api_client=Client(transport=MockTransport(lambda _: Response(404))),
+        properties=CloudJobMetadata(
+            job_id=uuid.UUID("12345678-1234-5678-1234-567812345678"),
+            shots=3,
+            backend_name="r1",
+            circuits=[circuit],
+            initial_state=RRQueued(),
+        ),
+    )
+
+
+class _FakeClock:
+    """Deterministic stand-in for time.time/time.sleep used by polling logic."""
+
+    def __init__(self) -> None:
+        self.now = 0.0
+        self.sleeps: list[float] = []
+
+    def time(self) -> float:
+        return self.now
+
+    def sleep(self, seconds: float) -> None:
+        self.sleeps.append(seconds)
+        self.now += seconds
+
+
+def test_result_times_out_with_explicit_timeout_and_wait(monkeypatch: pytest.MonkeyPatch) -> None:
+    """It should honor explicit timeout/wait and time out deterministically."""
+    job = _make_job()
+    clock = _FakeClock()
+    call_count = 0
+
+    def _fetch_job_state(*_: object, **__: object) -> RRQueued:
+        nonlocal call_count
+        call_count += 1
+        return RRQueued()
+
+    monkeypatch.setattr("aqt_connector.fetch_job_state", _fetch_job_state)
+    monkeypatch.setattr("qiskit.providers.job.time.time", clock.time)
+    monkeypatch.setattr("qiskit.providers.job.time.sleep", clock.sleep)
+
+    with pytest.raises(JobTimeoutError):
+        job.result(timeout=1.0, wait=0.25)
+
+    assert call_count > 1
+    assert clock.sleeps
+    assert all(sleep == 0.25 for sleep in clock.sleeps)
+
+
+def test_result_uses_default_wait_value_when_not_overridden(monkeypatch: pytest.MonkeyPatch) -> None:
+    """It should use default wait=5 when no wait parameter is provided."""
+    job = _make_job()
+    clock = _FakeClock()
+    calls = 0
+
+    def _fetch_job_state(*_: object, **__: object) -> Union[RRQueued, RRFinished]:
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            return RRQueued()
+        return RRFinished(result={0: [[0], [1], [1]]})
+
+    monkeypatch.setattr("aqt_connector.fetch_job_state", _fetch_job_state)
+    monkeypatch.setattr("qiskit.providers.job.time.time", clock.time)
+    monkeypatch.setattr("qiskit.providers.job.time.sleep", clock.sleep)
+
+    result = job.result()
+
+    assert result.success
+    assert calls == 2
+    assert clock.sleeps == [5]

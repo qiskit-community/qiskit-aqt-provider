@@ -4,8 +4,8 @@ from uuid import UUID
 
 from aqt_connector.models.arnica.request_bodies.jobs import SubmitJobRequest
 from aqt_connector.models.arnica.resources import ResourceStatus, ResourceType
-from aqt_connector.models.arnica.response_bodies.resources import ResourceDetails, WorkspaceResource
 from aqt_connector.models.arnica.response_bodies.jobs import SubmitJobResponse
+from aqt_connector.models.arnica.response_bodies.resources import ResourceDetails, WorkspaceResource
 from aqt_connector.models.arnica.response_bodies.workspaces import Workspace
 from fastapi import FastAPI, Request
 from fastapi.encoders import jsonable_encoder
@@ -61,7 +61,8 @@ async def workspaces(request: Request) -> Any:
                     accepting_job_submissions=True,
                     jobs_being_processed=True,
                     resources=[
-                        WorkspaceResource(id="r1", name="R1", type=ResourceType.DEVICE),],
+                        WorkspaceResource(id="r1", name="R1", type=ResourceType.DEVICE),
+                    ],
                 ),
             ]
         )
@@ -108,11 +109,12 @@ async def submit_job(workspace_id: str, resource_id: str, request: Request, body
     if workspace_id not in ("w1", "w2"):
         return JSONResponse(status_code=404, content={"detail": f"Workspace not available."})
 
-    return JSONResponse(content=jsonable_encoder(
-        SubmitJobResponse.model_validate(
+    return JSONResponse(
+        content=jsonable_encoder(
+            SubmitJobResponse.model_validate(
                 {
                     "job": {
-                        "job_id": UUID('c8919003-1bc1-445f-a968-e7f4c90029d3'),
+                        "job_id": UUID("c8919003-1bc1-445f-a968-e7f4c90029d3"),
                         "job_type": "quantum_circuit",
                         "resource_id": resource_id,
                         "workspace_id": workspace_id,
@@ -122,6 +124,7 @@ async def submit_job(workspace_id: str, resource_id: str, request: Request, body
             )
         )
     )
+
 
 @app.get("/__requests")
 async def get_requests() -> Any:

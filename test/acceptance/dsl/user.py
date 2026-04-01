@@ -1,10 +1,12 @@
 from typing import Optional, Union
 
+import httpx
 import pytest
-from aqt_connector import ArnicaConfig
+from aqt_connector import ArnicaApp, ArnicaConfig
 from qiskit import QuantumCircuit
 
 from qiskit_aqt_provider._cloud.job import CloudJob
+from qiskit_aqt_provider._cloud.job_metadata import CloudJobMetadata
 from qiskit_aqt_provider._cloud.resource import CloudResource
 from qiskit_aqt_provider.aqt_provider import AQTProvider
 
@@ -75,7 +77,11 @@ def acquires_backend_from_workspace(
 
 
 def submits_circuit(
-    cloud_provider_config: ArnicaConfig, workspace_id: str, backend_id: str, circuit: Union[QuantumCircuit, list[QuantumCircuit]], shots: Optional[int] = None
+    cloud_provider_config: ArnicaConfig,
+    workspace_id: str,
+    backend_id: str,
+    circuit: Union[QuantumCircuit, list[QuantumCircuit]],
+    shots: Optional[int] = None,
 ) -> CloudJob:
     """Submits a job to a specific backend in a specific workspace.
 
@@ -84,7 +90,8 @@ def submits_circuit(
         workspace_id (str): The ID of the workspace to submit the job to.
         backend_id (str): The ID of the backend to submit the job to.
         circuit (Union[QuantumCircuit, list[QuantumCircuit]]): The quantum circuit(s) to submit as a job.
-        shots (Optional[int]): The number of shots to use for the job execution. If None, the default from the backend will be used.
+        shots (Optional[int]): The number of shots to use for the job execution. If None, the default from the backend
+            will be used.
 
     Returns:
         CloudJob: The submitted job, with a stable identity and accessible for polling and result retrieval.
@@ -97,3 +104,10 @@ def submits_circuit(
         backend = workspace_provider.get_backend(backend_id)
         return backend.run(circuit, shots=shots)
 
+
+def has_submitted_cloud_job(metadata: CloudJobMetadata, api_client: httpx.Client) -> CloudJob:
+    return CloudJob(
+        ArnicaApp(),
+        api_client,
+        metadata,
+    )

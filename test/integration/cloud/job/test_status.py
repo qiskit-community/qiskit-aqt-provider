@@ -101,3 +101,30 @@ def test_status_raises_if_api_call_fails(monkeypatch: pytest.MonkeyPatch, except
 
     with pytest.raises(Exception, match=str(exception)):
         job.status()
+
+
+@pytest.mark.parametrize(
+    "state",
+    [
+        RRFinished(result={0: [[0], [1], [1]]}),
+        RRError(message="backend failed"),
+        RRCancelled(),
+    ],
+    ids=["finished", "error", "cancelled"],
+)
+def test_it_doesnt_fetch_if_cached_state_final(monkeypatch: pytest.MonkeyPatch, state: JobState) -> None:
+    """It should not call the API if the cached state is already a final state."""
+    job = make_job(initial_state=state)
+
+    calls = 0
+
+    def _fetch_job_state(_: ArnicaApp, __: uuid.UUID) -> JobState:
+        nonlocal calls
+        calls += 1
+        return state
+
+    monkeypatch.setattr("aqt_connector.fetch_job_state", _fetch_job_state)
+
+    job.status()
+
+    assert calls == 0
