@@ -3,6 +3,13 @@ from typing import Optional
 
 import pytest
 from aqt_connector import ArnicaApp
+from aqt_connector.exceptions import (
+    InvalidJobIDError,
+    JobNotFoundError,
+    NotAuthenticatedError,
+    RequestError,
+    UnknownServerError,
+)
 from aqt_connector.models.arnica.response_bodies.jobs import (
     JobState,
     RRCancelled,
@@ -38,7 +45,7 @@ def test_status_maps_cloud_status_to_qiskit_status(
         return job_state
 
     monkeypatch.setattr("aqt_connector.fetch_job_state", _fetch_job_state)
-    job = make_job(initial_state=RRQueued())
+    job = make_job()
 
     status = job.status()
 
@@ -57,8 +64,40 @@ def test_status_falls_back_to_queued_for_unknown_state(monkeypatch: pytest.Monke
         return _UnknownState()  # type: ignore[return-value]
 
     monkeypatch.setattr("aqt_connector.fetch_job_state", _fetch_job_state)
-    job = make_job(initial_state=RRQueued())
+    job = make_job()
 
     status = job.status()
 
     assert status is QiskitJobStatus.QUEUED
+
+
+@pytest.mark.parametrize(
+    "exception",
+    [
+        NotAuthenticatedError("not authenticated"),
+        RequestError("bad request"),
+        JobNotFoundError("job not found"),
+        InvalidJobIDError("invalid job ID"),
+        UnknownServerError("unknown server error"),
+        RuntimeError("runtime error"),
+    ],
+    ids=[
+        "not authenticated",
+        "bad request",
+        "job not found",
+        "invalid job ID",
+        "unknown server error",
+        "runtime error",
+    ],
+)
+def test_status_raises_if_api_call_fails(monkeypatch: pytest.MonkeyPatch, exception: Exception) -> None:
+    """It raises if the API call to fetch job state fails."""
+
+    def _fetch_job_state(_: ArnicaApp, __: uuid.UUID) -> JobState:
+        raise exception
+
+    monkeypatch.setattr("aqt_connector.fetch_job_state", _fetch_job_state)
+    job = make_job()
+
+    with pytest.raises(Exception, match=str(exception)):
+        job.status()

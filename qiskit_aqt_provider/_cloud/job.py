@@ -4,6 +4,13 @@ from uuid import UUID
 import aqt_connector
 import httpx
 from aqt_connector import ArnicaApp
+from aqt_connector.exceptions import (
+    InvalidJobIDError,
+    JobNotFoundError,
+    NotAuthenticatedError,
+    RequestError,
+    UnknownServerError,
+)
 from aqt_connector.models.arnica.jobs import JobStatus as AQTJobStatus
 from aqt_connector.models.arnica.response_bodies.jobs import JobState
 from qiskit.providers import JobV1
@@ -12,6 +19,14 @@ from qiskit.result import Result
 
 from qiskit_aqt_provider._cloud.job_metadata import CloudJobMetadata
 from qiskit_aqt_provider.aqt_job import _partial_qiskit_result_dict
+from qiskit_aqt_provider.exceptions import (
+    AQTApiError,
+    AQTCredentialsError,
+    AQTJobFailedError,
+    AQTJobInvalidStateError,
+    AQTRequestError,
+    AQTValueError,
+)
 
 
 class CloudJob(JobV1):
@@ -56,35 +71,57 @@ class CloudJob(JobV1):
 
         Raises:
             APIError: the operation failed on the target resource.
-
+            AQTJobInvalidStateError: if the job was cancelled.
+            AQTJobFailedError: if the job failed with an error.
         """
         self.wait_for_final_state()
 
-        success = False
-        results = []
+        if self._latest_state.status == AQTJobStatus.ERROR:
+            error_message = self._latest_state.message or "Unknown error"
+            raise AQTJobFailedError(f"Job failed: {error_message}")
 
-        if self._latest_state.status is AQTJobStatus.FINISHED:
-            success = True
-            for circuit_index, circuit in enumerate(self._properties.circuits):
-                samples = self._latest_state.result[circuit_index]
-                results.append(
-                    _partial_qiskit_result_dict(samples, circuit, shots=self._properties.shots, memory=False)
-                )
+        if self._latest_state.status != AQTJobStatus.FINISHED:
+            raise AQTJobInvalidStateError(
+                f"Unable to retrieve result for job {self.job_id()}. Job is {self._latest_state.status.lower()}."
+            )
 
-        error_message = self._latest_state.message if self._latest_state.status == AQTJobStatus.ERROR else None
-        return Result.from_dict(
-            {
-                "backend_name": self._properties.backend_name,
-                "qobj_id": id(self),
-                "job_id": self.job_id(),
-                "success": success,
-                "results": results,
-                # Pass error message as metadata
-                "error": error_message,
-            }
-        )
+        result_dict = {
+            "backend_name": self._properties.backend_name,
+            "job_id": self.job_id(),
+            "success": True,
+            "results": [],
+        }
+        for circuit_index, circuit in enumerate(self._properties.circuits):
+            samples = self._latest_state.result[circuit_index]
+            result_dict["results"].append(
+                _partial_qiskit_result_dict(samples, circuit, shots=self._properties.shots, memory=False)
+            )
+
+        return Result.from_dict(result_dict)
 
     def status(self) -> QiskitJobStatus:
-        """Return the status of the job, among the values of ``JobStatus``."""
-        self._latest_state = aqt_connector.fetch_job_state(self._arnica, UUID(self.job_id()))
+        """Return the status of the job, among the values of ``JobStatus``.
+
+        Raises:
+            AQTCredentialsError: if the user is not authenticated and no access token is available.
+            AQTCredentialsError: If the provided token is invalid or expired.
+            AQTRequestError: If there is a network-related error during the request.
+            AQTValueError: If the job with the specified ID does not exist.
+            AQTValueError: If the provided job ID is not valid.
+            AQTApiError: If the Arnica API encounters an internal error.
+            AQTApiError: For any other unexpected errors.
+
+        Returns:
+            JobStatus: The current status of the job.
+        """
+        try:
+            self._latest_state = aqt_connector.fetch_job_state(self._arnica, UUID(self.job_id()))
+        except NotAuthenticatedError as e:
+            raise AQTCredentialsError(str(e)) from e
+        except RequestError as e:
+            raise AQTRequestError(str(e)) from e
+        except (UnknownServerError, RuntimeError) as e:
+            raise AQTApiError(str(e)) from e
+        except (InvalidJobIDError, JobNotFoundError) as e:
+            raise AQTValueError(str(e)) from e
         return self.STATUS_MAPPING.get(self._latest_state.status, QiskitJobStatus.QUEUED)
