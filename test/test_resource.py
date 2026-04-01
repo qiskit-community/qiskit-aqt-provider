@@ -795,3 +795,74 @@ def test_direct_access_mocked_failed_transaction(httpx_mock: HTTPXMock) -> None:
     assert counts == [{"10": shots}, {"10": shots}]
 
     assert circuit_submissions == 3  # the last circuit was never submitted
+
+
+@pytest.mark.parametrize(
+    "exception",
+    [
+        httpx.ConnectError(""),
+        httpx.ReadTimeout(""),
+        httpx.WriteTimeout(""),
+        httpx.RemoteProtocolError(""),
+        httpx.NetworkError(""),
+    ],
+)
+def test_aqt_resource_get_result_retries_after_transient_httpx_exceptions(
+    httpx_mock: HTTPXMock, exception: Exception
+) -> None:
+    """It should retry after a transient httpx exception occurs during AQTResource.result()."""
+    expected_result = ResultResponse(
+        job=BasicJobMetadata(job_id=uuid.uuid4(), resource_id="", workspace_id=""),
+        response=RRQueued(),
+    )
+    httpx_mock.add_exception(exception)
+    httpx_mock.add_response(status_code=200, json=json.loads(expected_result.model_dump_json()))
+    backend = DummyResource("")
+
+    result = backend.result(uuid.uuid4())
+
+    assert len(httpx_mock.get_requests()) == 2
+    assert result == expected_result
+
+
+@pytest.mark.parametrize(
+    "status_code",
+    [
+        httpx.codes.TOO_MANY_REQUESTS,
+        httpx.codes.INTERNAL_SERVER_ERROR,
+        httpx.codes.BAD_GATEWAY,
+        httpx.codes.SERVICE_UNAVAILABLE,
+        httpx.codes.GATEWAY_TIMEOUT,
+    ],
+)
+def test_aqt_resource_get_result_retries_for_transient_http_status_codes(
+    httpx_mock: HTTPXMock, status_code: int
+) -> None:
+    """It should retry after a transient http status error occurs during AQTResource.result()."""
+    expected_result = ResultResponse(
+        job=BasicJobMetadata(job_id=uuid.uuid4(), resource_id="", workspace_id=""),
+        response=RRQueued(),
+    )
+    httpx_mock.add_response(status_code=status_code)
+    httpx_mock.add_response(status_code=200, json=json.loads(expected_result.model_dump_json()))
+    backend = DummyResource("")
+
+    result = backend.result(uuid.uuid4())
+
+    assert len(httpx_mock.get_requests()) == 2
+    assert result == expected_result
+
+
+@pytest.mark.parametrize("status_code", [400, 403, 505])
+def test_aqt_resource_get_result_raises_for_non_transient_http_status_codes(
+    httpx_mock: HTTPXMock,
+    status_code: int,
+) -> None:
+    """It should raise an APIError without retrying after a non-transient HTTP error occurs."""
+    httpx_mock.add_response(status_code=status_code, json={"detail": "An error occurred"})
+    backend = DummyResource("")
+
+    with pytest.raises(APIError, match="An error occurred"):
+        backend.result(uuid.uuid4())
+
+    assert len(httpx_mock.get_requests()) == 1

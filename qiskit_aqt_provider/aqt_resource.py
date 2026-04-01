@@ -47,10 +47,7 @@ from qiskit_aqt_provider import api_client
 from qiskit_aqt_provider.api_client import Resource, models_direct
 from qiskit_aqt_provider.api_client import models as api_models
 from qiskit_aqt_provider.api_client import models_direct as api_models_direct
-from qiskit_aqt_provider.api_client.errors import (
-    TRANSIENT_EXCEPTIONS,
-    http_response_raise_for_status,
-)
+from qiskit_aqt_provider.api_client.errors import http_response_raise_for_status
 from qiskit_aqt_provider.aqt_job import AQTDirectAccessJob, AQTJob
 from qiskit_aqt_provider.aqt_options import AQTDirectAccessOptions, AQTOptions
 from qiskit_aqt_provider.circuit_to_aqt import aqt_to_qiskit_circuit
@@ -306,11 +303,17 @@ class AQTResource(_ResourceBase[AQTOptions]):
                 resp = self._http_client.get(f"/result/{job_id}")
                 resp.raise_for_status()
                 result = ResultResponse.model_validate(resp.json())
-            except (*TRANSIENT_EXCEPTIONS, httpx.HTTPStatusError) as ex:  # noqa: PERF203
-                if isinstance(ex, httpx.HTTPStatusError) and resp.status_code < 500:  # noqa: PLR2004
+            except (httpx.RequestError, httpx.HTTPStatusError) as ex:  # noqa: PERF203
+                if isinstance(ex, httpx.HTTPStatusError) and resp.status_code not in (
+                    429,
+                    500,
+                    502,
+                    503,
+                    504,
+                ):
                     http_response_raise_for_status(resp)
                 warnings.warn(f"Retrying to retrieve the job status after transient error {ex}.")
-                time.sleep(self.options.query_period_seconds)
+                time.sleep(1)
 
         return result
 
