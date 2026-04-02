@@ -827,13 +827,7 @@ def test_aqt_resource_get_result_retries_after_transient_httpx_exceptions(
 
 @pytest.mark.parametrize(
     "status_code",
-    [
-        httpx.codes.TOO_MANY_REQUESTS,
-        httpx.codes.INTERNAL_SERVER_ERROR,
-        httpx.codes.BAD_GATEWAY,
-        httpx.codes.SERVICE_UNAVAILABLE,
-        httpx.codes.GATEWAY_TIMEOUT,
-    ],
+    [429, 499, 500, 502, 503, 504],
 )
 def test_aqt_resource_get_result_retries_for_transient_http_status_codes(
     httpx_mock: HTTPXMock, status_code: int

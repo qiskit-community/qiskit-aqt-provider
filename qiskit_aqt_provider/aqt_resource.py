@@ -306,6 +306,7 @@ class AQTResource(_ResourceBase[AQTOptions]):
             except (httpx.RequestError, httpx.HTTPStatusError) as ex:  # noqa: PERF203
                 if isinstance(ex, httpx.HTTPStatusError) and resp.status_code not in (
                     429,
+                    499,
                     500,
                     502,
                     503,
