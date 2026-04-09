@@ -37,7 +37,6 @@ from qiskit.circuit.measure import Measure
 from qiskit.circuit.parameter import Parameter
 from qiskit.providers import BackendV2 as Backend
 from qiskit.providers import Options as QiskitOptions
-from qiskit.providers.models import BackendConfiguration
 from qiskit.transpiler import Target
 from qiskit_aer import AerJob, AerSimulator, noise
 from typing_extensions import TypeAlias, override
@@ -115,34 +114,6 @@ class _ResourceBase(Generic[_OptionsType], Backend):
 
         self._target = make_transpiler_target(Target, available_qubits)
         self._options = options_type()
-
-        self._configuration = BackendConfiguration.from_dict(
-            {
-                "backend_name": name,
-                "backend_version": 2,
-                "url": str(provider._portal_client.portal_url),
-                "simulator": True,
-                "local": False,
-                "coupling_map": None,
-                "description": "AQT trapped-ion device simulator",
-                "basis_gates": [name for name in self.target.operation_names if name != "measure"],
-                "memory": True,
-                "n_qubits": available_qubits,
-                "conditional": False,
-                "max_shots": self._options.max_shots(),
-                "max_experiments": 1,
-                "open_pulse": False,
-                "gates": [
-                    {"name": "rz", "parameters": ["theta"], "qasm_def": "TODO"},
-                    {"name": "r", "parameters": ["theta", "phi"], "qasm_def": "TODO"},
-                    {"name": "rxx", "parameters": ["theta"], "qasm_def": "TODO"},
-                ],
-            }
-        )
-
-    def configuration(self) -> BackendConfiguration:
-        """Legacy Qiskit backend configuration."""
-        return self._configuration
 
     @property
     def max_circuits(self) -> int:

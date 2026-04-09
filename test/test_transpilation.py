@@ -81,8 +81,7 @@ def test_rx_ry_rewrite_transpile(
 
     assert_circuits_equivalent(trans_qc, qc)
 
-    assert set(trans_qc.count_ops()) <= set(backend.configuration().basis_gates)
-
+    assert set(trans_qc.count_ops()) <= {i[0].name for i in backend.target.instructions}
     num_r = trans_qc.count_ops().get("r")
     assume(num_r is not None)
     assert num_r == 1
@@ -217,7 +216,8 @@ def test_rxx_wrap_angle_transpile(angle: float, qubits: int, optimization_level:
 
     assert_circuits_equivalent(trans_qc, qc)
 
-    assert set(trans_qc.count_ops()) <= set(backend.configuration().basis_gates)
+    assert set(trans_qc.count_ops()) <= {i[0].name for i in backend.target.instructions}
+
     num_rxx = trans_qc.count_ops().get("rxx", 0)
 
     # Higher optimization levels can optimize e.g. Rxx(2n*π) = Identity away.
@@ -262,7 +262,7 @@ def test_transpilation_preserves_or_decreases_number_of_rxx_gates(
     tr_qc = transpile(qc, backend, optimization_level=optimization_level)
 
     tr_qc_ops = tr_qc.count_ops()
-    assert set(tr_qc_ops) <= set(backend.configuration().basis_gates)
+    assert set(tr_qc_ops) <= {i[0].name for i in backend.target.instructions}
 
     qc_rxx = qc.count_ops()["rxx"]
     assert qc_rxx == len(angles_pi)
@@ -281,7 +281,9 @@ def test_qft_circuit_transpilation(
     trans_qc = transpile(qc, offline_simulator_no_noise, optimization_level=optimization_level)
     assert isinstance(trans_qc, QuantumCircuit)
 
-    assert set(trans_qc.count_ops()) <= set(offline_simulator_no_noise.configuration().basis_gates)
+    assert set(trans_qc.count_ops()) <= {
+        i[0].name for i in offline_simulator_no_noise.target.instructions
+    }
 
     rxx_count = 0
     r_count = 0

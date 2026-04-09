@@ -437,7 +437,6 @@ def test_direct_access_resource_configuration_matches_name(httpx_mock: HTTPXMock
 
     resource = DummyDirectAccessResource("token")
     assert resource.name == name
-    assert resource.configuration().backend_name == name
     assert resource.resource_id.resource_id == name
     assert resource.resource_id.resource_name == "Local resource"
 
