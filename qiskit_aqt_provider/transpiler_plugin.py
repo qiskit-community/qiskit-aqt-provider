@@ -37,26 +37,6 @@ class UnboundParametersTarget(Target):
     """Marker class for transpilation targets to disable passes that require bound parameters."""
 
 
-def bound_pass_manager() -> PassManager:
-    """Transpilation passes to apply on circuits after the parameters are bound.
-
-    This assumes that a preset pass manager was applied to the unbound circuits
-    (by setting the target to an instance of `UnboundParametersTarget`).
-    """
-    return PassManager(
-        [
-            # wrap the Rxx angles
-            WrapRxxAngles(),
-            # decompose the substituted Rxx gates
-            Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]),
-            # collapse the single-qubit gates runs as ZXZ
-            Optimize1qGatesDecomposition(basis=["rx", "rz"]),
-            # wrap the Rx angles, rewrite as R
-            RewriteRxAsR(),
-        ]
-    )
-
-
 def rewrite_rx_as_r(theta: float) -> Instruction:
     """Instruction equivalent to Rx(θ) as R(θ, φ) with θ ∈ [0, π] and φ ∈ [0, 2π]."""
     theta = math.atan2(math.sin(theta), math.cos(theta))
@@ -107,8 +87,14 @@ class AQTSchedulingPlugin(PassManagerStagePlugin):
             # Apply the single-qubit gates decomposition assuming the basis gates are
             # RX/RZ/RXX, then rewrite RX → R, also wrapping the angles to match
             # the API constraints.
+            # collapse the single-qubit gates runs as ZXZ
             Optimize1qGatesDecomposition(basis=["rx", "rz"]),
+            # wrap the Rx angles, rewrite as R
             RewriteRxAsR(),
+            # wrap the Rxx angles
+            WrapRxxAngles(),
+            # decompose the substituted Rxx gates
+            Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]),
         ]
 
         return PassManager(passes)
@@ -215,7 +201,6 @@ class AQTTranslationPlugin(PassManagerStagePlugin):
             basis_gates=pass_manager_config.basis_gates,
             approximation_degree=pass_manager_config.approximation_degree,
             coupling_map=pass_manager_config.coupling_map,
-            backend_props=pass_manager_config.backend_properties,
             unitary_synthesis_method=pass_manager_config.unitary_synthesis_method,
             unitary_synthesis_plugin_config=pass_manager_config.unitary_synthesis_plugin_config,
             hls_config=pass_manager_config.hls_config,

@@ -56,6 +56,14 @@ class CloudResource(BackendV2):
         """Maximum number of circuits per batch."""
         return 50
 
+    def get_scheduling_stage_plugin(self) -> str:
+        """For usage of the custom scheduling stage plugin in the Qiskit transpiler."""
+        return "aqt"
+
+    def get_translation_stage_plugin(self) -> str:
+        """For usage of the custom translation stage plugin in the Qiskit transpiler."""
+        return "aqt"
+
     @classmethod
     def _default_options(cls) -> CloudOptions:
         """Get the default options.
