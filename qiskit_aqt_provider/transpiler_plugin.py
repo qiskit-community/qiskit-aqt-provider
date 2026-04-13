@@ -11,7 +11,6 @@
 # that they have been altered from the originals.
 
 import math
-from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Final, Optional
 
@@ -21,8 +20,9 @@ from qiskit.circuit import Gate, Instruction
 from qiskit.circuit.library import RGate, RXGate, RXXGate, RZGate
 from qiskit.circuit.tools import pi_check
 from qiskit.dagcircuit import DAGCircuit
+from qiskit.passmanager.base_tasks import Task
 from qiskit.transpiler import Target
-from qiskit.transpiler.basepasses import BasePass, TransformationPass
+from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.transpiler.exceptions import TranspilerError
 from qiskit.transpiler.passes import Decompose, Optimize1qGatesDecomposition
 from qiskit.transpiler.passmanager import PassManager
@@ -78,7 +78,7 @@ class AQTSchedulingPlugin(PassManagerStagePlugin):
         if isinstance(pass_manager_config.target, UnboundParametersTarget):
             return PassManager([])
 
-        passes: list[BasePass] = [
+        passes: list[Task] = [
             # The transpilation target defines R/RZ/RXX as basis gates, so the
             # single-qubit gates decomposition pass uses a RR decomposition, which
             # emits code that requires two pulses per single-qubit gates run.
@@ -209,14 +209,10 @@ class AQTTranslationPlugin(PassManagerStagePlugin):
         if isinstance(pass_manager_config.target, UnboundParametersTarget):
             return translation_pm
 
-        passes: Sequence[BasePass] = [
+        passes: list[Task] = [
             WrapRxxAngles(),
-        ] + (
-            [
-                Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]),
-            ]
-            if optimization_level is None or optimization_level == 0
-            else []
-        )
+        ]
+        if optimization_level is None or optimization_level == 0:
+            passes.append(Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]))
 
         return translation_pm + PassManager(passes)
