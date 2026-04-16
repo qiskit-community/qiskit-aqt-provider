@@ -57,7 +57,7 @@ dependencies.pytest-httpx = { version = "^0.35.0", optional = true }
 dependencies.python-dotenv = ">=1"
 dependencies.qiskit = { version = "^2", allow-prereleases = false }
 dependencies.qiskit-aer = ">=0.13.2"
-dependencies.qiskit-algorithms = { version = ">=0.2.1,<0.4", optional = true }
+dependencies.qiskit-algorithms = { version = ">=0.4", optional = true }
 dependencies.qiskit-optimization = { version = ">=0.6.0", optional = true }
 dependencies.tabulate = ">=0.9.0"
 dependencies.tqdm = ">=4"
