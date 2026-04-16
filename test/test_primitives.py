@@ -14,18 +14,17 @@ from math import isclose, pi
 from typing import Callable
 
 import pytest
-import qiskit
 from qiskit.circuit import Parameter, QuantumCircuit
 from qiskit.primitives import (
-    BackendEstimator,
-    BackendSampler,
-    BaseEstimatorV1,
-    BaseSamplerV1,
-    Sampler,
+    BackendEstimatorV2,
+    BackendSamplerV2,
+    BaseEstimatorV2,
+    BaseSamplerV2,
+    StatevectorSampler,
 )
-from qiskit.providers import Backend
+from qiskit.providers import BackendV2
 from qiskit.quantum_info import SparsePauliOp
-from qiskit.transpiler.exceptions import TranspilerError
+from qiskit.transpiler import generate_preset_pass_manager
 
 from qiskit_aqt_provider.aqt_resource import AnyAQTResource
 from qiskit_aqt_provider.primitives import AQTSampler
@@ -44,30 +43,31 @@ def test_backend_primitives_are_v1() -> None:
 
     An interface mismatch may be detected at other spots. This makes the detection explicit.
     """
-    assert issubclass(BackendSampler, BaseSamplerV1)
-    assert issubclass(BackendEstimator, BaseEstimatorV1)
+    assert issubclass(BackendSamplerV2, BaseSamplerV2)
+    assert issubclass(BackendEstimatorV2, BaseEstimatorV2)
 
 
 @pytest.mark.parametrize(
     "get_sampler",
     [
         # Reference implementation
-        lambda _: Sampler(),
+        lambda _: StatevectorSampler(),
         # The AQT transpilation plugin doesn't support transpiling unbound parametric circuits
         # and the BackendSampler doesn't fallback to transpiling the bound circuit if
         # transpiling the unbound circuit failed (like the opflow sampler does).
         # Sampling a parametric circuit with the generic BackendSampler is therefore not supported.
         pytest.param(
-            lambda backend: BackendSampler(backend), marks=pytest.mark.xfail(raises=TranspilerError)
+            lambda backend: BackendSamplerV2(backend=backend),
+            marks=pytest.mark.xfail(raises=ValueError),
         ),
         # The specialized implementation of the Sampler primitive for AQT backends delays the
         # transpilation passes that require bound parameters.
-        lambda backend: AQTSampler(backend),
+        lambda backend: AQTSampler(backend=backend),
     ],
 )
 @pytest.mark.httpx_mock(assert_all_responses_were_requested=False)
 def test_circuit_sampling_primitive(
-    get_sampler: Callable[[Backend], BaseSamplerV1],
+    get_sampler: Callable[[BackendV2], BaseSamplerV2],
     any_offline_simulator_no_noise: AnyAQTResource,
 ) -> None:
     """Check that a `Sampler` primitive using an AQT backend can sample parametric circuits."""
@@ -83,8 +83,10 @@ def test_circuit_sampling_primitive(
     assert qc.num_parameters > 0
 
     sampler = get_sampler(any_offline_simulator_no_noise)
-    sampled = sampler.run(qc, [pi]).result().quasi_dists
-    assert sampled == [{3: 1.0}]
+    result = sampler.run([(qc, pi)], shots=42).result()[0]
+
+    sampled_counts = result.data.meas.get_counts()
+    assert sampled_counts == {"11": 42}
 
 
 @pytest.mark.parametrize("theta", [0.0, pi])
@@ -100,15 +102,15 @@ def test_operator_estimator_primitive_trivial_pauli_x(
     """
     offline_simulator_no_noise.simulator.options.seed_simulator = 0
 
-    estimator = AQTEstimator(offline_simulator_no_noise, options={"shots": 200})
+    estimator = AQTEstimator(backend=offline_simulator_no_noise)
 
     qc = QuantumCircuit(1)
     qc.rx(theta, 0)
 
     op = SparsePauliOp("X")
-    result = estimator.run(qc, op).result()
+    result = estimator.run([(qc, op)], precision=0.025).result()
 
-    assert abs(result.values[0]) < 0.1
+    assert abs(result[0].data.evs) < 0.025
 
 
 def test_operator_estimator_primitive_trivial_pauli_z(
@@ -126,20 +128,25 @@ def test_operator_estimator_primitive_trivial_pauli_z(
     """
     offline_simulator_no_noise.simulator.options.seed_simulator = 0
 
-    estimator = AQTEstimator(offline_simulator_no_noise, options={"shots": 200})
+    estimator = AQTEstimator(backend=offline_simulator_no_noise)
 
     theta = Parameter("θ")
     qc = QuantumCircuit(1)
     qc.rx(theta, 0)
 
     op = SparsePauliOp("Z")
-    result = estimator.run([qc] * 3, [op] * 3, [[0], [pi], [pi / 2]]).result()
 
-    z0, z1, z01 = result.values
+    jobs = [
+        (qc, op, [0]),
+        (qc, op, [pi]),
+        (qc, op, [pi / 2]),
+    ]
 
-    assert isclose(z0, 1.0)  # <0|Z|0>
-    assert isclose(z1, -1.0)  # <1|Z|1>
-    assert abs(z01) < 0.1  # <ψ|Z|ψ>, |ψ> = (|0> + |1>)/√2
+    result = estimator.run(jobs, precision=0.025).result()
+
+    assert isclose(result[0].data.evs, 1.0)  # <0|Z|0>
+    assert isclose(result[1].data.evs, -1.0)  # <1|Z|1>
+    assert abs(result[2].data.evs) < 0.1  # <ψ|Z|ψ>, |ψ> = (|0> + |1>)/√2
 
 
 @pytest.mark.parametrize(
@@ -172,8 +179,8 @@ def test_aqt_sampler_transpilation(theta: float, offline_simulator_no_noise: Moc
     assert qc.num_parameters > 0
 
     # sample the circuit, passing parameter assignments
-    sampler = AQTSampler(offline_simulator_no_noise)
-    sampler.run(qc, [theta]).result()
+    sampler = AQTSampler(backend=offline_simulator_no_noise)
+    sampler.run([(qc, theta)]).result()
 
     # the sampler was only called once
     assert len(offline_simulator_no_noise.submitted_circuits) == 1
@@ -182,7 +189,8 @@ def test_aqt_sampler_transpilation(theta: float, offline_simulator_no_noise: Moc
 
     # compare to the circuit obtained by binding the parameters and transpiling at once
     expected = qc.assign_parameters({theta_param: theta})
-    tr_expected = qiskit.transpile(expected, offline_simulator_no_noise)
+    pm = generate_preset_pass_manager(backend=offline_simulator_no_noise)
+    tr_expected = pm.run(expected)
 
     assert_circuits_equal(transpiled_circuit, tr_expected)
 
@@ -196,11 +204,15 @@ def test_sampler_circuit_batching(any_offline_simulator_no_noise: AnyAQTResource
     # Arbitrary circuit.
     qc = random_circuit(2)
 
-    sampler = AQTSampler(any_offline_simulator_no_noise)
+    sampler = AQTSampler(backend=any_offline_simulator_no_noise, options={"default_shots": 10})
+
+    # transpile the circuit for the execution backend
+    pm = generate_preset_pass_manager(backend=any_offline_simulator_no_noise, optimization_level=3)
+    transpiled_circuit = pm.run(qc)
 
     # Use a Sampler batch larger than the maximum number of circuits
     # per batch in the API.
     batch_size = 3 * any_offline_simulator_no_noise.max_circuits
-    result = sampler.run([qc] * batch_size).result()
+    result = sampler.run([transpiled_circuit] * batch_size).result()
 
-    assert len(result.quasi_dists) == batch_size
+    assert len(result) == batch_size
