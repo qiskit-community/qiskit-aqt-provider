@@ -12,8 +12,8 @@
 
 """Quickstart example on transpiling and executing circuits."""
 
-import qiskit
 from qiskit.circuit.library import QuantumVolume
+from qiskit.transpiler import generate_preset_pass_manager
 
 from qiskit_aqt_provider import AQTProvider
 
@@ -25,7 +25,8 @@ circuit.measure_all()
 backend = AQTProvider().get_backend("offline_simulator_no_noise")
 
 # Transpile the circuit to target the selected AQT backend
-transpiled_circuit = qiskit.transpile(circuit, backend, optimization_level=2)
+pm = generate_preset_pass_manager(backend=backend, optimization_level=2)
+transpiled_circuit = pm.run(circuit)
 print(transpiled_circuit)
 
 # Execute the circuit on the selected AQT backend

@@ -21,8 +21,8 @@ the ground state energy of a Hamiltonian.
 from collections.abc import Sequence
 
 from qiskit import QuantumCircuit
-from qiskit.circuit.library import TwoLocal
-from qiskit.primitives import BaseEstimatorV1
+from qiskit.circuit.library import n_local
+from qiskit.primitives import BaseEstimatorV2
 from qiskit.quantum_info import SparsePauliOp
 from qiskit.quantum_info.operators.base_operator import BaseOperator
 from scipy.optimize import minimize
@@ -34,10 +34,7 @@ from qiskit_aqt_provider.primitives import AQTEstimator
 backend = AQTProvider().get_backend("offline_simulator_no_noise")
 
 # Instantiate an estimator on the execution backend
-estimator = AQTEstimator(backend)
-
-# Set the transpiler's optimization level
-estimator.set_transpile_options(optimization_level=3)
+estimator = AQTEstimator(backend=backend, optimization_level=3)
 
 # Specify the problem Hamiltonian
 hamiltonian = SparsePauliOp.from_list(
@@ -51,22 +48,27 @@ hamiltonian = SparsePauliOp.from_list(
 )
 
 # Define the VQE Ansatz, initial point, and cost function
-ansatz = TwoLocal(num_qubits=2, rotation_blocks="ry", entanglement_blocks="cz")
-initial_point = [0] * 8
+ansatz = n_local(num_qubits=2, rotation_blocks="ry", entanglement_blocks="cz")
+initial_point = [0] * ansatz.num_parameters
 
 
 def cost_function(
     params: Sequence[float],
     ansatz: QuantumCircuit,
     hamiltonian: BaseOperator,
-    estimator: BaseEstimatorV1,
+    estimator: BaseEstimatorV2,
 ) -> float:
     """Cost function for the VQE.
 
     Return the estimated expectation value of the Hamiltonian
     on the state prepared by the Ansatz circuit.
     """
-    return float(estimator.run(ansatz, hamiltonian, parameter_values=params).result().values[0])
+    job = estimator.run(
+        [(ansatz, hamiltonian, params)],  # pyright: ignore[reportArgumentType]
+        precision=0.03,  # results in 1112 shots per circuit, which is below the 2000 shots limit
+    )
+    result = job.result()
+    return float(result[0].data.evs)  # pyright: ignore[reportAttributeAccessIssue]
 
 
 # Run the VQE using the SciPy minimizer routine

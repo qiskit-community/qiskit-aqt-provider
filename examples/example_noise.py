@@ -15,8 +15,8 @@
 Creates a 2-qubit GHZ state.
 """
 
-import qiskit
 from qiskit import QuantumCircuit
+from qiskit.transpiler import generate_preset_pass_manager
 
 from qiskit_aqt_provider.aqt_provider import AQTProvider
 
@@ -44,11 +44,12 @@ if __name__ == "__main__":
     qc.cx(0, 1)
     qc.measure_all()
 
-    # Transpile for the target backend.
-    qc = qiskit.transpile(qc, backend)
+    # Transpile the circuit to target the selected AQT backend
+    pm = generate_preset_pass_manager(backend=backend, optimization_level=2)
+    transpiled_circuit = pm.run(qc)
 
     # Execute on the target backend.
-    result = backend.run(qc, shots=200).result()
+    result = backend.run(transpiled_circuit, shots=200).result()
 
     if result.success:
         # due to the noise, also the states '01' and '10' may be populated!

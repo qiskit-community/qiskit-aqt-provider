@@ -14,11 +14,11 @@
 
 from typing import Final
 
-import qiskit_algorithms
-from qiskit.circuit.library import TwoLocal
+from qiskit.circuit.library import n_local
 from qiskit.quantum_info import SparsePauliOp
 from qiskit_algorithms.minimum_eigensolvers import VQE
 from qiskit_algorithms.optimizers import COBYLA
+from qiskit_algorithms.utils import algorithm_globals
 
 from qiskit_aqt_provider import AQTProvider
 from qiskit_aqt_provider.aqt_resource import OfflineSimulatorResource
@@ -29,10 +29,10 @@ RANDOM_SEED: Final = 0
 if __name__ == "__main__":
     backend = AQTProvider().get_backend("offline_simulator_no_noise")
     assert isinstance(backend, OfflineSimulatorResource)  # noqa: S101
-    estimator = AQTEstimator(backend)
+    estimator = AQTEstimator(backend=backend, options={"default_precision": 0.025})
 
     # fix the random seeds such that the example is reproducible
-    qiskit_algorithms.utils.algorithm_globals.random_seed = RANDOM_SEED
+    algorithm_globals.random_seed = RANDOM_SEED
     backend.simulator.options.seed_simulator = RANDOM_SEED
 
     # Hamiltonian: Ising model on two spin 1/2 without external field
@@ -40,7 +40,7 @@ if __name__ == "__main__":
     hamiltonian = SparsePauliOp.from_list([("XX", J)])
 
     # Find the ground-state energy with VQE
-    ansatz = TwoLocal(num_qubits=2, rotation_blocks="ry", entanglement_blocks="rxx", reps=1)
+    ansatz = n_local(num_qubits=2, rotation_blocks="ry", entanglement_blocks="rxx", reps=1)
     optimizer = COBYLA(maxiter=100, tol=0.01)
     vqe = VQE(estimator, ansatz, optimizer)
     result = vqe.compute_minimum_eigenvalue(operator=hamiltonian)

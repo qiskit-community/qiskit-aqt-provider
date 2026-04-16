@@ -17,10 +17,10 @@ This is the same example as in vqe.py, but uses QAOA instead of VQE as solver.
 
 from typing import Final
 
-import qiskit_algorithms
 from qiskit.quantum_info import SparsePauliOp
 from qiskit_algorithms.minimum_eigensolvers import QAOA
 from qiskit_algorithms.optimizers import COBYLA
+from qiskit_algorithms.utils import algorithm_globals
 
 from qiskit_aqt_provider import AQTProvider
 from qiskit_aqt_provider.primitives import AQTSampler
@@ -29,10 +29,10 @@ RANDOM_SEED: Final = 0
 
 if __name__ == "__main__":
     backend = AQTProvider().get_backend("offline_simulator_no_noise")
-    sampler = AQTSampler(backend)
+    sampler = AQTSampler(backend=backend)
 
     # fix the random seeds such that the example is reproducible
-    qiskit_algorithms.utils.algorithm_globals.random_seed = RANDOM_SEED
+    algorithm_globals.random_seed = RANDOM_SEED
     backend.simulator.options.seed_simulator = RANDOM_SEED
 
     # Hamiltonian: Ising model on two spin 1/2 without external field

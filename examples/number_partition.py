@@ -22,13 +22,14 @@ it can be split into two non-overlapping sets that have the same sum.
 from dataclasses import dataclass
 from typing import Final, Union
 
-import qiskit_algorithms
 from qiskit_algorithms.minimum_eigensolvers import QAOA
 from qiskit_algorithms.optimizers import COBYLA
+from qiskit_algorithms.utils import algorithm_globals
 from qiskit_optimization.algorithms import MinimumEigenOptimizer, OptimizationResultStatus
 from qiskit_optimization.applications import NumberPartition
 
 from qiskit_aqt_provider import AQTProvider
+from qiskit_aqt_provider.aqt_resource import OfflineSimulatorResource
 from qiskit_aqt_provider.primitives import AQTSampler
 
 RANDOM_SEED: Final = 0
@@ -70,7 +71,7 @@ def solve_partition_problem(num_set: set[int]) -> Union[Success, Infeasible]:
     qp = problem.to_quadratic_program()
 
     meo = MinimumEigenOptimizer(
-        min_eigen_solver=QAOA(sampler=AQTSampler(backend), optimizer=COBYLA())
+        min_eigen_solver=QAOA(sampler=AQTSampler(backend=backend), optimizer=COBYLA())
     )
     result = meo.solve(qp)
 
@@ -84,10 +85,10 @@ def solve_partition_problem(num_set: set[int]) -> Union[Success, Infeasible]:
 
 
 if __name__ == "__main__":
-    backend = AQTProvider().get_backend("offline_simulator_no_noise")
+    backend: OfflineSimulatorResource = AQTProvider().get_backend("offline_simulator_no_noise")  # pyright: ignore[reportAssignmentType]
 
     # fix the random seeds such that the example is reproducible
-    qiskit_algorithms.utils.algorithm_globals.random_seed = RANDOM_SEED
+    algorithm_globals.random_seed = RANDOM_SEED
     backend.simulator.options.seed_simulator = RANDOM_SEED
 
     num_set = {1, 3, 4}

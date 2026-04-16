@@ -12,8 +12,8 @@
 
 """Basic example with the Qiskit AQT provider. Creates a 4-qubit GHZ state."""
 
-import qiskit
 from qiskit import QuantumCircuit
+from qiskit.transpiler import generate_preset_pass_manager
 
 from qiskit_aqt_provider.aqt_provider import AQTProvider
 
@@ -44,10 +44,11 @@ if __name__ == "__main__":
     qc.measure_all()
 
     # Transpile for the target backend.
-    qc = qiskit.transpile(qc, backend)
+    pm = generate_preset_pass_manager(backend=backend, optimization_level=2)
+    transpiled_qc = pm.run(qc)
 
     # Execute on the target backend.
-    result = backend.run(qc, shots=200).result()
+    result = backend.run(transpiled_qc, shots=200).result()
 
     if result.success:
         print(result.get_counts())
