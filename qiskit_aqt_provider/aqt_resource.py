@@ -62,7 +62,7 @@ class UnknownOptionWarning(UserWarning):
     """An unknown option was passed to a backend's :meth:`run <AQTResource.run>` method."""
 
 
-def make_transpiler_target(target_cls: type[TargetT], num_qubits: int) -> TargetT:
+def make_transpiler_target(num_qubits: int) -> Target:
     """Factory for transpilation targets of AQT resources.
 
     Args:
@@ -72,12 +72,11 @@ def make_transpiler_target(target_cls: type[TargetT], num_qubits: int) -> Target
     Returns:
         A Qiskit transpilation target for an AQT resource.
     """
-    target: TargetT = target_cls(num_qubits=num_qubits)
-
     theta = Parameter("θ")
     phi = Parameter("φ")
     lam = Parameter("λ")
 
+    target = Target(num_qubits=num_qubits)
     target.add_instruction(RZGate(lam))
     target.add_instruction(RGate(theta, phi))
     target.add_instruction(RXXGate(theta))
@@ -112,7 +111,7 @@ class _ResourceBase(Generic[_OptionsType], Backend):
         """
         super().__init__(name=name, provider=provider)
 
-        self._target = make_transpiler_target(Target, available_qubits)
+        self._target = make_transpiler_target(available_qubits)
         self._options = options_type()
 
     @property

@@ -17,8 +17,9 @@ from typing import Union
 import pytest
 from hypothesis import assume, example, given
 from hypothesis import strategies as st
-from qiskit import QuantumCircuit, transpile
+from qiskit import QuantumCircuit
 from qiskit.circuit.library import RXGate, RYGate
+from qiskit.transpiler import generate_preset_pass_manager
 
 from qiskit_aqt_provider.aqt_resource import AQTResource
 from qiskit_aqt_provider.test.circuits import (
@@ -76,7 +77,8 @@ def test_rx_ry_rewrite_transpile(
     qc = QuantumCircuit(1)
     qc.append(test_gate(theta), (0,))
 
-    trans_qc = transpile(qc, backend, optimization_level=optimization_level)
+    pm = generate_preset_pass_manager(backend=backend, optimization_level=optimization_level)
+    trans_qc = pm.run(qc)
     assert isinstance(trans_qc, QuantumCircuit)
 
     assert_circuits_equivalent(trans_qc, qc)
@@ -107,7 +109,8 @@ def test_decompose_1q_rotations_example(offline_simulator_no_noise: AQTResource)
     expected.rz(-pi / 2, 0)
     expected.r(pi / 2, 0, 0)
 
-    result = transpile(qc, offline_simulator_no_noise, optimization_level=3)
+    pm = generate_preset_pass_manager(backend=offline_simulator_no_noise, optimization_level=3)
+    result = pm.run(qc)
     assert isinstance(result, QuantumCircuit)  # only got one circuit back
 
     assert_circuits_equal(result, expected)
@@ -211,7 +214,8 @@ def test_rxx_wrap_angle_transpile(angle: float, qubits: int, optimization_level:
 
     # we only need the backend's transpilation target for this test
     backend = MockSimulator(noisy=False)
-    trans_qc = transpile(qc, backend, optimization_level=optimization_level)
+    pm = generate_preset_pass_manager(backend=backend, optimization_level=optimization_level)
+    trans_qc = pm.run(qc)
     assert isinstance(trans_qc, QuantumCircuit)
 
     assert_circuits_equivalent(trans_qc, qc)
@@ -259,7 +263,8 @@ def test_transpilation_preserves_or_decreases_number_of_rxx_gates(
 
     # we only need the backend's transpilation target for this test
     backend = MockSimulator(noisy=False)
-    tr_qc = transpile(qc, backend, optimization_level=optimization_level)
+    pm = generate_preset_pass_manager(backend=backend, optimization_level=optimization_level)
+    tr_qc = pm.run(qc)
 
     tr_qc_ops = tr_qc.count_ops()
     assert set(tr_qc_ops) <= {i[0].name for i in backend.target.instructions}
@@ -278,7 +283,10 @@ def test_qft_circuit_transpilation(
     wrapped.
     """
     qc = qft_circuit(qubits)
-    trans_qc = transpile(qc, offline_simulator_no_noise, optimization_level=optimization_level)
+    pm = generate_preset_pass_manager(
+        backend=offline_simulator_no_noise, optimization_level=optimization_level
+    )
+    trans_qc = pm.run(qc)
     assert isinstance(trans_qc, QuantumCircuit)
 
     assert set(trans_qc.count_ops()) <= {

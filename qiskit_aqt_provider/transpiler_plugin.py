@@ -11,7 +11,6 @@
 # that they have been altered from the originals.
 
 import math
-from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Final, Optional
 
@@ -21,20 +20,15 @@ from qiskit.circuit import Gate, Instruction
 from qiskit.circuit.library import RGate, RXGate, RXXGate, RZGate
 from qiskit.circuit.tools import pi_check
 from qiskit.dagcircuit import DAGCircuit
-from qiskit.transpiler import Target
-from qiskit.transpiler.basepasses import BasePass, TransformationPass
+from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.transpiler.exceptions import TranspilerError
 from qiskit.transpiler.passes import Decompose, Optimize1qGatesDecomposition
-from qiskit.transpiler.passmanager import PassManager
+from qiskit.transpiler.passmanager import PassManager, Task
 from qiskit.transpiler.passmanager_config import PassManagerConfig
 from qiskit.transpiler.preset_passmanagers import common
 from qiskit.transpiler.preset_passmanagers.plugin import PassManagerStagePlugin
 
 from qiskit_aqt_provider.utils import map_exceptions
-
-
-class UnboundParametersTarget(Target):
-    """Marker class for transpilation targets to disable passes that require bound parameters."""
 
 
 def rewrite_rx_as_r(theta: float) -> Instruction:
@@ -61,6 +55,84 @@ class RewriteRxAsR(TransformationPass):
         return dag
 
 
+class EnsureSingleFinalMeasurement(TransformationPass):
+    """Exactly one measurement at the end of the circuit."""
+
+    @map_exceptions(TranspilerError)
+    def run(self, dag: DAGCircuit) -> DAGCircuit:
+        """Ensures exactly one measurement at the end of the circuit.
+
+        Some algorithms introduce measurements. If they are at the end of the circuit, they can be
+        safely replaced by a single measure all operation. This pass ensures that there is exactly
+        one measurement at the end of the circuit, and raises a TranspilerError if it finds a
+        mid-circuit measurement.
+        """
+        ops = list(dag.topological_op_nodes())
+
+        if not ops:
+            return dag
+
+        seen_measure = False
+        measured_qubits = set()
+
+        # We will rebuild a filtered DAG
+        new_dag = DAGCircuit()
+        new_dag.name = dag.name
+        new_dag.metadata = dag.metadata.copy() if dag.metadata else {}
+        new_dag.global_phase = dag.global_phase
+
+        # Copy over registers
+        for qreg in dag.qregs.values():
+            new_dag.add_qreg(qreg)
+        for creg in dag.cregs.values():
+            new_dag.add_creg(creg)
+
+        for node in ops:
+            op_name = node.op.name
+
+            if op_name == "measure":
+                q = node.qargs[0]
+
+                # drop duplicate measurements
+                if q in measured_qubits:
+                    continue
+
+                measured_qubits.add(q)
+                seen_measure = True
+
+                new_dag.apply_operation_back(
+                    node.op,
+                    node.qargs,
+                    node.cargs,
+                )
+
+            elif op_name == "barrier":
+                # drop barriers after measurement starts
+                if seen_measure:
+                    continue
+
+                new_dag.apply_operation_back(
+                    node.op,
+                    node.qargs,
+                    node.cargs,
+                )
+
+            else:
+                if seen_measure:
+                    raise TranspilerError(
+                        "Measurement must only occur at the end of the circuit "
+                        "(found non-measure operation after measurement)."
+                    )
+
+                new_dag.apply_operation_back(
+                    node.op,
+                    node.qargs,
+                    node.cargs,
+                )
+
+        return new_dag
+
+
 class AQTSchedulingPlugin(PassManagerStagePlugin):
     """Scheduling stage plugin for the :mod:`qiskit.transpiler`.
 
@@ -71,14 +143,11 @@ class AQTSchedulingPlugin(PassManagerStagePlugin):
 
     def pass_manager(
         self,
-        pass_manager_config: PassManagerConfig,
+        pass_manager_config: PassManagerConfig,  # noqa: ARG002
         optimization_level: Optional[int] = None,  # noqa: ARG002
     ) -> PassManager:
         """Pass manager for the scheduling phase."""
-        if isinstance(pass_manager_config.target, UnboundParametersTarget):
-            return PassManager([])
-
-        passes: list[BasePass] = [
+        passes: list[Task] = [
             # The transpilation target defines R/RZ/RXX as basis gates, so the
             # single-qubit gates decomposition pass uses a RR decomposition, which
             # emits code that requires two pulses per single-qubit gates run.
@@ -91,6 +160,7 @@ class AQTSchedulingPlugin(PassManagerStagePlugin):
             RewriteRxAsR(),
             WrapRxxAngles(),
             Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]),
+            EnsureSingleFinalMeasurement(),
         ]
 
         return PassManager(passes)
@@ -202,12 +272,10 @@ class AQTTranslationPlugin(PassManagerStagePlugin):
             hls_config=pass_manager_config.hls_config,
         )
 
-        if isinstance(pass_manager_config.target, UnboundParametersTarget):
-            return translation_pm
-
-        passes: Sequence[BasePass] = [
+        final_passes: list[Task] = [
             WrapRxxAngles(),
-        ] + (
+        ]
+        optional_decomposing_pass = (
             [
                 Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]),
             ]
@@ -215,4 +283,4 @@ class AQTTranslationPlugin(PassManagerStagePlugin):
             else []
         )
 
-        return translation_pm + PassManager(passes)
+        return translation_pm + PassManager(final_passes + optional_decomposing_pass)

@@ -34,7 +34,6 @@ from aqt_connector import ArnicaApp, log_in
 from aqt_connector import ArnicaConfig as BaseArnicaConfig
 from qiskit.exceptions import QiskitError
 from qiskit.providers.exceptions import QiskitBackendNotFoundError
-from qiskit.transpiler import Target
 from tabulate import tabulate
 from typing_extensions import TypeAlias, override
 
@@ -393,7 +392,7 @@ class AQTProvider:
                     "available_qubits can only be used when selecting an offline simulator"
                 )
 
-            selected_backend._target = make_transpiler_target(Target, available_qubits)
+            selected_backend._target = make_transpiler_target(available_qubits)
 
         return selected_backend
 
