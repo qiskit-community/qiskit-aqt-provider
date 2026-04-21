@@ -26,16 +26,18 @@ class APIError(Exception):
     contains the original `httpx.HTTPStatusError <https://www.python-httpx.org/exceptions/#:~:text=httpx.HTTPStatusError>`_
     """
 
-    def __init__(self, detail: Any) -> None:
+    def __init__(self, detail: Any, http_response: httpx.Response) -> None:
         """Initialize the exception instance.
 
         Args:
             detail: error description payload. The string representation is used as error message.
+            http_response: the httpx response of the failed API request.
         """
         super().__init__(str(detail) if detail is not None else "Unspecified error")
 
         # Keep the original object, in case it wasn't a string.
         self.detail = detail
+        self.http_response: httpx.Response = http_response
 
 
 def http_response_raise_for_status(response: httpx.Response) -> httpx.Response:
@@ -58,4 +60,4 @@ def http_response_raise_for_status(response: httpx.Response) -> httpx.Response:
             except (json.JSONDecodeError, UnicodeDecodeError, AttributeError):
                 detail = None
 
-        raise APIError(detail) from status_error
+        raise APIError(detail, response) from status_error

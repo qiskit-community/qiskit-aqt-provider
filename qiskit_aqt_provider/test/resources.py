@@ -17,7 +17,7 @@ import random
 import time
 import uuid
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Any, Optional, Union
 
 from aqt_connector.models.arnica.jobs import BasicJobMetadata
 from aqt_connector.models.arnica.resources import ResourceType
@@ -35,6 +35,7 @@ from typing_extensions import assert_never, override
 from qiskit_aqt_provider import api_client
 from qiskit_aqt_provider.api_client import models as api_models
 from qiskit_aqt_provider.aqt_job import AQTJob
+from qiskit_aqt_provider.aqt_options import AQTOptions
 from qiskit_aqt_provider.aqt_provider import AQTProvider
 from qiskit_aqt_provider.aqt_resource import AQTDirectAccessResource, AQTResource
 
@@ -259,6 +260,17 @@ class DummyResource(AQTResource):
                 available_qubits=20,
             ),
         )
+
+    @override
+    def run(self, circuits: Union[QuantumCircuit, list[QuantumCircuit]], **options: Any) -> AQTJob:
+        """Override run method to return a dummy job."""
+        dummy_job = AQTJob(
+            backend=self,
+            circuits=circuits if isinstance(circuits, list) else [circuits],
+            options=AQTOptions(shots=options.get("shots", 100), with_progress_bar=False),
+        )
+        dummy_job._job_id = str(uuid.uuid4())
+        return dummy_job
 
 
 class DummyDirectAccessResource(AQTDirectAccessResource):

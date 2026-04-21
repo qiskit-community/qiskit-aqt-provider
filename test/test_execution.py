@@ -16,25 +16,32 @@ This tests whether the circuit pre-conditioning and results formatting works as
 expected.
 """
 
+import json
 import re
 import typing
+import uuid
 from collections import Counter
 from math import pi
 from typing import Union
 
+import httpx
 import pytest
 import qiskit
+from aqt_connector.models.arnica.jobs import BasicJobMetadata
+from aqt_connector.models.arnica.response_bodies.jobs import ResultResponse, RRFinished, RRQueued
+from pytest_httpx import HTTPXMock
 from qiskit import ClassicalRegister, QiskitError, QuantumCircuit, QuantumRegister, quantum_info
-from qiskit.providers import BackendV2
+from qiskit.providers import BackendV2, JobTimeoutError
 from qiskit.providers.jobstatus import JobStatus
 from qiskit.transpiler import TranspilerError
 from qiskit_aer import AerProvider, AerSimulator
 
 from qiskit_aqt_provider import AQTProvider
+from qiskit_aqt_provider.api_client.errors import APIError
 from qiskit_aqt_provider.aqt_resource import AnyAQTResource, AQTResource
 from qiskit_aqt_provider.test.circuits import assert_circuits_equivalent
 from qiskit_aqt_provider.test.fixtures import MockSimulator
-from qiskit_aqt_provider.test.resources import TestResource
+from qiskit_aqt_provider.test.resources import DummyResource, TestResource
 from qiskit_aqt_provider.test.timeout import timeout
 
 
@@ -453,3 +460,125 @@ def test_cswap(optimization_level: int, any_offline_simulator_no_noise: AnyAQTRe
     counts = job.result().get_counts()
 
     assert counts == {"011": shots}
+
+
+@pytest.mark.parametrize(
+    "exception",
+    [
+        httpx.ConnectError(""),
+        httpx.ReadTimeout(""),
+        httpx.WriteTimeout(""),
+        httpx.RemoteProtocolError(""),
+        httpx.NetworkError(""),
+    ],
+)
+def test_aqt_job_wait_for_final_state_retries_after_transient_httpx_exceptions(
+    httpx_mock: HTTPXMock, exception: Exception
+) -> None:
+    """It should retry after a transient httpx exception occurs during AQTResource.result()."""
+    qc = QuantumCircuit(2)
+    qc.rxx(0.5, 0, 1)
+    qc.measure_all()
+    httpx_mock.add_exception(exception)
+    httpx_mock.add_response(
+        status_code=200,
+        json=json.loads(
+            ResultResponse(
+                job=BasicJobMetadata(job_id=uuid.uuid4(), resource_id="", workspace_id=""),
+                response=RRFinished(result={0: [[0, 1]]}),
+            ).model_dump_json()
+        ),
+    )
+    job = DummyResource("").run(qc)
+
+    result = job.result()
+
+    assert len(httpx_mock.get_requests()) == 2
+    assert result.success
+
+
+@pytest.mark.parametrize(
+    "status_code",
+    [429, 500, 502, 503, 504],
+)
+def test_aqt_job_wait_for_final_state_retries_for_transient_http_status_codes(
+    httpx_mock: HTTPXMock, status_code: int
+) -> None:
+    """It should retry after a transient http status error occurs during AQTResource.result()."""
+    qc = QuantumCircuit(2)
+    qc.rxx(0.5, 0, 1)
+    qc.measure_all()
+    httpx_mock.add_response(status_code=status_code)
+    httpx_mock.add_response(
+        status_code=200,
+        json=json.loads(
+            ResultResponse(
+                job=BasicJobMetadata(job_id=uuid.uuid4(), resource_id="", workspace_id=""),
+                response=RRFinished(result={0: [[0, 1]]}),
+            ).model_dump_json()
+        ),
+    )
+    job = DummyResource("").run(qc)
+
+    result = job.result()
+
+    assert len(httpx_mock.get_requests()) == 2
+    assert result.success
+
+
+@pytest.mark.parametrize("status_code", [400, 403, 505])
+def test_aqt_job_wait_for_final_state_raises_for_non_transient_http_status_codes(
+    httpx_mock: HTTPXMock,
+    status_code: int,
+) -> None:
+    """It should raise an APIError without retrying after a non-transient HTTP error occurs."""
+    qc = QuantumCircuit(2)
+    qc.rxx(0.5, 0, 1)
+    qc.measure_all()
+    httpx_mock.add_response(status_code=status_code, json={"detail": "An error occurred"})
+    httpx_mock.add_response(
+        is_optional=True,
+        status_code=200,
+        json=json.loads(
+            ResultResponse(
+                job=BasicJobMetadata(job_id=uuid.uuid4(), resource_id="", workspace_id=""),
+                response=RRFinished(result={0: [[0, 1]]}),
+            ).model_dump_json()
+        ),
+    )
+    job = DummyResource("").run(qc)
+
+    with pytest.raises(APIError, match="An error occurred"):
+        job.result()
+
+    assert len(httpx_mock.get_requests()) == 1
+
+
+@pytest.mark.parametrize("with_transient_errors", [True, False])
+def test_it_raises_timeout_error_if_taking_too_long(
+    httpx_mock: HTTPXMock, with_transient_errors: bool
+) -> None:
+    """It should raise a JobTimeoutError after a defined timeout."""
+    qc = QuantumCircuit(2)
+    qc.rxx(0.5, 0, 1)
+    qc.measure_all()
+
+    status_code = 502 if with_transient_errors else 200
+    httpx_mock.add_response(
+        is_reusable=True,
+        status_code=status_code,
+        json=json.loads(
+            ResultResponse(
+                job=BasicJobMetadata(job_id=uuid.uuid4(), resource_id="", workspace_id=""),
+                response=RRQueued(),
+            ).model_dump_json()
+        ),
+    )
+    job = DummyResource("").run(qc)
+    job.options.query_period_seconds = 0.1
+    job.options.query_timeout_seconds = 0.25
+
+    with pytest.raises(JobTimeoutError, match=f"Timeout while waiting for job {job.job_id()}."):
+        job.result()
+
+    assert len(httpx_mock.get_requests()) == 3
