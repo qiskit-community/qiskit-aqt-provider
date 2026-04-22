@@ -289,9 +289,7 @@ def test_qft_circuit_transpilation(
     trans_qc = pm.run(qc)
     assert isinstance(trans_qc, QuantumCircuit)
 
-    assert set(trans_qc.count_ops()) <= {
-        i[0].name for i in offline_simulator_no_noise.target.instructions
-    }
+    assert set(trans_qc.count_ops()) <= offline_simulator_no_noise.target.operation_names
 
     rxx_count = 0
     r_count = 0
