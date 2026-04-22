@@ -12,7 +12,7 @@
 
 from collections import defaultdict
 from copy import copy
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
 import numpy as np
 from qiskit import QuantumCircuit, generate_preset_pass_manager
@@ -22,15 +22,14 @@ from qiskit.primitives.backend_estimator_v2 import (
     _prepare_counts,
     _PreprocessedData,
 )
-from qiskit.providers import BackendV2
 from qiskit.result import Result
 
-from qiskit_aqt_provider.aqt_resource import AnyAQTResource, AQTDirectAccessResource, AQTResource
+from qiskit_aqt_provider.aqt_resource import AnyAQTResource
 
 
 def _run_circuits(
-    circuits: QuantumCircuit | list[QuantumCircuit],
-    backend: BackendV2,
+    circuits: Union[QuantumCircuit, list[QuantumCircuit]],
+    backend: AnyAQTResource,
     clear_metadata: bool = True,
     **run_options: Any,
 ) -> tuple[list[Result], list[dict[Any, Any]]]:
@@ -53,14 +52,11 @@ def _run_circuits(
         if clear_metadata:
             circ.metadata = {}
 
-    if isinstance(backend, (AQTResource, AQTDirectAccessResource)):
-        max_circuits = backend.max_circuits
-        max_shots = type(backend._options).model_fields["shots"].metadata[1].le
-    else:
-        raise RuntimeError("Backend version not supported")
+    max_circuits = backend.max_circuits
+    max_shots = type(backend.options).model_fields["shots"].metadata[1].le
     if max_shots and "shots" in run_options and run_options["shots"] > max_shots:
         raise ValueError(
-            f"Number of shots {run_options['shots']} exceeds the backend's limit of {max_shots}.",
+            f"Number of shots {run_options['shots']} exceeds the backend's limit of {max_shots}. "
             "Consider reducing the precision of the estimation.",
         )
     if max_circuits:
@@ -104,7 +100,9 @@ class AQTEstimator(BackendEstimatorV2):
         # Set default precision in options so the amount of shots is the max amount possible
         options_copy = copy(options) if options is not None else {}
         if "default_precision" not in options_copy:
-            options_copy["default_precision"] = 0.022365  # this results in 2000 shots per circuit
+            # precision = 1/sqrt(shots), so shots = 1/precision^2
+            # 0.022365 ≈ 1/sqrt(2000), resulting in ~2000 shots per circuit
+            options_copy["default_precision"] = 0.022365
 
         super().__init__(
             backend=backend,
@@ -174,7 +172,7 @@ class AQTEstimator(BackendEstimatorV2):
             pm = generate_preset_pass_manager(
                 backend=self._backend, optimization_level=self.optimization_level
             )
-            final_circuits = [pm.run(bc) for bc in bound_circuits]
+            final_circuits = pm.run(bound_circuits)
         else:
             final_circuits = bound_circuits
 

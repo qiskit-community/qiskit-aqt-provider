@@ -56,7 +56,7 @@ qc.measure_all()
 
 # sample the circuit, passing parameter assignments and let the sampler handle the transpilation
 sampler = AQTSampler(backend=backend, optimization_level=0)
-result = sampler.run([(qc, pi)], shots=33).result()[0]  # pyright: ignore[reportArgumentType]
+result = sampler.run([(qc, {theta_param: pi})], shots=33).result()[0]
 
 print(f">>> Results: {result.data.meas.get_bitstrings()}")
 print(f">>> Result counts: {result.data.meas.get_counts()}")

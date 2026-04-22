@@ -83,7 +83,7 @@ def test_rx_ry_rewrite_transpile(
 
     assert_circuits_equivalent(trans_qc, qc)
 
-    assert set(trans_qc.count_ops()) <= {i[0].name for i in backend.target.instructions}
+    assert set(trans_qc.count_ops()) <= backend.target.operation_names
     num_r = trans_qc.count_ops().get("r")
     assume(num_r is not None)
     assert num_r == 1

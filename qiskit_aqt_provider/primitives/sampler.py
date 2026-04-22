@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 from copy import copy
-from typing import Optional
+from typing import Any, Optional
 
 import numpy as np
 from qiskit.primitives import (
@@ -21,7 +21,6 @@ from qiskit.primitives import (
 from qiskit.primitives.backend_sampler_v2 import _analyze_circuit, _prepare_memory
 from qiskit.primitives.containers.sampler_pub import SamplerPub
 from qiskit.transpiler import generate_preset_pass_manager
-from typing_extensions import Any
 
 from qiskit_aqt_provider.aqt_resource import AnyAQTResource
 from qiskit_aqt_provider.primitives.estimator import _run_circuits
@@ -34,8 +33,8 @@ class AQTSampler(BackendSamplerV2):
 
     def __init__(
         self,
-        *,
         backend: AnyAQTResource,
+        *,
         options: Optional[dict[str, Any]] = None,
         auto_transpilation: bool = True,
         optimization_level: int = 0,
@@ -59,7 +58,7 @@ class AQTSampler(BackendSamplerV2):
         # Set default shots in options
         options_copy = copy(options) if options is not None else {}
         if "default_shots" not in options_copy:
-            options_copy["default_shots"] = backend._options.shots
+            options_copy["default_shots"] = backend.options.shots
 
         super().__init__(
             backend=backend,

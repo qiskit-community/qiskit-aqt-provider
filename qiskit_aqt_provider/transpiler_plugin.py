@@ -158,8 +158,6 @@ class AQTSchedulingPlugin(PassManagerStagePlugin):
             # the API constraints.
             Optimize1qGatesDecomposition(basis=["rx", "rz"]),
             RewriteRxAsR(),
-            WrapRxxAngles(),
-            Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]),
             EnsureSingleFinalMeasurement(),
         ]
 
@@ -272,15 +270,10 @@ class AQTTranslationPlugin(PassManagerStagePlugin):
             hls_config=pass_manager_config.hls_config,
         )
 
-        final_passes: list[Task] = [
+        passes: list[Task] = [
             WrapRxxAngles(),
         ]
-        optional_decomposing_pass = (
-            [
-                Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]),
-            ]
-            if optimization_level is None or optimization_level == 0
-            else []
-        )
+        if optimization_level is None or optimization_level == 0:
+            passes.append(Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]))
 
-        return translation_pm + PassManager(final_passes + optional_decomposing_pass)
+        return translation_pm + PassManager(passes)

@@ -56,12 +56,14 @@ class Infeasible:
     """Marker for unsolvable partition problems."""
 
 
-def solve_partition_problem(num_set: set[int]) -> Union[Success, Infeasible]:
+def solve_partition_problem(
+    num_set: set[int], backend: OfflineSimulatorResource
+) -> Union[Success, Infeasible]:
     """Solve a partition problem.
 
     Args:
-        num_set: set of positive integers to partition into two distinct subsets
-        with the same sum.
+        num_set: set of positive integers to partition into two distinct subsets with the same sum.
+        backend: the backend to be used for the sampler
 
     Returns:
         Success: solutions to the problem exist and are returned
@@ -92,12 +94,12 @@ if __name__ == "__main__":
     backend.simulator.options.seed_simulator = RANDOM_SEED
 
     num_set = {1, 3, 4}
-    result = solve_partition_problem(num_set)
+    result = solve_partition_problem(num_set, backend)
     assert isinstance(result, Success)  # noqa: S101
     assert result.is_valid()  # noqa: S101
     print(f"Partition for {num_set}:", result.partition)
 
     num_set = {1, 2}
-    result = solve_partition_problem(num_set)
+    result = solve_partition_problem(num_set, backend)
     assert isinstance(result, Infeasible)  # noqa: S101
     print(f"No partition possible for {num_set}.")
