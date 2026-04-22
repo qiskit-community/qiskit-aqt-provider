@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+
+## qiskit-aqt-provider v1.15.0
+
 * Use aqt-connector models (#248)
 * Update aqt-connector to 0.3.0 (#251)
 * Unify user experience to acquire backends accessed via cloud or directly (#256)
