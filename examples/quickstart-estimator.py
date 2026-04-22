@@ -65,7 +65,6 @@ def cost_function(
     """
     job = estimator.run(
         [(ansatz, hamiltonian, params)],  # pyright: ignore[reportArgumentType]
-        precision=0.03,  # results in 1112 shots per circuit, which is below the 2000 shots limit
     )
     result = job.result()
     return float(result[0].data.evs)  # pyright: ignore[reportAttributeAccessIssue]

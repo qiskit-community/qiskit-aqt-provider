@@ -101,12 +101,10 @@ class AQTEstimator(BackendEstimatorV2):
         """
         self.auto_transpilation = auto_transpilation
         self.optimization_level = optimization_level
-        # Signal the transpiler to disable passes that require bound
-        # parameters.
-        # This allows the underlying sampler to apply most of
-        # the transpilation passes, and cache the results.
-        # Set default shots in options
+        # Set default precision in options so the amount of shots is the max amount possible
         options_copy = copy(options) if options is not None else {}
+        if "default_precision" not in options_copy:
+            options_copy["default_precision"] = 0.022365  # this results in 2000 shots per circuit
 
         super().__init__(
             backend=backend,

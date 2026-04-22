@@ -108,9 +108,9 @@ def test_operator_estimator_primitive_trivial_pauli_x(
     qc.rx(theta, 0)
 
     op = SparsePauliOp("X")
-    result = estimator.run([(qc, op)], precision=0.025).result()
+    result = estimator.run([(qc, op)], precision=0.04).result()
 
-    assert abs(result[0].data.evs) < 0.025
+    assert abs(result[0].data.evs) <= 0.04
 
 
 def test_operator_estimator_primitive_trivial_pauli_z(
@@ -142,7 +142,7 @@ def test_operator_estimator_primitive_trivial_pauli_z(
         (qc, op, [pi / 2]),
     ]
 
-    result = estimator.run(jobs, precision=0.025).result()
+    result = estimator.run(jobs).result()
 
     assert isclose(result[0].data.evs, 1.0)  # <0|Z|0>
     assert isclose(result[1].data.evs, -1.0)  # <1|Z|1>

@@ -5887,21 +5887,21 @@ visualization = ["Pillow (>=4.2.1)", "matplotlib (>=3.3)", "pydot", "pylatexenc 
 
 [[package]]
 name = "qiskit"
-version = "2.3.1"
+version = "2.4.0"
 description = "An open-source SDK for working with quantum computers at the level of extended quantum circuits, operators, and primitives."
 optional = false
 python-versions = ">=3.10"
 groups = ["main", "dev"]
 markers = "python_version >= \"3.10\""
 files = [
-    {file = "qiskit-2.3.1-cp310-abi3-macosx_10_12_x86_64.whl", hash = "sha256:25a85465e8c860627e8a565cb9af824b2df1a2c42f5958b1a7b014aa085b32d6"},
-    {file = "qiskit-2.3.1-cp310-abi3-macosx_11_0_arm64.whl", hash = "sha256:b1404b72987d0c7db32203a87565775115f6a77b2a3539d40eb1e354df6d08bb"},
-    {file = "qiskit-2.3.1-cp310-abi3-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:68eec14320654065a158bf73b3d6fffaa31e865fe61b0db1510cfeeea76c87b0"},
-    {file = "qiskit-2.3.1-cp310-abi3-manylinux2014_ppc64le.manylinux_2_17_ppc64le.whl", hash = "sha256:96545ad531c5e2ff6eecd348501620e0db0f3d73f49c20037ec3b5b2e9268f94"},
-    {file = "qiskit-2.3.1-cp310-abi3-manylinux2014_s390x.manylinux_2_17_s390x.whl", hash = "sha256:a1a030b4a0cd75f3299c9866a3e9489a02078efc343abd42eec74ad2a5f2fa80"},
-    {file = "qiskit-2.3.1-cp310-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:350027279bb171e9746fee5756c674872df97f4608b079129d4edb25b5bb1fdd"},
-    {file = "qiskit-2.3.1-cp310-abi3-win_amd64.whl", hash = "sha256:f884abd92c0173e246705f89f8b4808badaa0e1b167ed3277a3cb83c2564b4b8"},
-    {file = "qiskit-2.3.1.tar.gz", hash = "sha256:7b3b7e1c8a50f7f423204143a1bd9f21bf27659c57459d582eaff4035d8d7f75"},
+    {file = "qiskit-2.4.0-cp310-abi3-macosx_10_12_x86_64.whl", hash = "sha256:a6dfd5875a77736749e851c631ff5a328dc60e863c8b0aafd60fdc745a4c7591"},
+    {file = "qiskit-2.4.0-cp310-abi3-macosx_11_0_arm64.whl", hash = "sha256:4ff99307a8fac97962964b02afe22ae7ee4997a49e98538599ff4b44e6659d31"},
+    {file = "qiskit-2.4.0-cp310-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:5352c66c5affd54dfb2473e99247031aaaf3af6c7cefe0875a0bd302ca31fcc1"},
+    {file = "qiskit-2.4.0-cp310-abi3-manylinux_2_28_ppc64le.whl", hash = "sha256:fd04cfb30b59fd257a1108fd6f337eceafd26039c8e86603bcced9b45137971f"},
+    {file = "qiskit-2.4.0-cp310-abi3-manylinux_2_28_s390x.whl", hash = "sha256:446c8d6da61e9e134ba5e30f933240ce9920f668d0e010fc79cc5a22c03e9a78"},
+    {file = "qiskit-2.4.0-cp310-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:cf9020bf79934c7bf490973d99b80464957efc1fa13456d680c42bce23262687"},
+    {file = "qiskit-2.4.0-cp310-abi3-win_amd64.whl", hash = "sha256:0292d0d247f1603c225c3e83897aa8c93bc3010523f337f766750f70a8fff5ba"},
+    {file = "qiskit-2.4.0.tar.gz", hash = "sha256:57a43f869608fd8319444c2c1fbf6674fa36c6346646e41f4b128233693970d6"},
 ]
 
 [package.dependencies]

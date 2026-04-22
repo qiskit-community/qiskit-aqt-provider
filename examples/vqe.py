@@ -29,7 +29,7 @@ RANDOM_SEED: Final = 0
 if __name__ == "__main__":
     backend = AQTProvider().get_backend("offline_simulator_no_noise")
     assert isinstance(backend, OfflineSimulatorResource)  # noqa: S101
-    estimator = AQTEstimator(backend=backend, options={"default_precision": 0.025})
+    estimator = AQTEstimator(backend=backend)
 
     # fix the random seeds such that the example is reproducible
     algorithm_globals.random_seed = RANDOM_SEED
