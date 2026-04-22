@@ -220,7 +220,7 @@ def test_rxx_wrap_angle_transpile(angle: float, qubits: int, optimization_level:
 
     assert_circuits_equivalent(trans_qc, qc)
 
-    assert set(trans_qc.count_ops()) <= {i[0].name for i in backend.target.instructions}
+    assert set(trans_qc.count_ops()) <= backend.target.operation_names
 
     num_rxx = trans_qc.count_ops().get("rxx", 0)
 
@@ -267,7 +267,7 @@ def test_transpilation_preserves_or_decreases_number_of_rxx_gates(
     tr_qc = pm.run(qc)
 
     tr_qc_ops = tr_qc.count_ops()
-    assert set(tr_qc_ops) <= {i[0].name for i in backend.target.instructions}
+    assert set(tr_qc_ops) <= backend.target.operation_names
 
     qc_rxx = qc.count_ops()["rxx"]
     assert qc_rxx == len(angles_pi)

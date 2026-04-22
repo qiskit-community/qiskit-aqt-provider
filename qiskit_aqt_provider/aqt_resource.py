@@ -55,9 +55,6 @@ if TYPE_CHECKING:  # pragma: no cover
     from qiskit_aqt_provider.aqt_provider import AQTProvider
 
 
-TargetT = TypeVar("TargetT", bound=Target)
-
-
 class UnknownOptionWarning(UserWarning):
     """An unknown option was passed to a backend's :meth:`run <AQTResource.run>` method."""
 

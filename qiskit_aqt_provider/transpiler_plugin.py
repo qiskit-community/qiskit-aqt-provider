@@ -136,9 +136,15 @@ class EnsureSingleFinalMeasurement(TransformationPass):
 class AQTSchedulingPlugin(PassManagerStagePlugin):
     """Scheduling stage plugin for the :mod:`qiskit.transpiler`.
 
-    If the transpilation target is not :class:`UnboundParametersTarget`,
-    register a single-qubit gates run decomposition and a :class:`RewriteRxAsR` pass,
-    irrespective of the optimization level.
+    Register the following passes irrespective of the optimization level to conclude transpilation:
+    1. Single-qubit gates decomposition. It uses a RR decomposition, which emits code that requires
+        two pulses per single-qubit gates run. Since Z gates are virtual, a ZXZ decomposition is
+        better, because it only requires a single pulse.
+    2. :class:`RewriteRxAsR` pass to rewrite RX → R, also wrapping the angles to match the API
+        constraints.
+    3. :class:`WrapRxxAngles` pass to wrap Rxx angles to [0, π/2].
+    4. Pass for the wrapped RXX gates decomposition.
+    5. Remove redundant final measurements and raise error for mid-circuit measurements.
     """
 
     def pass_manager(
@@ -148,19 +154,12 @@ class AQTSchedulingPlugin(PassManagerStagePlugin):
     ) -> PassManager:
         """Pass manager for the scheduling phase."""
         passes: list[Task] = [
-            # The transpilation target defines R/RZ/RXX as basis gates, so the
-            # single-qubit gates decomposition pass uses a RR decomposition, which
-            # emits code that requires two pulses per single-qubit gates run.
-            # Since Z gates are virtual, a ZXZ decomposition is better, because
-            # it only requires a single pulse.
-            # Apply the single-qubit gates decomposition assuming the basis gates are
-            # RX/RZ/RXX, then rewrite RX → R, also wrapping the angles to match
-            # the API constraints.
             Optimize1qGatesDecomposition(basis=["rx", "rz"]),
             RewriteRxAsR(),
+            WrapRxxAngles(),
+            Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]),
             EnsureSingleFinalMeasurement(),
         ]
-
         return PassManager(passes)
 
 
@@ -249,9 +248,9 @@ class WrapRxxAngles(TransformationPass):
 class AQTTranslationPlugin(PassManagerStagePlugin):
     """Translation stage plugin for the :mod:`qiskit.transpiler`.
 
-    If the transpilation target is not :class:`UnboundParametersTarget`,
-    register a :class:`WrapRxxAngles` pass after the preset pass irrespective
-    of the optimization level.
+    Register a :class:`WrapRxxAngles` pass after the preset pass irrespective of the optimization
+    level. If the optimization level is 0, an extra pass to decompose the wrapped RXX gates is
+    added. Otherwise the decomposition is being handled by the optimization stage.
     """
 
     def pass_manager(

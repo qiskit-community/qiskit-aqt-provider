@@ -82,7 +82,7 @@ class AQTSampler(BackendSamplerV2):
             pm = generate_preset_pass_manager(
                 backend=self._backend, optimization_level=self.optimization_level
             )
-            circuits = [pm.run(c) for c in flatten_circuits]
+            circuits = pm.run(flatten_circuits)
         else:
             circuits = flatten_circuits
 
@@ -105,11 +105,7 @@ class AQTSampler(BackendSamplerV2):
         # pack memory to an ndarray of uint8
         results = []
         start = 0
-        meas_level = (
-            None
-            if self._options.run_options is None
-            else self._options.run_options.get("meas_level")
-        )
+        meas_level = run_opts.get("meas_level")
         for pub, bound in zip(pubs, bound_circuits):
             meas_info, max_num_bytes = _analyze_circuit(pub.circuit)
             end = start + bound.size
