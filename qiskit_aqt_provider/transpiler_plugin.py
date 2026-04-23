@@ -9,6 +9,24 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""AQT transpiler plugin.
+
+The transpilation for AQT backends is based on
+[custom plugins](https://quantum.cloud.ibm.com/docs/en/api/qiskit/transpiler_plugins#writing-plugins)
+that are connected to the AQT resources/backends with
+[custom transpiler passes](https://quantum.cloud.ibm.com/docs/en/api/qiskit/providers#custom-transpiler-passes)
+for backends. There are two transpilation stages that can be customized this way:
+- Translation stage:
+  - Wrapping RXX gate angles before the optimization stage so the optimization can do its thing.
+  - If optimization level is 0, decomposing the RXX wrapped gates (the ones with the substituted
+    name), as the optimization stage will not take care of it.
+- Scheduling stage:
+  - Decomposing single-qubit gates
+  - Rewriting RX → R, also wrapping the angles
+  - Wrapping RXX gate angles again. Due to optimization there may be incompatible angles again
+  - Decomposing wrapped RXX gates
+  - Remove redundant final measurements and raise error for mid-circuit measurements
+"""
 
 import math
 from dataclasses import dataclass
@@ -136,7 +154,7 @@ class EnsureSingleFinalMeasurement(TransformationPass):
 class AQTSchedulingPlugin(PassManagerStagePlugin):
     """Scheduling stage plugin for the :mod:`qiskit.transpiler`.
 
-    Register the following passes irrespective of the optimization level to conclude transpilation:
+    Register the following passes to conclude transpilation, irrespective of the optimization level:
     1. Single-qubit gates decomposition. It uses a RR decomposition, which emits code that requires
         two pulses per single-qubit gates run. Since Z gates are virtual, a ZXZ decomposition is
         better, because it only requires a single pulse.
@@ -249,8 +267,11 @@ class AQTTranslationPlugin(PassManagerStagePlugin):
     """Translation stage plugin for the :mod:`qiskit.transpiler`.
 
     Register a :class:`WrapRxxAngles` pass after the preset pass irrespective of the optimization
-    level. If the optimization level is 0, an extra pass to decompose the wrapped RXX gates is
-    added. Otherwise the decomposition is being handled by the optimization stage.
+    level. The pass enables the optimization stage to optimize the RXX gates with wrapped
+    angles.
+
+    If the optimization level is 0, an extra pass to decompose the wrapped RXX gates is
+    added, as in this case no decomposition is being done by the optimization stage.
     """
 
     def pass_manager(
@@ -269,10 +290,8 @@ class AQTTranslationPlugin(PassManagerStagePlugin):
             hls_config=pass_manager_config.hls_config,
         )
 
-        passes: list[Task] = [
-            WrapRxxAngles(),
-        ]
+        translation_pm.append(WrapRxxAngles())
         if optimization_level is None or optimization_level == 0:
-            passes.append(Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]))
+            translation_pm.append(Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]))
 
-        return translation_pm + PassManager(passes)
+        return translation_pm

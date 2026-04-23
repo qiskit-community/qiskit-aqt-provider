@@ -117,8 +117,15 @@ group.dev.dependencies.types-tabulate = "^0.9.0.1"
 group.dev.dependencies.types-tqdm = "^4.65.0.1"
 group.dev.dependencies.typos = "^1.29.0"
 group.dev.dependencies.yq = "^3.4.3"
+
+# Register custom Qiskit transpiler plugins via Python entry points.
+#
+# These entries tell Qiskit how to discover and load AQT-specific transpiler stages.
+# The key (`aqt`) is the plugin name users (or Qiskit internals) refer to,
+# and the value is the import path to the plugin class implementing that stage.
 plugins."qiskit.transpiler.scheduling".aqt = "qiskit_aqt_provider.transpiler_plugin:AQTSchedulingPlugin"
 plugins."qiskit.transpiler.translation".aqt = "qiskit_aqt_provider.transpiler_plugin:AQTTranslationPlugin"
+
 plugins.pytest11.pytest_qiskit_aqt = "qiskit_aqt_provider.test.fixtures"
 
 [tool.ruff]
