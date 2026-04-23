@@ -79,7 +79,8 @@ class AQTSampler(BackendSamplerV2):
             pm = generate_preset_pass_manager(
                 backend=self._backend, optimization_level=self.optimization_level
             )
-            circuits = pm.run(flatten_circuits)
+            # don't use pass_manager.run(bound_circuits). It starts several processes and is slower
+            circuits = [pm.run(qc) for qc in flatten_circuits]
         else:
             circuits = flatten_circuits
 

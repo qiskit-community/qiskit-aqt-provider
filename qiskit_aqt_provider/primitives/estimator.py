@@ -174,7 +174,8 @@ class AQTEstimator(BackendEstimatorV2):
             pm = generate_preset_pass_manager(
                 backend=self._backend, optimization_level=self.optimization_level
             )
-            final_circuits = pm.run(bound_circuits)
+            # don't use pass_manager.run(bound_circuits). It starts several processes and is slower
+            final_circuits = [pm.run(qc) for qc in bound_circuits]
         else:
             final_circuits = bound_circuits
 
