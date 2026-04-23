@@ -97,6 +97,8 @@ class AQTEstimator(BackendEstimatorV2):
         """
         self.auto_transpilation = auto_transpilation
         self.optimization_level = optimization_level
+        # disable progress bar
+        backend.options.with_progress_bar = False
         # Set default precision in options so the amount of shots is the max amount possible
         options_copy = copy(options) if options is not None else {}
         if "default_precision" not in options_copy:

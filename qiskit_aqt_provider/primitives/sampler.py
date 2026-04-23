@@ -50,11 +50,8 @@ class AQTSampler(BackendSamplerV2):
         """
         self.auto_transpilation = auto_transpilation
         self.optimization_level = optimization_level
-        # Signal the transpiler to disable passes that require bound
-        # parameters.
-        # This allows the underlying sampler to apply most of
-        # the transpilation passes, and cache the results.
-
+        # disable progress bar
+        backend.options.with_progress_bar = False
         # Set default shots in options
         options_copy = copy(options) if options is not None else {}
         if "default_shots" not in options_copy:
