@@ -155,13 +155,13 @@ class AQTSchedulingPlugin(PassManagerStagePlugin):
     """Scheduling stage plugin for the :mod:`qiskit.transpiler`.
 
     Register the following passes to conclude transpilation, irrespective of the optimization level:
-    1. Single-qubit gates decomposition. It uses a RR decomposition, which emits code that requires
+    1. :class:`WrapRxxAngles` pass to wrap Rxx angles to [0, π/2].
+    2. Pass for the wrapped RXX gates decomposition.
+    3. Single-qubit gates decomposition. It uses a RR decomposition, which emits code that requires
         two pulses per single-qubit gates run. Since Z gates are virtual, a ZXZ decomposition is
         better, because it only requires a single pulse.
-    2. :class:`RewriteRxAsR` pass to rewrite RX → R, also wrapping the angles to match the API
+    4. :class:`RewriteRxAsR` pass to rewrite RX → R, also wrapping the angles to match the API
         constraints.
-    3. :class:`WrapRxxAngles` pass to wrap Rxx angles to [0, π/2].
-    4. Pass for the wrapped RXX gates decomposition.
     5. Remove redundant final measurements and raise error for mid-circuit measurements.
     """
 
@@ -172,10 +172,10 @@ class AQTSchedulingPlugin(PassManagerStagePlugin):
     ) -> PassManager:
         """Pass manager for the scheduling phase."""
         passes: list[Task] = [
-            Optimize1qGatesDecomposition(basis=["rx", "rz"]),
-            RewriteRxAsR(),
             WrapRxxAngles(),
             Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]),
+            Optimize1qGatesDecomposition(basis=["rx", "rz"]),
+            RewriteRxAsR(),
             EnsureSingleFinalMeasurement(),
         ]
         return PassManager(passes)
