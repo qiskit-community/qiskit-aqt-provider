@@ -52,7 +52,9 @@ def _run_circuits(
         if clear_metadata:
             circ.metadata = {}
 
-    if run_options.get("seed_simulator") is not None and type(backend) is OfflineSimulatorResource:
+    if run_options.get("seed_simulator") is not None and isinstance(
+        backend, OfflineSimulatorResource
+    ):
         backend.simulator.options.seed_simulator = run_options.get("seed_simulator")
 
     max_circuits = backend.max_circuits
