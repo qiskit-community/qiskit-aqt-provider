@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     # fix the random seeds such that the example is reproducible
     algorithm_globals.random_seed = RANDOM_SEED
-    backend.simulator.options.seed_simulator = RANDOM_SEED
+    estimator.options.seed_simulator = RANDOM_SEED
 
     # Hamiltonian: Ising model on two spin 1/2 without external field
     J = 1.2

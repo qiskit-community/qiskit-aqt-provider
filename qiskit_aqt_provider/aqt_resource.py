@@ -161,6 +161,9 @@ class _ResourceBase(Generic[_OptionsType], Backend):
         valid_options = {key: value for key, value in options.items() if key in self.options}
         unknown_options = set(options) - set(valid_options)
 
+        # TODO: remove this when AQTResource is able to use the seed_simulator option
+        unknown_options.discard("seed_simulator")
+
         if unknown_options:
             for unknown_option in unknown_options:
                 warnings.warn(

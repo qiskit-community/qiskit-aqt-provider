@@ -24,7 +24,7 @@ from qiskit.primitives.backend_estimator_v2 import (
 )
 from qiskit.result import Result
 
-from qiskit_aqt_provider.aqt_resource import AnyAQTResource
+from qiskit_aqt_provider.aqt_resource import AnyAQTResource, OfflineSimulatorResource
 
 
 def _run_circuits(
@@ -51,6 +51,9 @@ def _run_circuits(
         metadata.append(circ.metadata)
         if clear_metadata:
             circ.metadata = {}
+
+    if run_options.get("seed_simulator") is not None and type(backend) is OfflineSimulatorResource:
+        backend.simulator.options.seed_simulator = run_options.get("seed_simulator")
 
     max_circuits = backend.max_circuits
     max_shots = type(backend.options).model_fields["shots"].metadata[1].le

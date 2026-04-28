@@ -73,7 +73,10 @@ def solve_partition_problem(
     qp = problem.to_quadratic_program()
 
     meo = MinimumEigenOptimizer(
-        min_eigen_solver=QAOA(sampler=AQTSampler(backend=backend), optimizer=COBYLA())
+        min_eigen_solver=QAOA(
+            sampler=AQTSampler(backend=backend, options={"seed_simulator": RANDOM_SEED}),
+            optimizer=COBYLA(),
+        )
     )
     result = meo.solve(qp)
 
@@ -91,7 +94,6 @@ if __name__ == "__main__":
 
     # fix the random seeds such that the example is reproducible
     algorithm_globals.random_seed = RANDOM_SEED
-    backend.simulator.options.seed_simulator = RANDOM_SEED
 
     num_set = {1, 3, 4}
     result = solve_partition_problem(num_set, backend)
