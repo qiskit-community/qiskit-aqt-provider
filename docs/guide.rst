@@ -246,7 +246,7 @@ Using Qiskit primitives
 
 Circuit evaluation can also be performed using :mod:`Qiskit primitives <qiskit.primitives>` through their specialized implementations for AQT backends :class:`AQTSampler <qiskit_aqt_provider.primitives.sampler.AQTSampler>` and :class:`AQTEstimator <qiskit_aqt_provider.primitives.estimator.AQTEstimator>`. These classes expose the :class:`BaseSamplerV1 <qiskit.primitives.BaseSamplerV1>` and :class:`BaseEstimatorV1 <qiskit.primitives.BaseEstimatorV1>` interfaces respectively.
 
-.. warning:: The generic implementations :class:`BackendSampler <qiskit.primitives.BackendSampler>` and :class:`BackendEstimator <qiskit.primitives.BackendEstimator>` are **not** compatible with backends retrieved from the :class:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider>`. Please use the specialized implementations :class:`AQTSampler <qiskit_aqt_provider.primitives.sampler.AQTSampler>` and :class:`AQTEstimator <qiskit_aqt_provider.primitives.estimator.AQTEstimator>` instead.
+.. warning:: The generic implementations :class:`BackendSamplerV2 <qiskit.primitives.BackendSamplerV2>` and :class:`BackendEstimatorV2 <qiskit.primitives.BackendEstimatorV2>` are **not** compatible with backends retrieved from the :class:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider>`. Please use the specialized implementations :class:`AQTSampler <qiskit_aqt_provider.primitives.sampler.AQTSampler>` and :class:`AQTEstimator <qiskit_aqt_provider.primitives.estimator.AQTEstimator>` instead.
 
 For example, the :class:`AQTSampler <qiskit_aqt_provider.primitives.sampler.AQTSampler>` can evaluate bitstring quasi-probabilities for a given circuit. Using the :ref:`Bell state circuit <bell-state-circuit>` defined above, we see that the states :math:`|00\rangle` and :math:`|11\rangle` roughly have the same quasi-probability:
 
@@ -256,8 +256,10 @@ For example, the :class:`AQTSampler <qiskit_aqt_provider.primitives.sampler.AQTS
    from qiskit_aqt_provider.primitives import AQTSampler
 
    sampler = AQTSampler(backend)
-   result = sampler.run(circuit, shots=200).result()
-   data = {f"{b:02b}": p for b, p in result.quasi_dists[0].items()}
+   result = sampler.run([circuit], shots=200).result()[0]
+   counts = result.data.meas.get_counts()
+   shots = sum(counts.values())
+   data = {bitstring: c / shots for bitstring, c in counts.items()}
    plot_distribution(data, figsize=(5, 4), color="#d1e0e0")
 
 
@@ -268,15 +270,17 @@ In this Bell state, the expectation value of the :math:`\sigma_z\otimes\sigma_z`
    from qiskit.quantum_info import SparsePauliOp
    from qiskit_aqt_provider.primitives import AQTEstimator
 
-   estimator = AQTEstimator(backend)
+   estimator = AQTEstimator(backend=backend)
 
    bell_circuit = qiskit.QuantumCircuit(2)
    bell_circuit.h(0)
    bell_circuit.cx(0, 1)
 
    observable = SparsePauliOp.from_list([("ZZ", 1)])
-   result = estimator.run(bell_circuit, observable).result()
-   print(result.values[0])
+
+   job = estimator.run([(bell_circuit, observable)])
+   value = job.result()[0].data.evs
+   print(value)
 
 .. tip:: The circuit passed to estimator's :meth:`run <qiskit.primitives.BaseEstimatorV1.run>` method is used to prepare the state the observable is evaluated in. Therefore, it must not contain unconditional measurement operations.
 

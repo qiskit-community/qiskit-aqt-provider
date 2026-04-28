@@ -158,11 +158,15 @@ class AQTSchedulingPlugin(PassManagerStagePlugin):
     1. :class:`WrapRxxAngles` pass to wrap Rxx angles to [0, π/2].
     2. Pass for the wrapped RXX gates decomposition.
     3. Single-qubit gates decomposition. It uses a RR decomposition, which emits code that requires
-        two pulses per single-qubit gates run. Since Z gates are virtual, a ZXZ decomposition is
-        better, because it only requires a single pulse.
+    two pulses per single-qubit gates run. Since Z gates are virtual, a ZXZ decomposition is
+    better, because it only requires a single pulse.
     4. :class:`RewriteRxAsR` pass to rewrite RX → R, also wrapping the angles to match the API
-        constraints.
+    constraints.
     5. Remove redundant final measurements and raise error for mid-circuit measurements.
+
+    Note: This plugin was originally created for Qiskit 1. Qiskit 2 introduces a transpiler pass
+    :class:`WrapAngles <qiskit.transpiler.passes.WrapAngles>` for
+    wrapping angles and it may be possible to find a better solution based on it.
     """
 
     def pass_manager(
@@ -272,6 +276,10 @@ class AQTTranslationPlugin(PassManagerStagePlugin):
 
     If the optimization level is 0, an extra pass to decompose the wrapped RXX gates is
     added, as in this case no decomposition is being done by the optimization stage.
+
+    Note: This plugin was originally created for Qiskit 1. Qiskit 2 introduces a transpiler pass
+    :class:`WrapAngles <qiskit.transpiler.passes.WrapAngles>` for
+    wrapping angles and it may be possible to find a better solution based on it.
     """
 
     def pass_manager(

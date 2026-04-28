@@ -20,6 +20,6 @@ Transpiler plugin
    :show-inheritance:
    :exclude-members: __init__, __new__
 
-.. autoclass:: qiskit_aqt_provider.transpiler_plugin.UnboundParametersTarget
+.. autoclass:: qiskit_aqt_provider.transpiler_plugin.EnsureSingleFinalMeasurement
    :show-inheritance:
    :exclude-members: __init__, __new__

@@ -100,6 +100,12 @@ class _ResourceBase(Generic[_OptionsType], Backend):
     ) -> None:
         """Initialize the Qiskit backend.
 
+        Qiskit allows to connect transpiler plugins for the scheduling and
+        translation stage to be connected to backends
+        [custom transpiler passes](https://quantum.cloud.ibm.com/docs/en/api/qiskit/providers#custom-transpiler-passes).
+        The methods `get_scheduling_stage_plugin` and `get_translation_stage_plugin`
+        are used to connect the appropriate transpiler plugins to AQT backends.
+
         Args:
             provider: Qiskit provider that owns this backend.
             name: name of the backend.

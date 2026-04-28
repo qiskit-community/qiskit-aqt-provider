@@ -40,16 +40,14 @@ Define a circuit that generates 2-qubit Bell state and sample it on a simulator 
    backend = provider.get_backend("offline_simulator_no_noise")
 
    # Instantiate a sampler on the execution backend.
-   sampler = AQTSampler(backend)
-
    # Optional: set the transpiler's optimization level.
    # Optimization level 3 typically provides the best results.
-   sampler.set_transpile_options(optimization_level=3)
+   sampler = AQTSampler(backend, optimization_level=3)
 
    # Sample the circuit on the execution backend.
-   result = sampler.run(circuit).result()
+   result = sampler.run([circuit]).result()[0]
 
-   quasi_dist = result.quasi_dists[0]
+   quasi_dist = result.data.meas.get_bitstrings()
    print(quasi_dist)
 
 For more details see the :ref:`user guide <user-guide>`, a selection of `examples <https://github.com/qiskit-community/qiskit-aqt-provider/tree/master/examples>`_, or the reference documentation.
