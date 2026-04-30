@@ -12,67 +12,19 @@
 
 from collections import defaultdict
 from copy import copy
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 import numpy as np
-from qiskit import QuantumCircuit, generate_preset_pass_manager
+from qiskit import generate_preset_pass_manager
 from qiskit.primitives import BackendEstimatorV2, PubResult
 from qiskit.primitives.backend_estimator_v2 import (
     EstimatorPub,
     _prepare_counts,
     _PreprocessedData,
+    _run_circuits,
 )
-from qiskit.result import Result
 
 from qiskit_aqt_provider.aqt_resource import AnyAQTResource, OfflineSimulatorResource
-
-
-def _run_circuits(
-    circuits: Union[QuantumCircuit, list[QuantumCircuit]],
-    backend: AnyAQTResource,
-    clear_metadata: bool = True,
-    **run_options: Any,
-) -> tuple[list[Result], list[dict[Any, Any]]]:
-    """Remove metadata of circuits and run the circuits on a backend.
-
-    Args:
-        circuits: The circuits
-        backend: The backend
-        clear_metadata: Clear circuit metadata before passing to backend.run if
-            True.
-        **run_options: run_options
-    Returns:
-        The result and the metadata of the circuits
-    """
-    if isinstance(circuits, QuantumCircuit):
-        circuits = [circuits]
-    metadata = []
-    for circ in circuits:
-        metadata.append(circ.metadata)
-        if clear_metadata:
-            circ.metadata = {}
-
-    if run_options.get("seed_simulator") is not None and isinstance(
-        backend, OfflineSimulatorResource
-    ):
-        backend.simulator.options.seed_simulator = run_options.get("seed_simulator")
-
-    max_circuits = backend.max_circuits
-    max_shots = type(backend.options).model_fields["shots"].metadata[1].le
-    if max_shots and "shots" in run_options and run_options["shots"] > max_shots:
-        raise ValueError(
-            f"Number of shots {run_options['shots']} exceeds the backend's limit of {max_shots}. "
-            "Consider reducing the precision of the estimation.",
-        )
-    if max_circuits:
-        jobs = [
-            backend.run(circuits[pos : pos + max_circuits], **run_options)
-            for pos in range(0, len(circuits), max_circuits)
-        ]
-        result = [x.result() for x in jobs]
-    else:
-        result = [backend.run(circuits, **run_options).result()]
-    return result, metadata
 
 
 class AQTEstimator(BackendEstimatorV2):
@@ -130,9 +82,25 @@ class AQTEstimator(BackendEstimatorV2):
             preprocessed_data.append(data)
             flat_circuits.extend(data.circuits)
 
-        run_result, metadata = _run_circuits(
-            flat_circuits, self._backend, shots=shots, seed_simulator=self._options.seed_simulator
-        )
+        max_shots = type(self._backend.options).model_fields["shots"].metadata[1].le
+        if max_shots and shots > max_shots:
+            raise ValueError(
+                f"Number of shots {shots} exceeds the backend's limit of {max_shots}. "
+                "Consider reducing the precision of the estimation.",
+            )
+
+        if self._options.seed_simulator is None or not isinstance(
+            self._backend, OfflineSimulatorResource
+        ):
+            run_result, metadata = _run_circuits(flat_circuits, self._backend, shots=shots)
+        else:
+            run_result, metadata = _run_circuits(
+                flat_circuits,
+                self._backend,
+                shots=shots,
+                seed_simulator=self._options.seed_simulator,
+            )
+
         counts = _prepare_counts(run_result)
 
         results = []

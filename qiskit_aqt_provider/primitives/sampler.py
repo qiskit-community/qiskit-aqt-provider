@@ -18,12 +18,12 @@ from qiskit.primitives import (
     BackendSamplerV2,
     SamplerPubResult,
 )
+from qiskit.primitives.backend_estimator_v2 import _run_circuits
 from qiskit.primitives.backend_sampler_v2 import _analyze_circuit, _prepare_memory
 from qiskit.primitives.containers.sampler_pub import SamplerPub
 from qiskit.transpiler import generate_preset_pass_manager
 
-from qiskit_aqt_provider.aqt_resource import AnyAQTResource
-from qiskit_aqt_provider.primitives.estimator import _run_circuits
+from qiskit_aqt_provider.aqt_resource import AnyAQTResource, OfflineSimulatorResource
 
 
 class AQTSampler(BackendSamplerV2):
@@ -69,6 +69,10 @@ class AQTSampler(BackendSamplerV2):
 
     def _run_pubs(self, pubs: list[SamplerPub], shots: int) -> list[SamplerPubResult]:
         """Compute results for pubs that all require the same value of ``shots``."""
+        max_shots = type(self._backend.options).model_fields["shots"].metadata[1].le
+        if max_shots and shots > max_shots:
+            raise ValueError(f"Number of shots {shots} exceeds the backend's limit of {max_shots}.")
+
         # prepare circuits
         bound_circuits = [pub.parameter_values.bind_all(pub.circuit) for pub in pubs]
         flatten_circuits = []
@@ -86,15 +90,27 @@ class AQTSampler(BackendSamplerV2):
 
         run_opts = self._options.run_options or {}
         # run circuits
-        results, _ = _run_circuits(
-            circuits,
-            self._backend,
-            clear_metadata=False,
-            memory=True,
-            shots=shots,
-            seed_simulator=self._options.seed_simulator,
-            **run_opts,
-        )
+        if self._options.seed_simulator is None or not isinstance(
+            self._backend, OfflineSimulatorResource
+        ):
+            results, _ = _run_circuits(
+                circuits,
+                self._backend,
+                clear_metadata=False,
+                memory=True,
+                shots=shots,
+                **run_opts,
+            )
+        else:
+            results, _ = _run_circuits(
+                circuits,
+                self._backend,
+                clear_metadata=False,
+                memory=True,
+                shots=shots,
+                seed_simulator=self._options.seed_simulator,
+                **run_opts,
+            )
         result_memory = _prepare_memory(results)
 
         # convert memory to hex strings to be postprocessed into counts by _postprocess_pub
