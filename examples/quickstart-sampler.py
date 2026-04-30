@@ -34,7 +34,7 @@ circuit.measure_all()
 backend = AQTProvider().get_backend("offline_simulator_no_noise")
 
 # Instantiate a sampler on the execution backend
-sampler = AQTSampler(backend=backend, auto_transpilation=False)
+sampler = AQTSampler(backend=backend, skip_transpilation=True)
 
 # Transpile the circuit for the execution backend
 pm = generate_preset_pass_manager(backend=backend, optimization_level=3)

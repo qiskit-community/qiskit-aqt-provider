@@ -1,15 +1,3 @@
-# This code is part of Qiskit.
-#
-# (C) Copyright Alpine Quantum Technologies GmbH 2023
-#
-# This code is licensed under the Apache License, Version 2.0. You may
-# obtain a copy of this license in the LICENSE.txt file in the root directory
-# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
-#
-# Any modifications or derivative works of this code must retain this
-# copyright notice, and modified files need to carry a notice indicating
-# that they have been altered from the originals.
-
 from copy import copy
 from typing import Any, Optional
 
@@ -23,11 +11,26 @@ from qiskit.primitives.backend_sampler_v2 import _analyze_circuit, _prepare_memo
 from qiskit.primitives.containers.sampler_pub import SamplerPub
 from qiskit.transpiler import generate_preset_pass_manager
 
-from qiskit_aqt_provider.aqt_resource import AnyAQTResource, OfflineSimulatorResource
+from qiskit_aqt_provider.aqt_resource import AnyAQTResource
 
 
 class AQTSampler(BackendSamplerV2):
-    """Class for interacting with the AQT provider's Sampler service."""
+    """Class for interacting with the AQT provider's Sampler service.
+
+    As circuit transpilation for AQT backends includes angle wrapping, the transpilation needs to
+    be done after parameter binding. In order for the AQTSampler to support parameterized circuits,
+    it needs to transpile circuits when it is run.
+
+    For use cases where full control over transpilation is required and no parameterized circuits
+    are used, the transpilation by the sampler can be skipped with the `skip_transpilation`
+    attribute and backend-compatible circuits provided to the sampler.
+
+    Providing options to the :class:`AQTSampler` on instantiation will affect all circuit
+    evaluations. Setting :class:`options <qiskit_aqt_provider.aqt_options.AQTOptions>` on the
+    backend has the same effect. Passing options in
+    :meth:`AQTSampler.run <qiskit.primitives.BaseSamplerV2.run>` restricts the effect to that
+    evaluation.
+    """
 
     _backend: AnyAQTResource
 
@@ -36,7 +39,7 @@ class AQTSampler(BackendSamplerV2):
         backend: AnyAQTResource,
         *,
         options: Optional[dict[str, Any]] = None,
-        auto_transpilation: bool = True,
+        skip_transpilation: bool = False,
         optimization_level: int = 0,
     ) -> None:
         """Initialize a ``Sampler`` primitive using an AQT backend.
@@ -45,10 +48,11 @@ class AQTSampler(BackendSamplerV2):
             backend: AQT resource to evaluate circuits on.
             options: options passed through to the underlying
               :class:`BackendSamplerV2 <qiskit.primitives.BackendSamplerV2>`.
-            auto_transpilation: whether to automatically transpile circuits, defaults to True.
+            skip_transpilation: if :data:`True`, do not transpile circuits
+              before passing them to the execution backend, defaults to :data:`False`.
             optimization_level: the optimization level for transpilation, defaults to 0.
         """
-        self.auto_transpilation = auto_transpilation
+        self.skip_transpilation = skip_transpilation
         self.optimization_level = optimization_level
         # disable progress bar
         backend.options.with_progress_bar = False
@@ -68,7 +72,14 @@ class AQTSampler(BackendSamplerV2):
         return self._backend
 
     def _run_pubs(self, pubs: list[SamplerPub], shots: int) -> list[SamplerPubResult]:
-        """Compute results for pubs that all require the same value of ``shots``."""
+        """Compute results for pubs that all require the same value of ``shots``.
+
+        Overrides the parent :class:`BaseSamplerV2 <qiskit.primitives.BaseSamplerV2>` function
+        :meth: `_run_pubs` to add functionality for:
+        - Checking if the maximum amount of shots the backend is capable of, is not exceeded.
+        - Transpile circuits after parameters were bound.
+        - Convert memory to hex strings for postprocessing with :meth:`_postprocess_pub`.
+        """
         max_shots = type(self._backend.options).model_fields["shots"].metadata[1].le
         if max_shots and shots > max_shots:
             raise ValueError(f"Number of shots {shots} exceeds the backend's limit of {max_shots}.")
@@ -79,7 +90,7 @@ class AQTSampler(BackendSamplerV2):
         for bc in bound_circuits:
             flatten_circuits.extend(np.ravel(bc).tolist())
 
-        if self.auto_transpilation:
+        if not self.skip_transpilation:
             pm = generate_preset_pass_manager(
                 backend=self._backend, optimization_level=self.optimization_level
             )
@@ -90,27 +101,15 @@ class AQTSampler(BackendSamplerV2):
 
         run_opts = self._options.run_options or {}
         # run circuits
-        if self._options.seed_simulator is None or not isinstance(
-            self._backend, OfflineSimulatorResource
-        ):
-            results, _ = _run_circuits(
-                circuits,
-                self._backend,
-                clear_metadata=False,
-                memory=True,
-                shots=shots,
-                **run_opts,
-            )
-        else:
-            results, _ = _run_circuits(
-                circuits,
-                self._backend,
-                clear_metadata=False,
-                memory=True,
-                shots=shots,
-                seed_simulator=self._options.seed_simulator,
-                **run_opts,
-            )
+        results, _ = _run_circuits(
+            circuits,
+            self._backend,
+            clear_metadata=False,
+            memory=True,
+            shots=shots,
+            seed_simulator=self._options.seed_simulator,
+            **run_opts,
+        )
         result_memory = _prepare_memory(results)
 
         # convert memory to hex strings to be postprocessed into counts by _postprocess_pub
