@@ -32,7 +32,14 @@ class CloudResource(BackendV2):
     def __init__(
         self, arnica: ArnicaApp, api_client: httpx.Client, workspace_id: str, resource_details: ResourceDetails
     ) -> None:
-        """Initializes a cloud resource with the given workspace and resource details."""
+        """Initializes a cloud resource with the given workspace and resource details.
+
+        Qiskit allows to connect transpiler plugins for the scheduling and
+        translation stage to be connected to backends
+        [custom transpiler passes](https://quantum.cloud.ibm.com/docs/en/api/qiskit/providers#custom-transpiler-passes).
+        The methods `get_scheduling_stage_plugin` and `get_translation_stage_plugin`
+        are used to connect the appropriate transpiler plugins to AQT backends.
+        """
         self._arnica = arnica
         self._api_client = api_client
         self.workspace_id = workspace_id

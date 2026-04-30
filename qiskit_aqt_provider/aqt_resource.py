@@ -43,6 +43,7 @@ from qiskit_aer import AerJob, AerSimulator, noise
 from typing_extensions import TypeAlias, override
 
 from qiskit_aqt_provider import api_client
+from qiskit_aqt_provider._cloud.resource import CloudResource
 from qiskit_aqt_provider.api_client import Resource, models_direct
 from qiskit_aqt_provider.api_client import models as api_models
 from qiskit_aqt_provider.api_client import models_direct as api_models_direct
@@ -340,9 +341,7 @@ class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):
             available_qubits=available_qubits,
         )
 
-    def run(
-        self, circuits: Union[QuantumCircuit, list[QuantumCircuit]], **options: Any
-    ) -> AQTDirectAccessJob:
+    def run(self, circuits: Union[QuantumCircuit, list[QuantumCircuit]], **options: Any) -> AQTDirectAccessJob:
         """Prepare circuits for execution on this resource.
 
         .. warning:: The circuits are only evaluated during
@@ -370,9 +369,7 @@ class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):
         Returns:
             The unique identifier of the submitted job.
         """
-        resp = http_response_raise_for_status(
-            self._http_client.put("/circuit", json=circuit.model_dump())
-        )
+        resp = http_response_raise_for_status(self._http_client.put("/circuit", json=circuit.model_dump()))
         return UUID(resp.json())
 
     def result(self, job_id: UUID, *, timeout: Optional[float]) -> api_models_direct.JobResult:
@@ -388,9 +385,7 @@ class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):
         Returns:
             Job result, as API payload.
         """
-        resp = http_response_raise_for_status(
-            self._http_client.get(f"/circuit/result/{job_id}", timeout=timeout)
-        )
+        resp = http_response_raise_for_status(self._http_client.get(f"/circuit/result/{job_id}", timeout=timeout))
         return api_models_direct.JobResult.model_validate(resp.json())
 
 
@@ -565,10 +560,7 @@ class OfflineSimulatorResource(AQTResource):
 
             for hex_state, occurrences in counts.items():
                 samples.extend(
-                    [
-                        qubit_states_from_int(int(hex_state, 16), circuit.num_qubits)
-                        for _ in range(occurrences)
-                    ]
+                    [qubit_states_from_int(int(hex_state, 16), circuit.num_qubits) for _ in range(occurrences)]
                 )
 
             results[str(circuit_index)] = samples
@@ -586,5 +578,5 @@ class OfflineSimulatorResource(AQTResource):
         )
 
 
-AnyAQTResource: TypeAlias = Union[AQTResource, AQTDirectAccessResource]
+AnyAQTResource: TypeAlias = Union[AQTResource, AQTDirectAccessResource, CloudResource]
 """Type of any remote or direct access resource."""

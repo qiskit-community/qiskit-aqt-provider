@@ -56,8 +56,8 @@ dependencies.pytest = { version = ">=8", optional = true }
 dependencies.pytest-httpx = { version = "^0.35.0", optional = true }
 dependencies.python-dotenv = ">=1"
 dependencies.qiskit = { version = ">=2", allow-prereleases = false }
-dependencies.qiskit-aer = ">=0.13.2"
-dependencies.qiskit-algorithms = { version = ">=0.2.1,<0.4", optional = true }
+dependencies.qiskit-aer = ">=0.17"
+dependencies.qiskit-algorithms = { version = ">=0.4", optional = true }
 dependencies.qiskit-optimization = { version = ">=0.6.0", optional = true }
 dependencies.tabulate = ">=0.9.0"
 dependencies.tqdm = ">=4"
@@ -117,11 +117,16 @@ group.dev.dependencies.types-tabulate = "^0.9.0.1"
 group.dev.dependencies.types-tqdm = "^4.65.0.1"
 group.dev.dependencies.typos = "^1.29.0"
 group.dev.dependencies.yq = "^3.4.3"
+
+# Register custom Qiskit transpiler plugins via Python entry points.
+#
+# These entries tell Qiskit how to discover and load AQT-specific transpiler stages.
+# The key (`aqt`) is the plugin name users (or Qiskit internals) refer to,
+# and the value is the import path to the plugin class implementing that stage.
 plugins."qiskit.transpiler.scheduling".aqt = "qiskit_aqt_provider.transpiler_plugin:AQTSchedulingPlugin"
 plugins."qiskit.transpiler.translation".aqt = "qiskit_aqt_provider.transpiler_plugin:AQTTranslationPlugin"
 
-group.test.dependencies.fastapi = {version = "^0.128.8", extras = ["standard"] }
-
+group.test.dependencies.fastapi = { version = "^0.128.8", extras = [ "standard" ] }
 
 [tool.ruff]
 target-version = "py39"
