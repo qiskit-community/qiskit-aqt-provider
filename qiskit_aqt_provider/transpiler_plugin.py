@@ -49,7 +49,7 @@ from qiskit.transpiler.preset_passmanagers.plugin import PassManagerStagePlugin
 from qiskit_aqt_provider.utils import map_exceptions
 
 
-def rewrite_rx_as_r(theta: float) -> Instruction:
+def _rewrite_rx_as_r(theta: float) -> Instruction:
     """Instruction equivalent to Rx(θ) as R(θ, φ) with θ ∈ [0, π] and φ ∈ [0, 2π]."""
     theta = math.atan2(math.sin(theta), math.cos(theta))
     phi = math.pi if theta < 0.0 else 0.0
@@ -69,7 +69,7 @@ class RewriteRxAsR(TransformationPass):
         for node in dag.gate_nodes():
             if node.name == "rx":
                 (theta,) = node.op.params
-                dag.substitute_node(node, rewrite_rx_as_r(float(theta)))
+                dag.substitute_node(node, _rewrite_rx_as_r(float(theta)))
         return dag
 
 
@@ -151,40 +151,6 @@ class EnsureSingleFinalMeasurement(TransformationPass):
         return new_dag
 
 
-class AQTSchedulingPlugin(PassManagerStagePlugin):
-    """Scheduling stage plugin for the :mod:`qiskit.transpiler`.
-
-    Register the following passes to conclude transpilation, irrespective of the optimization level:
-    1. :class:`WrapRxxAngles` pass to wrap Rxx angles to [0, π/2].
-    2. Pass for the wrapped RXX gates decomposition.
-    3. Single-qubit gates decomposition. It uses a RR decomposition, which emits code that requires
-    two pulses per single-qubit gates run. Since Z gates are virtual, a ZXZ decomposition is
-    better, because it only requires a single pulse.
-    4. :class:`RewriteRxAsR` pass to rewrite RX → R, also wrapping the angles to match the API
-    constraints.
-    5. Remove redundant final measurements and raise error for mid-circuit measurements.
-
-    Note: This plugin was originally created for Qiskit 1. Qiskit 2 introduces a transpiler pass
-    :class:`WrapAngles <qiskit.transpiler.passes.WrapAngles>` for
-    wrapping angles and it may be possible to find a better solution based on it.
-    """
-
-    def pass_manager(
-        self,
-        pass_manager_config: PassManagerConfig,  # noqa: ARG002
-        optimization_level: Optional[int] = None,  # noqa: ARG002
-    ) -> PassManager:
-        """Pass manager for the scheduling phase."""
-        passes: list[Task] = [
-            WrapRxxAngles(),
-            Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]),
-            Optimize1qGatesDecomposition(basis=["rx", "rz"]),
-            RewriteRxAsR(),
-            EnsureSingleFinalMeasurement(),
-        ]
-        return PassManager(passes)
-
-
 @dataclass(frozen=True)
 class CircuitInstruction:
     """Substitute for `qiskit.circuit.CircuitInstruction`.
@@ -220,7 +186,7 @@ def _emit_rxx_instruction(theta: float, instructions: list[CircuitInstruction]) 
     return qc.to_instruction()
 
 
-def wrap_rxx_angle(theta: float) -> Instruction:
+def _wrap_rxx_angle(theta: float) -> Instruction:
     """Instruction equivalent to RXX(θ) with θ ∈ [0, π/2]."""
     # fast path if -π/2 <= θ <= π/2
     if abs(theta) <= math.pi / 2:
@@ -261,7 +227,7 @@ class WrapRxxAngles(TransformationPass):
                 if 0 <= float(theta) <= math.pi / 2:
                     continue
 
-                rxx = wrap_rxx_angle(float(theta))
+                rxx = _wrap_rxx_angle(float(theta))
                 dag.substitute_node(node, rxx)
 
         return dag
@@ -303,3 +269,37 @@ class AQTTranslationPlugin(PassManagerStagePlugin):
             translation_pm.append(Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]))
 
         return translation_pm
+
+
+class AQTSchedulingPlugin(PassManagerStagePlugin):
+    """Scheduling stage plugin for the :mod:`qiskit.transpiler`.
+
+    Register the following passes to conclude transpilation, irrespective of the optimization level:
+    1. :class:`WrapRxxAngles` pass to wrap Rxx angles to [0, π/2].
+    2. Pass for the wrapped RXX gates decomposition.
+    3. Single-qubit gates decomposition. It uses a RR decomposition, which emits code that requires
+    two pulses per single-qubit gates run. Since Z gates are virtual, a ZXZ decomposition is
+    better, because it only requires a single pulse.
+    4. :class:`RewriteRxAsR` pass to rewrite RX → R, also wrapping the angles to match the API
+    constraints.
+    5. Remove redundant final measurements and raise error for mid-circuit measurements.
+
+    Note: This plugin was originally created for Qiskit 1. Qiskit 2 introduces a transpiler pass
+    :class:`WrapAngles <qiskit.transpiler.passes.WrapAngles>` for
+    wrapping angles and it may be possible to find a better solution based on it.
+    """
+
+    def pass_manager(
+        self,
+        pass_manager_config: PassManagerConfig,  # noqa: ARG002
+        optimization_level: Optional[int] = None,  # noqa: ARG002
+    ) -> PassManager:
+        """Pass manager for the scheduling phase."""
+        passes: list[Task] = [
+            WrapRxxAngles(),
+            Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]),
+            Optimize1qGatesDecomposition(basis=["rx", "rz"]),
+            RewriteRxAsR(),
+            EnsureSingleFinalMeasurement(),
+        ]
+        return PassManager(passes)

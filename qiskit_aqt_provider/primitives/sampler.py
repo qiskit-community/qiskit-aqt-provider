@@ -22,7 +22,7 @@ class AQTSampler(BackendSamplerV2):
     when it is run.
 
     For use cases where full control over transpilation is required and no parameterized circuits are used, the
-    transpilation by the sampler can be skipped with the :attr:`skip_transpilation` parameter and backend-compatible
+    transpilation by the sampler can be skipped with the `skip_transpilation` attribute and backend-compatible
     circuits provided to the sampler.
 
     Providing options to the :class:`AQTSampler` on instantiation will affect all circuit evaluations.
