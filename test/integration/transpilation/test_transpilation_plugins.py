@@ -39,7 +39,8 @@ def test_translation_plugins_are_registered_with_cloud_backends() -> None:
     }
 
 
-def test_transpile_and_generate_preset_pass_manager_run_produce_the_same_results() -> None:
+@pytest.mark.parametrize(("optimization_level"), [0, 1, 2, 3])
+def test_transpile_and_generate_preset_pass_manager_run_produce_the_same_results(optimization_level: int) -> None:
     """Transpiling a circuit with the preset pass manager for an AQT cloud resource should produce the same result as
     using the transpile function with that resource as the backend.
     """
@@ -51,7 +52,7 @@ def test_transpile_and_generate_preset_pass_manager_run_produce_the_same_results
     qc.measure_all()
     backend = get_dummy_cloud_resource()
 
-    transpiled_1 = generate_preset_pass_manager(backend=backend).run(qc)
+    transpiled_1 = generate_preset_pass_manager(backend=backend, optimization_level=optimization_level).run(qc)
     transpiled_2 = transpile(backend=backend, circuits=qc)
 
     assert transpiled_1 == transpiled_2

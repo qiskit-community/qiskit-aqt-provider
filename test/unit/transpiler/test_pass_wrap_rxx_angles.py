@@ -55,9 +55,9 @@ def test_it_does_not_change_rxx_gates_with_angles_in_range(theta: float) -> None
     assert_circuits_equivalent(out, qc)
 
 
-@pytest.mark.parametrize("theta", [-pi / 6, -pi / 2])
+@pytest.mark.parametrize("theta", [-pi / 6, -pi / 2, -0.000001])
 def test_it_wraps_small_negative_angles(theta: float) -> None:
-    """It should wrap negative angles above -π/2 by adding RZ gates and taking the absolute value of the angle."""
+    """It should wrap negative angles [-π/2, 0) by adding RZ gates and taking the absolute value of the angle."""
     qc = QuantumCircuit(2)
     qc.rxx(theta, 0, 1)
     expected = QuantumCircuit(2)
@@ -70,9 +70,9 @@ def test_it_wraps_small_negative_angles(theta: float) -> None:
     assert_circuits_equivalent(out, expected)
 
 
-@pytest.mark.parametrize("theta", [pi, -pi, 3 * pi / 4, -3 * pi / 4])
+@pytest.mark.parametrize("theta", [pi, -pi, pi * 3 / 4, -pi * 3 / 4, pi * 3 / 2, -pi * 3 / 2])
 def test_it_wraps_mid_range_angles(theta: float) -> None:
-    """It should wrap angles in (π/2, 3π/2] by subtracting π and adding RX gates. Similarly for negative angles."""
+    """It should wrap angles in [-3π/2, -π/2) and (π/2, 3π/2] by subtracting π and adding RX gates."""
     qc = QuantumCircuit(2)
     qc.rxx(theta, 0, 1)
 
@@ -93,9 +93,9 @@ def test_it_wraps_mid_range_angles(theta: float) -> None:
     assert_circuits_equivalent(out, expected)
 
 
-@pytest.mark.parametrize("theta", [2 * pi, 5 * pi / 2, -5 * pi / 2])
+@pytest.mark.parametrize("theta", [2 * pi, pi * 5 / 2, -pi * 5 / 2])
 def test_it_wraps_large_angles(theta: float) -> None:
-    """It should wrap angles with absolute value above 3π/2 by modulo 2π and then applying the mid-range angle logic."""
+    """It should wrap angles with absolute value > 3π/2 by modulo 2π and then applying the mid-range angle logic."""
     qc = QuantumCircuit(2)
     qc.rxx(theta, 0, 1)
 
