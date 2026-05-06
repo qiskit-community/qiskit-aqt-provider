@@ -4,26 +4,16 @@ from math import copysign, pi
 import pytest
 from qiskit import QuantumCircuit
 from qiskit.converters import circuit_to_dag, dag_to_circuit
-from qiskit.quantum_info import Operator
 from qiskit.transpiler import PassManager
 
 from qiskit_aqt_provider.transpiler_plugin import WrapRxxAngles
+from test.helpers import assert_circuits_equivalent
 
 
 def run_pass(qc: QuantumCircuit) -> QuantumCircuit:
     """Helper function to run the WrapRxxAngles pass on a given quantum circuit."""
     pm = PassManager([WrapRxxAngles()])
     return pm.run(qc)
-
-
-def assert_equivalent(circ1: QuantumCircuit, circ2: QuantumCircuit) -> None:
-    """Helper function to assert that two quantum circuits are equivalent.
-
-    This is done by comparing their unitary operators. Alternatively we could decompose both circuits
-    and compare the resulting sequences of gates, but comparing unitaries is more straightforward for
-    this test.
-    """
-    assert Operator(circ1).equiv(Operator(circ2))
 
 
 @pytest.mark.parametrize(
@@ -62,7 +52,7 @@ def test_it_does_not_change_rxx_gates_with_angles_in_range(theta: float) -> None
 
     out = run_pass(qc)
 
-    assert_equivalent(out, qc)
+    assert_circuits_equivalent(out, qc)
 
 
 @pytest.mark.parametrize("theta", [-pi / 6, -pi / 2])
@@ -77,7 +67,7 @@ def test_it_wraps_small_negative_angles(theta: float) -> None:
 
     out = run_pass(qc)
 
-    assert_equivalent(out, expected)
+    assert_circuits_equivalent(out, expected)
 
 
 @pytest.mark.parametrize("theta", [pi, -pi, 3 * pi / 4, -3 * pi / 4])
@@ -100,7 +90,7 @@ def test_it_wraps_mid_range_angles(theta: float) -> None:
         expected.rz(pi, 0)
 
     out = run_pass(qc)
-    assert_equivalent(out, expected)
+    assert_circuits_equivalent(out, expected)
 
 
 @pytest.mark.parametrize("theta", [2 * pi, 5 * pi / 2, -5 * pi / 2])
@@ -122,4 +112,4 @@ def test_it_wraps_large_angles(theta: float) -> None:
         expected.rz(pi, 0)
 
     out = run_pass(qc)
-    assert_equivalent(out, expected)
+    assert_circuits_equivalent(out, expected)
