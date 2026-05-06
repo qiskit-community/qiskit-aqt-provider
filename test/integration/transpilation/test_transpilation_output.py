@@ -58,7 +58,7 @@ def test_transpilation_preserves_or_decreases_number_of_rxx_gates(
 ) -> None:
     """Check that transpilation at least preserves the number of RXX gates."""
     backend = get_dummy_cloud_resource()
-    pm = generate_preset_pass_manager(backend=get_dummy_cloud_resource(), optimization_level=optimization_level)
+    pm = generate_preset_pass_manager(backend=backend, optimization_level=optimization_level)
     qc = QuantumCircuit(2)
     for angle_pi in angles_pi:
         qc.rxx(angle_pi * pi, 0, 1)

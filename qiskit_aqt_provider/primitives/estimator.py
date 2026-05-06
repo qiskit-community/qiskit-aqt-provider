@@ -24,7 +24,7 @@ class AQTEstimator(BackendEstimatorV2):
 
     Providing options to the :class:`AQTEstimator` on instantiation will affect all circuit evaluations.
     Setting :class:`options <qiskit_aqt_provider.aqt_options.AQTOptions>` on the backend has the same effect.
-    Passing options in :meth:`AQTEstimator.run <qiskit.primitives.BaseSamplerV2.run>` restricts the effect to that
+    Passing options in :meth:`AQTEstimator.run <qiskit.primitives.BaseEstimatorV2.run>` restricts the effect to that
     evaluation.
     """
 
@@ -73,7 +73,7 @@ class AQTEstimator(BackendEstimatorV2):
         """Compute results for pubs that all require the same value of ``shots``.
 
         Overrides the parent :class:`BaseEstimatorV2 <qiskit.primitives.BaseEstimatorV2>` function
-        :meth: `_run_pubs` to check if the maximum amount of shots the backend is capable of, is not exceeded.
+        :meth:`_run_pubs` to check if the maximum amount of shots the backend is capable of, is not exceeded.
         """
         max_shots = type(self._backend.options).model_fields["shots"].metadata[1].le
         if max_shots and shots > max_shots:
@@ -89,7 +89,7 @@ class AQTEstimator(BackendEstimatorV2):
         """Converts a pub into a list of bound circuits necessary to estimate all its observables.
 
         Overrides the parent :class:`BaseEstimatorV2 <qiskit.primitives.BaseEstimatorV2>` function
-        :meth: `_preprocess_pub` to transpile circuits for the backend, unless actively skipped.
+        :meth:`_preprocess_pub` to transpile circuits for the backend, unless actively skipped.
 
         Args:
             pub: The pub to preprocess.

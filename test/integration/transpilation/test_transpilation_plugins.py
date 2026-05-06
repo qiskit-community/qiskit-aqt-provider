@@ -53,7 +53,7 @@ def test_transpile_and_generate_preset_pass_manager_run_produce_the_same_results
     backend = get_dummy_cloud_resource()
 
     transpiled_1 = generate_preset_pass_manager(backend=backend, optimization_level=optimization_level).run(qc)
-    transpiled_2 = transpile(backend=backend, circuits=qc)
+    transpiled_2 = transpile(backend=backend, circuits=qc, optimization_level=optimization_level)
 
     assert transpiled_1 == transpiled_2
 
