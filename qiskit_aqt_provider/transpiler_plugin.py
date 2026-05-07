@@ -74,7 +74,7 @@ class RewriteRxAsR(TransformationPass):
 
 
 class EnsureSingleFinalMeasurement(TransformationPass):
-    """Exactly one measurement at the end of the circuit."""
+    """Ensure at most one measurement per qubit, only at the end of the circuit."""
 
     @map_exceptions(TranspilerError)
     def run(self, dag: DAGCircuit) -> DAGCircuit:

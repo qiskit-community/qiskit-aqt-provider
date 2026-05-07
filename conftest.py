@@ -21,3 +21,7 @@ hypothesis.settings.register_profile(
     deadline=timedelta(seconds=1),  # Account for slower CI workers
     print_blob=True,  # Always print code to use with @reproduce_failure
 )
+
+pytest_plugins = [
+    "test.integration.fixtures",
+]
