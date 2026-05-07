@@ -6,7 +6,7 @@ requires = [
 
 [tool.poetry]
 name = "qiskit-aqt-provider"
-version = "1.14.0"
+version = "2.0.0"
 description = "Qiskit provider for AQT backends"
 authors = [
   "Qiskit Development Team",
@@ -23,11 +23,11 @@ classifiers = [
   "Operating System :: MacOS",
   "Operating System :: POSIX :: Linux",
   "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Topic :: Scientific/Engineering",
 ]
 keywords = [
@@ -46,7 +46,7 @@ include = [
   "README.md",
 ]
 requires-poetry = ">=2.0"
-dependencies.python = ">=3.9,<3.14"
+dependencies.python = ">=3.10,<=3.14"
 dependencies.annotated-types = ">=0.7.0"
 dependencies.httpx = ">=0.24.0"
 dependencies.platformdirs = ">=3"
@@ -55,7 +55,7 @@ dependencies.pydantic-core = ">=2"
 dependencies.pytest = { version = ">=8", optional = true }
 dependencies.pytest-httpx = { version = "^0.35.0", optional = true }
 dependencies.python-dotenv = ">=1"
-dependencies.qiskit = { version = ">=2", allow-prereleases = false }
+dependencies.qiskit = { version = ">=2.3.0,<=2.4.1", allow-prereleases = false } # lower bound is for dropping of Python 3.9 support. upper bound is to ensure AQTSampler and AQTEstimator are working, could break for untested new versions.
 dependencies.qiskit-aer = ">=0.17"
 dependencies.qiskit-algorithms = { version = ">=0.4", optional = true }
 dependencies.qiskit-optimization = { version = ">=0.6.0", optional = true }
@@ -69,11 +69,10 @@ dependencies.scipy = [
 ]
 # Restrict to versions with published wheels.
 dependencies.numpy = [
-  { version = ">=1,<2.1", python = "<=3.9" },
-  { version = ">=1", python = ">3.9,<3.13" },
+  { version = ">=1", python = ">=3.10,<3.13" },
   { version = ">=2.1", python = ">=3.13" },
 ]
-dependencies.aqt-connector = "0.3.0"
+dependencies.aqt-connector = "0.4.0"
 # Dependencies for the example scripts.
 extras.examples = [
   "qiskit-algorithms",
@@ -237,7 +236,7 @@ reportMissingTypeStubs = false
 reportConstantRedefinition = true
 reportUnnecessaryTypeIgnoreComment = false
 reportDuplicateImport = "error"
-pythonVersion = "3.9"
+pythonVersion = "3.10"
 pythonPlatform = "Linux"
 
 [tool.typos]
@@ -263,7 +262,7 @@ enum-field-as-literal = "one"
 field-constraints = true
 output-model-type = "pydantic_v2.BaseModel"
 strict-nullable = true
-target-python-version = "3.9"
+target-python-version = "3.10"
 use-annotated = true
 use-double-quotes = true
 use-field-description = true
