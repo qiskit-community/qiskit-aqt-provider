@@ -18,20 +18,18 @@ def collect_pass_names(passmanager: StagedPassManager) -> list[str]:
     return names
 
 
-def test_translation_plugins_are_registered_with_cloud_backends(
+def test_the_scheduling_plugin_is_registered_with_cloud_backends(
     dummy_cloud_resource: CloudResource,
 ) -> None:
-    """The appropriate AQT transpiler plugins for translation and scheduling should be registered with AQT backends.
+    """The AQT transpiler plugins for scheduling should be registered with AQT backends.
 
     They should be used during transpilation for those backends. This test checks that the expected passes from the
-    plugins are present in the preset pass manager for a CloudResource.
+    plugin are present in the preset pass manager for a CloudResource.
     """
     pm = generate_preset_pass_manager(backend=dummy_cloud_resource)
 
-    translation_passes = set(collect_pass_names(pm.translation))
     scheduling_passes = set(collect_pass_names(pm.scheduling))
 
-    assert "WrapRxxAngles" in translation_passes
     assert scheduling_passes == {
         "EnsureSingleFinalMeasurement",
         "Decompose",
@@ -63,16 +61,14 @@ def test_transpile_and_generate_preset_pass_manager_run_produce_the_same_results
     assert transpiled_1 == transpiled_2
 
 
-def test_transpilation_plugin_passes_order(
+def test_scheduling_plugin_passes_order_is_correct(
     dummy_cloud_resource: CloudResource,
 ) -> None:
-    """The order of passes in the translation plugins should be correct."""
+    """The order of passes in the scheduling plugin should be correct."""
     pm = generate_preset_pass_manager(backend=dummy_cloud_resource, optimization_level=0)
 
-    translation_passes = collect_pass_names(pm.translation)
     scheduling_passes = collect_pass_names(pm.scheduling)
 
-    assert translation_passes[-2:] == ["WrapRxxAngles", "Decompose"]
     assert scheduling_passes[-5:] == [
         "WrapRxxAngles",
         "Decompose",
@@ -80,21 +76,6 @@ def test_transpilation_plugin_passes_order(
         "RewriteRxAsR",
         "EnsureSingleFinalMeasurement",
     ]
-
-
-@pytest.mark.parametrize(("optimization_level"), [0, 1, 2, 3])
-def test_transpilation_passes_respect_optimization_levels(
-    dummy_cloud_resource: CloudResource, optimization_level: int
-) -> None:
-    """The optimization level should be taken into account when generating the pass manager."""
-    pm = generate_preset_pass_manager(backend=dummy_cloud_resource, optimization_level=optimization_level)
-
-    translation_passes = collect_pass_names(pm.translation)
-
-    if optimization_level == 0:
-        assert translation_passes[-2:] == ["WrapRxxAngles", "Decompose"]
-    else:
-        assert translation_passes[-1] == "WrapRxxAngles"
 
 
 def test_decompose_1q_rotations_example(

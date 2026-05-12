@@ -251,7 +251,7 @@ class AQTTranslationPlugin(PassManagerStagePlugin):
     def pass_manager(
         self,
         pass_manager_config: PassManagerConfig,
-        optimization_level: Optional[int] = None,
+        optimization_level: Optional[int] = None,  # noqa: ARG002
     ) -> PassManager:
         """Pass manager for the translation stage."""
         translation_pm = common.generate_translation_passmanager(
@@ -264,11 +264,8 @@ class AQTTranslationPlugin(PassManagerStagePlugin):
             hls_config=pass_manager_config.hls_config,
         )
 
-        translation_pm.append(WrapRxxAngles())
-        if optimization_level is None or optimization_level == 0:
-            translation_pm.append(Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]))
-
-        return translation_pm
+        # Add transpiler passes here if you need to customize the translation stage.
+        return translation_pm  # noqa: RET504
 
 
 class AQTSchedulingPlugin(PassManagerStagePlugin):

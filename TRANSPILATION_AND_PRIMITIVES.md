@@ -30,8 +30,8 @@ class CloudResource(BackendV2):
         return "aqt"
 ```
 The transpiler plugins are defined in `transpiler_plugin.py` with `AQTTranslationPlugin` and `AQTSchedulingPlugin`. When transpiling a circuit, Qiskit includes these extra passes when it builds the transpilation pipeline. 
-- The translation stage needs to do a decomposition after wrapping RXX gate angles for optimization level 0. For level 0 no further decomposition is done due to the lack of optimization.
-- For optimization level > 0, the scheduling stage is the last step in the transpilation, therefore doing the angle wrapping there, ensures that the output circuit only contains valid angles.
+- ~~The translation stage needs to do a decomposition after wrapping RXX gate angles for optimization level 0. For level 0 no further decomposition is done due to the lack of optimization.~~The tranlation stage is not required to do anything as all the custom wrapping is done in the scheduling.
+- The scheduling stage is the last step in the transpilation. Doing the angle wrapping there, ensures that the output circuit only contains valid angles.
 
 
 #### Unbound parameters not supported
