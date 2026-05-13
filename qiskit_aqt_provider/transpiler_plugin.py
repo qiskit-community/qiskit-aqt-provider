@@ -270,22 +270,15 @@ class WrapRxxAngles(TransformationPass):
 class AQTTranslationPlugin(PassManagerStagePlugin):
     """Translation stage plugin for the :mod:`qiskit.transpiler`.
 
-    Register a :class:`WrapRxxAngles` pass after the preset pass irrespective of the optimization
-    level. The pass enables the optimization stage to optimize the RXX gates with wrapped
-    angles.
-
-    If the optimization level is 0, an extra pass to decompose the wrapped RXX gates is
-    added, as in this case no decomposition is being done by the optimization stage.
-
-    Note: This plugin was originally created for Qiskit 1. Qiskit 2 introduces a transpiler pass
-    :class:`WrapAngles <qiskit.transpiler.passes.WrapAngles>` for
-    wrapping angles and it may be possible to find a better solution based on it.
+    This plugin was originally created for Qiskit 1. With Qiskit 2 a transpiler pass
+    to wrap RXX angles was added in the scheduling stage, so it is not necessary to do it here
+    anymore.
     """
 
     def pass_manager(
         self,
         pass_manager_config: PassManagerConfig,
-        optimization_level: Optional[int] = None,
+        optimization_level: Optional[int] = None,  # noqa: ARG002
     ) -> PassManager:
         """Pass manager for the translation stage."""
         translation_pm = common.generate_translation_passmanager(
@@ -298,8 +291,4 @@ class AQTTranslationPlugin(PassManagerStagePlugin):
             hls_config=pass_manager_config.hls_config,
         )
 
-        translation_pm.append(WrapRxxAngles())
-        if optimization_level is None or optimization_level == 0:
-            translation_pm.append(Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]))
-
-        return translation_pm
+        return translation_pm  # noqa: RET504
