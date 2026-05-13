@@ -17,9 +17,8 @@ that are connected to the AQT resources/backends with
 [custom transpiler passes](https://quantum.cloud.ibm.com/docs/en/api/qiskit/providers#custom-transpiler-passes)
 for backends. There are two transpilation stages that can be customized this way:
 - Translation stage:
-  - Wrapping RXX gate angles before the optimization stage so the optimization can do its thing.
-  - If optimization level is 0, decomposing the RXX wrapped gates (the ones with the substituted
-    name), as the optimization stage will not take care of it.
+  - Runs the passes provided by Qiskit by default and does not add any custom passes. In the provider
+  for Qiskit 1, there was RXX angle wrapping done here, but it is now moved to the scheduling stage.
 - Scheduling stage:
   - Decomposing single-qubit gates
   - Rewriting RX → R, also wrapping the angles
@@ -236,16 +235,13 @@ class WrapRxxAngles(TransformationPass):
 class AQTTranslationPlugin(PassManagerStagePlugin):
     """Translation stage plugin for the :mod:`qiskit.transpiler`.
 
-    Register a :class:`WrapRxxAngles` pass after the preset pass irrespective of the optimization
-    level. The pass enables the optimization stage to optimize the RXX gates with wrapped
-    angles.
+    This plugin was originally created for Qiskit 1. With Qiskit 2 a transpiler pass
+    to wrap RXX angles was added in the scheduling stage, so it is not necessary to do it here
+    anymore.
 
-    If the optimization level is 0, an extra pass to decompose the wrapped RXX gates is
-    added, as in this case no decomposition is being done by the optimization stage.
-
-    Note: This plugin was originally created for Qiskit 1. Qiskit 2 introduces a transpiler pass
-    :class:`WrapAngles <qiskit.transpiler.passes.WrapAngles>` for
-    wrapping angles and it may be possible to find a better solution based on it.
+    This class could also be removed alltogether, but it is left in place for now to keep the option of
+    customizing the translation stage in the future. If you remove it, remove also from the backends and
+    `pyproject.toml`.
     """
 
     def pass_manager(
