@@ -39,7 +39,7 @@ class CloudProvider:
 
     def close(self) -> None:
         """Closes the cloud provider, releasing any resources it holds."""
-        # TODO: close arnica app too, once aqt_connector supports that
+        self._arnica.close()
         self._http_client.close()
 
     def log_in(self) -> None:
