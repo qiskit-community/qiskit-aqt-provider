@@ -15,11 +15,8 @@ The transpilation for AQT backends is based on
 [custom plugins](https://quantum.cloud.ibm.com/docs/en/api/qiskit/transpiler_plugins#writing-plugins)
 that are connected to the AQT resources/backends with
 [custom transpiler passes](https://quantum.cloud.ibm.com/docs/en/api/qiskit/providers#custom-transpiler-passes)
-for backends. There are two transpilation stages that can be customized this way:
-- Translation stage:
-  - Runs the passes provided by Qiskit by default and does not add any custom passes. In the provider
-  for Qiskit 1, there was RXX angle wrapping done here, but it is now moved to the scheduling stage.
-- Scheduling stage:
+for backends. We currently have a plugin for the scheduling stage, which is the last stage of transpilation. It includes
+the following passes:
   - Decomposing single-qubit gates
   - Rewriting RX → R, also wrapping the angles
   - Wrapping RXX gate angles again. Due to optimization there may be incompatible angles again
@@ -42,7 +39,6 @@ from qiskit.transpiler.exceptions import TranspilerError
 from qiskit.transpiler.passes import Decompose, Optimize1qGatesDecomposition
 from qiskit.transpiler.passmanager import PassManager, Task
 from qiskit.transpiler.passmanager_config import PassManagerConfig
-from qiskit.transpiler.preset_passmanagers import common
 from qiskit.transpiler.preset_passmanagers.plugin import PassManagerStagePlugin
 
 from qiskit_aqt_provider.utils import map_exceptions
@@ -232,38 +228,6 @@ class WrapRxxAngles(TransformationPass):
         return dag
 
 
-class AQTTranslationPlugin(PassManagerStagePlugin):
-    """Translation stage plugin for the :mod:`qiskit.transpiler`.
-
-    This plugin was originally created for Qiskit 1. With Qiskit 2 a transpiler pass
-    to wrap RXX angles was added in the scheduling stage, so it is not necessary to do it here
-    anymore.
-
-    This class could also be removed alltogether, but it is left in place for now to keep the option of
-    customizing the translation stage in the future. If you remove it, remove also from the backends and
-    `pyproject.toml`.
-    """
-
-    def pass_manager(
-        self,
-        pass_manager_config: PassManagerConfig,
-        optimization_level: Optional[int] = None,  # noqa: ARG002
-    ) -> PassManager:
-        """Pass manager for the translation stage."""
-        translation_pm = common.generate_translation_passmanager(
-            target=pass_manager_config.target,
-            basis_gates=pass_manager_config.basis_gates,
-            approximation_degree=pass_manager_config.approximation_degree,
-            coupling_map=pass_manager_config.coupling_map,
-            unitary_synthesis_method=pass_manager_config.unitary_synthesis_method,
-            unitary_synthesis_plugin_config=pass_manager_config.unitary_synthesis_plugin_config,
-            hls_config=pass_manager_config.hls_config,
-        )
-
-        # Add transpiler passes here if you need to customize the translation stage.
-        return translation_pm  # noqa: RET504
-
-
 class AQTSchedulingPlugin(PassManagerStagePlugin):
     """Scheduling stage plugin for the :mod:`qiskit.transpiler`.
 
@@ -296,3 +260,18 @@ class AQTSchedulingPlugin(PassManagerStagePlugin):
             EnsureSingleFinalMeasurement(),
         ]
         return PassManager(passes)
+
+
+class TranspilerMixin:
+    """Mixin class to connect the custom transpiler plugin to the AQT backends.
+
+     Qiskit allows to connect
+    [custom transpiler passes](https://quantum.cloud.ibm.com/docs/en/api/qiskit/providers#custom-transpiler-passes)
+    to backends via transpiler plugins. This is possible for the scheduling stage through the
+    method `get_scheduling_stage_plugin`. This is used to connect the appropriate transpiler plugin
+    to AQT backends.
+    """
+
+    def get_scheduling_stage_plugin(self) -> str:
+        """For usage of the custom scheduling stage plugin in the Qiskit transpiler."""
+        return "aqt"

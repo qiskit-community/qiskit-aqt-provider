@@ -16,6 +16,7 @@ from qiskit_aqt_provider._cloud.job import CloudJob
 from qiskit_aqt_provider._cloud.job_metadata import CloudJobMetadata
 from qiskit_aqt_provider.api_client.errors import http_response_raise_for_status
 from qiskit_aqt_provider.circuit_to_aqt import circuits_to_aqt_job
+from qiskit_aqt_provider.transpiler_plugin import TranspilerMixin
 
 
 class CloudOptions(pdt.BaseModel):
@@ -24,7 +25,7 @@ class CloudOptions(pdt.BaseModel):
     shots: pdt.PositiveInt = pdt.Field(default=100)
 
 
-class CloudResource(BackendV2):
+class CloudResource(BackendV2, TranspilerMixin):
     """A resource in the AQT cloud, associated with a specific workspace."""
 
     MAX_SHOTS = 2000
@@ -32,14 +33,7 @@ class CloudResource(BackendV2):
     def __init__(
         self, arnica: ArnicaApp, api_client: httpx.Client, workspace_id: str, resource_details: ResourceDetails
     ) -> None:
-        """Initializes a cloud resource with the given workspace and resource details.
-
-        Qiskit allows to connect
-        [custom transpiler passes](https://quantum.cloud.ibm.com/docs/en/api/qiskit/providers#custom-transpiler-passes)
-        to backends via transpiler plugins. This is possible for the scheduling and translation stage through the
-        methods `get_scheduling_stage_plugin` and `get_translation_stage_plugin`. These are used to connect the
-        appropriate transpiler plugins to AQT backends.
-        """
+        """Initializes a cloud resource with the given workspace and resource details."""
         self._arnica = arnica
         self._api_client = api_client
         self.workspace_id = workspace_id
@@ -62,14 +56,6 @@ class CloudResource(BackendV2):
     def max_circuits(self) -> int:
         """Maximum number of circuits per batch."""
         return 50
-
-    def get_scheduling_stage_plugin(self) -> str:
-        """For usage of the custom scheduling stage plugin in the Qiskit transpiler."""
-        return "aqt"
-
-    def get_translation_stage_plugin(self) -> str:
-        """For usage of the custom translation stage plugin in the Qiskit transpiler."""
-        return "aqt"
 
     @classmethod
     def _default_options(cls) -> CloudOptions:
@@ -116,7 +102,7 @@ class CloudResource(BackendV2):
             CloudJobMetadata(
                 job_id=job_response.job.job_id,
                 shots=shots,
-                backend_name=self.name,
+                backend_name=self.name or self.id,
                 circuits=circuits,
                 initial_state=job_response.response,
             ),

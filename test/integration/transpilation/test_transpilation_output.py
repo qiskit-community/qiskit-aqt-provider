@@ -4,15 +4,14 @@ import pytest
 from hypothesis import example, given, settings, strategies
 from qiskit import QuantumCircuit, generate_preset_pass_manager
 
-from qiskit_aqt_provider._cloud.resource import CloudResource
 from qiskit_aqt_provider.circuit_to_aqt import circuits_to_aqt_job
+from test.integration.transpilation.helpers import DummyResource
 
 
 @pytest.mark.parametrize(("optimization_level"), [0, 1, 2, 3])
-def test_transpile_for_cloud_resource_returns_circuits_valid_for_submission(
-    dummy_cloud_resource: CloudResource, optimization_level: int
-) -> None:
+def test_transpiled_circuit_is_valid_for_submission(optimization_level: int) -> None:
     """Transpiling for CloudResource backends should create circuits that are valid for submission to the backend."""
+    dummy_resource = DummyResource()
     qc = QuantumCircuit(3)
     qc.h(0)
     qc.x(1)
@@ -39,7 +38,7 @@ def test_transpile_for_cloud_resource_returns_circuits_valid_for_submission(
     qc.barrier()
     qc.measure_all()
 
-    pm = generate_preset_pass_manager(backend=dummy_cloud_resource, optimization_level=optimization_level)
+    pm = generate_preset_pass_manager(backend=dummy_resource, optimization_level=optimization_level)
     tqc = pm.run(qc)
 
     circuits_to_aqt_job([tqc], 1)
@@ -55,11 +54,10 @@ def test_transpile_for_cloud_resource_returns_circuits_valid_for_submission(
     )
 )
 @pytest.mark.parametrize("optimization_level", [0, 1, 2, 3])
-def test_transpilation_preserves_or_decreases_number_of_rxx_gates(
-    dummy_cloud_resource: CloudResource, angles_pi: list[float], optimization_level: int
-) -> None:
-    """Check that transpilation at least preserves the number of RXX gates."""
-    pm = generate_preset_pass_manager(backend=dummy_cloud_resource, optimization_level=optimization_level)
+def test_transpilation_does_not_increase_number_of_rxx_gates(angles_pi: list[float], optimization_level: int) -> None:
+    """Check that transpilation does not increase the number of RXX gates."""
+    dummy_resource = DummyResource()
+    pm = generate_preset_pass_manager(backend=dummy_resource, optimization_level=optimization_level)
     qc = QuantumCircuit(2)
     for angle_pi in angles_pi:
         qc.rxx(angle_pi * pi, 0, 1)
@@ -69,6 +67,6 @@ def test_transpilation_preserves_or_decreases_number_of_rxx_gates(
     tr_qc_ops = tr_qc.count_ops()
 
     qc_rxx = qc.count_ops()["rxx"]
-    assert set(tr_qc_ops) <= set(dummy_cloud_resource.target.operation_names)
+    assert set(tr_qc_ops) <= set(dummy_resource.target.operation_names)
     assert qc_rxx == len(angles_pi)
     assert tr_qc_ops.get("rxx", 0) <= qc_rxx

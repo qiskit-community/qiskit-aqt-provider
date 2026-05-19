@@ -123,7 +123,6 @@ group.dev.dependencies.yq = "^3.4.3"
 # The key (`aqt`) is the plugin name users (or Qiskit internals) refer to,
 # and the value is the import path to the plugin class implementing that stage.
 plugins."qiskit.transpiler.scheduling".aqt = "qiskit_aqt_provider.transpiler_plugin:AQTSchedulingPlugin"
-plugins."qiskit.transpiler.translation".aqt = "qiskit_aqt_provider.transpiler_plugin:AQTTranslationPlugin"
 
 group.test.dependencies.fastapi = { version = "^0.128.8", extras = [ "standard" ] }
 
