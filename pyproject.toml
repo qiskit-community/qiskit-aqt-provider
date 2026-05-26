@@ -1,26 +1,24 @@
-[build-system]
-build-backend = "poetry.core.masonry.api"
-requires = [
-  "poetry-core>=2",
-]
-
-[tool.poetry]
+[project]
 name = "qiskit-aqt-provider"
-version = "2.0.0"
+version = "2.0.0a1"
 description = "Qiskit provider for AQT backends"
+readme = "README.md"
+keywords = [
+  "qiskit",
+  "quantum",
+  "sdk",
+]
+license = "Apache-2.0"
 authors = [
   "Qiskit Development Team",
   "Alpine Quantum Technologies GmbH",
 ]
-repository = "https://github.com/qiskit-community/qiskit-aqt-provider"
-documentation = "https://qiskit-community.github.io/qiskit-aqt-provider"
-readme = "README.md"
-license = "Apache-2.0"
+requires-python = ">=3.10,<3.15"
 classifiers = [
   "Intended Audience :: Developers",
   "Intended Audience :: Science/Research",
-  "Operating System :: Microsoft :: Windows",
   "Operating System :: MacOS",
+  "Operating System :: Microsoft :: Windows",
   "Operating System :: POSIX :: Linux",
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.10",
@@ -30,104 +28,93 @@ classifiers = [
   "Programming Language :: Python :: 3.14",
   "Topic :: Scientific/Engineering",
 ]
-keywords = [
-  "qiskit",
-  "sdk",
-  "quantum",
+dependencies = [
+  "annotated-types>=0.7",
+  "aqt-connector==0.4",
+  "httpx>=0.24",
+  "numpy>=1; python_version>='3.10' and python_version<'3.13'",
+  "numpy>=2.1; python_version>='3.13'",
+  "platformdirs>=3",
+  "pydantic>=2.5",
+  "pydantic-core>=2",
+  "python-dotenv>=1",
+  "qiskit>=2.3,<=2.4.1",                                        # lower bound is for dropping of Python 3.9 support. upper bound is to ensure AQTSampler and AQTEstimator are working, could break for untested new versions.
+  "qiskit-aer>=0.17",
+  "scipy>=1.15",
+  "tabulate>=0.9",
+  "tqdm>=4",
+  "typing-extensions>=4",
 ]
-packages = [
-  { include = "qiskit_aqt_provider" },
-  { include = "test", format = "sdist" },
+
+# Dependencies for the example scripts.
+optional-dependencies.examples = [
+  "qiskit-algorithms>=0.4",
+  "qiskit-optimization>=0.6",
 ]
-include = [
-  "CODE_OF_CONDUCT.md",
-  "CONTRIBUTING.md",
+# Dependencies for the pytest plugin.
+optional-dependencies.test = [
+  "fastapi[standard]>=0.128.8",
+  "pytest>=8",
+  "pytest-httpx>=0.35",
+  "pytest-mock>=3",
+  "pytest-sugar>=1",
+]
+urls.Documentation = "https://qiskit-community.github.io/qiskit-aqt-provider"
+urls.include = [
   "LICENSE.txt",
   "README.md",
 ]
-requires-poetry = ">=2.0"
-dependencies.python = ">=3.10,<=3.14"
-dependencies.annotated-types = ">=0.7.0"
-dependencies.httpx = ">=0.24.0"
-dependencies.platformdirs = ">=3"
-dependencies.pydantic = { version = ">=2.5.0", allow-prereleases = false }
-dependencies.pydantic-core = ">=2"
-dependencies.pytest = { version = ">=8", optional = true }
-dependencies.pytest-httpx = { version = "^0.35.0", optional = true }
-dependencies.python-dotenv = ">=1"
-dependencies.qiskit = { version = ">=2.3.0,<=2.4.1", allow-prereleases = false } # lower bound is for dropping of Python 3.9 support. upper bound is to ensure AQTSampler and AQTEstimator are working, could break for untested new versions.
-dependencies.qiskit-aer = ">=0.17"
-dependencies.qiskit-algorithms = { version = ">=0.4", optional = true }
-dependencies.qiskit-optimization = { version = ">=0.6.0", optional = true }
-dependencies.tabulate = ">=0.9.0"
-dependencies.tqdm = ">=4"
-dependencies.typing-extensions = ">=4.0.0"
-# Restrict to versions with published wheels.
-dependencies.scipy = [
-  { version = "^1.15", python = ">=3.10" },
-  { version = "^1,<1.15", python = "<3.10" },
+urls.packages = [
+  { include = "qiskit_aqt_provider" },
+  { include = "test", format = "sdist" },
 ]
-# Restrict to versions with published wheels.
-dependencies.numpy = [
-  { version = ">=1", python = ">=3.10,<3.13" },
-  { version = ">=2.1", python = ">=3.13" },
+urls.Repository = "https://github.com/qiskit-community/qiskit-aqt-provider"
+entry-points.plugins."qiskit.transpiler.scheduling"."aqt" = "qiskit_aqt_provider.transpiler_plugin:AQTSchedulingPlugin"
+
+[dependency-groups]
+dev = [
+  { include-group = "lint" },
 ]
-dependencies.aqt-connector = "0.4.0"
-# Dependencies for the example scripts.
-extras.examples = [
-  "qiskit-algorithms",
-  "qiskit-optimization",
+lint = [
+  "autodoc-pydantic>=2.0.1",
+  "coverage>=7.2.1",
+  "datamodel-code-generator>=0.31",
+  "deptry>=0.23",
+  "hypothesis>=6.82",
+  "interrogate>=1.5",
+  "ipykernel>=6.22",
+  "jupyter-sphinx>=0.5",
+  "mistletoe>=1.1",
+  "mypy>=1.14",
+  "poethepoet>=0.36",
+  "polyfactory>=2",
+  "pre-commit>=3.1.1",
+  "pyproject-fmt==2.8",
+  "qiskit[visualization]>=2",
+  "qiskit-sphinx-theme>=1.16.1",
+  "rich>=13.5.3",
+  "ruff>=0.12",
+  "sphinx>=7,<7.3",
+  "sphinx-toolbox>=3.5",
+  "tach>=0.29",
+  "tomlkit>=0.13.2",
+  "typer>=0.16",
+  "types-requests>=2.28.11",
+  "types-setuptools>=65.7",
+  "types-tabulate>=0.9.0.1",
+  "types-tqdm>=4.65.0.1",
+  "typos>=1.29",
+  "yq>=3.4.3",
 ]
-# Dependencies for the pytest plugin.
-extras.test = [
-  "pytest",
-  "pytest-httpx",
-]
-group.dev.dependencies.autodoc-pydantic = "^2.0.1"
-group.dev.dependencies.coverage = "^7.2.1"
-group.dev.dependencies.datamodel-code-generator = "^0.31.0"
-group.dev.dependencies.deptry = "^0.23.0"
-group.dev.dependencies.hypothesis = "^6.82.0"
-group.dev.dependencies.interrogate = "^1.5.0"
-group.dev.dependencies.ipykernel = "^6.22.0"
-group.dev.dependencies.jupyter-sphinx = "^0.5.0"
-group.dev.dependencies.mistletoe = "^1.1.0"
-group.dev.dependencies.mypy = "^1.14.0"
-group.dev.dependencies.poethepoet = "^0.36.0"
-group.dev.dependencies.polyfactory = "^2.0.0"
-group.dev.dependencies.pytest-mock = "^3"
-group.dev.dependencies.pytest-sugar = "^1"
-group.dev.dependencies.pre-commit = "^3.1.1"
-group.dev.dependencies.pyproject-fmt = "2.8.0"
-group.dev.dependencies.qiskit-sphinx-theme = ">=1.16.1"
-group.dev.dependencies.qiskit = { version = ">=2", extras = [
-  "visualization",
-] }
-group.dev.dependencies.rich = "^13.5.3"
-group.dev.dependencies.ruff = "^0.12.0"
-group.dev.dependencies.sphinx = ">=7,<7.3"
-group.dev.dependencies.sphinx-toolbox = "^3.5.0"
-group.dev.dependencies.tach = "^0.29.0"
-group.dev.dependencies.tomlkit = "^0.13.2"
-group.dev.dependencies.typer = "^0.16.0"
-group.dev.dependencies.types-requests = "^2.28.11"
-group.dev.dependencies.types-setuptools = ">=65.7.0"
-group.dev.dependencies.types-tabulate = "^0.9.0.1"
-group.dev.dependencies.types-tqdm = "^4.65.0.1"
-group.dev.dependencies.typos = "^1.29.0"
-group.dev.dependencies.yq = "^3.4.3"
 
 # Register custom Qiskit transpiler plugins via Python entry points.
 #
 # These entries tell Qiskit how to discover and load AQT-specific transpiler stages.
 # The key (`aqt`) is the plugin name users (or Qiskit internals) refer to,
 # and the value is the import path to the plugin class implementing that stage.
-plugins."qiskit.transpiler.scheduling".aqt = "qiskit_aqt_provider.transpiler_plugin:AQTSchedulingPlugin"
-
-group.test.dependencies.fastapi = { version = "^0.128.8", extras = [ "standard" ] }
 
 [tool.ruff]
-target-version = "py39"
+target-version = "py310"
 line-length = 120
 lint.select = [
   "ANN",  # flake8-annotations
@@ -218,25 +205,6 @@ extend_exclude = [ "scripts", "test", "conftest.py" ]
 run.dynamic_context = "test_function"
 run.relative_files = true
 report.fail_under = 99
-
-[tool.pyright]
-exclude = [
-  "**/__pycache__",
-  "**/.*",
-  "docs/",
-]
-typeCheckingMode = "basic"
-analyzeUnannotatedFunctions = false
-reportShadowedImports = true
-reportTypeCommentUsage = true
-reportImportCycles = false
-reportMissingImports = false
-reportMissingTypeStubs = false
-reportConstantRedefinition = true
-reportUnnecessaryTypeIgnoreComment = false
-reportDuplicateImport = "error"
-pythonVersion = "3.10"
-pythonPlatform = "Linux"
 
 [tool.typos]
 default.extend-ignore-words-re = [
