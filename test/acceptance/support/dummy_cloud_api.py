@@ -107,7 +107,7 @@ async def submit_job(workspace_id: str, resource_id: str, request: Request, body
     _record_request(request, body)
 
     if workspace_id not in ("w1", "w2"):
-        return JSONResponse(status_code=404, content={"detail": f"Workspace not available."})
+        return JSONResponse(status_code=404, content={"detail": "Workspace not available."})
 
     return JSONResponse(
         content=jsonable_encoder(

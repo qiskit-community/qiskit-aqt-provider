@@ -4,11 +4,14 @@ import httpx
 import pytest
 from aqt_connector import ArnicaApp, ArnicaConfig
 from qiskit import QuantumCircuit
+from qiskit.circuit import Parameter
+from qiskit.providers import BackendV2, JobV1
 
 from qiskit_aqt_provider._cloud.job import CloudJob
 from qiskit_aqt_provider._cloud.job_metadata import CloudJobMetadata
 from qiskit_aqt_provider._cloud.resource import CloudResource
 from qiskit_aqt_provider.aqt_provider import AQTProvider
+from test.acceptance.conftest import DummyDirectAccessServer
 
 
 def has_cloud_access(monkeypatch: pytest.MonkeyPatch, token: str) -> None:
@@ -106,8 +109,107 @@ def submits_circuit(
 
 
 def has_submitted_cloud_job(metadata: CloudJobMetadata, api_client: httpx.Client) -> CloudJob:
+    """Builds a cloud job object from known metadata and API client for acceptance tests."""
     return CloudJob(
         ArnicaApp(),
         api_client,
         metadata,
     )
+
+
+def acquires_direct_access_backend(base_url: str, access_token: str) -> BackendV2:
+    """Acquires a direct-access backend.
+
+    Args:
+        base_url (str): Base URL of the direct access API.
+        access_token (str): Access token for authentication.
+
+    Returns:
+        BackendV2: The acquired direct-access backend.
+    """
+    provider = AQTProvider()
+    return provider.direct_access().get_resource(base_url, access_token)
+
+
+def has_access_to_direct_access_resource(
+    dummy_direct_access_server: DummyDirectAccessServer, *, name: str = "direct-r1", qubits: int = 6
+) -> tuple[str, int]:
+    """Configures a direct access resource on the dummy server and returns its details.
+
+    Args:
+        dummy_direct_access_server (DummyDirectAccessServer): The fixture for the dummy direct access server.
+        name (str): The name of the direct access resource to configure.
+        qubits (int): The number of qubits for the direct access resource.
+
+    Returns:
+        tuple[str, int]: The name and number of qubits of the configured direct access resource
+    """
+    dummy_direct_access_server.configure_direct_access(name=name, num_ions=qubits)
+    return (name, qubits)
+
+
+def submits_direct_access_circuit(
+    base_url: str, access_token: str, circuit: QuantumCircuit, shots: Optional[int] = None
+) -> JobV1:
+    """Submits a single circuit to a direct-access backend.
+
+    Args:
+        base_url (str): Base URL of the direct access API.
+        access_token (str): Access token for authentication.
+        circuit (QuantumCircuit): Circuit to submit.
+        shots (int | None): Optional number of shots.
+
+    Returns:
+        JobV1: Submitted job.
+    """
+    backend = acquires_direct_access_backend(base_url, access_token)
+    if shots is None:
+        return backend.run(circuit)
+    return backend.run(circuit, shots=shots)
+
+
+def submits_direct_access_circuits(
+    base_url: str,
+    access_token: str,
+    circuits: list[QuantumCircuit],
+    shots: Optional[int] = None,
+) -> JobV1:
+    """Submits multiple circuits to a direct-access backend.
+
+    Args:
+        base_url (str): Base URL of the direct access API.
+        access_token (str): Access token for authentication.
+        circuits (list[QuantumCircuit]): Circuits to submit.
+        shots (int | None): Optional number of shots.
+
+    Returns:
+        JobV1: Submitted composite job.
+    """
+    backend = acquires_direct_access_backend(base_url, access_token)
+    if shots is None:
+        return backend.run(circuits)
+    return backend.run(circuits, shots=shots)
+
+
+def native_circuit(*, num_qubits: int = 1) -> QuantumCircuit:
+    """Builds a minimal native circuit accepted by direct access."""
+    circuit = QuantumCircuit(num_qubits)
+    circuit.measure_all()
+    return circuit
+
+
+def non_native_circuit(*, num_qubits: int = 1) -> QuantumCircuit:
+    """Builds a circuit containing a non-native operation."""
+    circuit = QuantumCircuit(num_qubits)
+    circuit.x(0)
+    circuit.measure_all()
+    return circuit
+
+
+def parametrised_circuit(*, num_qubits: int = 1) -> QuantumCircuit:
+    """Builds a circuit with an unbound parameter."""
+    theta = Parameter("theta")
+    circuit = QuantumCircuit(num_qubits)
+    circuit.rz(theta, 0)
+    circuit.measure_all()
+    return circuit

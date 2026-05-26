@@ -8,7 +8,7 @@ from test.acceptance.conftest import DummyArnicaServer
 
 
 def test_lists_accessible_workspaces(
-    monkeypatch: pytest.MonkeyPatch, dummy_server: DummyArnicaServer, tmp_path: Path
+    monkeypatch: pytest.MonkeyPatch, dummy_cloud_server: DummyArnicaServer, tmp_path: Path
 ) -> None:
     """It should list workspaces accessible to the user.
 
@@ -18,7 +18,7 @@ def test_lists_accessible_workspaces(
     """
     dsl.user.has_cloud_access(monkeypatch, "arnica_token")
     cloud_provider_config = ArnicaConfig(tmp_path)
-    cloud_provider_config.arnica_url = dummy_server.base_url
+    cloud_provider_config.arnica_url = dummy_cloud_server.base_url
 
     workspaces = dsl.user.lists_accessible_workspaces(cloud_provider_config)
 
@@ -26,7 +26,7 @@ def test_lists_accessible_workspaces(
 
 
 def test_lists_available_backends_in_workspace(
-    monkeypatch: pytest.MonkeyPatch, dummy_server: DummyArnicaServer, tmp_path: Path
+    monkeypatch: pytest.MonkeyPatch, dummy_cloud_server: DummyArnicaServer, tmp_path: Path
 ) -> None:
     """It should list backends available in a workspace.
 
@@ -36,7 +36,7 @@ def test_lists_available_backends_in_workspace(
     """
     dsl.user.has_cloud_access(monkeypatch, "arnica_token")
     cloud_provider_config = ArnicaConfig(tmp_path)
-    cloud_provider_config.arnica_url = dummy_server.base_url
+    cloud_provider_config.arnica_url = dummy_cloud_server.base_url
 
     resources = dsl.user.lists_cloud_backends_in_workspace(cloud_provider_config, "w1")
 
@@ -44,7 +44,7 @@ def test_lists_available_backends_in_workspace(
 
 
 def test_same_underlying_resource_can_appear_in_multiple_workspaces(
-    monkeypatch: pytest.MonkeyPatch, dummy_server: DummyArnicaServer, tmp_path: Path
+    monkeypatch: pytest.MonkeyPatch, dummy_cloud_server: DummyArnicaServer, tmp_path: Path
 ) -> None:
     """The same underlying resource should be able to appear in multiple workspaces.
 
@@ -54,7 +54,7 @@ def test_same_underlying_resource_can_appear_in_multiple_workspaces(
     """
     dsl.user.has_cloud_access(monkeypatch, "arnica_token")
     cloud_provider_config = ArnicaConfig(tmp_path)
-    cloud_provider_config.arnica_url = dummy_server.base_url
+    cloud_provider_config.arnica_url = dummy_cloud_server.base_url
 
     workspace_ids = dsl.user.lists_accessible_workspaces(cloud_provider_config)
     workspace_backend_map = {

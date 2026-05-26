@@ -1,9 +1,9 @@
 from types import TracebackType
-from typing import Optional
 
 from aqt_connector import ArnicaConfig
 
 from qiskit_aqt_provider._cloud.provider import CloudProvider
+from qiskit_aqt_provider._direct.provider import DirectAccessProvider
 
 __all__ = ["AQTProvider"]
 
@@ -18,14 +18,21 @@ class AQTProvider:
         environment variable.
         """
         self.name = "aqt_provider"
-        self._cloud: Optional[CloudProvider] = None
+        self._cloud: CloudProvider | None = None
+        self._direct_access: DirectAccessProvider | None = None
 
-    def cloud(self, config: Optional[ArnicaConfig] = None) -> CloudProvider:
+    def cloud(self, config: ArnicaConfig | None = None) -> CloudProvider:
         """The provider's cloud provider instance."""
         if self._cloud is None:
             config = config or ArnicaConfig()
             self._cloud = CloudProvider(config)
         return self._cloud
+
+    def direct_access(self) -> DirectAccessProvider:
+        """The provider's direct access provider instance."""
+        if self._direct_access is None:
+            self._direct_access = DirectAccessProvider()
+        return self._direct_access
 
     def __enter__(self) -> "AQTProvider":
         """Enters the runtime context for this provider."""
@@ -33,11 +40,14 @@ class AQTProvider:
 
     def __exit__(
         self,
-        exc_type: Optional[type[BaseException]],
-        exc: Optional[BaseException],
-        tb: Optional[TracebackType],
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
     ) -> None:
         """Exit the context manager and clean up resources."""
         if self._cloud is not None:
             self._cloud.close()
             self._cloud = None
+        if self._direct_access is not None:
+            self._direct_access.close()
+            self._direct_access = None
