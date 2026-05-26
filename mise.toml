@@ -1,0 +1,26 @@
+[settings]
+python.uv_venv_auto = "source"
+
+[tasks.test]
+run = "pytest test"
+
+[tasks."check:pyproject"]
+run = "pyproject-fmt --check pyproject.toml"
+
+[tasks."check:types"]
+run = "mypy ."
+
+[tasks."check:linting"]
+run = "ruff check"
+
+[tasks."check:spelling"]
+run = "typos ."
+
+[tasks."check:format"]
+run = "ruff format --check"
+
+[tasks."format:pyproject"]
+run = "pyproject-fmt pyproject.toml"
+
+[tasks."format:code"]
+run = "ruff check --fix"
