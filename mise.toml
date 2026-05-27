@@ -1,8 +1,14 @@
 [settings]
 python.uv_venv_auto = "source"
 
-[tasks.test]
-run = "pytest test"
+[tasks."test:unit"]
+run = "pytest test/unit"
+
+[tasks."test:integration"]
+run = "pytest test/integration"
+
+[tasks."test:acceptance"]
+run = "pytest test/acceptance"
 
 [tasks."check:pyproject"]
 run = "pyproject-fmt --check pyproject.toml"
