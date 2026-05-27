@@ -1,5 +1,4 @@
 import uuid
-from typing import Union
 
 import pytest
 from aqt_connector import ArnicaApp
@@ -180,7 +179,7 @@ def test_result_uses_default_wait_value_when_not_overridden(monkeypatch: pytest.
     clock = _FakeClock()
     calls = 0
 
-    def _fetch_job_state(*_: object, **__: object) -> Union[RRQueued, RRFinished]:
+    def _fetch_job_state(*_: object, **__: object) -> RRQueued | RRFinished:
         nonlocal calls
         calls += 1
         if calls == 1:

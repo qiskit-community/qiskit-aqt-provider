@@ -1,5 +1,5 @@
 from copy import copy
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 from qiskit.primitives import (
@@ -37,7 +37,7 @@ class AQTSampler(BackendSamplerV2):
         self,
         backend: AnyAQTResource,
         *,
-        options: Optional[dict[str, Any]] = None,
+        options: dict[str, Any] | None = None,
         skip_transpilation: bool = False,
         optimization_level: int = 0,
     ) -> None:

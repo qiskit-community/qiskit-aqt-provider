@@ -26,7 +26,7 @@ the following passes:
 
 import math
 from dataclasses import dataclass
-from typing import Final, Optional
+from typing import Final
 
 import numpy as np
 from qiskit import QuantumCircuit
@@ -249,7 +249,7 @@ class AQTSchedulingPlugin(PassManagerStagePlugin):
     def pass_manager(
         self,
         pass_manager_config: PassManagerConfig,  # noqa: ARG002
-        optimization_level: Optional[int] = None,  # noqa: ARG002
+        optimization_level: int | None = None,  # noqa: ARG002
     ) -> PassManager:
         """Pass manager for the scheduling phase."""
         passes: list[Task] = [

@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, Optional
+from typing import Any
 from uuid import uuid4
 
 from fastapi import Body, FastAPI, Request
@@ -25,7 +25,7 @@ def _default_direct_access_state() -> dict[str, Any]:
 _direct_access_state = _default_direct_access_state()
 
 
-def _record_request(request: Request, body: Optional[Any] = None) -> None:
+def _record_request(request: Request, body: Any | None = None) -> None:
     _requests.append(
         {
             "method": request.method,

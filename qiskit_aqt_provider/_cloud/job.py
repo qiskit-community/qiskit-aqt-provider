@@ -1,4 +1,4 @@
-from typing import Final, Optional
+from typing import Final
 from uuid import UUID
 
 import aqt_connector
@@ -62,7 +62,7 @@ class CloudJob(JobV1):
     def result(
         self,
         *,
-        timeout: Optional[float] = None,
+        timeout: float | None = None,
         wait: float = 5,
     ) -> Result:
         """Blocks until the job finishes processing then returns the result.

@@ -2,7 +2,6 @@ import json
 import re
 import uuid
 from datetime import datetime
-from typing import Optional
 
 import pytest
 from aqt_connector import ArnicaApp
@@ -101,7 +100,7 @@ def test_run_posts_to_correct_url() -> None:
     ],
     ids=["default shots", "custom shots"],
 )
-def test_run_sets_correct_shot_count(shots_arg: Optional[int], expected_shots: int) -> None:
+def test_run_sets_correct_shot_count(shots_arg: int | None, expected_shots: int) -> None:
     """It sets the correct shot count based on the provided argument or default."""
     captured: list[Request] = []
 

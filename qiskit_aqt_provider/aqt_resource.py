@@ -17,9 +17,8 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Generic,
-    Optional,
+    TypeAlias,
     TypeVar,
-    Union,
 )
 from uuid import UUID
 
@@ -40,7 +39,7 @@ from qiskit.providers import Options as QiskitOptions
 from qiskit.providers.models import BackendConfiguration
 from qiskit.transpiler import Target
 from qiskit_aer import AerJob, AerSimulator, noise
-from typing_extensions import TypeAlias, override
+from typing_extensions import override
 
 from qiskit_aqt_provider import api_client
 from qiskit_aqt_provider._cloud.resource import CloudResource
@@ -177,7 +176,7 @@ class _ResourceBase(Generic[_OptionsType], Backend):
     def _create_job(
         self,
         job_type: type[_JobType],
-        circuits: Union[QuantumCircuit, list[QuantumCircuit]],
+        circuits: QuantumCircuit | list[QuantumCircuit],
         **options: Any,
     ) -> _JobType:
         """Initialize a job handle of a given type.
@@ -241,7 +240,7 @@ class AQTResource(_ResourceBase[AQTOptions]):
         self._http_client: httpx.Client = provider._portal_client._http_client
         self.resource_id = resource_id
 
-    def run(self, circuits: Union[QuantumCircuit, list[QuantumCircuit]], **options: Any) -> AQTJob:
+    def run(self, circuits: QuantumCircuit | list[QuantumCircuit], **options: Any) -> AQTJob:
         """Submit circuits for execution on this resource.
 
         Args:
@@ -341,7 +340,7 @@ class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):
             available_qubits=available_qubits,
         )
 
-    def run(self, circuits: Union[QuantumCircuit, list[QuantumCircuit]], **options: Any) -> AQTDirectAccessJob:
+    def run(self, circuits: QuantumCircuit | list[QuantumCircuit], **options: Any) -> AQTDirectAccessJob:
         """Prepare circuits for execution on this resource.
 
         .. warning:: The circuits are only evaluated during
@@ -372,7 +371,7 @@ class AQTDirectAccessResource(_ResourceBase[AQTDirectAccessOptions]):
         resp = http_response_raise_for_status(self._http_client.put("/circuit", json=circuit.model_dump()))
         return UUID(resp.json())
 
-    def result(self, job_id: UUID, *, timeout: Optional[float]) -> api_models_direct.JobResult:
+    def result(self, job_id: UUID, *, timeout: float | None) -> api_models_direct.JobResult:
         """Query the result of a specific job.
 
         Block until a result (success or error) is available.
@@ -578,5 +577,5 @@ class OfflineSimulatorResource(AQTResource):
         )
 
 
-AnyAQTResource: TypeAlias = Union[AQTResource, AQTDirectAccessResource, CloudResource]
+AnyAQTResource: TypeAlias = AQTResource | AQTDirectAccessResource | CloudResource
 """Type of any remote or direct access resource."""

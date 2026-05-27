@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
 
 from aqt_connector.models.arnica.request_bodies.jobs import SubmitJobRequest
@@ -15,7 +15,7 @@ app = FastAPI()
 _requests: list[dict[str, Any]] = []
 
 
-def _record_request(request: Request, body: Optional[Any] = None) -> None:
+def _record_request(request: Request, body: Any | None = None) -> None:
     _requests.append(
         {
             "method": request.method,

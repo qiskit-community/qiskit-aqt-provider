@@ -1,4 +1,5 @@
 from types import TracebackType
+from typing import Self
 
 from aqt_connector import ArnicaConfig
 
@@ -37,7 +38,7 @@ class AQTProvider:
             self._direct_access = DirectAccessProvider()
         return self._direct_access
 
-    def __enter__(self) -> "AQTProvider":
+    def __enter__(self) -> "Self":
         """Enters the runtime context for this provider."""
         return self
 

@@ -1,4 +1,3 @@
-from typing import Optional, Union
 
 import httpx
 import pydantic as pdt
@@ -66,7 +65,7 @@ class CloudResource(BackendV2, TranspilerMixin):
         """
         return CloudOptions()
 
-    def run(self, circuits: Union[QuantumCircuit, list[QuantumCircuit]], *, shots: Optional[int] = None) -> CloudJob:
+    def run(self, circuits: QuantumCircuit | list[QuantumCircuit], *, shots: int | None = None) -> CloudJob:
         """Run on the backend.
 
         This method returns a :class:`~qiskit.providers.Job` object that runs circuits.

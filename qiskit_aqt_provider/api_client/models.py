@@ -15,13 +15,13 @@
 import re
 from collections.abc import Collection, Iterator
 from re import Pattern
-from typing import Literal, Optional, Union
+from typing import Literal, TypeAlias
 
 from aqt_connector.models.arnica.resources import ResourceType
 from aqt_connector.models.arnica.response_bodies.workspaces import Workspace as AQTWorkspace
 from pydantic import BaseModel, ConfigDict, RootModel
 from qiskit.providers.exceptions import JobError
-from typing_extensions import Self, TypeAlias, override
+from typing_extensions import Self, override
 
 
 class UnknownJobError(JobError):
@@ -185,9 +185,9 @@ class Workspaces(
     def filter(
         self,
         *,
-        workspace_pattern: Optional[Union[str, Pattern[str]]] = None,
-        name_pattern: Optional[Union[str, Pattern[str]]] = None,
-        backend_type: Optional[AQTBackendType] = None,
+        workspace_pattern: str | Pattern[str] | None = None,
+        name_pattern: str | Pattern[str] | None = None,
+        backend_type: AQTBackendType | None = None,
     ) -> Self:
         """Filtered copy of the list of available workspaces and devices.
 

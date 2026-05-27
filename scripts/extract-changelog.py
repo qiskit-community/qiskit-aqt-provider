@@ -5,7 +5,7 @@ import shlex
 import subprocess
 import sys
 from pathlib import Path
-from typing import Final, Optional
+from typing import Final
 
 import typer
 from mistletoe import block_token
@@ -42,7 +42,7 @@ def default_changelog_path() -> Path:
 
 
 def main(
-    version: Optional[str] = typer.Argument(None),
+    version: str | None = typer.Argument(None),
     changelog_path: Path = typer.Argument(default_changelog_path),
 ) -> None:
     """Print the changes for the given version. By default, use the latest version (if any)."""
@@ -50,7 +50,7 @@ def main(
         md_ast = Document(fp)
 
     changelogs: dict[str, str] = {}
-    current_version: Optional[str] = None
+    current_version: str | None = None
 
     if not md_ast.children:
         print("Nothing found in changelog.", file=sys.stderr)

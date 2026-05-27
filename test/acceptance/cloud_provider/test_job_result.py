@@ -86,7 +86,7 @@ def test_raises_for_failed_terminal_job(monkeypatch: pytest.MonkeyPatch) -> None
     job = dsl.user.has_submitted_cloud_job(job_metadata, _mock_client())
     monkeypatch.setattr("aqt_connector.fetch_job_state", lambda *_: RRError(message="AQT apologies profusely..."))
 
-    with pytest.raises(AQTJobFailedError, match="Job failed: AQT apologies profusely..."):
+    with pytest.raises(AQTJobFailedError, match=r"Job failed: AQT apologies profusely..."):
         job.result()
 
 
@@ -104,7 +104,7 @@ def test_timeout_raised_when_job_does_not_reach_final_state(monkeypatch: pytest.
     job = dsl.user.has_submitted_cloud_job(job_metadata, _mock_client())
     monkeypatch.setattr("aqt_connector.fetch_job_state", lambda *_: RROngoing(finished_count=0))
 
-    with pytest.raises(JobTimeoutError, match="Timeout while waiting for job e09e4f8e-3b88-4a4c-ab7b-907fad6fbd44."):
+    with pytest.raises(JobTimeoutError, match=r"Timeout while waiting for job e09e4f8e-3b88-4a4c-ab7b-907fad6fbd44."):
         job.result(timeout=5)
 
 

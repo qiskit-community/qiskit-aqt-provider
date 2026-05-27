@@ -1,5 +1,4 @@
 import uuid
-from typing import Optional
 
 import pytest
 from aqt_connector import ArnicaApp
@@ -37,7 +36,7 @@ def test_status_maps_cloud_status_to_qiskit_status(
     monkeypatch: pytest.MonkeyPatch, job_state: JobState, expected_status: QiskitJobStatus
 ) -> None:
     """It maps AQT job states returned by the API to the corresponding Qiskit status."""
-    captured_job_id: Optional[uuid.UUID] = None
+    captured_job_id: uuid.UUID | None = None
 
     def _fetch_job_state(_: ArnicaApp, job_id: uuid.UUID) -> JobState:
         nonlocal captured_job_id

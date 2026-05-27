@@ -1,4 +1,3 @@
-from typing import Optional, Union
 
 import httpx
 import pytest
@@ -83,8 +82,8 @@ def submits_circuit(
     cloud_provider_config: ArnicaConfig,
     workspace_id: str,
     backend_id: str,
-    circuit: Union[QuantumCircuit, list[QuantumCircuit]],
-    shots: Optional[int] = None,
+    circuit: QuantumCircuit | list[QuantumCircuit],
+    shots: int | None = None,
 ) -> CloudJob:
     """Submits a job to a specific backend in a specific workspace.
 
@@ -149,7 +148,7 @@ def has_access_to_direct_access_resource(
 
 
 def submits_direct_access_circuit(
-    base_url: str, access_token: str, circuit: QuantumCircuit, shots: Optional[int] = None
+    base_url: str, access_token: str, circuit: QuantumCircuit, shots: int | None = None
 ) -> JobV1:
     """Submits a single circuit to a direct-access backend.
 
@@ -172,7 +171,7 @@ def submits_direct_access_circuits(
     base_url: str,
     access_token: str,
     circuits: list[QuantumCircuit],
-    shots: Optional[int] = None,
+    shots: int | None = None,
 ) -> JobV1:
     """Submits multiple circuits to a direct-access backend.
 

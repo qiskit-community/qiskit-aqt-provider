@@ -1,4 +1,3 @@
-from typing import Union
 
 import httpx
 from aqt_connector import ArnicaApp
@@ -15,7 +14,7 @@ class WorkspaceCollection(list[WorkspaceProvider]):
         providers = [WorkspaceProvider(workspace, arnica, api_client) for workspace in workspaces]
         super().__init__(providers)
 
-    def get_by_id(self, workspace_id: str) -> Union[WorkspaceProvider, None]:
+    def get_by_id(self, workspace_id: str) -> WorkspaceProvider | None:
         """Gets a workspace provider from this collection by its identifier.
 
         Args:

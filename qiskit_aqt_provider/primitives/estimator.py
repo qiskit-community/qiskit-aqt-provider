@@ -1,5 +1,5 @@
 from copy import copy
-from typing import Any, Optional
+from typing import Any
 
 from qiskit import generate_preset_pass_manager
 from qiskit.primitives import BackendEstimatorV2, PubResult
@@ -34,7 +34,7 @@ class AQTEstimator(BackendEstimatorV2):
         self,
         *,
         backend: AnyAQTResource,
-        options: Optional[dict[str, Any]] = None,
+        options: dict[str, Any] | None = None,
         skip_transpilation: bool = False,
         optimization_level: int = 0,
     ) -> None:

@@ -13,7 +13,7 @@
 import base64
 import io
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any
 
 import platformdirs
 import pydantic as pdt
@@ -52,7 +52,7 @@ class Circuits:
         return core_schema.no_info_plain_validator_function(function=cls.validate)
 
     @classmethod
-    def validate(cls, value: Union[Self, str]) -> Self:
+    def validate(cls, value: Self | str) -> Self:
         """Parse the base64-encoded :mod:`qiskit.qpy` representation of a list of quantum circuits.
 
         Because initializing a Pydantic model also triggers validation, this parser accepts
@@ -146,7 +146,7 @@ class Job(pdt.BaseModel):
         return store_path / job_id
 
 
-def get_store_path(override: Optional[Path] = None) -> Path:
+def get_store_path(override: Path | None = None) -> Path:
     """Resolve the local persistence store path.
 
     By default, this is the user cache directory for this package.

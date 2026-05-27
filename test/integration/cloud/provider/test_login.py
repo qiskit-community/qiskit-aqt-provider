@@ -1,4 +1,3 @@
-from typing import Optional
 
 import pytest
 from aqt_connector import ArnicaApp, ArnicaConfig
@@ -8,7 +7,7 @@ from qiskit_aqt_provider._cloud.provider import CloudProvider
 
 def test_it_logs_in_with_provided_config(monkeypatch: pytest.MonkeyPatch) -> None:
     """The CloudProvider should log in using the provided configuration."""
-    given_app: Optional[ArnicaApp] = None
+    given_app: ArnicaApp | None = None
 
     def _log_in_handler(app: ArnicaApp) -> str:
         nonlocal given_app

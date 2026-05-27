@@ -15,7 +15,7 @@
 import importlib.metadata
 import platform
 import uuid
-from typing import Annotated, Final, Literal, Optional, Union
+from typing import Annotated, Final, Literal
 
 import httpx
 import pydantic as pdt
@@ -54,7 +54,7 @@ class JobResult(pdt.BaseModel):
     """Result model on the direct access API."""
 
     job_id: uuid.UUID
-    payload: Union[JobResultFinished, JobResultError] = pdt.Field(discriminator="status")
+    payload: JobResultFinished | JobResultError = pdt.Field(discriminator="status")
 
     @classmethod
     def create_error(cls, *, job_id: uuid.UUID) -> Self:
@@ -77,7 +77,7 @@ class JobResult(pdt.BaseModel):
 
 
 def http_client(
-    *, base_url: str, token: str, user_agent_extra: Optional[str] = None
+    *, base_url: str, token: str, user_agent_extra: str | None = None
 ) -> httpx.Client:
     """A pre-configured httpx Client.
 

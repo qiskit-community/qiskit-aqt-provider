@@ -10,7 +10,7 @@
 
 import os
 from collections.abc import Iterator
-from typing import Final, Optional, cast
+from typing import Final, cast
 
 import httpx
 from aqt_connector.models.arnica.response_bodies.resources import ResourceDetails
@@ -30,7 +30,7 @@ class PortalClient:
     USER_AGENT_NAME: Final = "aqt-portal-client"
 
     def __init__(
-        self, *, token: str, user_agent_extra: Optional[str] = None, timeout: Optional[float] = 10.0
+        self, *, token: str, user_agent_extra: str | None = None, timeout: float | None = 10.0
     ) -> None:
         """Initialize a new client for the AQT remote computing portal API.
 

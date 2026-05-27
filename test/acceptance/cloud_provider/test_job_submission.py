@@ -1,5 +1,4 @@
 from pathlib import Path
-from uuid import UUID
 
 import pytest
 from aqt_connector import ArnicaConfig

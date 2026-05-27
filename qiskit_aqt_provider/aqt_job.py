@@ -20,8 +20,7 @@ from typing import (
     Any,
     ClassVar,
     NoReturn,
-    Optional,
-    Union,
+    TypeAlias,
 )
 
 import numpy as np
@@ -38,7 +37,7 @@ from qiskit.providers.jobstatus import JobStatus
 from qiskit.result.result import Result
 from qiskit.utils.lazy_tester import contextlib
 from tqdm import tqdm
-from typing_extensions import Self, TypeAlias
+from typing_extensions import Self
 
 from qiskit_aqt_provider import persistence
 from qiskit_aqt_provider.api_client.models_direct import JobResultError
@@ -88,7 +87,7 @@ class JobCancelled:
     status = ClassVar = JobStatus.CANCELLED
 
 
-JobStatusPayload: TypeAlias = Union[JobQueued, JobOngoing, JobFinished, JobFailed, JobCancelled]
+JobStatusPayload: TypeAlias = JobQueued | JobOngoing | JobFinished | JobFailed | JobCancelled
 
 
 @dataclass(frozen=True)
@@ -121,9 +120,9 @@ class _MockProgressBar:
 
     def __exit__(
         self,
-        exc_type: Optional[type[BaseException]],
-        exc_value: Optional[BaseException],
-        traceback: Optional[TracebackType],
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
         /,
     ) -> None: ...
 
@@ -192,8 +191,8 @@ class AQTJob(JobV1):
         cls,
         job_id: str,
         *,
-        access_token: Optional[str] = None,
-        store_path: Optional[Path] = None,
+        access_token: str | None = None,
+        store_path: Path | None = None,
         remove_from_store: bool = True,
     ) -> Self:
         """Restore a job handle from local persistent storage.
@@ -251,7 +250,7 @@ class AQTJob(JobV1):
 
         return obj
 
-    def persist(self, *, store_path: Optional[Path] = None) -> Path:
+    def persist(self, *, store_path: Path | None = None) -> Path:
         """Save this job to local persistent storage.
 
         .. warning:: Only jobs that have been submitted for execution
@@ -340,7 +339,7 @@ class AQTJob(JobV1):
         return Progress(finished_count=num_circuits, total_count=num_circuits)
 
     @property
-    def error_message(self) -> Optional[str]:
+    def error_message(self) -> str | None:
         """Error message for this job (if any)."""
         if isinstance(self.status_payload, JobFailed):
             return self.status_payload.error
@@ -359,7 +358,7 @@ class AQTJob(JobV1):
             APIError: the operation failed on the remote portal.
         """
         if self.options.with_progress_bar:
-            context: Union[tqdm[NoReturn], _MockProgressBar] = tqdm(total=len(self.circuits))
+            context: tqdm[NoReturn] | _MockProgressBar = tqdm(total=len(self.circuits))
         else:
             context = _MockProgressBar(total=len(self.circuits))
 
@@ -457,7 +456,7 @@ class AQTDirectAccessJob(JobV1):
             APIError: the operation failed on the target resource.
         """
         if self.options.with_progress_bar:
-            context: Union[tqdm[NoReturn], _MockProgressBar] = tqdm(total=len(self.circuits))
+            context: tqdm[NoReturn] | _MockProgressBar = tqdm(total=len(self.circuits))
         else:
             context = _MockProgressBar(total=len(self.circuits))
 
@@ -638,7 +637,7 @@ def _build_memory_mapping(circuit: QuantumCircuit) -> dict[int, set[int]]:
 
 
 def _shot_to_int(
-    fluorescence_states: list[int], qubit_to_bit: Optional[dict[int, set[int]]] = None
+    fluorescence_states: list[int], qubit_to_bit: dict[int, set[int]] | None = None
 ) -> int:
     """Format the detected fluorescence states from a single shot as an integer.
 
@@ -744,7 +743,7 @@ def _shot_to_int(
 
 
 def _format_counts(
-    samples: list[list[int]], qubit_to_bit: Optional[dict[int, set[int]]] = None
+    samples: list[list[int]], qubit_to_bit: dict[int, set[int]] | None = None
 ) -> dict[str, int]:
     """Format all shots results from a circuit evaluation.
 

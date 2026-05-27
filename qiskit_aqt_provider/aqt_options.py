@@ -11,7 +11,7 @@
 # that they have been altered from the originals.
 
 from collections.abc import Iterator, Mapping
-from typing import Any, Optional
+from typing import Any
 
 import annotated_types
 import pydantic as pdt
@@ -71,7 +71,7 @@ class AQTOptions(pdt.BaseModel, Mapping[str, Any]):
     query_period_seconds: float = pdt.Field(ge=0.1, default=1.0)
     """Elapsed time between queries to the cloud portal when waiting for results, in seconds."""
 
-    query_timeout_seconds: Optional[float] = None
+    query_timeout_seconds: float | None = None
     """Maximum time to wait for results of a single job, in seconds."""
 
     with_progress_bar: bool = True
@@ -82,7 +82,7 @@ class AQTOptions(pdt.BaseModel, Mapping[str, Any]):
 
     @pdt.field_validator("query_timeout_seconds")
     @classmethod
-    def validate_timeout(cls, value: Optional[float], info: pdt.ValidationInfo) -> Optional[float]:
+    def validate_timeout(cls, value: float | None, info: pdt.ValidationInfo) -> float | None:
         """Enforce that the timeout, if set, is strictly positive."""
         if value is not None and value <= 0.0:
             raise ValueError(f"{info.field_name} must be None or > 0.")
