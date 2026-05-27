@@ -20,7 +20,7 @@ it can be split into two non-overlapping sets that have the same sum.
 """
 
 from dataclasses import dataclass
-from typing import Final, Union
+from typing import Final
 
 import qiskit_algorithms
 from qiskit_algorithms.minimum_eigensolvers import QAOA
@@ -55,7 +55,7 @@ class Infeasible:
     """Marker for unsolvable partition problems."""
 
 
-def solve_partition_problem(num_set: set[int]) -> Union[Success, Infeasible]:
+def solve_partition_problem(num_set: set[int]) -> Success | Infeasible:
     """Solve a partition problem.
 
     Args:
@@ -69,9 +69,7 @@ def solve_partition_problem(num_set: set[int]) -> Union[Success, Infeasible]:
     problem = NumberPartition(list(num_set))
     qp = problem.to_quadratic_program()
 
-    meo = MinimumEigenOptimizer(
-        min_eigen_solver=QAOA(sampler=AQTSampler(backend), optimizer=COBYLA())
-    )
+    meo = MinimumEigenOptimizer(min_eigen_solver=QAOA(sampler=AQTSampler(backend), optimizer=COBYLA()))
     result = meo.solve(qp)
 
     if result.status is OptimizationResultStatus.SUCCESS:

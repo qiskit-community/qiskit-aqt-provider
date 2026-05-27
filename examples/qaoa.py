@@ -28,23 +28,24 @@ from qiskit_aqt_provider.primitives import AQTSampler
 RANDOM_SEED: Final = 0
 
 if __name__ == "__main__":
-    backend = AQTProvider().get_backend("offline_simulator_no_noise")
-    sampler = AQTSampler(backend)
+    with AQTProvider() as provider:
+        backend = provider.offline.ideal()  # Get the ideal offline simulator resource.
+        sampler = AQTSampler(backend)
 
-    # fix the random seeds such that the example is reproducible
-    qiskit_algorithms.utils.algorithm_globals.random_seed = RANDOM_SEED
-    backend.simulator.options.seed_simulator = RANDOM_SEED
+        # fix the random seeds such that the example is reproducible
+        qiskit_algorithms.utils.algorithm_globals.random_seed = RANDOM_SEED
+        backend.simulator.options.seed_simulator = RANDOM_SEED
 
-    # Hamiltonian: Ising model on two spin 1/2 without external field
-    J = 1.23456789
-    hamiltonian = SparsePauliOp.from_list([("ZZ", 3 * J)])
+        # Hamiltonian: Ising model on two spin 1/2 without external field
+        J = 1.23456789
+        hamiltonian = SparsePauliOp.from_list([("ZZ", 3 * J)])
 
-    # Find the ground-state energy with QAOA
-    optimizer = COBYLA(maxiter=100, tol=0.01)
-    qaoa = QAOA(sampler, optimizer)
-    result = qaoa.compute_minimum_eigenvalue(operator=hamiltonian)
-    assert result.eigenvalue is not None  # noqa: S101
+        # Find the ground-state energy with QAOA
+        optimizer = COBYLA(maxiter=100, tol=0.01)
+        qaoa = QAOA(sampler, optimizer)
+        result = qaoa.compute_minimum_eigenvalue(operator=hamiltonian)
+        assert result.eigenvalue is not None  # noqa: S101
 
-    print(f"Optimizer run time: {result.optimizer_time:.2f} s")
-    print("Cost function evaluations:", result.cost_function_evals)
-    print("Deviation from expected ground-state energy:", abs(result.eigenvalue - (-3 * J)))
+        print(f"Optimizer run time: {result.optimizer_time:.2f} s")
+        print("Cost function evaluations:", result.cost_function_evals)
+        print("Deviation from expected ground-state energy:", abs(result.eigenvalue - (-3 * J)))

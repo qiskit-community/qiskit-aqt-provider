@@ -22,16 +22,17 @@ circuit = QuantumVolume(5)
 circuit.measure_all()
 
 # Select an execution backend
-backend = AQTProvider().get_backend("offline_simulator_no_noise")
+with AQTProvider() as provider:
+    backend = provider.offline.ideal()
 
-# Transpile the circuit to target the selected AQT backend
-transpiled_circuit = qiskit.transpile(circuit, backend, optimization_level=2)
-print(transpiled_circuit)
+    # Transpile the circuit to target the selected AQT backend
+    transpiled_circuit = qiskit.transpile(circuit, backend, optimization_level=2)
+    print(transpiled_circuit)
 
-# Execute the circuit on the selected AQT backend
-result = backend.run(transpiled_circuit, shots=50).result()
+    # Execute the circuit on the selected AQT backend
+    result = backend.run(transpiled_circuit, shots=50).result()
 
-if result.success:
-    print(result.get_counts())
-else:  # pragma: no cover
-    raise RuntimeError
+    if result.success:
+        print(result.get_counts())
+    else:  # pragma: no cover
+        raise RuntimeError

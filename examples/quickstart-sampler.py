@@ -27,16 +27,17 @@ circuit.cx(0, 1)
 circuit.measure_all()
 
 # Select an execution backend
-backend = AQTProvider().get_backend("offline_simulator_no_noise")
+with AQTProvider() as provider:
+    backend = provider.offline.ideal()  # Get the ideal offline simulator resource.
 
-# Instantiate a sampler on the execution backend
-sampler = AQTSampler(backend)
+    # Instantiate a sampler on the execution backend
+    sampler = AQTSampler(backend)
 
-# Set the transpiler's optimization level
-sampler.set_transpile_options(optimization_level=3)
+    # Set the transpiler's optimization level
+    sampler.set_transpile_options(optimization_level=3)
 
-# Sample the circuit on the execution backend
-result = sampler.run(circuit).result()
+    # Sample the circuit on the execution backend
+    result = sampler.run(circuit).result()
 
-quasi_dist = result.quasi_dists[0]
-print(quasi_dist)
+    quasi_dist = result.quasi_dists[0]
+    print(quasi_dist)

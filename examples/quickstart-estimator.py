@@ -30,30 +30,6 @@ from scipy.optimize import minimize
 from qiskit_aqt_provider import AQTProvider
 from qiskit_aqt_provider.primitives import AQTEstimator
 
-# Select an execution backend
-backend = AQTProvider().get_backend("offline_simulator_no_noise")
-
-# Instantiate an estimator on the execution backend
-estimator = AQTEstimator(backend)
-
-# Set the transpiler's optimization level
-estimator.set_transpile_options(optimization_level=3)
-
-# Specify the problem Hamiltonian
-hamiltonian = SparsePauliOp.from_list(
-    [
-        ("II", -1.052373245772859),
-        ("IZ", 0.39793742484318045),
-        ("ZI", -0.39793742484318045),
-        ("ZZ", -0.01128010425623538),
-        ("XX", 0.18093119978423156),
-    ]
-)
-
-# Define the VQE Ansatz, initial point, and cost function
-ansatz = TwoLocal(num_qubits=2, rotation_blocks="ry", entanglement_blocks="cz")
-initial_point = [0] * 8
-
 
 def cost_function(
     params: Sequence[float],
@@ -69,10 +45,33 @@ def cost_function(
     return float(estimator.run(ansatz, hamiltonian, parameter_values=params).result().values[0])
 
 
-# Run the VQE using the SciPy minimizer routine
-result = minimize(
-    cost_function, initial_point, args=(ansatz, hamiltonian, estimator), method="cobyla"
-)
+# Select an execution backend
+with AQTProvider() as provider:
+    backend = provider.offline.ideal()  # Get the ideal offline simulator resource.
 
-# Print the found minimum eigenvalue
-print(result.fun)
+    # Instantiate an estimator on the execution backend
+    estimator = AQTEstimator(backend)
+
+    # Set the transpiler's optimization level
+    estimator.set_transpile_options(optimization_level=3)
+
+    # Specify the problem Hamiltonian
+    hamiltonian = SparsePauliOp.from_list(
+        [
+            ("II", -1.052373245772859),
+            ("IZ", 0.39793742484318045),
+            ("ZI", -0.39793742484318045),
+            ("ZZ", -0.01128010425623538),
+            ("XX", 0.18093119978423156),
+        ]
+    )
+
+    # Define the VQE Ansatz, initial point, and cost function
+    ansatz = TwoLocal(num_qubits=2, rotation_blocks="ry", entanglement_blocks="cz")
+    initial_point = [0] * 8
+
+    # Run the VQE using the SciPy minimizer routine
+    result = minimize(cost_function, initial_point, args=(ansatz, hamiltonian, estimator), method="cobyla")
+
+    # Print the found minimum eigenvalue
+    print(result.fun)

@@ -21,31 +21,30 @@ from qiskit_algorithms.minimum_eigensolvers import VQE
 from qiskit_algorithms.optimizers import COBYLA
 
 from qiskit_aqt_provider import AQTProvider
-from qiskit_aqt_provider.aqt_resource import OfflineSimulatorResource
 from qiskit_aqt_provider.primitives import AQTEstimator
 
 RANDOM_SEED: Final = 0
 
 if __name__ == "__main__":
-    backend = AQTProvider().get_backend("offline_simulator_no_noise")
-    assert isinstance(backend, OfflineSimulatorResource)  # noqa: S101
-    estimator = AQTEstimator(backend)
+    with AQTProvider() as provider:
+        backend = provider.offline.ideal()  # Get the ideal offline simulator resource.
+        estimator = AQTEstimator(backend)
 
-    # fix the random seeds such that the example is reproducible
-    qiskit_algorithms.utils.algorithm_globals.random_seed = RANDOM_SEED
-    backend.simulator.options.seed_simulator = RANDOM_SEED
+        # fix the random seeds such that the example is reproducible
+        qiskit_algorithms.utils.algorithm_globals.random_seed = RANDOM_SEED
+        backend.simulator.options.seed_simulator = RANDOM_SEED
 
-    # Hamiltonian: Ising model on two spin 1/2 without external field
-    J = 1.2
-    hamiltonian = SparsePauliOp.from_list([("XX", J)])
+        # Hamiltonian: Ising model on two spin 1/2 without external field
+        J = 1.2
+        hamiltonian = SparsePauliOp.from_list([("XX", J)])
 
-    # Find the ground-state energy with VQE
-    ansatz = TwoLocal(num_qubits=2, rotation_blocks="ry", entanglement_blocks="rxx", reps=1)
-    optimizer = COBYLA(maxiter=100, tol=0.01)
-    vqe = VQE(estimator, ansatz, optimizer)
-    result = vqe.compute_minimum_eigenvalue(operator=hamiltonian)
-    assert result.eigenvalue is not None  # noqa: S101
+        # Find the ground-state energy with VQE
+        ansatz = TwoLocal(num_qubits=2, rotation_blocks="ry", entanglement_blocks="rxx", reps=1)
+        optimizer = COBYLA(maxiter=100, tol=0.01)
+        vqe = VQE(estimator, ansatz, optimizer)
+        result = vqe.compute_minimum_eigenvalue(operator=hamiltonian)
+        assert result.eigenvalue is not None  # noqa: S101
 
-    print(f"Optimizer run time: {result.optimizer_time:.2f} s")
-    print("Cost function evaluations:", result.cost_function_evals)
-    print("Deviation from expected ground-state energy:", abs(result.eigenvalue - (-J)))
+        print(f"Optimizer run time: {result.optimizer_time:.2f} s")
+        print("Cost function evaluations:", result.cost_function_evals)
+        print("Deviation from expected ground-state energy:", abs(result.eigenvalue - (-J)))
