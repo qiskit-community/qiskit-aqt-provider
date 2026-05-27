@@ -8,7 +8,7 @@ from qiskit.primitives.backend_estimator_v2 import (
     _PreprocessedData,
 )
 
-from qiskit_aqt_provider.aqt_resource import AnyAQTResource
+from qiskit_aqt_provider.aqt_provider import AnyAQTResource
 
 
 class AQTEstimator(BackendEstimatorV2):

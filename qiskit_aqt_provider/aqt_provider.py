@@ -1,13 +1,20 @@
 from types import TracebackType
-from typing import Self
+from typing import Self, TypeAlias
 
 from aqt_connector import ArnicaConfig
 
 from qiskit_aqt_provider._cloud.provider import CloudProvider
+from qiskit_aqt_provider._cloud.resource import CloudResource
 from qiskit_aqt_provider._direct.provider import DirectAccessProvider
+from qiskit_aqt_provider._direct.resource import DirectAccessResource
 from qiskit_aqt_provider._offline_sim.provider import OfflineSimulatorProvider
+from qiskit_aqt_provider._offline_sim.resource import OfflineSimulatorResource
 
 __all__ = ["AQTProvider"]
+
+
+AnyAQTResource: TypeAlias = CloudResource | OfflineSimulatorResource | DirectAccessResource
+"""Type of any resource."""
 
 
 class AQTProvider:

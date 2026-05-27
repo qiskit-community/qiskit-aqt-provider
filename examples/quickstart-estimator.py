@@ -50,7 +50,7 @@ with AQTProvider() as provider:
     backend = provider.offline.ideal()  # Get the ideal offline simulator resource.
 
     # Instantiate an estimator on the execution backend
-    estimator = AQTEstimator(backend)
+    estimator = AQTEstimator(backend=backend)
 
     # Set the transpiler's optimization level
     estimator.set_transpile_options(optimization_level=3)

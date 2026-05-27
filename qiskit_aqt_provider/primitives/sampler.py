@@ -11,7 +11,7 @@ from qiskit.primitives.backend_sampler_v2 import _analyze_circuit, _prepare_memo
 from qiskit.primitives.containers.sampler_pub import SamplerPub
 from qiskit.transpiler import generate_preset_pass_manager
 
-from qiskit_aqt_provider.aqt_resource import AnyAQTResource
+from qiskit_aqt_provider.aqt_provider import AnyAQTResource
 
 
 class AQTSampler(BackendSamplerV2):
