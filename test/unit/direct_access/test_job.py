@@ -36,7 +36,7 @@ def test_result_calls_await_result_with_correct_job_id() -> None:
     """result() should call await_result on the API client with the job's UUID."""
     job_id = uuid4()
     client = mock.Mock(spec=DirectAccessAPIClient)
-    client.await_result.return_value = api_models_direct.JobResult.create_finished(job_id=job_id, result=[[0]])
+    client.await_result.return_value = api_models_direct.JobResult.create_finished(job_id=job_id, result=[[0]]).payload
     job = _make_job(client=client, job_id=job_id)
 
     job.result()
@@ -50,7 +50,7 @@ def test_result_forwards_timeout_to_api_client() -> None:
     """result(timeout=…) should pass the timeout value through to await_result."""
     job_id = uuid4()
     client = mock.Mock(spec=DirectAccessAPIClient)
-    client.await_result.return_value = api_models_direct.JobResult.create_finished(job_id=job_id, result=[[0]])
+    client.await_result.return_value = api_models_direct.JobResult.create_finished(job_id=job_id, result=[[0]]).payload
     job = _make_job(client=client, job_id=job_id)
 
     job.result(timeout=42.0)
@@ -62,7 +62,7 @@ def test_result_returns_qiskit_result_on_success() -> None:
     """result() should return a Qiskit Result object when the job finishes successfully."""
     job_id = uuid4()
     client = mock.Mock(spec=DirectAccessAPIClient)
-    client.await_result.return_value = api_models_direct.JobResult.create_finished(job_id=job_id, result=[[0]])
+    client.await_result.return_value = api_models_direct.JobResult.create_finished(job_id=job_id, result=[[0]]).payload
     job = _make_job(client=client, job_id=job_id)
 
     result = job.result()
@@ -74,7 +74,7 @@ def test_result_contains_correct_backend_name() -> None:
     """result() should embed the backend name from metadata in the returned Result."""
     job_id = uuid4()
     client = mock.Mock(spec=DirectAccessAPIClient)
-    client.await_result.return_value = api_models_direct.JobResult.create_finished(job_id=job_id, result=[[0]])
+    client.await_result.return_value = api_models_direct.JobResult.create_finished(job_id=job_id, result=[[0]]).payload
     job = _make_job(client=client, job_id=job_id, backend_name="my-device")
 
     result = job.result()
@@ -86,7 +86,9 @@ def test_result_contains_correct_counts() -> None:
     """result() should include the measurement counts derived from the raw samples."""
     job_id = uuid4()
     client = mock.Mock(spec=DirectAccessAPIClient)
-    client.await_result.return_value = api_models_direct.JobResult.create_finished(job_id=job_id, result=[[0], [0]])
+    client.await_result.return_value = api_models_direct.JobResult.create_finished(
+        job_id=job_id, result=[[0], [0]]
+    ).payload
     circuit = _make_circuit(num_qubits=1)
     job = _make_job(client=client, job_id=job_id, circuit=circuit, shots=2)
 
@@ -100,7 +102,7 @@ def test_result_raises_on_error_payload() -> None:
     """result() should raise AQTJobFailedError when the API returns an error payload."""
     job_id = uuid4()
     client = mock.Mock(spec=DirectAccessAPIClient)
-    client.await_result.return_value = api_models_direct.JobResult.create_error(job_id=job_id)
+    client.await_result.return_value = api_models_direct.JobResult.create_error(job_id=job_id).payload
     job = _make_job(client=client, job_id=job_id)
 
     with pytest.raises(AQTJobFailedError):
@@ -111,7 +113,7 @@ def test_result_sets_status_to_error_on_failure() -> None:
     """After a failed result() call, status() should return ERROR."""
     job_id = uuid4()
     client = mock.Mock(spec=DirectAccessAPIClient)
-    client.await_result.return_value = api_models_direct.JobResult.create_error(job_id=job_id)
+    client.await_result.return_value = api_models_direct.JobResult.create_error(job_id=job_id).payload
     job = _make_job(client=client, job_id=job_id)
 
     with pytest.raises(AQTJobFailedError):

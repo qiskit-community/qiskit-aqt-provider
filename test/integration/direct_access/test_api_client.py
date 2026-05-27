@@ -105,8 +105,8 @@ def test_await_result_returns_finished_result() -> None:
 
     result = _make_client(handler).await_result(job_id)
 
-    assert isinstance(result.payload, api_models_direct.JobResultFinished)
-    assert result.payload.result == [[0, 1], [1, 0]]
+    assert isinstance(result, api_models_direct.JobResultFinished)
+    assert result.result == [[0, 1], [1, 0]]
 
 
 def test_await_result_returns_error_result() -> None:
@@ -121,7 +121,7 @@ def test_await_result_returns_error_result() -> None:
 
     result = _make_client(handler).await_result(job_id)
 
-    assert isinstance(result.payload, api_models_direct.JobResultError)
+    assert isinstance(result, api_models_direct.JobResultError)
 
 
 def test_await_result_uses_correct_job_id_in_path() -> None:
