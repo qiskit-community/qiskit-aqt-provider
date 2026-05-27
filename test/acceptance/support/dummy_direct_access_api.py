@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 from qiskit_aqt_provider.api_client.models_direct import JobResultError, JobResultFinished
 
 app = FastAPI()
-_requests = []
+_requests: list[dict[str, Any]] = []
 
 
 def _default_direct_access_state() -> dict[str, Any]:

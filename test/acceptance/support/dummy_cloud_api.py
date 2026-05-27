@@ -12,7 +12,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
 app = FastAPI()
-_requests = []
+_requests: list[dict[str, Any]] = []
 
 
 def _record_request(request: Request, body: Optional[Any] = None) -> None:

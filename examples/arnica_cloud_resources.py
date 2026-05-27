@@ -11,7 +11,9 @@ if __name__ == "__main__":
         cloud_provider.log_in()  # Log in to the cloud provider to establish a session.
         workspaces = cloud_provider.fetch_workspaces()
         workspace = workspaces.get_by_id("my-workspace-id")  # Get a workspace provider by its ID.
-        backend = workspace.get_backend("my-backend-id")  # Acquire a backend resource by its ID.
+        backend = workspace.get_backend(  # type: ignore[union-attr]
+            "my-backend-id"
+        )  # Acquire a backend resource by its ID.
 
         qc = QuantumCircuit(2)
         qc.measure_all()

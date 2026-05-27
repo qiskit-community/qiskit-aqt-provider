@@ -82,19 +82,20 @@ def solve_partition_problem(num_set: set[int]) -> Success | Infeasible:
 
 
 if __name__ == "__main__":
-    backend = AQTProvider().get_backend("offline_simulator_no_noise")
+    with AQTProvider() as provider:
+        backend = provider.offline.ideal()  # Get the ideal offline simulator resource.
 
-    # fix the random seeds such that the example is reproducible
-    qiskit_algorithms.utils.algorithm_globals.random_seed = RANDOM_SEED
-    backend.simulator.options.seed_simulator = RANDOM_SEED
+        # fix the random seeds such that the example is reproducible
+        qiskit_algorithms.utils.algorithm_globals.random_seed = RANDOM_SEED
+        backend.simulator.options.seed_simulator = RANDOM_SEED
 
-    num_set = {1, 3, 4}
-    result = solve_partition_problem(num_set)
-    assert isinstance(result, Success)  # noqa: S101
-    assert result.is_valid()  # noqa: S101
-    print(f"Partition for {num_set}:", result.partition)
+        num_set = {1, 3, 4}
+        result = solve_partition_problem(num_set)
+        assert isinstance(result, Success)  # noqa: S101
+        assert result.is_valid()  # noqa: S101
+        print(f"Partition for {num_set}:", result.partition)
 
-    num_set = {1, 2}
-    result = solve_partition_problem(num_set)
-    assert isinstance(result, Infeasible)  # noqa: S101
-    print(f"No partition possible for {num_set}.")
+        num_set = {1, 2}
+        result = solve_partition_problem(num_set)
+        assert isinstance(result, Infeasible)  # noqa: S101
+        print(f"No partition possible for {num_set}.")

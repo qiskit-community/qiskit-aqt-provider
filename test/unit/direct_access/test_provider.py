@@ -1,4 +1,4 @@
-from typing import Callable
+from collections.abc import Callable
 
 import httpx
 
@@ -7,6 +7,8 @@ from qiskit_aqt_provider._direct.provider import DirectAccessProvider
 
 def test_get_resource_creates_http_client_with_correct_configuration() -> None:
     """DirectAccessProvider.get_resource should create an HTTP client with the correct configuration."""
+    given_base_url: str | None = None
+    given_access_token: str | None = None
 
     def _client_factory(base_url: str, access_token: str) -> httpx.Client:
         nonlocal given_base_url, given_access_token
@@ -14,8 +16,6 @@ def test_get_resource_creates_http_client_with_correct_configuration() -> None:
         given_access_token = access_token
         return _create_client(_device_status_handler)
 
-    given_base_url: str | None = None
-    given_access_token: str | None = None
     base_url = "https://example.com:9000"
     access_token = "test-token"  # noqa: S105
 
