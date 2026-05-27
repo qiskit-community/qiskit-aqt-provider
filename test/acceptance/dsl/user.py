@@ -1,4 +1,3 @@
-
 import httpx
 import pytest
 from aqt_connector import ArnicaApp, ArnicaConfig

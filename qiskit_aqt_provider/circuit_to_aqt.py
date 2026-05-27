@@ -42,9 +42,7 @@ def qiskit_to_aqt_circuit(circuit: QuantumCircuit) -> Circuit:
 
     for instruction in circuit.data:
         if instruction.operation.name != "measure" and num_measurements > 0:
-            raise ValueError(
-                "Measurement operations can only be located at the end of the circuit."
-            )
+            raise ValueError("Measurement operations can only be located at the end of the circuit.")
 
         if instruction.operation.name == "rz":
             (phi,) = instruction.operation.params
@@ -85,9 +83,7 @@ def qiskit_to_aqt_circuit(circuit: QuantumCircuit) -> Circuit:
         elif instruction.operation.name == "barrier":
             continue
         else:
-            raise ValueError(
-                f"Operation '{instruction.operation.name}' not in basis gate set: {{rz, r, rxx}}"
-            )
+            raise ValueError(f"Operation '{instruction.operation.name}' not in basis gate set: {{rz, r, rxx}}")
 
     if not num_measurements:
         raise ValueError("Circuit must have at least one measurement operation.")

@@ -29,9 +29,7 @@ class PortalClient:
 
     USER_AGENT_NAME: Final = "aqt-portal-client"
 
-    def __init__(
-        self, *, token: str, user_agent_extra: str | None = None, timeout: float | None = 10.0
-    ) -> None:
+    def __init__(self, *, token: str, user_agent_extra: str | None = None, timeout: float | None = 10.0) -> None:
         """Initialize a new client for the AQT remote computing portal API.
 
         By default, the client connects to the portal at :py:data:`DEFAULT_PORTAL_URL`.
@@ -98,8 +96,5 @@ def _fetch_workspaces_detailed(client: httpx.Client) -> Iterator[models.Workspac
     for workspace in workspaces.root:
         yield models.Workspace(
             workspace_id=workspace.id,
-            resources=[
-                _fetch_resource(workspace.id, resource.id, client)
-                for resource in workspace.resources
-            ],
+            resources=[_fetch_resource(workspace.id, resource.id, client) for resource in workspace.resources],
         )

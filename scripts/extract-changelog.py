@@ -58,17 +58,9 @@ def main(
 
     for node in md_ast.children:
         current_version = None
-        if (
-            isinstance(node, block_token.Heading)
-            and node.level == REVISION_HEADER_LEVEL
-            and node.children is not None
-        ):
+        if isinstance(node, block_token.Heading) and node.level == REVISION_HEADER_LEVEL and node.children is not None:
             first_child = next(iter(node.children), None)
-            if (
-                first_child
-                and hasattr(first_child, "content")
-                and (match := HEADER_REGEX.search(first_child.content))
-            ):
+            if first_child and hasattr(first_child, "content") and (match := HEADER_REGEX.search(first_child.content)):
                 _, revision = match.groups()
                 current_version = revision
 

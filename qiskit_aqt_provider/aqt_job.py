@@ -312,9 +312,7 @@ class AQTJob(JobV1):
             self.status_payload = JobOngoing(finished_count=job_state.finished_count)
         elif isinstance(job_state, RRFinished):
             self.status_payload = JobFinished(
-                results={
-                    int(circuit_index): shots for circuit_index, shots in job_state.result.items()
-                }
+                results={int(circuit_index): shots for circuit_index, shots in job_state.result.items()}
             )
         elif isinstance(job_state, RRError):
             self.status_payload = JobFailed(error=job_state.message)
@@ -331,9 +329,7 @@ class AQTJob(JobV1):
             return Progress(finished_count=0, total_count=num_circuits)
 
         if isinstance(self.status_payload, JobOngoing):
-            return Progress(
-                finished_count=self.status_payload.finished_count, total_count=num_circuits
-            )
+            return Progress(finished_count=self.status_payload.finished_count, total_count=num_circuits)
 
         # if the circuit is finished, failed, or cancelled, it is completed
         return Progress(finished_count=num_circuits, total_count=num_circuits)
@@ -388,9 +384,7 @@ class AQTJob(JobV1):
             for circuit_index, circuit in enumerate(self.circuits):
                 samples = self.status_payload.results[circuit_index]
                 results.append(
-                    _partial_qiskit_result_dict(
-                        samples, circuit, shots=self.options.shots, memory=self.options.memory
-                    )
+                    _partial_qiskit_result_dict(samples, circuit, shots=self.options.shots, memory=self.options.memory)
                 )
 
         return Result.from_dict(
@@ -473,9 +467,7 @@ class AQTDirectAccessJob(JobV1):
             for circuit_index, circuit in enumerate(self.circuits):
                 api_circuit = self.api_submit_payload.payload.circuits[circuit_index]
                 job_id = self._backend.submit(api_circuit)
-                api_result = self._backend.result(
-                    job_id, timeout=self.options.query_timeout_seconds
-                )
+                api_result = self._backend.result(job_id, timeout=self.options.query_timeout_seconds)
 
                 if isinstance(api_result.payload, JobResultError):
                     break
@@ -636,9 +628,7 @@ def _build_memory_mapping(circuit: QuantumCircuit) -> dict[int, set[int]]:
     return dict(qu2cl)
 
 
-def _shot_to_int(
-    fluorescence_states: list[int], qubit_to_bit: dict[int, set[int]] | None = None
-) -> int:
+def _shot_to_int(fluorescence_states: list[int], qubit_to_bit: dict[int, set[int]] | None = None) -> int:
     """Format the detected fluorescence states from a single shot as an integer.
 
     This follows the Qiskit ordering convention, where bit 0 in the classical register is mapped
@@ -742,9 +732,7 @@ def _shot_to_int(
     return int((np.left_shift(1, np.arange(len(creg))) * creg).sum())
 
 
-def _format_counts(
-    samples: list[list[int]], qubit_to_bit: dict[int, set[int]] | None = None
-) -> dict[str, int]:
+def _format_counts(samples: list[list[int]], qubit_to_bit: dict[int, set[int]] | None = None) -> dict[str, int]:
     """Format all shots results from a circuit evaluation.
 
     The returned dictionary is compatible with Qiskit's `ExperimentResultData`

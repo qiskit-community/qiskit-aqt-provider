@@ -45,9 +45,7 @@ class Circuits:
         self.circuits = circuits
 
     @classmethod
-    def __get_pydantic_core_schema__(
-        cls, source_type: Any, handler: GetCoreSchemaHandler
-    ) -> CoreSchema:
+    def __get_pydantic_core_schema__(cls, source_type: Any, handler: GetCoreSchemaHandler) -> CoreSchema:
         """Setup custom validator, to turn this class into a pydantic model."""
         return core_schema.no_info_plain_validator_function(function=cls.validate)
 

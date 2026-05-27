@@ -1,4 +1,3 @@
-
 import httpx
 import pydantic as pdt
 from aqt_connector import ArnicaApp

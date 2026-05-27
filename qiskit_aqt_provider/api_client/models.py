@@ -28,9 +28,7 @@ class UnknownJobError(JobError):
     """An unknown job was requested from the AQT cloud portal."""
 
 
-AQTBackendType: TypeAlias = Literal[
-    ResourceType.DEVICE, ResourceType.SIMULATOR, "offline_simulator", "direct_access"
-]
+AQTBackendType: TypeAlias = Literal[ResourceType.DEVICE, ResourceType.SIMULATOR, "offline_simulator", "direct_access"]
 
 
 class Resource(BaseModel):
@@ -203,9 +201,7 @@ class Workspaces(
         """
         filtered_workspaces = []
         for workspace in self.root:
-            if workspace_pattern is not None and not re.match(
-                workspace_pattern, workspace.workspace_id
-            ):
+            if workspace_pattern is not None and not re.match(workspace_pattern, workspace.workspace_id):
                 continue
 
             filtered_resources = []
@@ -219,8 +215,6 @@ class Workspaces(
 
                 filtered_resources.append(resource)
 
-            filtered_workspaces.append(
-                Workspace(workspace_id=workspace.workspace_id, resources=filtered_resources)
-            )
+            filtered_workspaces.append(Workspace(workspace_id=workspace.workspace_id, resources=filtered_resources))
 
         return self.__class__(root=filtered_workspaces)

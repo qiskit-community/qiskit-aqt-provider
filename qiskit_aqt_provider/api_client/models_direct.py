@@ -76,9 +76,7 @@ class JobResult(pdt.BaseModel):
         return cls(job_id=job_id, payload=JobResultFinished(result=result))
 
 
-def http_client(
-    *, base_url: str, token: str, user_agent_extra: str | None = None
-) -> httpx.Client:
+def http_client(*, base_url: str, token: str, user_agent_extra: str | None = None) -> httpx.Client:
     """A pre-configured httpx Client.
 
     Args:

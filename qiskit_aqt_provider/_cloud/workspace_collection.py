@@ -1,4 +1,3 @@
-
 import httpx
 from aqt_connector import ArnicaApp
 from aqt_connector.models.arnica.response_bodies.workspaces import Workspace
