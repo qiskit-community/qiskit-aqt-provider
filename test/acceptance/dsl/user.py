@@ -213,3 +213,9 @@ def parametrised_circuit(*, num_qubits: int = 1) -> QuantumCircuit:
     circuit.rz(theta, 0)
     circuit.measure_all()
     return circuit
+
+
+def acquires_offline_simulator_resource() -> BackendV2:
+    """Acquires an offline simulator resource."""
+    provider = AQTProvider()
+    return provider.offline.ideal()
