@@ -13,7 +13,7 @@ __all__ = ["AQTProvider"]
 class AQTProvider:
     """Provider for backends from Alpine Quantum Technologies (AQT).
 
-    Attibutes:
+    Attributes:
         name (str): The provider's name.
         offline (OfflineSimulatorProvider): The provider's offline simulator provider.
     """

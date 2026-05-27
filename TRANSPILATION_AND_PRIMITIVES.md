@@ -30,14 +30,14 @@ class CloudResource(BackendV2):
         return "aqt"
 ```
 The transpiler plugins are defined in `transpiler_plugin.py` with `AQTTranslationPlugin` and `AQTSchedulingPlugin`. When transpiling a circuit, Qiskit includes these extra passes when it builds the transpilation pipeline. 
-- ~~The translation stage needs to do a decomposition after wrapping RXX gate angles for optimization level 0. For level 0 no further decomposition is done due to the lack of optimization.~~The tranlation stage is not required to do anything as all the custom wrapping is done in the scheduling.
+- ~~The translation stage needs to do a decomposition after wrapping RXX gate angles for optimization level 0. For level 0 no further decomposition is done due to the lack of optimization.~~The translation stage is not required to do anything as all the custom wrapping is done in the scheduling.
 - The scheduling stage is the last step in the transpilation. Doing the angle wrapping there, ensures that the output circuit only contains valid angles.
 
 
 #### Unbound parameters not supported
 It is possible to define parametrized gates, which means instead of specifying a concrete angle for the gate, a parameter is used. Normal Qiskit transpilation also works for circuits with such parameterized gates. 
 
-Our backends requirement to wrap angles during transpilation is contradicting this, as the parameters for the angles may be outside the valid ranges after binding. To make sure that a circuit is valid for AQT backends, the circuit needs to be transpiled after paramter binding, so that wrapping is done.
+Our backends requirement to wrap angles during transpilation is contradicting this, as the parameters for the angles may be outside the valid ranges after binding. To make sure that a circuit is valid for AQT backends, the circuit needs to be transpiled after parameter binding, so that wrapping is done.
 
 ## Primitives
 While primitives in Qiskit version 1 allow to configure actions after gate parameters are bound (with the `bound_pass_manager` parameter), Qiskit version 2 has removed this feature. In Qiskit 2, the recommended way is to pass transpiled circuits to the primitives, which then will take care of parameter binding and sending to the backend without any further transpilation.
@@ -55,4 +55,4 @@ The `AQTEstimator` inherits from the `BackendEstimatorV2` and overrides the func
 The `AQTSampler` inherits from the `BackendSamplerV2` and overrides the function `_run_pubs`. It copies the behavior of the parents function and adds:
 - A check if the maximum amount of shots the backend is capable of, is not exceeded.
 - Transpilation of circuits after parameters were bound.
-- Convertion of results from binary strings to expected hex strings for postprocessing with :meth:`_postprocess_pub`.
+- Conversion of results from binary strings to expected hex strings for postprocessing with :meth:`_postprocess_pub`.

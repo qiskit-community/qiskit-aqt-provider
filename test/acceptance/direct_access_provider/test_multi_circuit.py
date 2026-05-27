@@ -59,7 +59,7 @@ def test_submit_multiple_circuits_sequentially(direct_access_api: DummyDirectAcc
     ]
 
 
-def test_mutliple_results_aggregrated_in_input_order(direct_access_api: DummyDirectAccessServer) -> None:
+def test_multiple_results_aggregated_in_input_order(direct_access_api: DummyDirectAccessServer) -> None:
     """Results from multiple circuits should be aggregated in the order they were submitted.
 
     Given deterministic backend results for each submitted circuit
