@@ -4,22 +4,25 @@ from aqt_connector import ArnicaConfig
 
 from qiskit_aqt_provider._cloud.provider import CloudProvider
 from qiskit_aqt_provider._direct.provider import DirectAccessProvider
+from qiskit_aqt_provider._offline_sim.provider import OfflineSimulatorProvider
 
 __all__ = ["AQTProvider"]
 
 
 class AQTProvider:
-    """Provider for backends from Alpine Quantum Technologies (AQT)."""
+    """Provider for backends from Alpine Quantum Technologies (AQT).
+
+    Attibutes:
+        name (str): The provider's name.
+        offline (OfflineSimulatorProvider): The provider's offline simulator provider.
+    """
 
     def __init__(self) -> None:
-        """Initialize the AQT provider.
-
-        The AQT cloud portal URL can be configured using the ``AQT_ARNICA_URL``
-        environment variable.
-        """
+        """Initialize the AQT provider."""
         self.name = "aqt_provider"
         self._cloud: CloudProvider | None = None
         self._direct_access: DirectAccessProvider | None = None
+        self.offline = OfflineSimulatorProvider()
 
     def cloud(self, config: ArnicaConfig | None = None) -> CloudProvider:
         """The provider's cloud provider instance."""
