@@ -96,7 +96,6 @@ lint = [
   "ruff>=0.12",
   "sphinx>=7,<7.3",
   "sphinx-toolbox>=3.5",
-  "tach>=0.29",
   "tomlkit>=0.13.2",
   "typer>=0.16",
   "types-requests>=2.28.11",
