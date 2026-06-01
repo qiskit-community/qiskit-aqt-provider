@@ -7,8 +7,8 @@ from qiskit.providers.jobstatus import JobStatus as QiskitJobStatus
 from qiskit.result import Result
 
 from qiskit_aqt_provider._direct.api_client import DirectAccessAPIClient
+from qiskit_aqt_provider._transformers import partial_qiskit_result_dict
 from qiskit_aqt_provider.api_client import models_direct as api_models_direct
-from qiskit_aqt_provider.aqt_job import _partial_qiskit_result_dict
 from qiskit_aqt_provider.exceptions import AQTJobFailedError
 
 
@@ -67,7 +67,7 @@ class DirectAccessJob(JobV1):
             "job_id": self._job_id,
             "success": True,
             "results": [
-                _partial_qiskit_result_dict(
+                partial_qiskit_result_dict(
                     job_result.result, self._metadata.circuit, shots=self._metadata.shots, memory=False
                 )
             ],

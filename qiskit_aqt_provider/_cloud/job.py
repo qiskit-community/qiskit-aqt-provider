@@ -18,7 +18,7 @@ from qiskit.providers.jobstatus import JobStatus as QiskitJobStatus
 from qiskit.result import Result
 
 from qiskit_aqt_provider._cloud.job_metadata import CloudJobMetadata
-from qiskit_aqt_provider.aqt_job import _partial_qiskit_result_dict
+from qiskit_aqt_provider._transformers import partial_qiskit_result_dict
 from qiskit_aqt_provider.exceptions import (
     AQTApiError,
     AQTCredentialsError,
@@ -98,7 +98,7 @@ class CloudJob(JobV1):
         for circuit_index, circuit in enumerate(self._properties.circuits):
             samples = self._latest_state.result[circuit_index]
             result_dict["results"].append(
-                _partial_qiskit_result_dict(samples, circuit, shots=self._properties.shots, memory=False)
+                partial_qiskit_result_dict(samples, circuit, shots=self._properties.shots, memory=False)
             )
 
         return Result.from_dict(result_dict)
