@@ -182,7 +182,7 @@ def _make_job(
 ) -> DirectAccessJob:
     if job_id is None:
         job_id = uuid4()
-    metadata = DirectAccessJobMetadata(backend_name=backend_name, shots=shots, circuit=_make_circuit())
+    metadata = DirectAccessJobMetadata(backend_name=backend_name, shots=shots, circuit=_make_circuit(), memory=False)
     return DirectAccessJob(api_client=client, job_id=job_id, metadata=metadata)
 
 

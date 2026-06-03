@@ -28,6 +28,7 @@ def test_returns_result_for_completed_job(monkeypatch: pytest.MonkeyPatch) -> No
         backend_name="wurst",
         circuits=[QuantumCircuit()],
         initial_state=RRFinished(result={0: [[0], [1], [1]]}),
+        memory=False,
     )
     job = dsl.user.has_submitted_cloud_job(job_metadata, _mock_client())
 
@@ -48,6 +49,7 @@ def test_waits_for_non_terminal_job_before_returning_result(monkeypatch: pytest.
         backend_name="wurst",
         circuits=[QuantumCircuit()],
         initial_state=RRQueued(),
+        memory=False,
     )
     job = dsl.user.has_submitted_cloud_job(job_metadata, _mock_client())
 
@@ -82,6 +84,7 @@ def test_raises_for_failed_terminal_job(monkeypatch: pytest.MonkeyPatch) -> None
         backend_name="wurst",
         circuits=[],
         initial_state=RRQueued(),
+        memory=False,
     )
     job = dsl.user.has_submitted_cloud_job(job_metadata, _mock_client())
     monkeypatch.setattr("aqt_connector.fetch_job_state", lambda *_: RRError(message="AQT apologies profusely..."))
@@ -100,6 +103,7 @@ def test_timeout_raised_when_job_does_not_reach_final_state(monkeypatch: pytest.
         backend_name="wurst",
         circuits=[],
         initial_state=RRQueued(),
+        memory=False,
     )
     job = dsl.user.has_submitted_cloud_job(job_metadata, _mock_client())
     monkeypatch.setattr("aqt_connector.fetch_job_state", lambda *_: RROngoing(finished_count=0))

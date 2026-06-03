@@ -1,6 +1,7 @@
 from collections.abc import Sequence
 from dataclasses import dataclass
 from functools import partial
+from typing import Unpack
 
 import pydantic as pdt
 from aqt_connector.models.circuits import QuantumCircuit as AQTQuantumCircuit
@@ -18,6 +19,7 @@ from qiskit_aqt_provider._direct.composite_job import (
 )
 from qiskit_aqt_provider._direct.job import DirectAccessJob, DirectAccessJobMetadata
 from qiskit_aqt_provider.circuit_to_aqt import qiskit_to_aqt_circuit
+from qiskit_aqt_provider.options import ResourceRunOptions
 from qiskit_aqt_provider.transpiler_plugin import TranspilerMixin
 
 
@@ -70,15 +72,33 @@ class DirectAccessResource(BackendV2, TranspilerMixin):
         """
         return DirectAccessOptions()
 
-    def run(self, circuit: QuantumCircuit | Sequence[QuantumCircuit], *, shots: int | None = None) -> JobV1:
-        shots = shots if shots is not None else self._options.shots
+    def run(
+        self,
+        circuit: QuantumCircuit | Sequence[QuantumCircuit],
+        **kwargs: Unpack[ResourceRunOptions],
+    ) -> JobV1:
+        """Run a quantum circuit or a sequence of quantum circuits on the resource.
+
+        Args:
+            circuit (QuantumCircuit | Sequence[QuantumCircuit]): The quantum circuit(s) to run.
+            shots (int | None): The number of shots to execute. If not provided, the default from the resource's options
+                will be used.
+            memory (bool | None): Whether to return memory slots. Default is False.
+
+        Returns:
+            JobV1: The job representing the execution of the circuit(s).
+        """
+        memory = kwargs.get("memory") or False
+        shots = kwargs.get("shots")
+        if shots is None:
+            shots = self._options.shots
         if shots < 1 or shots > self.MAX_SHOTS:
             raise ValueError(f"Shots must be in the range [1, {self.MAX_SHOTS}].")
 
         if isinstance(circuit, QuantumCircuit):
-            return self._prepare_single_circuit_job(circuit, shots)
+            return self._prepare_single_circuit_job(circuit, shots, memory)
 
-        return self._prepare_multi_circuit_job(circuit, shots)
+        return self._prepare_multi_circuit_job(circuit, shots, memory)
 
     def _update_target(self, num_qubits: int) -> None:
         """Updates the target of this resource based on the given number of qubits."""
@@ -94,17 +114,19 @@ class DirectAccessResource(BackendV2, TranspilerMixin):
 
         self._target = target
 
-    def _prepare_single_circuit_job(self, circuit: QuantumCircuit, shots: int) -> DirectAccessJob:
+    def _prepare_single_circuit_job(self, circuit: QuantumCircuit, shots: int, memory: bool) -> DirectAccessJob:
         """Creates a DirectAccessJob for a single circuit."""
         payload = AQTQuantumCircuit(
             repetitions=shots,
             quantum_circuit=qiskit_to_aqt_circuit(circuit),
             number_of_qubits=circuit.num_qubits,
         )
-        metadata = DirectAccessJobMetadata(backend_name=self._resource_id, shots=shots, circuit=circuit)
+        metadata = DirectAccessJobMetadata(backend_name=self._resource_id, shots=shots, circuit=circuit, memory=memory)
         return self._submit_one(payload, metadata)
 
-    def _prepare_multi_circuit_job(self, circuits: Sequence[QuantumCircuit], shots: int) -> CompositeDirectAccessJob:
+    def _prepare_multi_circuit_job(
+        self, circuits: Sequence[QuantumCircuit], shots: int, memory: bool
+    ) -> CompositeDirectAccessJob:
         """Creates a CompositeDirectAccessJob for multiple circuits."""
         payloads = [
             AQTQuantumCircuit(
@@ -115,7 +137,8 @@ class DirectAccessResource(BackendV2, TranspilerMixin):
             for c in circuits
         ]
         circuit_metadata = [
-            DirectAccessJobMetadata(backend_name=self._resource_id, shots=shots, circuit=c) for c in circuits
+            DirectAccessJobMetadata(backend_name=self._resource_id, shots=shots, circuit=c, memory=memory)
+            for c in circuits
         ]
         job_submitters = [partial(self._submit_one, p, m) for p, m in zip(payloads, circuit_metadata)]
 

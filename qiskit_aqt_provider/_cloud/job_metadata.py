@@ -12,3 +12,4 @@ class CloudJobMetadata(pdt.BaseModel):
     backend_name: str
     circuits: list[QuantumCircuit]
     initial_state: JobState
+    memory: bool

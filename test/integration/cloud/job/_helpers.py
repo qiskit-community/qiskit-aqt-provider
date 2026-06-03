@@ -44,5 +44,6 @@ def make_job(
             backend_name="r1",
             circuits=circuits,
             initial_state=initial_state,
+            memory=False,
         ),
     )

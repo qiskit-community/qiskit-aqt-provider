@@ -1,3 +1,5 @@
+from typing import Unpack
+
 import httpx
 import pydantic as pdt
 from aqt_connector import ArnicaApp
@@ -14,6 +16,7 @@ from qiskit_aqt_provider._cloud.job import CloudJob
 from qiskit_aqt_provider._cloud.job_metadata import CloudJobMetadata
 from qiskit_aqt_provider.api_client.errors import http_response_raise_for_status
 from qiskit_aqt_provider.circuit_to_aqt import circuits_to_aqt_job
+from qiskit_aqt_provider.options import ResourceRunOptions
 from qiskit_aqt_provider.transpiler_plugin import TranspilerMixin
 
 
@@ -64,7 +67,11 @@ class CloudResource(BackendV2, TranspilerMixin):
         """
         return CloudOptions()
 
-    def run(self, circuits: QuantumCircuit | list[QuantumCircuit], *, shots: int | None = None) -> CloudJob:
+    def run(
+        self,
+        circuits: QuantumCircuit | list[QuantumCircuit],
+        **kwargs: Unpack[ResourceRunOptions],
+    ) -> CloudJob:
         """Run on the backend.
 
         This method returns a :class:`~qiskit.providers.Job` object that runs circuits.
@@ -72,8 +79,9 @@ class CloudResource(BackendV2, TranspilerMixin):
         Args:
             circuits (QuantumCircuit or list[QuantumCircuit]): An individual or a list of :class:`.QuantumCircuit`
                 objects to run on the backend.
-            shots: The number of shots to use for the execution. If not specified, the default from the resource's
-                options will be used.
+            shots (int | None): The number of shots to execute. If not provided, the default from the resource's options
+                will be used.
+            memory (bool): Whether to include memory in the result. If not provided, defaults to False.
 
         Returns:
             Job: The job object for the run.
@@ -81,7 +89,9 @@ class CloudResource(BackendV2, TranspilerMixin):
         if not isinstance(circuits, list):
             circuits = [circuits]
 
-        shots = shots if shots is not None else self._options.shots
+        shots = kwargs.get("shots")
+        if shots is None:
+            shots = self._options.shots
         if shots < 1 or shots > self.MAX_SHOTS:
             raise ValueError(f"Shots must be in the range [1, {self.MAX_SHOTS}].")
 
@@ -103,6 +113,7 @@ class CloudResource(BackendV2, TranspilerMixin):
                 backend_name=self.name or self.id,
                 circuits=circuits,
                 initial_state=job_response.response,
+                memory=kwargs.get("memory") or False,
             ),
         )
 

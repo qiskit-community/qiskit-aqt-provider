@@ -17,6 +17,7 @@ class DirectAccessJobMetadata:
     backend_name: str
     shots: int
     circuit: QuantumCircuit
+    memory: bool
 
 
 class DirectAccessJob(JobV1):
@@ -68,7 +69,7 @@ class DirectAccessJob(JobV1):
             "success": True,
             "results": [
                 partial_qiskit_result_dict(
-                    job_result.result, self._metadata.circuit, shots=self._metadata.shots, memory=False
+                    job_result.result, self._metadata.circuit, shots=self._metadata.shots, memory=self._metadata.memory
                 )
             ],
         }

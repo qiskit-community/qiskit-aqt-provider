@@ -134,7 +134,7 @@ def _make_job(
         job_id = uuid4()
     if circuit is None:
         circuit = _make_circuit()
-    metadata = DirectAccessJobMetadata(backend_name=backend_name, shots=shots, circuit=circuit)
+    metadata = DirectAccessJobMetadata(backend_name=backend_name, shots=shots, circuit=circuit, memory=False)
     return DirectAccessJob(api_client=client, job_id=job_id, metadata=metadata)
 
 

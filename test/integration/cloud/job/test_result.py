@@ -131,6 +131,7 @@ def _make_job() -> CloudJob:
             backend_name="r1",
             circuits=[circuit],
             initial_state=RRQueued(),
+            memory=False,
         ),
     )
 
