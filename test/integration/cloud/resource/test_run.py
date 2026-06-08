@@ -109,7 +109,11 @@ def test_run_sets_correct_shot_count(shots_arg: int | None, expected_shots: int)
         return _ok_handler(request)
 
     resource = _make_resource(MockTransport(capturing_handler))
-    resource.run(_single_qubit_circuit(), shots=shots_arg)
+
+    if shots_arg is not None:
+        resource.run(_single_qubit_circuit(), shots=shots_arg)
+    else:
+        resource.run(_single_qubit_circuit())
 
     body = captured[0].read()
     payload = json.loads(body)

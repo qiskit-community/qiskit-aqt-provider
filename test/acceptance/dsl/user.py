@@ -103,7 +103,10 @@ def submits_circuit(
         if workspace_provider is None:
             raise ValueError(f"Workspace with ID '{workspace_id}' not found.")
         backend = workspace_provider.get_backend(backend_id)
-        return backend.run(circuit, shots=shots)
+
+        if shots is not None:
+            return backend.run(circuit, shots=shots)
+        return backend.run(circuit)
 
 
 def has_submitted_cloud_job(metadata: CloudJobMetadata, api_client: httpx.Client) -> CloudJob:
@@ -213,7 +216,10 @@ def parametrised_circuit(*, num_qubits: int = 1) -> QuantumCircuit:
     return circuit
 
 
-def acquires_offline_simulator_resource() -> BackendV2:
+def acquires_offline_simulator_resource(seed_simulator: int | None = None) -> BackendV2:
     """Acquires an offline simulator resource."""
     provider = AQTProvider()
-    return provider.offline.ideal()
+    resource = provider.offline.ideal()
+    if seed_simulator is not None:
+        resource.simulator.options.seed_simulator = seed_simulator
+    return resource
