@@ -4,7 +4,7 @@ import pytest
 from hypothesis import example, given, settings, strategies
 from qiskit import QuantumCircuit, generate_preset_pass_manager
 
-from qiskit_aqt_provider.circuit_to_aqt import circuits_to_aqt_job
+from qiskit_aqt_provider._transformers import circuits_to_aqt_job
 from test.integration.transpilation.helpers import DummyResource
 
 

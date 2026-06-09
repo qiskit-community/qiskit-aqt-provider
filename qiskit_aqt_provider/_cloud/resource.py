@@ -14,8 +14,8 @@ from qiskit.transpiler import Target
 
 from qiskit_aqt_provider._cloud.job import CloudJob
 from qiskit_aqt_provider._cloud.job_metadata import CloudJobMetadata
+from qiskit_aqt_provider._transformers import circuits_to_aqt_job
 from qiskit_aqt_provider.api_client.errors import http_response_raise_for_status
-from qiskit_aqt_provider.circuit_to_aqt import circuits_to_aqt_job
 from qiskit_aqt_provider.options import ResourceRunOptions
 from qiskit_aqt_provider.transpiler_plugin import TranspilerMixin
 

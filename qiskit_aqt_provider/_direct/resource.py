@@ -18,7 +18,7 @@ from qiskit_aqt_provider._direct.composite_job import (
     CompositeDirectAccessJobMetadata,
 )
 from qiskit_aqt_provider._direct.job import DirectAccessJob, DirectAccessJobMetadata
-from qiskit_aqt_provider.circuit_to_aqt import qiskit_to_aqt_circuit
+from qiskit_aqt_provider._transformers import qiskit_to_aqt_circuit
 from qiskit_aqt_provider.options import ResourceRunOptions
 from qiskit_aqt_provider.transpiler_plugin import TranspilerMixin
 
