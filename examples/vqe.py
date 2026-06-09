@@ -28,7 +28,7 @@ RANDOM_SEED: Final = 0
 if __name__ == "__main__":
     with AQTProvider() as provider:
         backend = provider.offline.ideal()  # Get the ideal offline simulator resource.
-        estimator = AQTEstimator(backend)
+        estimator = AQTEstimator(backend=backend)
 
         # fix the random seeds such that the example is reproducible
         qiskit_algorithms.utils.algorithm_globals.random_seed = RANDOM_SEED

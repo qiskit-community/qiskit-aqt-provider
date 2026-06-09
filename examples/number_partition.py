@@ -69,7 +69,8 @@ def solve_partition_problem(num_set: set[int]) -> Success | Infeasible:
     problem = NumberPartition(list(num_set))
     qp = problem.to_quadratic_program()
 
-    meo = MinimumEigenOptimizer(min_eigen_solver=QAOA(sampler=AQTSampler(backend), optimizer=COBYLA()))
+    sampler = AQTSampler(backend=backend)
+    meo = MinimumEigenOptimizer(min_eigen_solver=QAOA(sampler=sampler, optimizer=COBYLA()))
     result = meo.solve(qp)
 
     if result.status is OptimizationResultStatus.SUCCESS:

@@ -1,26 +1,31 @@
-from copy import copy
+from __future__ import annotations
+
+from collections.abc import Callable, Iterable
 from typing import Any
 
-from qiskit import generate_preset_pass_manager
-from qiskit.primitives import BackendEstimatorV2, PubResult
-from qiskit.primitives.backend_estimator_v2 import (
-    EstimatorPub,
-    _PreprocessedData,
+from qiskit.primitives import (
+    BackendEstimatorV2,
+    BaseEstimatorV2,
+    BasePrimitiveJob,
+    PrimitiveResult,
+    PubResult,
 )
+from qiskit.primitives.containers.estimator_pub import EstimatorPubLike
+from qiskit.providers import BackendV2, Options
 
 from qiskit_aqt_provider.aqt_provider import AnyAQTResource
+from qiskit_aqt_provider.primitives._transpiling_backend import TranspilingBackend
+
+BackendFactory = Callable[[AnyAQTResource], BackendV2]
+EstimatorFactory = Callable[[BackendV2, dict[str, Any] | None], BaseEstimatorV2]
 
 
-class AQTEstimator(BackendEstimatorV2):
+class AQTEstimator(BaseEstimatorV2):
     """:class:`BaseEstimatorV2 <qiskit.primitives.BaseEstimatorV2>` primitive for AQT backends.
 
     As circuit transpilation for AQT backends includes angle wrapping, the transpilation needs to be done after
     parameter binding. In order for the AQTEstimator to support parameterized circuits, it needs to transpile circuits
     when it is run.
-
-    For use cases where full control over transpilation is required and no parameterized circuits are used, the
-    transpilation by the estimator can be skipped with the `skip_transpilation` attribute and backend-compatible
-    circuits provided to the estimator.
 
     Providing options to the :class:`AQTEstimator` on instantiation will affect all circuit evaluations.
     Setting :class:`options <qiskit_aqt_provider.aqt_options.AQTOptions>` on the backend has the same effect.
@@ -28,84 +33,31 @@ class AQTEstimator(BackendEstimatorV2):
     evaluation.
     """
 
-    _backend: AnyAQTResource
-
     def __init__(
         self,
         *,
         backend: AnyAQTResource,
         options: dict[str, Any] | None = None,
-        skip_transpilation: bool = False,
-        optimization_level: int = 0,
     ) -> None:
-        """Initialize an ``Estimator`` primitive using an AQT backend.
+        self.backend = backend
+        self._options = options or Options()
+
+        self.backend_factory: BackendFactory = TranspilingBackend
+        self.estimator_factory: EstimatorFactory = lambda b, o: BackendEstimatorV2(backend=b, options=o)
+
+    def run(
+        self, pubs: Iterable[EstimatorPubLike], *, precision: float | None = None
+    ) -> BasePrimitiveJob[PrimitiveResult[PubResult]]:
+        """Run the given estimator PUBs on the AQT backend.
 
         Args:
-            backend: AQT resource to evaluate circuits on.
-            options: options passed to through to the underlying
-              :class:`BackendEstimatorV2 <qiskit.primitives.BackendEstimatorV2>`.
-            skip_transpilation: if :data:`True`, do not transpile circuits
-              before passing them to the execution backend, defaults to :data:`False`.
-            optimization_level: the optimization level for transpilation, defaults to 0.
-        """
-        self.skip_transpilation = skip_transpilation
-        self.optimization_level = optimization_level
-        # disable progress bar
-        backend.options.with_progress_bar = False
-        # Set default precision in options so the amount of shots is the max amount possible
-        options_copy = copy(options) if options is not None else {}
-        if "default_precision" not in options_copy:
-            # precision = 1/sqrt(shots), so shots = 1/precision^2
-            # 0.022365 ≈ 1/sqrt(2000), resulting in ~2000 shots per circuit
-            options_copy["default_precision"] = 0.022365
-
-        super().__init__(
-            backend=backend,
-            options=options_copy,
-        )
-
-    @property
-    def backend(self) -> AnyAQTResource:
-        """Return the Estimator's backend."""
-        return self._backend
-
-    def _run_pubs(self, pubs: list[EstimatorPub], shots: int) -> list[PubResult]:
-        """Compute results for pubs that all require the same value of ``shots``.
-
-        Overrides the parent :class:`BaseEstimatorV2 <qiskit.primitives.BaseEstimatorV2>` function
-        :meth:`_run_pubs` to check if the maximum amount of shots the backend is capable of, is not exceeded.
-        """
-        max_shots = type(self._backend.options).model_fields["shots"].metadata[1].le
-        if max_shots and shots > max_shots:
-            raise ValueError(
-                f"Number of shots {shots} exceeds the backend's limit of {max_shots}. "
-                "Consider reducing the precision of the estimation.",
-            )
-
-        results: list[PubResult] = super()._run_pubs(pubs=pubs, shots=shots)
-        return results
-
-    def _preprocess_pub(self, pub: EstimatorPub) -> _PreprocessedData:
-        """Converts a pub into a list of bound circuits necessary to estimate all its observables.
-
-        Overrides the parent :class:`BaseEstimatorV2 <qiskit.primitives.BaseEstimatorV2>` function
-        :meth:`_preprocess_pub` to transpile circuits for the backend, unless actively skipped.
-
-        Args:
-            pub: The pub to preprocess.
+            pubs (Iterable[EstimatorPubLike]): An iterable of estimator PUBs, which may include parameterized
+                circuits and associated parameter values.
+            precision (float | None, optional): The precision to use for the estimation. Defaults to None.
 
         Returns:
-            The values ``(circuits, bc_param_ind, bc_obs)`` where ``circuits`` are the circuits to
-            execute on the backend, ``bc_param_ind`` are indices of the pub's bindings array and
-            ``bc_obs`` is the observables array, both broadcast to the shape of the pub.
+            BasePrimitiveJob[PrimitiveResult[PubResult]]: A job representing the execution of the estimator PUBs.
         """
-        data: _PreprocessedData = super()._preprocess_pub(pub)
-
-        if self.skip_transpilation:
-            return data
-
-        pm = generate_preset_pass_manager(backend=self._backend, optimization_level=self.optimization_level)
-        # don't use pass_manager.run(bound_circuits). It starts several processes and is slower
-        final_circuits = [pm.run(qc) for qc in data.circuits]
-
-        return _PreprocessedData(final_circuits, data.parameter_indices, data.observables)
+        wrapped_backend = self.backend_factory(self.backend)
+        delegate = self.estimator_factory(wrapped_backend, self._options)
+        return delegate.run(pubs, precision=precision)

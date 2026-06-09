@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from typing import Unpack
 
 from qiskit.circuit import QuantumCircuit
@@ -20,6 +20,13 @@ class OfflineSimulatorResourceConfig:
     name: str
     number_of_ions: int
     simulator: AerSimulator
+
+
+@dataclass
+class OfflineSimulatorOptions:
+    """Options for an offline simulator resource."""
+
+    shots: int = 100
 
 
 class OfflineSimulatorResource(BackendV2, TranspilerMixin):
@@ -54,9 +61,9 @@ class OfflineSimulatorResource(BackendV2, TranspilerMixin):
         """Get the default options.
 
         Returns:
-            Options: The default options for this resource.
+            OfflineSimulatorOptions: The default options for this resource.
         """
-        return Options()
+        return Options(**asdict(OfflineSimulatorOptions()))
 
     def run(
         self,

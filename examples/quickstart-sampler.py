@@ -31,7 +31,7 @@ with AQTProvider() as provider:
     backend = provider.offline.ideal()  # Get the ideal offline simulator resource.
 
     # Instantiate a sampler on the execution backend
-    sampler = AQTSampler(backend)
+    sampler = AQTSampler(backend=backend)
 
     # Set the transpiler's optimization level
     sampler.set_transpile_options(optimization_level=3)
