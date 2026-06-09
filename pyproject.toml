@@ -1,3 +1,7 @@
+[build-system]
+build-backend = "uv_build"
+requires = [ "uv-build>=0.11.19,<0.12" ]
+
 [project]
 name = "qiskit-aqt-provider"
 version = "2.0.0a1"
@@ -28,48 +32,6 @@ classifiers = [
   "Programming Language :: Python :: 3.14",
   "Topic :: Scientific/Engineering",
 ]
-dependencies = [
-  "annotated-types>=0.7",
-  "aqt-connector==0.4",
-  "httpx>=0.24",
-  "numpy>=1; python_version>='3.10' and python_version<'3.13'",
-  "numpy>=2.1; python_version>='3.13'",
-  "platformdirs>=3",
-  "pydantic>=2.5",
-  "pydantic-core>=2",
-  "python-dotenv>=1",
-  "qiskit>=2.3,<=2.4.1",                                        # lower bound is for dropping of Python 3.9 support. upper bound is to ensure AQTSampler and AQTEstimator are working, could break for untested new versions.
-  "qiskit-aer>=0.17",
-  "scipy>=1.15",
-  "tabulate>=0.9",
-  "tqdm>=4",
-  "typing-extensions>=4",
-]
-
-# Dependencies for the example scripts.
-optional-dependencies.examples = [
-  "qiskit-algorithms>=0.4",
-  "qiskit-optimization>=0.6",
-]
-# Dependencies for the pytest plugin.
-optional-dependencies.test = [
-  "fastapi[standard]>=0.128.8",
-  "pytest>=8",
-  "pytest-httpx>=0.35",
-  "pytest-mock>=3",
-  "pytest-sugar>=1",
-]
-urls.Documentation = "https://qiskit-community.github.io/qiskit-aqt-provider"
-urls.include = [
-  "LICENSE.txt",
-  "README.md",
-]
-urls.packages = [
-  { include = "qiskit_aqt_provider" },
-  { include = "test", format = "sdist" },
-]
-urls.Repository = "https://github.com/qiskit-community/qiskit-aqt-provider"
-entry-points.plugins."qiskit.transpiler.scheduling"."aqt" = "qiskit_aqt_provider.transpiler_plugin:AQTSchedulingPlugin"
 
 [dependency-groups]
 dev = [
@@ -204,6 +166,49 @@ extend_exclude = [ "scripts", "test", "conftest.py" ]
 run.dynamic_context = "test_function"
 run.relative_files = true
 report.fail_under = 99
+
+[tool.uv.build-backend]
+module-root = ""
+source-include = [
+  "test/**",
+  "LICENSE.txt",
+  "README.md",
+]
+
+dependencies = [
+  "annotated-types>=0.7",
+  "aqt-connector==0.4",
+  "httpx>=0.24",
+  "numpy>=1; python_version>='3.10' and python_version<'3.13'",
+  "numpy>=2.1; python_version>='3.13'",
+  "platformdirs>=3",
+  "pydantic>=2.5",
+  "pydantic-core>=2",
+  "python-dotenv>=1",
+  "qiskit>=2.3,<=2.4.1",                                        # lower bound is for dropping of Python 3.9 support. upper bound is to ensure AQTSampler and AQTEstimator are working, could break for untested new versions.
+  "qiskit-aer>=0.17",
+  "scipy>=1.15",
+  "tabulate>=0.9",
+  "tqdm>=4",
+  "typing-extensions>=4",
+]
+
+# Dependencies for the example scripts.
+optional-dependencies.examples = [
+  "qiskit-algorithms>=0.4",
+  "qiskit-optimization>=0.6",
+]
+# Dependencies for the pytest plugin.
+optional-dependencies.test = [
+  "fastapi[standard]>=0.128.8",
+  "pytest>=8",
+  "pytest-httpx>=0.35",
+  "pytest-mock>=3",
+  "pytest-sugar>=1",
+]
+urls.Documentation = "https://qiskit-community.github.io/qiskit-aqt-provider"
+urls.Repository = "https://github.com/qiskit-community/qiskit-aqt-provider"
+entry-points."qiskit.transpiler.scheduling"."aqt" = "qiskit_aqt_provider.transpiler_plugin:AQTSchedulingPlugin"
 
 [tool.typos]
 default.extend-ignore-words-re = [
