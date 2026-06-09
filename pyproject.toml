@@ -157,6 +157,9 @@ lint.per-file-ignores."test/**/*.py" = [
   "PT011",   # allow pytest.raises without match=
   "S101",    # allow assertions
 ]
+lint.per-file-ignores."test/acceptance/support/dummy_*_api.py" = [
+  "D103", # ignore missing docstring in public function
+]
 lint.pydocstyle.convention = "google"
 
 [tool.deptry]

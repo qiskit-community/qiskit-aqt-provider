@@ -27,46 +27,56 @@ def _wait_for(url: str, timeout: float = 5.0) -> bool:
             r = requests.get(url, timeout=0.5)
             if r.status_code == 200:
                 return True
-        except Exception:
-            pass
+        except Exception as e:  # noqa: BLE001
+            print(e)  # noqa: T201
         time.sleep(0.05)
     return False
 
 
 class DummyArnicaServer:
+    """Fixture for interacting with the dummy server that implements the cloud API."""
+
     def __init__(self, base_url: str, client: httpx.Client) -> None:
         self.base_url = base_url
         self.client = client
 
     def get_recorded_requests(self) -> list[Any]:
+        """Fetches the requests recorded by the dummy server."""
         response = self.client.get("/__requests")
         response.raise_for_status()
         return list(response.json())
 
     def clear_recorded_requests(self) -> None:
+        """Clears the requests recorded by the dummy server."""
         response = self.client.post("/__clear")
         response.raise_for_status()
 
 
 class DummyDirectAccessServer:
+    """Fixture for interacting with the dummy server that implements the direct access API."""
+
     def __init__(self, base_url: str, client: httpx.Client) -> None:
         self.base_url = base_url
         self.client = client
 
     def get_recorded_requests(self) -> list[Any]:
+        """Fetches the requests recorded by the dummy server."""
         response = self.client.get("/__requests")
         response.raise_for_status()
         return list(response.json())
 
     def clear_recorded_requests(self) -> None:
+        """Clears the requests recorded by the dummy server."""
         response = self.client.post("/__clear")
         response.raise_for_status()
 
     def reset_direct_access(self) -> None:
+        """Resets the state of the dummy direct access server."""
         response = self.client.post("/__direct/reset")
         response.raise_for_status()
 
     def configure_direct_access(self, **config: Any) -> None:
+        """Configures the dummy direct access server with the given settings."""
         response = self.client.post("/__direct/config", json=config)
         response.raise_for_status()
 
@@ -87,7 +97,7 @@ def _spawn_dummy_server(entrypoint: str) -> tuple[subprocess.Popen[bytes], str]:
         "--port",
         str(port),
     ]
-    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env)
+    process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env)  # noqa: S603
     base_url = f"http://127.0.0.1:{port}"
     if not _wait_for(f"{base_url}/health", timeout=8.0):
         process.kill()
@@ -113,7 +123,7 @@ def dummy_cloud_server() -> Generator[DummyArnicaServer, None, None]:
     try:
         process.send_signal(signal.SIGINT)
         process.wait(timeout=3)
-    except Exception:
+    except Exception:  # noqa: BLE001
         process.kill()
         process.wait()
 
@@ -137,7 +147,7 @@ def dummy_direct_access_server() -> Generator[DummyDirectAccessServer, None, Non
     try:
         process.send_signal(signal.SIGINT)
         process.wait(timeout=3)
-    except Exception:
+    except Exception:  # noqa: BLE001
         process.kill()
         process.wait()
 
