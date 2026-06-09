@@ -99,7 +99,7 @@ class CloudResource(BackendV2, TranspilerMixin):
         resp = http_response_raise_for_status(
             self._api_client.post(
                 f"/v1/submit/{self.workspace_id}/{self._resource_id}",
-                content=request_payload.model_dump_json(),
+                json=request_payload.model_dump(mode="json"),
             )
         )
         job_response = SubmitJobResponse.model_validate_json(resp.text)
