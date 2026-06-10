@@ -12,14 +12,13 @@
 
 """Sphinx documentation builder."""
 
-project = "Qiskit AQT Provider"
-copyright = "2023, Qiskit and AQT development teams"
-author = "Qiskit and AQT development teams"
+from datetime import date
+from importlib import metadata
 
-# The short X.Y version
-version = "1.14.0"
-# The full version, including alpha/beta/rc tags
-release = "1.14.0"
+project = "Qiskit AQT Provider"
+copyright = f"{date.today().year}, Qiskit and AQT development teams"
+author = "Qiskit and AQT development teams"
+release = metadata.version("qiskit_aqt_provider")
 
 extensions = [
     "sphinx.ext.napoleon",

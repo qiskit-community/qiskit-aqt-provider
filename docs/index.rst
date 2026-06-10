@@ -1,5 +1,5 @@
 ###########################################
-Qiskit AQT provider |version| documentation
+Qiskit AQT provider |release| documentation
 ###########################################
 
 The Qiskit AQT package provides access to `AQT <https://www.aqt.eu/>`__ systems
@@ -21,7 +21,7 @@ Install the latest release from the `PyPI <https://pypi.org/project/qiskit-aqt-p
 
 Define a circuit that generates 2-qubit Bell state and sample it on a simulator backend running on the local machine:
 
-.. jupyter-execute::
+.. code-block:: python
 
    from qiskit import QuantumCircuit
 
@@ -35,12 +35,11 @@ Define a circuit that generates 2-qubit Bell state and sample it on a simulator 
    circuit.measure_all()
 
    # Select an execution backend.
-   # Any token (even invalid) gives access to the offline simulation backends.
-   provider = AQTProvider("ACCESS_TOKEN")
-   backend = provider.get_backend("offline_simulator_no_noise")
+   provider = AQTProvider()
+   ideal_simulator = provider.offline.ideal()
 
    # Instantiate a sampler on the execution backend.
-   sampler = AQTSampler(backend)
+   sampler = AQTSampler(backend=ideal_simulator)
 
    # Optional: set the transpiler's optimization level.
    # Optimization level 3 typically provides the best results.
@@ -49,17 +48,20 @@ Define a circuit that generates 2-qubit Bell state and sample it on a simulator 
    # Sample the circuit on the execution backend.
    result = sampler.run(circuit).result()
 
-   quasi_dist = result.quasi_dists[0]
-   print(quasi_dist)
+    data = result.data[0]
+    print(data.meas)
 
 For more details see the :ref:`user guide <user-guide>`, a selection of `examples <https://github.com/qiskit-community/qiskit-aqt-provider/tree/master/examples>`_, or the reference documentation.
 
 .. toctree::
-  :maxdepth: 1
+  :maxdepth: 2
   :hidden:
 
   Quick start <self>
-  User guide <guide>
+  Circuit transpilation <transpilation>
+  Backends <backends>
+  Circuit evaluation <evaluation>
+  Migrating to 2.0 <migrating>
 
 .. toctree::
   :maxdepth: 1
@@ -67,12 +69,14 @@ For more details see the :ref:`user guide <user-guide>`, a selection of `example
   :hidden:
 
   Provider <apidoc/provider>
-  Backends <apidoc/resource>
-  Job handles <apidoc/job>
+
+  Cloud Access <apidoc/cloud>
+  Direct Access <apidoc/direct>
+  Offline Simulators <apidoc/offline>
   Options <apidoc/options>
+  Exceptions <apidoc/exceptions>
   Qiskit primitives <apidoc/primitives>
-  Transpiler plugin <apidoc/transpiler_plugin>
-  API client <apidoc/api_client>
+  
 
 .. toctree::
   :hidden:
@@ -80,4 +84,4 @@ For more details see the :ref:`user guide <user-guide>`, a selection of `example
 
   Repository <https://github.com/qiskit-community/qiskit-aqt-provider>
   AQT <https://www.aqt.eu/products/arnica>
-  API reference <https://arnica.aqt.eu/api/v1/docs>
+  Arnica API reference <https://arnica.aqt.eu/api/v1/docs>

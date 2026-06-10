@@ -2,7 +2,7 @@ from typing import TypedDict
 
 
 class ResourceRunOptions(TypedDict, total=False):
-    """Options for running a job on a cloud resource."""
+    """Options for running a job on an AQT resource."""
 
     shots: int
     """Number of shots to use for the execution."""

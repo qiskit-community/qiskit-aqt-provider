@@ -39,5 +39,5 @@ with AQTProvider() as provider:
     # Sample the circuit on the execution backend
     result = sampler.run(circuit).result()
 
-    quasi_dist = result.quasi_dists[0]
-    print(quasi_dist)
+    data = result.data[0]
+    print(data.meas)

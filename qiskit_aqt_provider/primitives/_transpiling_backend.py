@@ -10,6 +10,13 @@ from qiskit_aqt_provider.aqt_provider import AnyAQTResource
 from qiskit_aqt_provider.options import ResourceRunOptions
 
 
+def _transpile(
+    circuit: QuantumCircuit | Sequence[QuantumCircuit], backend: BackendV2
+) -> QuantumCircuit | Sequence[QuantumCircuit]:
+    """Transpile the given circuit(s) for the given backend, using no optimization."""
+    return transpile(circuit, backend=backend, optimization_level=0)
+
+
 class TranspilingBackend(BackendV2):
     """A backend that transpiles circuits for the target resource before running them."""
 
@@ -20,7 +27,7 @@ class TranspilingBackend(BackendV2):
         transpile_fn: Callable[
             [QuantumCircuit | Sequence[QuantumCircuit], BackendV2],
             QuantumCircuit | Sequence[QuantumCircuit],
-        ] = transpile,
+        ] = _transpile,
     ) -> None:
         """Initialize the backend."""
         self._backend = backend
