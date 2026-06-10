@@ -30,3 +30,6 @@ run = "pyproject-fmt pyproject.toml"
 
 [tasks."format:code"]
 run = "ruff check --fix"
+
+[tasks.docs]
+run = "sphinx-build -j auto -b html -W docs docs/_build"

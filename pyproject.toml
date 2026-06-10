@@ -80,7 +80,6 @@ lint = [
   "jupyter-sphinx>=0.5",
   "mistletoe>=1.1",
   "mypy>=1.14",
-  "poethepoet>=0.36",
   "polyfactory>=2",
   "pre-commit>=3.1.1",
   "pyproject-fmt==2.8",
@@ -251,48 +250,3 @@ exclude = [
   "qiskit_aqt_provider/api_client/models_generated.py",
 ]
 fail-under = 100
-
-[tool.poe]
-tasks.lint = [
-  "check_pre_commit_consistency",
-  "docstring_coverage",
-  "ruff_check",
-  "spellcheck",
-  "check_internal_dependencies",
-  "check_external_dependencies",
-]
-tasks.format_check = [
-  "python_format_check",
-  "pyproject_format_check",
-]
-tasks.version_check = "./scripts/package_version.py --verbose check"
-tasks.docs = "sphinx-build -j auto -b html -W docs docs/_build"
-tasks.all = [
-  "version_check",
-  "format_check",
-  "lint",
-  "typecheck",
-  "test",
-  "docs",
-]
-# Exclude the test module because tach doesn't collect
-# dependencies outside the main group.
-tasks.check_external_dependencies.shell = "deptry ."
-tasks.check_internal_dependencies.shell = "tach check"
-tasks.check_pre_commit_consistency.shell = "./scripts/check_pre_commit_consistency.sh"
-tasks.docstring_coverage.shell = "interrogate -v qiskit_aqt_provider test"
-tasks.format.shell = """
-ruff format .
-pyproject-fmt .
-"""
-tasks.pyproject_format_check.shell = "pyproject-fmt --check ."
-tasks.python_format_check.shell = "ruff format --check ."
-tasks.ruff_check.shell = "ruff check ."
-tasks.spellcheck.shell = "typos ."
-tasks.test.shell = """
-set -eu
-coverage run ${cov_opts} -m pytest --hypothesis-profile=ci
-coverage report --show-missing
-"""
-tasks.test.args = [ { name = "cov_opts", default = "" } ]
-tasks.typecheck.shell = "mypy ."
