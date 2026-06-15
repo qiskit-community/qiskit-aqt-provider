@@ -23,33 +23,33 @@ Define a circuit that generates 2-qubit Bell state and sample it on a simulator 
 
 .. code-block:: python
 
-   from qiskit import QuantumCircuit
+  from qiskit import QuantumCircuit
 
-   from qiskit_aqt_provider import AQTProvider
-   from qiskit_aqt_provider.primitives import AQTSampler
+  from qiskit_aqt_provider import AQTProvider
+  from qiskit_aqt_provider.primitives import AQTSampler
 
-   # Define a circuit.
-   circuit = QuantumCircuit(2)
-   circuit.h(0)
-   circuit.cx(0, 1)
-   circuit.measure_all()
+  # Define a circuit.
+  circuit = QuantumCircuit(2)
+  circuit.h(0)
+  circuit.cx(0, 1)
+  circuit.measure_all()
 
-   # Select an execution backend.
-   provider = AQTProvider()
-   ideal_simulator = provider.offline.ideal()
+  # Select an execution backend.
+  provider = AQTProvider()
+  ideal_simulator = provider.offline.ideal()
 
-   # Instantiate a sampler on the execution backend.
-   sampler = AQTSampler(backend=ideal_simulator)
+  # Instantiate a sampler on the execution backend.
+  sampler = AQTSampler(backend=ideal_simulator)
 
-   # Optional: set the transpiler's optimization level.
-   # Optimization level 3 typically provides the best results.
-   sampler.set_transpile_options(optimization_level=3)
+  # Optional: set the transpiler's optimization level.
+  # Optimization level 3 typically provides the best results.
+  sampler.set_transpile_options(optimization_level=3)
 
-   # Sample the circuit on the execution backend.
-   result = sampler.run(circuit).result()
+  # Sample the circuit on the execution backend.
+  result = sampler.run(circuit).result()
 
-    data = result.data[0]
-    print(data.meas)
+  data = result.data[0]
+  print(data.meas)
 
 For more details see the :ref:`user guide <user-guide>`, a selection of `examples <https://github.com/qiskit-community/qiskit-aqt-provider/tree/master/examples>`_, or the reference documentation.
 
