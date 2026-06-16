@@ -33,3 +33,6 @@ run = "ruff check --fix"
 
 [tasks.docs]
 run = "sphinx-build -j auto -b html -W docs docs/_build"
+
+[tasks.build]
+run = "uv build"
