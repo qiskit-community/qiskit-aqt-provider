@@ -33,11 +33,8 @@ with AQTProvider() as provider:
     # Instantiate a sampler on the execution backend
     sampler = AQTSampler(backend=backend)
 
-    # Set the transpiler's optimization level
-    sampler.set_transpile_options(optimization_level=3)
-
     # Sample the circuit on the execution backend
-    result = sampler.run(circuit).result()
+    result = sampler.run([circuit]).result()
 
-    data = result.data[0]
-    print(data.meas)
+    data = result[0].data
+    print(data.meas.get_counts())

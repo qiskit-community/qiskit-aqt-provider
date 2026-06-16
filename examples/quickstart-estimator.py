@@ -21,7 +21,7 @@ the ground state energy of a Hamiltonian.
 from collections.abc import Sequence
 
 from qiskit import QuantumCircuit
-from qiskit.circuit.library import TwoLocal
+from qiskit.circuit.library import n_local
 from qiskit.primitives import BaseEstimatorV1
 from qiskit.quantum_info import SparsePauliOp
 from qiskit.quantum_info.operators.base_operator import BaseOperator
@@ -42,7 +42,7 @@ def cost_function(
     Return the estimated expectation value of the Hamiltonian
     on the state prepared by the Ansatz circuit.
     """
-    return float(estimator.run(ansatz, hamiltonian, parameter_values=params).result().values[0])
+    return float(estimator.run([(ansatz, hamiltonian, params)]).result()[0].data.evs)
 
 
 # Select an execution backend
@@ -50,10 +50,7 @@ with AQTProvider() as provider:
     backend = provider.offline.ideal()  # Get the ideal offline simulator resource.
 
     # Instantiate an estimator on the execution backend
-    estimator = AQTEstimator(backend=backend)
-
-    # Set the transpiler's optimization level
-    estimator.set_transpile_options(optimization_level=3)
+    estimator = AQTEstimator(backend=backend, options={"default_precision": 1})
 
     # Specify the problem Hamiltonian
     hamiltonian = SparsePauliOp.from_list(
@@ -67,7 +64,7 @@ with AQTProvider() as provider:
     )
 
     # Define the VQE Ansatz, initial point, and cost function
-    ansatz = TwoLocal(num_qubits=2, rotation_blocks="ry", entanglement_blocks="cz")
+    ansatz = n_local(num_qubits=2, rotation_blocks="ry", entanglement_blocks="cz")
     initial_point = [0] * 8
 
     # Run the VQE using the SciPy minimizer routine
