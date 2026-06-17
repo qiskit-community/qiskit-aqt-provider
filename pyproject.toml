@@ -65,6 +65,8 @@ optional-dependencies.test = [
   "pytest-sugar>=1",
 ]
 
+entry-points."qiskit.transpiler.scheduling"."aqt" = "qiskit_aqt_provider.transpiler_plugin:AQTSchedulingPlugin"
+
 [dependency-groups]
 dev = [
   { include-group = "lint" },
@@ -210,7 +212,6 @@ source-include = [
 ]
 urls.Documentation = "https://qiskit-community.github.io/qiskit-aqt-provider"
 urls.Repository = "https://github.com/qiskit-community/qiskit-aqt-provider"
-entry-points."qiskit.transpiler.scheduling"."aqt" = "qiskit_aqt_provider.transpiler_plugin:AQTSchedulingPlugin"
 
 [tool.typos]
 default.extend-ignore-words-re = [
