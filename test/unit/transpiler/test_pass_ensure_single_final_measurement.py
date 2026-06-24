@@ -1,5 +1,6 @@
 import pytest
 from qiskit import QuantumCircuit
+from qiskit.circuit.library import quantum_volume
 from qiskit.converters import circuit_to_dag, dag_to_circuit
 from qiskit.transpiler.exceptions import TranspilerError
 
@@ -64,3 +65,16 @@ def test_barriers_after_measurement_removed() -> None:
     new_qc = dag_to_circuit(EnsureSingleFinalMeasurement().run(dag))
 
     assert new_qc.data[-1].operation.name == "measure"
+
+
+def test_rebuild_dag_uses_bits_from_new_dag() -> None:
+    """It should rebuild operations with bits belonging to the rebuilt DAG."""
+    qc = quantum_volume(5)
+    qc.measure_all()
+
+    dag = circuit_to_dag(qc)
+    new_dag = EnsureSingleFinalMeasurement().run(dag)
+    new_qc = dag_to_circuit(new_dag)
+
+    measures = [inst for inst in new_qc.data if inst.operation.name == "measure"]
+    assert len(measures) == new_qc.num_qubits

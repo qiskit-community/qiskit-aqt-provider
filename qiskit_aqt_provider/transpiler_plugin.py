@@ -33,7 +33,7 @@ from qiskit import QuantumCircuit
 from qiskit.circuit import Gate, Instruction
 from qiskit.circuit.library import RGate, RXGate, RXXGate, RZGate
 from qiskit.circuit.tools import pi_check
-from qiskit.dagcircuit import DAGCircuit
+from qiskit.dagcircuit import DAGCircuit, DAGOpNode
 from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.transpiler.exceptions import TranspilerError
 from qiskit.transpiler.passes import Decompose, Optimize1qGatesDecomposition
@@ -100,6 +100,26 @@ class EnsureSingleFinalMeasurement(TransformationPass):
         for creg in dag.cregs.values():
             new_dag.add_creg(creg)
 
+        # Some circuits include anonymous bits not attached to any register.
+        # Preserve them so all operation arguments are representable in the rebuilt DAG.
+        for qbit in dag.qubits:
+            if qbit not in new_dag.qubits:
+                new_dag.add_qubits([qbit])
+        for cbit in dag.clbits:
+            if cbit not in new_dag.clbits:
+                new_dag.add_clbits([cbit])
+
+        # Map source DAG bits to the corresponding bits in the rebuilt DAG.
+        qbit_map = dict(zip(dag.qubits, new_dag.qubits, strict=True))
+        cbit_map = dict(zip(dag.clbits, new_dag.clbits, strict=True))
+
+        def _apply_op(node: DAGOpNode) -> None:
+            new_dag.apply_operation_back(
+                node.op,
+                [qbit_map[qarg] for qarg in node.qargs],
+                [cbit_map[carg] for carg in node.cargs],
+            )
+
         for node in ops:
             op_name = node.op.name
 
@@ -112,23 +132,13 @@ class EnsureSingleFinalMeasurement(TransformationPass):
 
                 measured_qubits.add(q)
                 seen_measure = True
-
-                new_dag.apply_operation_back(
-                    node.op,
-                    node.qargs,
-                    node.cargs,
-                )
+                _apply_op(node)
 
             elif op_name == "barrier":
                 # drop barriers after measurement starts
                 if seen_measure:
                     continue
-
-                new_dag.apply_operation_back(
-                    node.op,
-                    node.qargs,
-                    node.cargs,
-                )
+                _apply_op(node)
 
             else:
                 if seen_measure:
@@ -136,12 +146,7 @@ class EnsureSingleFinalMeasurement(TransformationPass):
                         "Measurement must only occur at the end of the circuit "
                         "(found non-measure operation after measurement)."
                     )
-
-                new_dag.apply_operation_back(
-                    node.op,
-                    node.qargs,
-                    node.cargs,
-                )
+                _apply_op(node)
 
         return new_dag
 

@@ -13,12 +13,12 @@
 """Quickstart example on transpiling and executing circuits."""
 
 import qiskit
-from qiskit.circuit.library import QuantumVolume
+from qiskit.circuit.library import quantum_volume
 
 from qiskit_aqt_provider import AQTProvider
 
 # Define a circuit
-circuit = QuantumVolume(5)
+circuit = quantum_volume(5)
 circuit.measure_all()
 
 # Select an execution backend
