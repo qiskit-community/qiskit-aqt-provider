@@ -72,8 +72,11 @@ When submitting a pull request and you feel it is ready for review,
 please ensure that:
 
 1. The code follows the code style of the project and successfully
-   passes the tests. For convenience, you can execute `tox` locally,
-   which will run these checks and report any issues.
+   passes the tests. After syncing the environment with `uv sync
+   --group dev --extra test`, you can run the repository checks through
+   `mise`, for example `mise run test:unit`, `mise run test:integration`,
+   `mise run test:acceptance`, `mise run check:linting`, and
+   `mise run check:format`.
 2. The documentation has been updated accordingly. In particular, if a
    function or class has been modified during the PR, please update the
    *docstring* accordingly.
@@ -161,10 +164,12 @@ To install the AQT provider from a local git checkout you should
 run:
 
 ```bash
-pip install -e $PATH_TO_REPO
+uv sync --group dev --extra test
 ```
 
-which will install the local checkout in editable mode. This means
+which will create or update the local virtual environment, install the
+project in editable mode, and pull in the development and test dependencies.
+After that, run project tasks with `mise run ...` from the repository root.
 
 
 ### Test
@@ -174,56 +179,30 @@ does not break any existing tests and that any new tests that you've added
 also run successfully. Before you open a new pull request for your change,
 you'll want to run the test suite locally.
 
-The easiest way to run the test suite is to use
-[**tox**](https://tox.readthedocs.io/en/latest/#). You can install tox
-with pip: `pip install -U tox`. Tox provides several advantages, but the
-biggest one is that it builds an isolated virtualenv for running tests. This
-means it does not pollute your system python when running. Additionally, the
-environment that tox sets up matches the CI environment more closely and it
-runs the tests in parallel (resulting in much faster execution). To run tests
-on all installed supported python versions and lint/style checks you can simply
-run `tox`. Or if you just want to run the tests once run for a specific python
-version: `tox -epy37` (or replace py37 with the python version you want to use,
-py35 or py36).
+The repository uses [**uv**](https://docs.astral.sh/uv/) to manage the
+environment and [**mise**](https://mise.jdx.dev/) to provide the common
+project tasks defined in `mise.toml`. After running `uv sync --group dev
+--extra test`, you can execute:
 
-If you just want to run a subset of tests you can pass a selection regex to
-the test runner. For example, if you want to run all tests that have "dag" in
-the test id you can run: `tox -epy37 -- dag`. You can pass arguments directly to
-the test runner after the bare `--`. To see all the options on test selection
-you can refer to the stestr manual:
-https://stestr.readthedocs.io/en/stable/MANUAL.html#test-selection
+- `mise run test:unit`
+- `mise run test:integration`
+- `mise run test:acceptance`
+- `mise run check:linting`
+- `mise run check:format`
+- `mise run check:types`
+- `mise run check:spelling`
 
-If you want to run a single test module, test class, or individual test method
-you can do this faster with the `-n`/`--no-discover` option. For example:
-
-to run a module:
-```
-tox -epy37 -- -n test.test_examples
-```
-or to run the same module by path:
-
-```
-tox -epy37 -- -n test/test_examples.py
-```
-to run a class:
-
-```
-tox -epy37 -- -n test.test_examples.TestPythonExamples
-```
-to run a method:
-```
-tox -epy37 -- -n test.test_examples.TestPythonExamples.test_all_examples
-```
+If you need to run pytest directly, use `uv run pytest ...` from the
+repository root so the commands use the same environment as the project
+tasks.
 
 
 ### Style guide
 
 To enforce a consistent code style in the project we use
-[Pylint](https://www.pylint.org) and
-[pycodestyle](https://pycodestyle.readthedocs.io/en/latest/)
-to verify that code contributions conform respect the projects
-style guide. To verify that your changes conform to the style
-guide you can run: `tox -elint`
+[ruff](https://docs.astral.sh/ruff/) to verify that code contributions conform
+to the project style guide. To verify that your changes conform to the style
+guide you can run: `mise run check:linting` and `mise run check:format`.
 
 ## Documentation
 
@@ -237,11 +216,8 @@ documentation](http://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_go
 ## Development Cycle
 
 The development cycle for qiskit-aqt-provider is all handled in the open using
-the project boards in Github for project management. We use milestones
-in Github to track work for specific releases. The features or other changes
-that we want to include in a release will be tagged and discussed in Github.
-As we're preparing a new release we'll document what has changed since the
-previous version in the release notes and Changelog.
+the project boards in Github for project management. As we're preparing a new release we'll
+document what has changed since the previous version in the release notes and Changelog.
 
 ### Branches
 
@@ -251,12 +227,6 @@ The master branch is used for development of the next version of qiskit-aqt-prov
 It will be updated frequently and should not be considered stable. The API
 can and will change on master as we introduce and refine new features.
 
-* `stable/*`:
-The stable branches are used to maintain the most recent released versions of
-qiskit-aqt-provider. It contains the version of the code corresponding to the latest
-release for The API on these branches are stable and the only changes
-merged to it are bugfixes.
-
 
 ### Release Cycle
 
@@ -265,61 +235,5 @@ are well-tested versions of the software.
 
 When the time for a new release has come, we will:
 
-1. Create a new tag with the version number on master
-2. Create a new stable branch from that tag
-3. Bump the package version in the `setup.py` on `master`
-
-The `stable/*` branch should only receive changes in the form of bug fixes.
-
-## Stable Branch Policy
-
-The stable branch is intended to be a safe source of fixes for high impact bugs
-and security issues which have been fixed on master since a release. When
-reviewing a stable branch PR we need to balance the risk of any given patch
-with the value that it will provide to users of the stable branch. Only a
-limited class of changes are appropriate for inclusion on the stable branch. A
-large, risky patch for a major issue might make sense. As might a trivial fix
-for a fairly obscure error handling case. A number of factors must be weighed
-when considering a change:
-
-- The risk of regression: even the tiniest changes carry some risk of breaking
-  something and we really want to avoid regressions on the stable branch
-- The user visible benefit: are we fixing something that users might actually
-  notice and, if so, how important is it?
-- How self-contained the fix is: if it fixes a significant issue but also
-  refactors a lot of code, it's probably worth thinking about what a less
-  risky fix might look like
-- Whether the fix is already on master: a change must be a backport of a change
-  already merged onto master, unless the change simply does not make sense on
-  master.
-
-### Backporting procedure:
-
-When backporting a patch from master to stable we want to keep a reference to
-the change on master. When you create the branch for the stable PR you can use:
-
-`$ git cherry-pick -x $master_commit_id`
-
-However, this only works for small self contained patches from master. If you
-need to backport a subset of a larger commit (from a squashed PR for
-example) from master this just need be done manually. This should be handled
-by adding::
-
-    Backported from: #master pr number
-
-in these cases, so we can track the source of the change subset even if a
-strict cherry pick doesn't make sense.
-
-If the patch you're proposing will not cherry-pick cleanly, you can help by
-resolving the conflicts yourself and proposing the resulting patch. Please keep
-Conflicts lines in the commit message to help review of the stable patch.
-
-### Backport Tags
-
-Bugs or PRs tagged with `stable backport potential` are bugs which apply to the
-stable release too and may be suitable for backporting once a fix lands in
-master. Once the backport has been proposed, the tag should be removed.
-
-The PR against the stable branch should include `[stable]` in the title, as a
-sign that setting the target branch as stable was not a mistake. Also,
-reference to the PR number in master that you are porting.
+1. Bump the package version in the `pyproject.toml` on `master`
+2. Create a new tag with the version number on master
