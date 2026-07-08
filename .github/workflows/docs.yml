@@ -14,9 +14,10 @@ concurrency:
 
 jobs:
   build:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: write
+    env:
+      DOCS_DEFAULT_VERSION: ${{ vars.DOCS_DEFAULT_VERSION }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -40,23 +41,38 @@ jobs:
         run: poetry run poe version_check
       - name: Build documentation
         run: poetry run poe docs
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Stage docs under v1
+        run: |
+          tmpdir="$(mktemp -d)"
+          mv docs/_build "${tmpdir}/site"
+          mkdir -p docs/_build/v1
+          cp -a "${tmpdir}/site/." docs/_build/v1/
+          rm -rf "${tmpdir}"
+      - name: Create docs landing page
+        run: |
+          : "${DOCS_DEFAULT_VERSION:?Set repository variable DOCS_DEFAULT_VERSION}"
+          mkdir -p docs/_build
+          cat > docs/_build/index.html <<EOF
+          <!doctype html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta http-equiv="refresh" content="0; url=./${DOCS_DEFAULT_VERSION}/">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <link rel="canonical" href="./${DOCS_DEFAULT_VERSION}/">
+            <title>Qiskit AQT Provider documentation</title>
+            <script>
+              window.location.replace("./${DOCS_DEFAULT_VERSION}/");
+            </script>
+          </head>
+          <body>
+            <p>Redirecting to <a href="./${DOCS_DEFAULT_VERSION}/">default documentation</a>.</p>
+          </body>
+          </html>
+          EOF
+      - name: Publish documentation to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: 'docs/_build'
-
-  deploy:
-    needs: build
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/_build
+          keep_files: true
