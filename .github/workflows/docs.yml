@@ -3,7 +3,7 @@ name: Deploy documentation
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v1.[0-9]+.[0-9]+'
 
   # Runs on manual triggers
   workflow_dispatch:
@@ -18,6 +18,7 @@ jobs:
       contents: write
     env:
       DOCS_DEFAULT_VERSION: ${{ vars.DOCS_DEFAULT_VERSION }}
+      DOCS_VERSION_PATH: v1
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -41,18 +42,30 @@ jobs:
         run: poetry run poe version_check
       - name: Build documentation
         run: poetry run poe docs
-      - name: Stage docs under v1
+      - name: Publish versioned docs to gh-pages
         run: |
-          tmpdir="$(mktemp -d)"
-          mv docs/_build "${tmpdir}/site"
-          mkdir -p docs/_build/v1
-          cp -a "${tmpdir}/site/." docs/_build/v1/
-          rm -rf "${tmpdir}"
-      - name: Create docs landing page
-        run: |
+          remote_url="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git"
+          workdir="$(mktemp -d)"
+
+          git init "${workdir}"
+          cd "${workdir}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if git ls-remote --exit-code --heads "${remote_url}" gh-pages > /dev/null 2>&1; then
+            git fetch --depth=1 "${remote_url}" gh-pages
+            git checkout -B gh-pages FETCH_HEAD
+          else
+            git checkout --orphan gh-pages
+          fi
+
           : "${DOCS_DEFAULT_VERSION:?Set repository variable DOCS_DEFAULT_VERSION}"
-          mkdir -p docs/_build
-          cat > docs/_build/index.html <<EOF
+
+          rm -rf "${DOCS_VERSION_PATH}"
+          mkdir -p "${DOCS_VERSION_PATH}"
+          cp -a "${GITHUB_WORKSPACE}/docs/_build/." "${DOCS_VERSION_PATH}/"
+
+          cat > index.html <<EOF
           <!doctype html>
           <html lang="en">
           <head>
@@ -70,9 +83,13 @@ jobs:
           </body>
           </html>
           EOF
-      - name: Publish documentation to gh-pages branch
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: docs/_build
-          keep_files: true
+
+          touch .nojekyll
+          git add --all
+          if git diff --cached --quiet; then
+            echo "No documentation changes to publish."
+            exit 0
+          fi
+
+          git commit -m "Deploy ${DOCS_VERSION_PATH} docs for ${GITHUB_REF_NAME}"
+          git push "${remote_url}" gh-pages
