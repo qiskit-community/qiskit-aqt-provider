@@ -1,0 +1,1159 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" />
+
+    <!-- Generated with Sphinx 7.2.6 and Furo 2024.08.06 -->
+        <title>qiskit_aqt_provider.aqt_job - Qiskit AQT Provider 1.15.0</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=75810a84" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/autodoc_pydantic.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/thebelab.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=302659d7" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style><link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet"></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14 2H2C1.73478 2 1.48043 2.10536 1.29289 2.29289C1.10536 2.48043 1 2.73478 1 3V13C1 13.2652 1.10536 13.5196 1.29289 13.7071C1.48043 13.8946 1.73478 14 2 14H14C14.2652 14 14.5196 13.8946 14.7071 13.7071C14.8946 13.5196 15 13.2652 15 13V3C15 2.73478 14.8946 2.48043 14.7071 2.29289C14.5196 2.10536 14.2652 2 14 2V2ZM2 3H10V13H2V3ZM14 13H11V3H14V13Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14 3H2V4H14V3Z" fill="currentColor"/>
+      <path d="M14 12H2V13H14V12Z" fill="currentColor"/>
+      <path d="M14 6H2V7H14V6Z" fill="currentColor"/>
+      <path d="M14 9H2V10H14V9Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M11 8L6.00005 13L5.30005 12.3L9.60005 8L5.30005 3.7L6.00005 3L11 8Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15 13H1V14H15V13Z" fill="currentColor"/>
+      <path d="M12.7 4.5C13.1 4.1 13.1 3.5 12.7 3.1L10.9 1.3C10.5 0.9 9.9 0.9 9.5 1.3L2 8.8V12H5.2L12.7 4.5ZM10.2 2L12 3.8L10.5 5.3L8.7 3.5L10.2 2ZM3 11V9.2L8 4.2L9.8 6L4.8 11H3Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M11 13.0002C11.5523 13.0002 12 12.5525 12 12.0002C12 11.4479 11.5523 11.0002 11 11.0002C10.4477 11.0002 10 11.4479 10 12.0002C10 12.5525 10.4477 13.0002 11 13.0002Z" fill="currentColor"/>
+      <path d="M14.8884 11.7394C14.5795 10.9524 14.0464 10.2734 13.3552 9.78646C12.664 9.29954 11.8451 9.02615 11 9.00017C10.1549 9.02615 9.33604 9.29954 8.64484 9.78646C7.95365 10.2734 7.42052 10.9524 7.11155 11.7394L7 12.0002L7.11155 12.2609C7.42052 13.0479 7.95365 13.727 8.64484 14.2139C9.33604 14.7008 10.1549 14.9742 11 15.0002C11.8451 14.9742 12.664 14.7008 13.3552 14.2139C14.0464 13.727 14.5795 13.0479 14.8884 12.2609L15 12.0002L14.8884 11.7394ZM11 14.0002C10.6044 14.0002 10.2178 13.8829 9.88886 13.6631C9.55996 13.4433 9.30362 13.131 9.15224 12.7655C9.00087 12.4001 8.96126 11.998 9.03843 11.61C9.1156 11.222 9.30608 10.8657 9.58579 10.586C9.86549 10.3063 10.2219 10.1158 10.6098 10.0386C10.9978 9.96143 11.3999 10.001 11.7654 10.1524C12.1308 10.3038 12.4432 10.5601 12.6629 10.889C12.8827 11.2179 13 11.6046 13 12.0002C12.9994 12.5304 12.7885 13.0388 12.4136 13.4137C12.0386 13.7887 11.5303 13.9996 11 14.0002Z" fill="currentColor"/>
+      <path d="M6 14.0002H4V2.00017H8V5.00017C8.00077 5.26515 8.10637 5.51906 8.29374 5.70643C8.48111 5.8938 8.73502 5.99941 9 6.00017H12V8.00017H13V5.00017C13.0018 4.93446 12.9893 4.86913 12.9634 4.80871C12.9375 4.74828 12.8988 4.6942 12.85 4.65017L9.35 1.15017C9.30599 1.10134 9.2519 1.06263 9.19147 1.03674C9.13104 1.01084 9.06572 0.998364 9 1.00017H4C3.73502 1.00094 3.48111 1.10654 3.29374 1.29391C3.10637 1.48128 3.00077 1.73519 3 2.00017V14.0002C3.00077 14.2652 3.10637 14.5191 3.29374 14.7064C3.48111 14.8938 3.73502 14.9994 4 15.0002H6V14.0002ZM9 2.20017L11.8 5.00017H9V2.20017Z" fill="currentColor"/>
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">Qiskit AQT Provider 1.15.0</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  
+  
+  <span class="sidebar-brand-text">Qiskit AQT Provider 1.15.0</span>
+  
+</a>
+<form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guide.html">User guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../apidoc/provider.html">Provider</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../apidoc/resource.html">Backends</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../apidoc/job.html">Job handles</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../apidoc/options.html">Options</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../apidoc/primitives.html">Qiskit primitives</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../apidoc/transpiler_plugin.html">Transpiler plugin</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../apidoc/api_client.html">API client</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">External links</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/qiskit-community/qiskit-aqt-provider">Repository</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://www.aqt.eu/products/arnica">AQT</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://arnica.aqt.eu/api/v1/docs">API reference</a></li>
+</ul>
+
+</div></div>
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <h1>Source code for qiskit_aqt_provider.aqt_job</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This code is part of Qiskit.</span>
+<span class="c1">#</span>
+<span class="c1"># (C) Copyright IBM 2019, Alpine Quantum Technologies GmbH 2022.</span>
+<span class="c1">#</span>
+<span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
+<span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
+<span class="c1"># of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.</span>
+<span class="c1">#</span>
+<span class="c1"># Any modifications or derivative works of this code must retain this</span>
+<span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
+<span class="c1"># that they have been altered from the originals.</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">defaultdict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">TracebackType</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">TYPE_CHECKING</span><span class="p">,</span>
+    <span class="n">Any</span><span class="p">,</span>
+    <span class="n">Callable</span><span class="p">,</span>
+    <span class="n">ClassVar</span><span class="p">,</span>
+    <span class="n">NoReturn</span><span class="p">,</span>
+    <span class="n">Optional</span><span class="p">,</span>
+    <span class="n">Union</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aqt_connector.models.arnica.response_bodies.jobs</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">RRCancelled</span><span class="p">,</span>
+    <span class="n">RRError</span><span class="p">,</span>
+    <span class="n">RRFinished</span><span class="p">,</span>
+    <span class="n">RROngoing</span><span class="p">,</span>
+    <span class="n">RRQueued</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">httpx</span><span class="w"> </span><span class="kn">import</span> <span class="n">RequestError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantumCircuit</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers</span><span class="w"> </span><span class="kn">import</span> <span class="n">JobV1</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">JobTimeoutError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers.jobstatus</span><span class="w"> </span><span class="kn">import</span> <span class="n">JOB_FINAL_STATES</span><span class="p">,</span> <span class="n">JobStatus</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.result.result</span><span class="w"> </span><span class="kn">import</span> <span class="n">Result</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.utils.lazy_tester</span><span class="w"> </span><span class="kn">import</span> <span class="n">contextlib</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span><span class="p">,</span> <span class="n">TypeAlias</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aqt_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">persistence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aqt_provider.api_client.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">APIError</span><span class="p">,</span> <span class="n">http_response_raise_for_status</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aqt_provider.api_client.models_direct</span><span class="w"> </span><span class="kn">import</span> <span class="n">JobResultError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aqt_provider.aqt_options</span><span class="w"> </span><span class="kn">import</span> <span class="n">AQTOptions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aqt_provider.circuit_to_aqt</span><span class="w"> </span><span class="kn">import</span> <span class="n">circuits_to_aqt_job</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aqt_provider.aqt_resource</span><span class="w"> </span><span class="kn">import</span> <span class="n">AQTDirectAccessResource</span><span class="p">,</span> <span class="n">AQTResource</span>
+
+
+<span class="c1"># Tags for the status of AQT API jobs</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">JobFinished</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The job finished successfully.&quot;&quot;&quot;</span>
+
+    <span class="n">status</span><span class="p">:</span> <span class="n">ClassVar</span> <span class="o">=</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">DONE</span>
+    <span class="n">results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">JobFailed</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An error occurred during the job execution.&quot;&quot;&quot;</span>
+
+    <span class="n">status</span><span class="p">:</span> <span class="n">ClassVar</span> <span class="o">=</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">ERROR</span>
+    <span class="n">error</span><span class="p">:</span> <span class="nb">str</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">JobQueued</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The job is queued.&quot;&quot;&quot;</span>
+
+    <span class="n">status</span><span class="p">:</span> <span class="n">ClassVar</span> <span class="o">=</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">QUEUED</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">JobOngoing</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The job is running.&quot;&quot;&quot;</span>
+
+    <span class="n">status</span><span class="p">:</span> <span class="n">ClassVar</span> <span class="o">=</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">RUNNING</span>
+    <span class="n">finished_count</span><span class="p">:</span> <span class="nb">int</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">JobCancelled</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The job was cancelled.&quot;&quot;&quot;</span>
+
+    <span class="n">status</span> <span class="o">=</span> <span class="n">ClassVar</span> <span class="o">=</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">CANCELLED</span>
+
+
+<span class="n">JobStatusPayload</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Union</span><span class="p">[</span><span class="n">JobQueued</span><span class="p">,</span> <span class="n">JobOngoing</span><span class="p">,</span> <span class="n">JobFinished</span><span class="p">,</span> <span class="n">JobFailed</span><span class="p">,</span> <span class="n">JobCancelled</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="Progress">
+<a class="viewcode-back" href="../../apidoc/job.html#qiskit_aqt_provider.aqt_job.Progress">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Progress</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Progress information of a job.&quot;&quot;&quot;</span>
+
+    <span class="n">finished_count</span><span class="p">:</span> <span class="nb">int</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Number of completed circuits.&quot;&quot;&quot;</span>
+
+    <span class="n">total_count</span><span class="p">:</span> <span class="nb">int</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Total number of circuits in the job.&quot;&quot;&quot;</span></div>
+
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_MockProgressBar</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Minimal tqdm-compatible progress bar mock.&quot;&quot;&quot;</span>
+
+    <span class="n">total</span><span class="p">:</span> <span class="nb">int</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Total number of items in the job.&quot;&quot;&quot;</span>
+
+    <span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Number of processed items.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update the number of processed items by `n`.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">+=</span> <span class="n">n</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">exc_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">]],</span>
+        <span class="n">exc_value</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="ne">BaseException</span><span class="p">],</span>
+        <span class="n">traceback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TracebackType</span><span class="p">],</span>
+        <span class="o">/</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+
+
+<div class="viewcode-block" id="AQTJob">
+<a class="viewcode-back" href="../../apidoc/job.html#qiskit_aqt_provider.aqt_job.AQTJob">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AQTJob</span><span class="p">(</span><span class="n">JobV1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Handle for quantum circuits jobs running on AQT cloud backends.</span>
+
+<span class="sd">    Jobs contain one or more quantum circuits that are executed with a common</span>
+<span class="sd">    set of options (see :class:`AQTOptions &lt;qiskit_aqt_provider.aqt_options.AQTOptions&gt;`).</span>
+
+<span class="sd">    Job handles should be retrieved from calls</span>
+<span class="sd">    to :meth:`AQTResource.run &lt;qiskit_aqt_provider.aqt_resource.AQTResource.run&gt;`, which immediately</span>
+<span class="sd">    returns after submitting the job. The :meth:`result` method allows blocking until a job</span>
+<span class="sd">    completes:</span>
+
+<span class="sd">    &gt;&gt;&gt; import qiskit</span>
+<span class="sd">    &gt;&gt;&gt; from qiskit.providers import JobStatus</span>
+<span class="sd">    &gt;&gt;&gt; from qiskit_aqt_provider import AQTProvider</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; backend = AQTProvider(&quot;&quot;).get_backend(&quot;offline_simulator_no_noise&quot;)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; qc = qiskit.QuantumCircuit(1)</span>
+<span class="sd">    &gt;&gt;&gt; _ = qc.rx(3.14, 0)</span>
+<span class="sd">    &gt;&gt;&gt; _ = qc.measure_all()</span>
+<span class="sd">    &gt;&gt;&gt; qc = qiskit.transpile(qc, backend)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; job = backend.run(qc, shots=100)</span>
+<span class="sd">    &gt;&gt;&gt; result = job.result()</span>
+<span class="sd">    &gt;&gt;&gt; job.status() is JobStatus.DONE</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; result.success</span>
+<span class="sd">    True</span>
+<span class="sd">    &gt;&gt;&gt; result.get_counts()</span>
+<span class="sd">    {&#39;1&#39;: 100}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_backend</span><span class="p">:</span> <span class="s2">&quot;AQTResource&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">backend</span><span class="p">:</span> <span class="s2">&quot;AQTResource&quot;</span><span class="p">,</span>
+        <span class="n">circuits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">],</span>
+        <span class="n">options</span><span class="p">:</span> <span class="n">AQTOptions</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize an :class:`AQTJob` instance.</span>
+
+<span class="sd">        .. tip:: :class:`AQTJob` instances should not be created directly. Use</span>
+<span class="sd">          :meth:`AQTResource.run &lt;qiskit_aqt_provider.aqt_resource.AQTResource.run&gt;`</span>
+<span class="sd">          to submit circuits for execution and retrieve a job handle.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            backend: backend to run the job on.</span>
+<span class="sd">            circuits: list of circuits to execute.</span>
+<span class="sd">            options: overridden resource options for this job.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">circuits</span> <span class="o">=</span> <span class="n">circuits</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">api_submit_payload</span> <span class="o">=</span> <span class="n">circuits_to_aqt_job</span><span class="p">(</span><span class="n">circuits</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">shots</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_payload</span><span class="p">:</span> <span class="n">JobStatusPayload</span> <span class="o">=</span> <span class="n">JobQueued</span><span class="p">()</span>
+
+<div class="viewcode-block" id="AQTJob.restore">
+<a class="viewcode-back" href="../../apidoc/job.html#qiskit_aqt_provider.aqt_job.AQTJob.restore">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">restore</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span>
+        <span class="n">job_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">access_token</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">store_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">remove_from_store</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Restore a job handle from local persistent storage.</span>
+
+<span class="sd">        .. warning:: The default local storage path depends on the `qiskit_aqt_provider`</span>
+<span class="sd">            package version. Job persisted with a different package version will therefore</span>
+<span class="sd">            **not** be found!</span>
+
+<span class="sd">        .. hint:: If the job&#39;s execution backend is an offline simulator, the</span>
+<span class="sd">            job is re-submitted to the simulation backend and the new job ID differs</span>
+<span class="sd">            from the one passed to this function.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            job_id: identifier of the job to retrieve.</span>
+<span class="sd">            access_token: access token for the AQT cloud.</span>
+<span class="sd">              See :class:`AQTProvider &lt;qiskit_aqt_provider.aqt_provider.AQTProvider&gt;`.</span>
+<span class="sd">            store_path: local persistent storage directory.</span>
+<span class="sd">              By default, use a standard cache directory.</span>
+<span class="sd">            remove_from_store: if :data:`True`, remove the retrieved job&#39;s data from persistent</span>
+<span class="sd">              storage after a successful load.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A job handle for the passed `job_id`.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            JobNotFoundError: the target job was not found in persistent storage.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aqt_provider.aqt_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">AQTProvider</span>  <span class="c1"># noqa: PLC0415</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aqt_provider.aqt_resource</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa: PLC0415</span>
+            <span class="n">AQTResource</span><span class="p">,</span>
+            <span class="n">OfflineSimulatorResource</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">store_path</span> <span class="o">=</span> <span class="n">persistence</span><span class="o">.</span><span class="n">get_store_path</span><span class="p">(</span><span class="n">store_path</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">persistence</span><span class="o">.</span><span class="n">Job</span><span class="o">.</span><span class="n">restore</span><span class="p">(</span><span class="n">job_id</span><span class="p">,</span> <span class="n">store_path</span><span class="p">)</span>
+
+        <span class="c1"># TODO: forward .env loading args?</span>
+        <span class="n">provider</span> <span class="o">=</span> <span class="n">AQTProvider</span><span class="p">(</span><span class="n">access_token</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">resource</span><span class="o">.</span><span class="n">resource_type</span> <span class="o">==</span> <span class="s2">&quot;offline_simulator&quot;</span><span class="p">:</span>
+            <span class="c1"># FIXME: persist with_noise_model and restore it</span>
+            <span class="n">resource</span> <span class="o">=</span> <span class="n">OfflineSimulatorResource</span><span class="p">(</span><span class="n">provider</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">resource</span><span class="p">,</span> <span class="n">with_noise_model</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">resource</span> <span class="o">=</span> <span class="n">AQTResource</span><span class="p">(</span><span class="n">provider</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">resource</span><span class="p">)</span>
+
+        <span class="n">obj</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="n">resource</span><span class="p">,</span> <span class="n">circuits</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">circuits</span><span class="o">.</span><span class="n">circuits</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">options</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">resource</span><span class="o">.</span><span class="n">resource_type</span> <span class="o">==</span> <span class="s2">&quot;offline_simulator&quot;</span><span class="p">:</span>
+            <span class="c1"># re-submit the job because we can&#39;t restore the backend state</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">submit</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">_job_id</span> <span class="o">=</span> <span class="n">job_id</span>
+
+        <span class="k">if</span> <span class="n">remove_from_store</span><span class="p">:</span>
+            <span class="n">persistence</span><span class="o">.</span><span class="n">Job</span><span class="o">.</span><span class="n">remove_from_store</span><span class="p">(</span><span class="n">job_id</span><span class="p">,</span> <span class="n">store_path</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">obj</span></div>
+
+
+<div class="viewcode-block" id="AQTJob.persist">
+<a class="viewcode-back" href="../../apidoc/job.html#qiskit_aqt_provider.aqt_job.AQTJob.persist">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">persist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">store_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save this job to local persistent storage.</span>
+
+<span class="sd">        .. warning:: Only jobs that have been submitted for execution</span>
+<span class="sd">          can be persisted (a valid `job_id` is required).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            store_path: local persistent storage directory.</span>
+<span class="sd">              By default, use a standard cache directory.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The path to the job data in local persistent storage.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: the job was never submitted for execution.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Can only persist submitted jobs.&quot;</span><span class="p">)</span>
+
+        <span class="n">store_path</span> <span class="o">=</span> <span class="n">persistence</span><span class="o">.</span><span class="n">get_store_path</span><span class="p">(</span><span class="n">store_path</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">persistence</span><span class="o">.</span><span class="n">Job</span><span class="p">(</span>
+            <span class="n">resource</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">resource_id</span><span class="p">,</span>
+            <span class="n">circuits</span><span class="o">=</span><span class="n">persistence</span><span class="o">.</span><span class="n">Circuits</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circuits</span><span class="p">),</span>
+            <span class="n">options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">persist</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">job_id</span><span class="p">(),</span> <span class="n">store_path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AQTJob.submit">
+<a class="viewcode-back" href="../../apidoc/job.html#qiskit_aqt_provider.aqt_job.AQTJob.submit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">submit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Submit this job for execution.</span>
+
+<span class="sd">        This operation is not blocking. Use :meth:`result()` to block until</span>
+<span class="sd">        the job completes.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: this job was already submitted.</span>
+<span class="sd">            APIError: the operation failed on the remote portal.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Job already submitted (ID: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">job_id</span><span class="p">()</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+        <span class="n">job_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_job_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">job_id</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AQTJob.status">
+<a class="viewcode-back" href="../../apidoc/job.html#qiskit_aqt_provider.aqt_job.AQTJob.status">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JobStatus</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Query the job&#39;s status.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Aggregated job status for all the circuits in this job.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            APIError: the operation failed on the remote portal.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result_response</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">result</span><span class="p">(</span><span class="n">uuid</span><span class="o">.</span><span class="n">UUID</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">job_id</span><span class="p">()))</span>
+        <span class="n">job_state</span> <span class="o">=</span> <span class="n">result_response</span><span class="o">.</span><span class="n">response</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">job_state</span><span class="p">,</span> <span class="n">RRQueued</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status_payload</span> <span class="o">=</span> <span class="n">JobQueued</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">job_state</span><span class="p">,</span> <span class="n">RROngoing</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status_payload</span> <span class="o">=</span> <span class="n">JobOngoing</span><span class="p">(</span><span class="n">finished_count</span><span class="o">=</span><span class="n">job_state</span><span class="o">.</span><span class="n">finished_count</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">job_state</span><span class="p">,</span> <span class="n">RRFinished</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status_payload</span> <span class="o">=</span> <span class="n">JobFinished</span><span class="p">(</span>
+                <span class="n">results</span><span class="o">=</span><span class="p">{</span>
+                    <span class="nb">int</span><span class="p">(</span><span class="n">circuit_index</span><span class="p">):</span> <span class="n">shots</span> <span class="k">for</span> <span class="n">circuit_index</span><span class="p">,</span> <span class="n">shots</span> <span class="ow">in</span> <span class="n">job_state</span><span class="o">.</span><span class="n">result</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">job_state</span><span class="p">,</span> <span class="n">RRError</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status_payload</span> <span class="o">=</span> <span class="n">JobFailed</span><span class="p">(</span><span class="n">error</span><span class="o">=</span><span class="n">job_state</span><span class="o">.</span><span class="n">message</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">job_state</span><span class="p">,</span> <span class="n">RRCancelled</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status_payload</span> <span class="o">=</span> <span class="n">JobCancelled</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status_payload</span><span class="o">.</span><span class="n">status</span></div>
+
+
+<div class="viewcode-block" id="AQTJob.progress">
+<a class="viewcode-back" href="../../apidoc/job.html#qiskit_aqt_provider.aqt_job.AQTJob.progress">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">progress</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Progress</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Progress information for this job.&quot;&quot;&quot;</span>
+        <span class="n">num_circuits</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circuits</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status_payload</span><span class="p">,</span> <span class="n">JobQueued</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Progress</span><span class="p">(</span><span class="n">finished_count</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">total_count</span><span class="o">=</span><span class="n">num_circuits</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status_payload</span><span class="p">,</span> <span class="n">JobOngoing</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">Progress</span><span class="p">(</span>
+                <span class="n">finished_count</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">status_payload</span><span class="o">.</span><span class="n">finished_count</span><span class="p">,</span> <span class="n">total_count</span><span class="o">=</span><span class="n">num_circuits</span>
+            <span class="p">)</span>
+
+        <span class="c1"># if the circuit is finished, failed, or cancelled, it is completed</span>
+        <span class="k">return</span> <span class="n">Progress</span><span class="p">(</span><span class="n">finished_count</span><span class="o">=</span><span class="n">num_circuits</span><span class="p">,</span> <span class="n">total_count</span><span class="o">=</span><span class="n">num_circuits</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">error_message</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Error message for this job (if any).&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status_payload</span><span class="p">,</span> <span class="n">JobFailed</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">status_payload</span><span class="o">.</span><span class="n">error</span>
+
+        <span class="k">return</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="AQTJob.result">
+<a class="viewcode-back" href="../../apidoc/job.html#qiskit_aqt_provider.aqt_job.AQTJob.result">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Result</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Block until all circuits have been evaluated and return the combined result.</span>
+
+<span class="sd">        Success or error is signalled by the `success` field in the returned Result instance.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The combined result of all circuit evaluations.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            APIError: the operation failed on the remote portal.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">with_progress_bar</span><span class="p">:</span>
+            <span class="n">context</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">tqdm</span><span class="p">[</span><span class="n">NoReturn</span><span class="p">],</span> <span class="n">_MockProgressBar</span><span class="p">]</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circuits</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">context</span> <span class="o">=</span> <span class="n">_MockProgressBar</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circuits</span><span class="p">))</span>
+
+        <span class="k">with</span> <span class="n">context</span> <span class="k">as</span> <span class="n">progress_bar</span><span class="p">:</span>
+
+            <span class="k">def</span><span class="w"> </span><span class="nf">callback</span><span class="p">(</span>
+                <span class="n">job_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>  <span class="c1"># noqa: ARG001</span>
+                <span class="n">status</span><span class="p">:</span> <span class="n">JobStatus</span><span class="p">,</span>  <span class="c1"># noqa: ARG001</span>
+                <span class="n">job</span><span class="p">:</span> <span class="n">AQTJob</span><span class="p">,</span>
+            <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">progress</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">progress</span><span class="p">()</span>
+                <span class="n">progress_bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">progress</span><span class="o">.</span><span class="n">finished_count</span> <span class="o">-</span> <span class="n">progress_bar</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+
+            <span class="c1"># one of DONE, CANCELLED, ERROR</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">wait_for_final_state</span><span class="p">(</span>
+                <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">query_timeout_seconds</span><span class="p">,</span>
+                <span class="n">wait</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">query_period_seconds</span><span class="p">,</span>
+                <span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="c1"># make sure the progress bar completes</span>
+            <span class="n">progress_bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">progress</span><span class="p">()</span><span class="o">.</span><span class="n">finished_count</span> <span class="o">-</span> <span class="n">progress_bar</span><span class="o">.</span><span class="n">n</span><span class="p">)</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status_payload</span><span class="p">,</span> <span class="n">JobFinished</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">circuit_index</span><span class="p">,</span> <span class="n">circuit</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circuits</span><span class="p">):</span>
+                <span class="n">samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">status_payload</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="n">circuit_index</span><span class="p">]</span>
+                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">_partial_qiskit_result_dict</span><span class="p">(</span>
+                        <span class="n">samples</span><span class="p">,</span> <span class="n">circuit</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">shots</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">memory</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">Result</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;backend_name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s2">&quot;backend_version&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+                <span class="s2">&quot;qobj_id&quot;</span><span class="p">:</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circuits</span><span class="p">),</span>
+                <span class="s2">&quot;job_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span><span class="p">(),</span>
+                <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">status_payload</span><span class="o">.</span><span class="n">status</span> <span class="ow">is</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">DONE</span><span class="p">,</span>
+                <span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="n">results</span><span class="p">,</span>
+                <span class="c1"># Pass error message as metadata</span>
+                <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">error_message</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AQTJob.wait_for_final_state">
+<a class="viewcode-back" href="../../apidoc/job.html#qiskit_aqt_provider.aqt_job.AQTJob.wait_for_final_state">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wait_for_final_state</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">timeout</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">wait</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="n">callback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">,</span> <span class="n">JobStatus</span><span class="p">,</span> <span class="s2">&quot;AQTJob&quot;</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Poll the job status until it progresses to a final state such as ``DONE`` or ``ERROR``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            timeout: Seconds to wait for the job. If ``None``, wait indefinitely.</span>
+<span class="sd">            wait: Seconds between queries.</span>
+<span class="sd">            callback: Callback function invoked after each query.</span>
+<span class="sd">                The following positional arguments are provided to the callback function:</span>
+
+<span class="sd">                * job_id: Job ID</span>
+<span class="sd">                * job_status: Status of the job from the last query</span>
+<span class="sd">                * job: This BaseJob instance</span>
+
+<span class="sd">                Note: different subclass might provide different arguments to</span>
+<span class="sd">                the callback function.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            JobTimeoutError: If the job does not reach a final state before the</span>
+<span class="sd">                specified timeout.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_async</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">consecutive_request_errors</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">status</span> <span class="ow">in</span> <span class="n">JOB_FINAL_STATES</span><span class="p">:</span>
+                    <span class="k">return</span>
+                <span class="k">if</span> <span class="n">callback</span><span class="p">:</span>
+                    <span class="n">callback</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">job_id</span><span class="p">(),</span> <span class="n">status</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="n">RequestError</span><span class="p">,</span> <span class="n">APIError</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ex</span><span class="p">,</span> <span class="n">APIError</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ex</span><span class="o">.</span><span class="n">http_response</span><span class="o">.</span><span class="n">status_code</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span>
+                    <span class="mi">429</span><span class="p">,</span>
+                    <span class="mi">500</span><span class="p">,</span>
+                    <span class="mi">502</span><span class="p">,</span>
+                    <span class="mi">503</span><span class="p">,</span>
+                    <span class="mi">504</span><span class="p">,</span>
+                <span class="p">):</span>
+                    <span class="n">http_response_raise_for_status</span><span class="p">(</span><span class="n">ex</span><span class="o">.</span><span class="n">http_response</span><span class="p">)</span>
+                <span class="n">consecutive_request_errors</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Error #</span><span class="si">{</span><span class="n">consecutive_request_errors</span><span class="si">}</span><span class="s2"> while fetching job status. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Retrying in </span><span class="si">{</span><span class="n">consecutive_request_errors</span><span class="si">}</span><span class="s2"> seconds. Error: </span><span class="si">{</span><span class="n">ex</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">wait</span><span class="p">)</span>
+            <span class="n">elapsed_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
+            <span class="k">if</span> <span class="n">timeout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">elapsed_time</span> <span class="o">&gt;=</span> <span class="n">timeout</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">JobTimeoutError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Timeout while waiting for job </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">job_id</span><span class="p">()</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+            <span class="n">consecutive_request_errors</span> <span class="o">=</span> <span class="mi">0</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="AQTDirectAccessJob">
+<a class="viewcode-back" href="../../apidoc/job.html#qiskit_aqt_provider.aqt_job.AQTDirectAccessJob">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AQTDirectAccessJob</span><span class="p">(</span><span class="n">JobV1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Handle for quantum circuits jobs running on direct-access AQT backends.</span>
+
+<span class="sd">    Use</span>
+<span class="sd">    :meth:`AQTDirectAccessResource.run</span>
+<span class="sd">    &lt;qiskit_aqt_provider.aqt_resource.AQTDirectAccessResource.run&gt;`</span>
+<span class="sd">    to get a handle and evaluate circuits on a direct-access backend.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_backend</span><span class="p">:</span> <span class="s2">&quot;AQTDirectAccessResource&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">backend</span><span class="p">:</span> <span class="s2">&quot;AQTDirectAccessResource&quot;</span><span class="p">,</span>
+        <span class="n">circuits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">],</span>
+        <span class="n">options</span><span class="p">:</span> <span class="n">AQTOptions</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the :class:`AQTDirectAccessJob` instance.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            backend: backend to run the job on.</span>
+<span class="sd">            circuits: list of circuits to execute.</span>
+<span class="sd">            options: overridden resource options for this job.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">circuits</span> <span class="o">=</span> <span class="n">circuits</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">api_submit_payload</span> <span class="o">=</span> <span class="n">circuits_to_aqt_job</span><span class="p">(</span><span class="n">circuits</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">shots</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_job_id</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">INITIALIZING</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">submit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;No-op on direct-access backends.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AQTDirectAccessJob.result">
+<a class="viewcode-back" href="../../apidoc/job.html#qiskit_aqt_provider.aqt_job.AQTDirectAccessJob.result">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Result</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Iteratively submit all circuits and block until full completion.</span>
+
+<span class="sd">        If an error occurs, the remaining circuits are not executed and the whole</span>
+<span class="sd">        job is marked as failed.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The combined result of all circuit evaluations.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            APIError: the operation failed on the target resource.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">with_progress_bar</span><span class="p">:</span>
+            <span class="n">context</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">tqdm</span><span class="p">[</span><span class="n">NoReturn</span><span class="p">],</span> <span class="n">_MockProgressBar</span><span class="p">]</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circuits</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">context</span> <span class="o">=</span> <span class="n">_MockProgressBar</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circuits</span><span class="p">))</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;backend_name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;backend_version&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+            <span class="s2">&quot;qobj_id&quot;</span><span class="p">:</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circuits</span><span class="p">),</span>
+            <span class="s2">&quot;job_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">job_id</span><span class="p">(),</span>
+            <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="p">}</span>
+
+        <span class="k">with</span> <span class="n">context</span> <span class="k">as</span> <span class="n">progress_bar</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">circuit_index</span><span class="p">,</span> <span class="n">circuit</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">circuits</span><span class="p">):</span>
+                <span class="n">api_circuit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_submit_payload</span><span class="o">.</span><span class="n">payload</span><span class="o">.</span><span class="n">circuits</span><span class="p">[</span><span class="n">circuit_index</span><span class="p">]</span>
+                <span class="n">job_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">api_circuit</span><span class="p">)</span>
+                <span class="n">api_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_backend</span><span class="o">.</span><span class="n">result</span><span class="p">(</span>
+                    <span class="n">job_id</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">query_timeout_seconds</span>
+                <span class="p">)</span>
+
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">api_result</span><span class="o">.</span><span class="n">payload</span><span class="p">,</span> <span class="n">JobResultError</span><span class="p">):</span>
+                    <span class="k">break</span>
+
+                <span class="n">result</span><span class="p">[</span><span class="s2">&quot;results&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">_partial_qiskit_result_dict</span><span class="p">(</span>
+                        <span class="n">api_result</span><span class="o">.</span><span class="n">payload</span><span class="o">.</span><span class="n">result</span><span class="p">,</span>
+                        <span class="n">circuit</span><span class="p">,</span>
+                        <span class="n">shots</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">shots</span><span class="p">,</span>
+                        <span class="n">memory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
+                <span class="n">progress_bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># no circuits in the job, or all executed successfully</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">DONE</span>
+                <span class="k">return</span> <span class="n">Result</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">ERROR</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;success&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">Result</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">result</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AQTDirectAccessJob.status">
+<a class="viewcode-back" href="../../apidoc/job.html#qiskit_aqt_provider.aqt_job.AQTDirectAccessJob.status">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JobStatus</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Query the job&#39;s status.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Aggregated job status for all the circuits in this job.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span></div>
+</div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_partial_qiskit_result_dict</span><span class="p">(</span>
+    <span class="n">samples</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">shots</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">memory</span><span class="p">:</span> <span class="nb">bool</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the Qiskit result dict for a single circuit evaluation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        samples: measurement outcome of the circuit evaluation.</span>
+<span class="sd">        circuit: the evaluated circuit.</span>
+<span class="sd">        shots: number of repetitions of the circuit evaluation.</span>
+<span class="sd">        memory: whether to fill the classical memory dump field with the measurement results.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Dict, suitable for Qiskit&#39;s `Result.from_dict` factory.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">meas_map</span> <span class="o">=</span> <span class="n">_build_memory_mapping</span><span class="p">(</span><span class="n">circuit</span><span class="p">)</span>
+
+    <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;counts&quot;</span><span class="p">:</span> <span class="n">_format_counts</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">meas_map</span><span class="p">)}</span>
+
+    <span class="k">if</span> <span class="n">memory</span><span class="p">:</span>
+        <span class="c1"># build per-shot classical memory strings using the measurement mapping</span>
+        <span class="n">mem_slots</span> <span class="o">=</span> <span class="n">circuit</span><span class="o">.</span><span class="n">num_clbits</span>
+        <span class="n">memory_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">states</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">:</span>
+            <span class="c1"># initialize classical register (all 0)</span>
+            <span class="n">creg</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;0&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">mem_slots</span>
+            <span class="k">for</span> <span class="n">src_index</span><span class="p">,</span> <span class="n">dest_indices</span> <span class="ow">in</span> <span class="n">meas_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">src_index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">states</span><span class="p">):</span>
+                    <span class="n">src_bit</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">states</span><span class="p">[</span><span class="n">src_index</span><span class="p">])</span>
+                    <span class="k">for</span> <span class="n">dest_index</span> <span class="ow">in</span> <span class="n">dest_indices</span><span class="p">:</span>
+                        <span class="c1"># place measured bit into the classical register position(s)</span>
+                        <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">dest_index</span> <span class="o">&lt;</span> <span class="n">mem_slots</span><span class="p">:</span>
+                            <span class="n">creg</span><span class="p">[</span><span class="n">dest_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">src_bit</span>
+            <span class="c1"># Qiskit orders memory strings with bit 0 as least-significant (rightmost)</span>
+            <span class="n">memory_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">reversed</span><span class="p">(</span><span class="n">creg</span><span class="p">)))</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;memory&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">memory_list</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;shots&quot;</span><span class="p">:</span> <span class="n">shots</span><span class="p">,</span>
+        <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="n">JobStatus</span><span class="o">.</span><span class="n">DONE</span><span class="p">,</span>
+        <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span>
+        <span class="s2">&quot;header&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;memory_slots&quot;</span><span class="p">:</span> <span class="n">circuit</span><span class="o">.</span><span class="n">num_clbits</span><span class="p">,</span>
+            <span class="s2">&quot;creg_sizes&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="n">reg</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">reg</span><span class="o">.</span><span class="n">size</span><span class="p">]</span> <span class="k">for</span> <span class="n">reg</span> <span class="ow">in</span> <span class="n">circuit</span><span class="o">.</span><span class="n">cregs</span><span class="p">],</span>
+            <span class="s2">&quot;qreg_sizes&quot;</span><span class="p">:</span> <span class="p">[[</span><span class="n">reg</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">reg</span><span class="o">.</span><span class="n">size</span><span class="p">]</span> <span class="k">for</span> <span class="n">reg</span> <span class="ow">in</span> <span class="n">circuit</span><span class="o">.</span><span class="n">qregs</span><span class="p">],</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">circuit</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;metadata&quot;</span><span class="p">:</span> <span class="n">circuit</span><span class="o">.</span><span class="n">metadata</span> <span class="ow">or</span> <span class="p">{},</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_memory_mapping</span><span class="p">(</span><span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Scan the circuit for measurement instructions and collect qubit to classical bits mappings.</span>
+
+<span class="sd">    Qubits can be mapped to multiple classical bits, possibly in different classical registers.</span>
+<span class="sd">    The returned map only maps qubits referenced in a `measure` operation in the passed circuit.</span>
+<span class="sd">    Qubits not targeted by a `measure` operation will not appear in the returned result.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        circuit: the `QuantumCircuit` to analyze.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        the translation map for all measurement operations in the circuit.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; qc = QuantumCircuit(2)</span>
+<span class="sd">        &gt;&gt;&gt; qc.measure_all()</span>
+<span class="sd">        &gt;&gt;&gt; _build_memory_mapping(qc)</span>
+<span class="sd">        {0: {0}, 1: {1}}</span>
+
+<span class="sd">        &gt;&gt;&gt; qc = QuantumCircuit(2, 2)</span>
+<span class="sd">        &gt;&gt;&gt; _ = qc.measure([0, 1], [1, 0])</span>
+<span class="sd">        &gt;&gt;&gt; _build_memory_mapping(qc)</span>
+<span class="sd">        {0: {1}, 1: {0}}</span>
+
+<span class="sd">        &gt;&gt;&gt; qc = QuantumCircuit(3, 2)</span>
+<span class="sd">        &gt;&gt;&gt; _ = qc.measure([0, 1], [0, 1])</span>
+<span class="sd">        &gt;&gt;&gt; _build_memory_mapping(qc)</span>
+<span class="sd">        {0: {0}, 1: {1}}</span>
+
+<span class="sd">        &gt;&gt;&gt; qc = QuantumCircuit(4, 6)</span>
+<span class="sd">        &gt;&gt;&gt; _ = qc.measure([0, 1, 2, 3], [2, 3, 4, 5])</span>
+<span class="sd">        &gt;&gt;&gt; _build_memory_mapping(qc)</span>
+<span class="sd">        {0: {2}, 1: {3}, 2: {4}, 3: {5}}</span>
+
+<span class="sd">        &gt;&gt;&gt; qc = QuantumCircuit(3, 4)</span>
+<span class="sd">        &gt;&gt;&gt; qc.measure_all(add_bits=False)</span>
+<span class="sd">        &gt;&gt;&gt; _build_memory_mapping(qc)</span>
+<span class="sd">        {0: {0}, 1: {1}, 2: {2}}</span>
+
+<span class="sd">        &gt;&gt;&gt; qc = QuantumCircuit(3, 3)</span>
+<span class="sd">        &gt;&gt;&gt; _ = qc.x(0)</span>
+<span class="sd">        &gt;&gt;&gt; _ = qc.measure([0], [2])</span>
+<span class="sd">        &gt;&gt;&gt; _ = qc.y(1)</span>
+<span class="sd">        &gt;&gt;&gt; _ = qc.measure([1], [1])</span>
+<span class="sd">        &gt;&gt;&gt; _ = qc.x(2)</span>
+<span class="sd">        &gt;&gt;&gt; _ = qc.measure([2], [0])</span>
+<span class="sd">        &gt;&gt;&gt; _build_memory_mapping(qc)</span>
+<span class="sd">        {0: {2}, 1: {1}, 2: {0}}</span>
+
+<span class="sd">        5 qubits in two registers:</span>
+
+<span class="sd">        &gt;&gt;&gt; from qiskit import QuantumRegister, ClassicalRegister</span>
+<span class="sd">        &gt;&gt;&gt; qr0 = QuantumRegister(2)</span>
+<span class="sd">        &gt;&gt;&gt; qr1 = QuantumRegister(3)</span>
+<span class="sd">        &gt;&gt;&gt; cr = ClassicalRegister(2)</span>
+<span class="sd">        &gt;&gt;&gt; qc = QuantumCircuit(qr0, qr1, cr)</span>
+<span class="sd">        &gt;&gt;&gt; _ = qc.measure(qr0, cr)</span>
+<span class="sd">        &gt;&gt;&gt; _build_memory_mapping(qc)</span>
+<span class="sd">        {0: {0}, 1: {1}}</span>
+
+<span class="sd">        Multiple mapping of a qubit:</span>
+
+<span class="sd">        &gt;&gt;&gt; qc = QuantumCircuit(3, 3)</span>
+<span class="sd">        &gt;&gt;&gt; _ = qc.measure([0, 1], [0, 1])</span>
+<span class="sd">        &gt;&gt;&gt; _ = qc.measure([0], [2])</span>
+<span class="sd">        &gt;&gt;&gt; _build_memory_mapping(qc)</span>
+<span class="sd">        {0: {0, 2}, 1: {1}}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">qu2cl</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">set</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="n">circuit</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">instruction</span><span class="o">.</span><span class="n">operation</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;measure&quot;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">qubit</span><span class="p">,</span> <span class="n">clbit</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">instruction</span><span class="o">.</span><span class="n">qubits</span><span class="p">,</span> <span class="n">instruction</span><span class="o">.</span><span class="n">clbits</span><span class="p">):</span>
+                <span class="n">qu2cl</span><span class="p">[</span><span class="n">circuit</span><span class="o">.</span><span class="n">find_bit</span><span class="p">(</span><span class="n">qubit</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">circuit</span><span class="o">.</span><span class="n">find_bit</span><span class="p">(</span><span class="n">clbit</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">qu2cl</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_shot_to_int</span><span class="p">(</span>
+    <span class="n">fluorescence_states</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">qubit_to_bit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Format the detected fluorescence states from a single shot as an integer.</span>
+
+<span class="sd">    This follows the Qiskit ordering convention, where bit 0 in the classical register is mapped</span>
+<span class="sd">    to bit 0 in the returned integer. The first classical register in the original circuit</span>
+<span class="sd">    represents the least-significant bits in the integer representation.</span>
+
+<span class="sd">    An optional translation map from the quantum to the classical register can be applied.</span>
+<span class="sd">    If given, only the qubits registered in the translation map are present in the return value,</span>
+<span class="sd">    at the index given by the translation map.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        fluorescence_states: detected fluorescence states for this shot</span>
+<span class="sd">        qubit_to_bit: optional translation map from quantum register to classical register positions</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        integral representation of the shot result, with the translation map applied.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">       Without a translation map, the natural mapping is used (n -&gt; n):</span>
+
+<span class="sd">        &gt;&gt;&gt; _shot_to_int([1])</span>
+<span class="sd">        1</span>
+
+<span class="sd">        &gt;&gt;&gt; _shot_to_int([0, 0, 1])</span>
+<span class="sd">        4</span>
+
+<span class="sd">        &gt;&gt;&gt; _shot_to_int([0, 1, 1])</span>
+<span class="sd">        6</span>
+
+<span class="sd">        Swap qubits 1 and 2 in the classical register:</span>
+
+<span class="sd">        &gt;&gt;&gt; _shot_to_int([1, 0, 1], {0: {0}, 1: {2}, 2: {1}})</span>
+<span class="sd">        3</span>
+
+<span class="sd">        If the map is partial, only the mapped qubits are present in the output:</span>
+
+<span class="sd">        &gt;&gt;&gt; _shot_to_int([1, 0, 1], {1: {2}, 2: {1}})</span>
+<span class="sd">        2</span>
+
+<span class="sd">        One can translate into a classical register larger than the</span>
+<span class="sd">        qubit register.</span>
+
+<span class="sd">        Warning: the classical register is always initialized to 0.</span>
+
+<span class="sd">        &gt;&gt;&gt; _shot_to_int([1], {0: {1}})</span>
+<span class="sd">        2</span>
+
+<span class="sd">        &gt;&gt;&gt; _shot_to_int([0, 1, 1], {0: {3}, 1: {4}, 2: {5}}) == (0b110 &lt;&lt; 3)</span>
+<span class="sd">        True</span>
+
+<span class="sd">        or with a map larger than the qubit space:</span>
+
+<span class="sd">        &gt;&gt;&gt; _shot_to_int([1], {0: {0}, 1: {1}})</span>
+<span class="sd">        1</span>
+
+<span class="sd">        Consider the typical example of two quantum registers (the second one contains</span>
+<span class="sd">        ancilla qubits) and one classical register:</span>
+
+<span class="sd">        &gt;&gt;&gt; from qiskit import QuantumRegister, ClassicalRegister</span>
+<span class="sd">        &gt;&gt;&gt; qr_meas = QuantumRegister(2)</span>
+<span class="sd">        &gt;&gt;&gt; qr_ancilla = QuantumRegister(3)</span>
+<span class="sd">        &gt;&gt;&gt; cr = ClassicalRegister(2)</span>
+<span class="sd">        &gt;&gt;&gt; qc = QuantumCircuit(qr_meas, qr_ancilla, cr)</span>
+<span class="sd">        &gt;&gt;&gt; _ = qc.measure(qr_meas, cr)</span>
+<span class="sd">        &gt;&gt;&gt; tr_map = _build_memory_mapping(qc)</span>
+
+<span class="sd">        We assume that a single shot gave the result:</span>
+
+<span class="sd">        &gt;&gt;&gt; ancillas = [1, 1, 0]</span>
+<span class="sd">        &gt;&gt;&gt; meas = [1, 0]</span>
+
+<span class="sd">        Then the corresponding output is 0b01 (measurement qubits mapped straight</span>
+<span class="sd">        to the classical register of length 2):</span>
+
+<span class="sd">        &gt;&gt;&gt; _shot_to_int(meas + ancillas, tr_map) == 0b01</span>
+<span class="sd">        True</span>
+
+<span class="sd">        One can overwrite qr_meas[1] with qr_ancilla[0]:</span>
+
+<span class="sd">        &gt;&gt;&gt; _ = qc.measure(qr_ancilla[0], cr[1])</span>
+<span class="sd">        &gt;&gt;&gt; tr_map = _build_memory_mapping(qc)</span>
+<span class="sd">        &gt;&gt;&gt; _shot_to_int(meas + ancillas, tr_map) == 0b11</span>
+<span class="sd">        True</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tr_map</span> <span class="o">=</span> <span class="n">qubit_to_bit</span> <span class="ow">or</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">tr_map</span><span class="p">:</span>
+        <span class="c1"># allocate a zero-initialized classical register</span>
+        <span class="c1"># TODO: support pre-initialized classical registers</span>
+        <span class="n">clbits</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">tr_map</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">creg</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">clbits</span>
+
+        <span class="k">for</span> <span class="n">src_index</span><span class="p">,</span> <span class="n">dest_indices</span> <span class="ow">in</span> <span class="n">tr_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># the translation map could map more than just the measured qubits</span>
+            <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">suppress</span><span class="p">(</span><span class="ne">IndexError</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">dest_index</span> <span class="ow">in</span> <span class="n">dest_indices</span><span class="p">:</span>
+                    <span class="n">creg</span><span class="p">[</span><span class="n">dest_index</span><span class="p">]</span> <span class="o">=</span> <span class="n">fluorescence_states</span><span class="p">[</span><span class="n">src_index</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">creg</span> <span class="o">=</span> <span class="n">fluorescence_states</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="nb">int</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">left_shift</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">creg</span><span class="p">)))</span> <span class="o">*</span> <span class="n">creg</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_format_counts</span><span class="p">(</span>
+    <span class="n">samples</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="n">qubit_to_bit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Format all shots results from a circuit evaluation.</span>
+
+<span class="sd">    The returned dictionary is compatible with Qiskit&#39;s `ExperimentResultData`</span>
+<span class="sd">    `counts` field.</span>
+
+<span class="sd">    Keys are hexadecimal string representations of the detected states, with the</span>
+<span class="sd">    optional `QuantumRegister` to `ClassicalRegister` applied. Values are the occurrences</span>
+<span class="sd">    of the keys.</span>
+
+<span class="sd">    Parameters:</span>
+<span class="sd">        samples: detected qubit fluorescence states for all shots</span>
+<span class="sd">        qubit_to_bit: optional quantum to classical register translation map</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        collected counts, for `ExperimentResultData`.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &gt;&gt;&gt; _format_counts([[1, 0, 0], [0, 1, 0], [1, 0, 0]])</span>
+<span class="sd">        {&#39;0x1&#39;: 2, &#39;0x2&#39;: 1}</span>
+
+<span class="sd">        &gt;&gt;&gt; _format_counts([[1, 0, 0], [0, 1, 0], [1, 0, 0]], {0: {2}, 1: {1}, 2: {0}})</span>
+<span class="sd">        {&#39;0x4&#39;: 2, &#39;0x2&#39;: 1}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">Counter</span><span class="p">(</span><span class="nb">hex</span><span class="p">(</span><span class="n">_shot_to_int</span><span class="p">(</span><span class="n">shot</span><span class="p">,</span> <span class="n">qubit_to_bit</span><span class="p">))</span> <span class="k">for</span> <span class="n">shot</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">))</span>
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2023, Qiskit and AQT development teams
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../../_static/documentation_options.js?v=70d5d4a5"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="../../_static/thebelab-helper.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    </body>
+</html>
