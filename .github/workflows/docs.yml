@@ -3,7 +3,7 @@ name: Deploy documentation
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v1.[0-9]+.[0-9]+'
 
   # Runs on manual triggers
   workflow_dispatch:
@@ -14,9 +14,11 @@ concurrency:
 
 jobs:
   build:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: write
+    env:
+      DOCS_DEFAULT_VERSION: ${{ vars.DOCS_DEFAULT_VERSION }}
+      DOCS_VERSION_PATH: v1
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -40,23 +42,54 @@ jobs:
         run: poetry run poe version_check
       - name: Build documentation
         run: poetry run poe docs
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: 'docs/_build'
+      - name: Publish versioned docs to gh-pages
+        run: |
+          remote_url="https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git"
+          workdir="$(mktemp -d)"
 
-  deploy:
-    needs: build
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          git init "${workdir}"
+          cd "${workdir}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if git ls-remote --exit-code --heads "${remote_url}" gh-pages > /dev/null 2>&1; then
+            git fetch --depth=1 "${remote_url}" gh-pages
+            git checkout -B gh-pages FETCH_HEAD
+          else
+            git checkout --orphan gh-pages
+          fi
+
+          : "${DOCS_DEFAULT_VERSION:?Set repository variable DOCS_DEFAULT_VERSION}"
+
+          rm -rf "${DOCS_VERSION_PATH}"
+          mkdir -p "${DOCS_VERSION_PATH}"
+          cp -a "${GITHUB_WORKSPACE}/docs/_build/." "${DOCS_VERSION_PATH}/"
+
+          cat > index.html <<EOF
+          <!doctype html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta http-equiv="refresh" content="0; url=./${DOCS_DEFAULT_VERSION}/">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <link rel="canonical" href="./${DOCS_DEFAULT_VERSION}/">
+            <title>Qiskit AQT Provider documentation</title>
+            <script>
+              window.location.replace("./${DOCS_DEFAULT_VERSION}/");
+            </script>
+          </head>
+          <body>
+            <p>Redirecting to <a href="./${DOCS_DEFAULT_VERSION}/">default documentation</a>.</p>
+          </body>
+          </html>
+          EOF
+
+          touch .nojekyll
+          git add --all
+          if git diff --cached --quiet; then
+            echo "No documentation changes to publish."
+            exit 0
+          fi
+
+          git commit -m "Deploy ${DOCS_VERSION_PATH} docs for ${GITHUB_REF_NAME}"
+          git push "${remote_url}" gh-pages
