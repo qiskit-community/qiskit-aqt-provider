@@ -26,11 +26,12 @@ the following passes:
 
 import math
 from dataclasses import dataclass
+from enum import Enum, auto
 from typing import Final
 
 import numpy as np
 from qiskit import QuantumCircuit
-from qiskit.circuit import Gate, Instruction
+from qiskit.circuit import Clbit, Gate, Instruction, Qubit
 from qiskit.circuit.library import RGate, RXGate, RXXGate, RZGate
 from qiskit.circuit.tools import pi_check
 from qiskit.dagcircuit import DAGCircuit, DAGOpNode
@@ -49,6 +50,12 @@ def _rewrite_rx_as_r(theta: float) -> Instruction:
     theta = math.atan2(math.sin(theta), math.cos(theta))
     phi = math.pi if theta < 0.0 else 0.0
     return RGate(abs(theta), phi)
+
+
+class _MeasurementAction(Enum):
+    COPY = auto()
+    SKIP = auto()
+    RECORD_AND_COPY = auto()
 
 
 class RewriteRxAsR(TransformationPass):
@@ -71,6 +78,72 @@ class RewriteRxAsR(TransformationPass):
 class EnsureSingleFinalMeasurement(TransformationPass):
     """Ensure at most one measurement per qubit, only at the end of the circuit."""
 
+    @staticmethod
+    def _copy_empty_dag(dag: DAGCircuit) -> tuple[DAGCircuit, dict[Qubit, Qubit], dict[Clbit, Clbit]]:
+        """Copy the DAG structure without its operations."""
+        new_dag = DAGCircuit()
+        new_dag.name = dag.name
+        new_dag.metadata = dag.metadata.copy() if dag.metadata else {}
+        new_dag.global_phase = dag.global_phase
+
+        for qreg in dag.qregs.values():
+            new_dag.add_qreg(qreg)
+        for creg in dag.cregs.values():
+            new_dag.add_creg(creg)
+
+        # Some circuits include anonymous bits not attached to any register.
+        # Preserve them so all operation arguments are representable in the rebuilt DAG.
+        for qbit in dag.qubits:
+            if qbit not in new_dag.qubits:
+                new_dag.add_qubits([qbit])
+        for cbit in dag.clbits:
+            if cbit not in new_dag.clbits:
+                new_dag.add_clbits([cbit])
+
+        return (
+            new_dag,
+            dict(zip(dag.qubits, new_dag.qubits, strict=True)),
+            dict(zip(dag.clbits, new_dag.clbits, strict=True)),
+        )
+
+    @staticmethod
+    def _apply_mapped_op(
+        dag: DAGCircuit,
+        node: DAGOpNode,
+        qbit_map: dict[Qubit, Qubit],
+        cbit_map: dict[Clbit, Clbit],
+    ) -> None:
+        """Apply a source operation to a rebuilt DAG using the rebuilt DAG's bits."""
+        dag.apply_operation_back(
+            node.op,
+            [qbit_map[qarg] for qarg in node.qargs],
+            [cbit_map[carg] for carg in node.cargs],
+        )
+
+    @staticmethod
+    def _final_measurement_action(
+        node: DAGOpNode,
+        *,
+        seen_measure: bool,
+        measured_qubits: set[Qubit],
+    ) -> _MeasurementAction:
+        """Choose how the final-measurement pass should process a node."""
+        op_name = node.op.name
+
+        if op_name == "measure":
+            return _MeasurementAction.SKIP if node.qargs[0] in measured_qubits else _MeasurementAction.RECORD_AND_COPY
+
+        if op_name == "barrier":
+            return _MeasurementAction.SKIP if seen_measure else _MeasurementAction.COPY
+
+        if seen_measure:
+            raise TranspilerError(
+                "Measurement must only occur at the end of the circuit "
+                "(found non-measure operation after measurement)."
+            )
+
+        return _MeasurementAction.COPY
+
     @map_exceptions(TranspilerError)
     def run(self, dag: DAGCircuit) -> DAGCircuit:
         """Ensures exactly one measurement at the end of the circuit.
@@ -86,67 +159,19 @@ class EnsureSingleFinalMeasurement(TransformationPass):
             return dag
 
         seen_measure = False
-        measured_qubits = set()
-
-        # We will rebuild a filtered DAG
-        new_dag = DAGCircuit()
-        new_dag.name = dag.name
-        new_dag.metadata = dag.metadata.copy() if dag.metadata else {}
-        new_dag.global_phase = dag.global_phase
-
-        # Copy over registers
-        for qreg in dag.qregs.values():
-            new_dag.add_qreg(qreg)
-        for creg in dag.cregs.values():
-            new_dag.add_creg(creg)
-
-        # Some circuits include anonymous bits not attached to any register.
-        # Preserve them so all operation arguments are representable in the rebuilt DAG.
-        for qbit in dag.qubits:
-            if qbit not in new_dag.qubits:
-                new_dag.add_qubits([qbit])
-        for cbit in dag.clbits:
-            if cbit not in new_dag.clbits:
-                new_dag.add_clbits([cbit])
-
-        # Map source DAG bits to the corresponding bits in the rebuilt DAG.
-        qbit_map = dict(zip(dag.qubits, new_dag.qubits, strict=True))
-        cbit_map = dict(zip(dag.clbits, new_dag.clbits, strict=True))
-
-        def _apply_op(node: DAGOpNode) -> None:
-            new_dag.apply_operation_back(
-                node.op,
-                [qbit_map[qarg] for qarg in node.qargs],
-                [cbit_map[carg] for carg in node.cargs],
-            )
+        measured_qubits: set[Qubit] = set()
+        new_dag, qbit_map, cbit_map = self._copy_empty_dag(dag)
 
         for node in ops:
-            op_name = node.op.name
+            action = self._final_measurement_action(node, seen_measure=seen_measure, measured_qubits=measured_qubits)
 
-            if op_name == "measure":
-                q = node.qargs[0]
-
-                # drop duplicate measurements
-                if q in measured_qubits:
-                    continue
-
-                measured_qubits.add(q)
+            if action is _MeasurementAction.SKIP:
+                continue
+            if action is _MeasurementAction.RECORD_AND_COPY:
+                measured_qubits.add(node.qargs[0])
                 seen_measure = True
-                _apply_op(node)
 
-            elif op_name == "barrier":
-                # drop barriers after measurement starts
-                if seen_measure:
-                    continue
-                _apply_op(node)
-
-            else:
-                if seen_measure:
-                    raise TranspilerError(
-                        "Measurement must only occur at the end of the circuit "
-                        "(found non-measure operation after measurement)."
-                    )
-                _apply_op(node)
+            self._apply_mapped_op(new_dag, node, qbit_map, cbit_map)
 
         return new_dag
 
