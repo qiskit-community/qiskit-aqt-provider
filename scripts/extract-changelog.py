@@ -14,7 +14,7 @@ from mistletoe.block_token import Document
 from typing_extensions import override
 
 REVISION_HEADER_LEVEL: Final = 2
-HEADER_REGEX: Final = re.compile(r"([a-z-]+)\s+(v\d+\.\d+\.\d+)")
+HEADER_REGEX: Final = re.compile(r"([a-z-]+)\s+(v\d+\.\d+\.\d+(?:(?:a|b|rc)\d+)?(?:\.post\d+)?(?:\.dev\d+)?)")
 
 
 class Renderer(BaseRenderer):
@@ -57,8 +57,8 @@ def main(
         sys.exit(1)
 
     for node in md_ast.children:
-        current_version = None
         if isinstance(node, block_token.Heading) and node.level == REVISION_HEADER_LEVEL and node.children is not None:
+            current_version = None
             first_child = next(iter(node.children), None)
             if first_child and hasattr(first_child, "content") and (match := HEADER_REGEX.search(first_child.content)):
                 _, revision = match.groups()
