@@ -138,8 +138,7 @@ class EnsureSingleFinalMeasurement(TransformationPass):
 
         if seen_measure:
             raise TranspilerError(
-                "Measurement must only occur at the end of the circuit "
-                "(found non-measure operation after measurement)."
+                "Measurement must only occur at the end of the circuit (found non-measure operation after measurement)."
             )
 
         return _MeasurementAction.COPY
