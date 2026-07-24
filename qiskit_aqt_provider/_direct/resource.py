@@ -1,7 +1,6 @@
 from collections.abc import Sequence
 from dataclasses import dataclass
 from functools import partial
-from typing import Unpack
 
 import pydantic as pdt
 from aqt_connector.models.circuits import QuantumCircuit as AQTQuantumCircuit
@@ -11,6 +10,7 @@ from qiskit.circuit.measure import Measure
 from qiskit.circuit.parameter import Parameter
 from qiskit.providers import BackendV2, JobV1
 from qiskit.transpiler import Target
+from typing_extensions import Unpack
 
 from qiskit_aqt_provider._direct.api_client import DirectAccessAPIClient
 from qiskit_aqt_provider._direct.composite_job import (

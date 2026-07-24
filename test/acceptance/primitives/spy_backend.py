@@ -1,10 +1,10 @@
 from collections.abc import Sequence
-from typing import Unpack
 
 from qiskit.circuit import QuantumCircuit
 from qiskit.providers import BackendV2, JobV1, Options
 from qiskit.transpiler import Target
 from qiskit_aer import AerSimulator
+from typing_extensions import Unpack
 
 from qiskit_aqt_provider._offline_sim.resource import OfflineSimulatorResource, OfflineSimulatorResourceConfig
 from qiskit_aqt_provider.options import ResourceRunOptions

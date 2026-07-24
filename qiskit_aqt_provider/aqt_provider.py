@@ -1,7 +1,8 @@
 from types import TracebackType
-from typing import Self, TypeAlias
+from typing import TypeAlias
 
 from aqt_connector import ArnicaConfig
+from typing_extensions import Self
 
 from qiskit_aqt_provider._cloud.provider import CloudProvider
 from qiskit_aqt_provider._cloud.resource import CloudResource

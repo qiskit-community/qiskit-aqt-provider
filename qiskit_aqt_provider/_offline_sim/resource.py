@@ -1,6 +1,5 @@
 from collections.abc import Sequence
 from dataclasses import asdict, dataclass
-from typing import Unpack
 
 from qiskit.circuit import QuantumCircuit
 from qiskit.circuit.library import RGate, RXXGate, RZGate
@@ -9,6 +8,7 @@ from qiskit.circuit.parameter import Parameter
 from qiskit.providers import BackendV2, Options
 from qiskit.transpiler import Target
 from qiskit_aer import AerSimulator
+from typing_extensions import Unpack
 
 from qiskit_aqt_provider._offline_sim.job import OfflineSimulatorJob
 from qiskit_aqt_provider.options import ResourceRunOptions

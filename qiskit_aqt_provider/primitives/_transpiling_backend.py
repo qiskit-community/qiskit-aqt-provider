@@ -1,10 +1,10 @@
 from collections.abc import Callable, Sequence
-from typing import Unpack
 
 from qiskit import transpile
 from qiskit.circuit import QuantumCircuit
 from qiskit.providers import BackendV2, JobV1, Options
 from qiskit.transpiler import Target
+from typing_extensions import Unpack
 
 from qiskit_aqt_provider.aqt_provider import AnyAQTResource
 from qiskit_aqt_provider.options import ResourceRunOptions

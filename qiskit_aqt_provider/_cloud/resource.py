@@ -1,5 +1,3 @@
-from typing import Unpack
-
 import httpx
 import pydantic as pdt
 from aqt_connector import ArnicaApp
@@ -11,6 +9,7 @@ from qiskit.circuit.measure import Measure
 from qiskit.circuit.parameter import Parameter
 from qiskit.providers import BackendV2
 from qiskit.transpiler import Target
+from typing_extensions import Unpack
 
 from qiskit_aqt_provider._cloud.job import CloudJob
 from qiskit_aqt_provider._cloud.job_metadata import CloudJobMetadata
