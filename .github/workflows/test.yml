@@ -51,7 +51,7 @@ jobs:
         run: uv lock --check
 
       - name: Install all dependencies
-        run: uv sync --all-groups --extra test
+        run: uv sync --all-extras
 
       - name: Check pyproject.toml formatting
         run: mise run check:pyproject
