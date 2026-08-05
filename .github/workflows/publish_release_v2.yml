@@ -205,7 +205,7 @@ jobs:
   release:
     name: publish release
     runs-on: ubuntu-latest
-    environment: release
+    environment: release-v2
     needs: [preflight, acceptance]
     permissions:
       id-token: write
