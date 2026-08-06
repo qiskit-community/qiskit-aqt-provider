@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Direct Access Backends" href="direct.html"><link rel="prev" title="AQTProvider" href="provider.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>Cloud Backends - Qiskit AQT Provider 2.0.0a1</title>
+        <title>Cloud Backends - Qiskit AQT Provider 2.0.0b1</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=75810a84" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -156,7 +156,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit AQT Provider 2.0.0a1</div></a>
+      <a href="../index.html"><div class="brand">Qiskit AQT Provider 2.0.0b1</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -178,7 +178,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.0a1</span>
+  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.0b1</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -205,6 +205,7 @@
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Cloud Access</a></li>
 <li class="toctree-l1"><a class="reference internal" href="direct.html">Direct Access</a></li>
 <li class="toctree-l1"><a class="reference internal" href="offline.html">Offline Simulators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transpiler_plugin.html">Transpiler plugin</a></li>
 <li class="toctree-l1"><a class="reference internal" href="options.html">Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="exceptions.html">Exceptions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="primitives.html">Qiskit primitives</a></li>
@@ -372,14 +373,14 @@ None if no such workspace is found.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_aqt_provider._cloud.resource.CloudResource.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/1.4/qiskit.circuit.QuantumCircuit" title="(in Qiskit v1.4)"><span class="pre">QuantumCircuit</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/1.4/qiskit.circuit.QuantumCircuit" title="(in Qiskit v1.4)"><span class="pre">QuantumCircuit</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Unpack" title="(in Python v3.14)"><span class="pre">Unpack</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="options.html#qiskit_aqt_provider.options.ResourceRunOptions" title="qiskit_aqt_provider.options.ResourceRunOptions"><span class="pre">ResourceRunOptions</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#qiskit_aqt_provider._cloud.job.CloudJob" title="qiskit_aqt_provider._cloud.job.CloudJob"><span class="pre">CloudJob</span></a></span></span><a class="reference internal" href="../_modules/qiskit_aqt_provider/_cloud/resource.html#CloudResource.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_aqt_provider._cloud.resource.CloudResource.run" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuits</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v2.5)"><span class="pre">QuantumCircuit</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><span class="pre">list</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v2.5)"><span class="pre">QuantumCircuit</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Unpack" title="(in Python v3.14)"><span class="pre">Unpack</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="options.html#qiskit_aqt_provider.options.ResourceRunOptions" title="qiskit_aqt_provider.options.ResourceRunOptions"><span class="pre">ResourceRunOptions</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#qiskit_aqt_provider._cloud.job.CloudJob" title="qiskit_aqt_provider._cloud.job.CloudJob"><span class="pre">CloudJob</span></a></span></span><a class="reference internal" href="../_modules/qiskit_aqt_provider/_cloud/resource.html#CloudResource.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_aqt_provider._cloud.resource.CloudResource.run" title="Link to this definition">¶</a></dt>
 <dd><p>Run on the backend.</p>
-<p>This method returns a <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/1.4/qiskit.providers.Job" title="(in Qiskit v1.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Job</span></code></a> object that runs circuits.</p>
+<p>This method returns a <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.Job" title="(in Qiskit v2.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Job</span></code></a> object that runs circuits.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>circuits</strong> (<em>QuantumCircuit</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><em>QuantumCircuit</em><em>]</em>) – An individual or a list of <code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumCircuit</span></code>
-objects to run on the backend.</p></li>
+<li><p><strong>circuits</strong> (<em>QuantumCircuit</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><em>list</em></a><em>[</em><em>QuantumCircuit</em><em>]</em>) – An individual or a list of
+<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v2.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumCircuit</span></code></a> objects to run on the backend.</p></li>
 <li><p><strong>shots</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em> | </em><em>None</em>) – The number of shots to execute. If not provided, the default from the resource’s options
 will be used.</p></li>
 <li><p><strong>memory</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Whether to include memory in the result. If not provided, defaults to False.</p></li>
@@ -389,14 +390,14 @@ will be used.</p></li>
 <dd class="field-even"><p>The job object for the run.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Job</p>
+<dd class="field-odd"><p><a class="reference internal" href="#qiskit_aqt_provider._cloud.job.CloudJob" title="qiskit_aqt_provider._cloud.job.CloudJob">qiskit_aqt_provider._cloud.job.CloudJob</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="qiskit_aqt_provider._cloud.resource.CloudResource.target">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/1.4/qiskit.transpiler.Target" title="(in Qiskit v1.4)"><span class="pre">Target</span></a></em><a class="headerlink" href="#qiskit_aqt_provider._cloud.resource.CloudResource.target" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.transpiler.Target" title="(in Qiskit v2.5)"><span class="pre">Target</span></a></em><a class="headerlink" href="#qiskit_aqt_provider._cloud.resource.CloudResource.target" title="Link to this definition">¶</a></dt>
 <dd><p>The resource’s target.</p>
 </dd></dl>
 
@@ -408,7 +409,7 @@ will be used.</p></li>
 <dd><p>A job representing the execution of one or more circuits on an AQT cloud resource.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_aqt_provider._cloud.job.CloudJob.result">
-<span class="sig-name descname"><span class="pre">result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wait</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/1.4/qiskit.result.Result" title="(in Qiskit v1.4)"><span class="pre">Result</span></a></span></span><a class="reference internal" href="../_modules/qiskit_aqt_provider/_cloud/job.html#CloudJob.result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_aqt_provider._cloud.job.CloudJob.result" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wait</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.result.Result" title="(in Qiskit v2.5)"><span class="pre">Result</span></a></span></span><a class="reference internal" href="../_modules/qiskit_aqt_provider/_cloud/job.html#CloudJob.result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_aqt_provider._cloud.job.CloudJob.result" title="Link to this definition">¶</a></dt>
 <dd><p>Blocks until the job finishes processing then returns the result.</p>
 <p>If an error occurs, the remaining circuits are not executed and the whole job is marked as failed.</p>
 <dl class="field-list simple">
@@ -417,7 +418,8 @@ will be used.</p></li>
 <li><p><a class="reference internal" href="exceptions.html#qiskit_aqt_provider.api_client.errors.APIError" title="qiskit_aqt_provider.api_client.errors.APIError"><strong>APIError</strong></a> – the operation failed on the target resource.</p></li>
 <li><p><a class="reference internal" href="exceptions.html#qiskit_aqt_provider.exceptions.AQTJobInvalidStateError" title="qiskit_aqt_provider.exceptions.AQTJobInvalidStateError"><strong>AQTJobInvalidStateError</strong></a> – if the job was cancelled.</p></li>
 <li><p><a class="reference internal" href="exceptions.html#qiskit_aqt_provider.exceptions.AQTJobFailedError" title="qiskit_aqt_provider.exceptions.AQTJobFailedError"><strong>AQTJobFailedError</strong></a> – if the job failed with an error.</p></li>
-<li><p><strong>JobTimeoutError</strong> – If the job does not reach a final state before the specified timeout.</p></li>
+<li><p><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/providers#qiskit.providers.JobTimeoutError" title="(in Qiskit v2.5)"><strong>qiskit.providers.exceptions.JobTimeoutError</strong></a> – If the job does not reach a final state before the specified
+    timeout.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -428,8 +430,8 @@ will be used.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_aqt_provider._cloud.job.CloudJob.status">
-<span class="sig-name descname"><span class="pre">status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/1.4/qiskit.providers.JobStatus" title="(in Qiskit v1.4)"><span class="pre">JobStatus</span></a></span></span><a class="reference internal" href="../_modules/qiskit_aqt_provider/_cloud/job.html#CloudJob.status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_aqt_provider._cloud.job.CloudJob.status" title="Link to this definition">¶</a></dt>
-<dd><p>Return the status of the job, among the values of <code class="docutils literal notranslate"><span class="pre">JobStatus</span></code>.</p>
+<span class="sig-name descname"><span class="pre">status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.JobStatus" title="(in Qiskit v2.5)"><span class="pre">JobStatus</span></a></span></span><a class="reference internal" href="../_modules/qiskit_aqt_provider/_cloud/job.html#CloudJob.status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_aqt_provider._cloud.job.CloudJob.status" title="Link to this definition">¶</a></dt>
+<dd><p>Return the status of the job, among the values of <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.JobStatus" title="(in Qiskit v2.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">JobStatus</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -446,7 +448,7 @@ will be used.</p></li>
 <dd class="field-even"><p>The current status of the job.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>JobStatus</p>
+<dd class="field-odd"><p><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.JobStatus" title="(in Qiskit v2.5)">qiskit.providers.JobStatus</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -646,7 +648,7 @@ invalid and always raises a RuntimeError.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=944fa962"></script>
+</div><script src="../_static/documentation_options.js?v=391fd9ae"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>

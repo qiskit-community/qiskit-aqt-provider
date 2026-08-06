@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>qiskit_aqt_provider._cloud.resource - Qiskit AQT Provider 2.0.0a1</title>
+        <title>qiskit_aqt_provider._cloud.resource - Qiskit AQT Provider 2.0.0b1</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=75810a84" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -156,7 +156,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit AQT Provider 2.0.0a1</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit AQT Provider 2.0.0b1</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -178,7 +178,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.0a1</span>
+  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.0b1</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
@@ -205,6 +205,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/cloud.html">Cloud Access</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/direct.html">Direct Access</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/offline.html">Offline Simulators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/transpiler_plugin.html">Transpiler plugin</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/options.html">Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/exceptions.html">Exceptions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/primitives.html">Qiskit primitives</a></li>
@@ -245,9 +246,7 @@
         </div>
         <article role="main" id="furo-main-content">
           <h1>Source code for qiskit_aqt_provider._cloud.resource</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Unpack</span>
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">httpx</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">httpx</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pdt</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aqt_connector</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArnicaApp</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aqt_connector.models.arnica.response_bodies.jobs</span><span class="w"> </span><span class="kn">import</span> <span class="n">SubmitJobResponse</span>
@@ -258,6 +257,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit.parameter</span><span class="w"> </span><span class="kn">import</span> <span class="n">Parameter</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BackendV2</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.transpiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">Target</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Unpack</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aqt_provider._cloud.job</span><span class="w"> </span><span class="kn">import</span> <span class="n">CloudJob</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aqt_provider._cloud.job_metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">CloudJobMetadata</span>
@@ -328,14 +328,14 @@
 <span class="sd">        This method returns a :class:`~qiskit.providers.Job` object that runs circuits.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            circuits (QuantumCircuit or list[QuantumCircuit]): An individual or a list of :class:`.QuantumCircuit`</span>
-<span class="sd">                objects to run on the backend.</span>
+<span class="sd">            circuits (QuantumCircuit or list[QuantumCircuit]): An individual or a list of</span>
+<span class="sd">                :class:`~qiskit.circuit.QuantumCircuit` objects to run on the backend.</span>
 <span class="sd">            shots (int | None): The number of shots to execute. If not provided, the default from the resource&#39;s options</span>
 <span class="sd">                will be used.</span>
 <span class="sd">            memory (bool): Whether to include memory in the result. If not provided, defaults to False.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            Job: The job object for the run.</span>
+<span class="sd">            qiskit_aqt_provider._cloud.job.CloudJob: The job object for the run.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">circuits</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">circuits</span> <span class="o">=</span> <span class="p">[</span><span class="n">circuits</span><span class="p">]</span>
@@ -415,7 +415,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=944fa962"></script>
+</div><script src="../../../_static/documentation_options.js?v=391fd9ae"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>qiskit_aqt_provider._direct.resource - Qiskit AQT Provider 2.0.0a1</title>
+        <title>qiskit_aqt_provider._direct.resource - Qiskit AQT Provider 2.0.0b1</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=75810a84" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -156,7 +156,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit AQT Provider 2.0.0a1</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit AQT Provider 2.0.0b1</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -178,7 +178,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.0a1</span>
+  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.0b1</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
@@ -205,6 +205,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/cloud.html">Cloud Access</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/direct.html">Direct Access</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/offline.html">Offline Simulators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/transpiler_plugin.html">Transpiler plugin</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/options.html">Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/exceptions.html">Exceptions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/primitives.html">Qiskit primitives</a></li>
@@ -248,7 +249,6 @@
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Unpack</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pdt</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aqt_connector.models.circuits</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantumCircuit</span> <span class="k">as</span> <span class="n">AQTQuantumCircuit</span>
@@ -258,6 +258,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit.parameter</span><span class="w"> </span><span class="kn">import</span> <span class="n">Parameter</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.providers</span><span class="w"> </span><span class="kn">import</span> <span class="n">BackendV2</span><span class="p">,</span> <span class="n">JobV1</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.transpiler</span><span class="w"> </span><span class="kn">import</span> <span class="n">Target</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing_extensions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Unpack</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aqt_provider._direct.api_client</span><span class="w"> </span><span class="kn">import</span> <span class="n">DirectAccessAPIClient</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aqt_provider._direct.composite_job</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -337,7 +338,7 @@
 <span class="sd">            memory (bool | None): Whether to return memory slots. Default is False.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            JobV1: The job representing the execution of the circuit(s).</span>
+<span class="sd">            qiskit.providers.JobV1: The job representing the execution of the circuit(s).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">memory</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;memory&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">False</span>
         <span class="n">shots</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shots&quot;</span><span class="p">)</span>
@@ -434,7 +435,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=944fa962"></script>
+</div><script src="../../../_static/documentation_options.js?v=391fd9ae"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

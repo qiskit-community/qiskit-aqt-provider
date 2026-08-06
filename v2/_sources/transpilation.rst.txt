@@ -51,7 +51,7 @@ Transpiler bypass
 
 .. warning:: We highly recommend to always use the built-in transpiler, at least with ``optimization_level=0``. This guarantees that the quantum circuit is valid for submission to the AQT cloud. In particular, it wraps the gate parameters to fit in the restricted ranges accepted by the `AQT API <https://arnica.aqt.eu/api/v1/docs>`_. In addition, higher optimization levels may significantly improve the circuit execution speed.
 
-If a circuit is already defined in terms of the :ref:`native gates set <basis-gates>` with their restricted parameter ranges and no optimization is wanted, it can be submitted for execution without any additional transformation using the :meth:`AQTResource.run <qiskit_aqt_provider.aqt_resource.AQTResource.run>` method:
+If a circuit is already defined in terms of the :ref:`native gates set <basis-gates>` with their restricted parameter ranges and no optimization is wanted, it can be submitted for execution without any additional transformation using the :meth:`run <qiskit.providers.BackendV2.run>` method:
 
 .. jupyter-execute::
 

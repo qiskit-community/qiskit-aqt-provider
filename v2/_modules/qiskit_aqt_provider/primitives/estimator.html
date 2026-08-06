@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>qiskit_aqt_provider.primitives.estimator - Qiskit AQT Provider 2.0.0a1</title>
+        <title>qiskit_aqt_provider.primitives.estimator - Qiskit AQT Provider 2.0.0b1</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=75810a84" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -156,7 +156,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit AQT Provider 2.0.0a1</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit AQT Provider 2.0.0b1</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -178,7 +178,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.0a1</span>
+  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.0b1</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
@@ -205,6 +205,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/cloud.html">Cloud Access</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/direct.html">Direct Access</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/offline.html">Offline Simulators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/transpiler_plugin.html">Transpiler plugin</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/options.html">Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/exceptions.html">Exceptions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/primitives.html">Qiskit primitives</a></li>
@@ -277,7 +278,7 @@
 <span class="sd">    when it is run.</span>
 
 <span class="sd">    Providing options to the :class:`AQTEstimator` on instantiation will affect all circuit evaluations.</span>
-<span class="sd">    Setting :class:`options &lt;qiskit_aqt_provider.aqt_options.AQTOptions&gt;` on the backend has the same effect.</span>
+<span class="sd">    Setting options on the backend has the same effect.</span>
 <span class="sd">    Passing options in :meth:`AQTEstimator.run &lt;qiskit.primitives.BaseEstimatorV2.run&gt;` restricts the effect to that</span>
 <span class="sd">    evaluation.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -305,12 +306,13 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Run the given estimator PUBs on the AQT backend.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            pubs (Iterable[EstimatorPubLike]): An iterable of estimator PUBs, which may include parameterized</span>
+<span class="sd">            pubs (Iterable): An iterable of estimator PUBs, which may include parameterized</span>
 <span class="sd">                circuits and associated parameter values.</span>
-<span class="sd">            precision (float | None, optional): The precision to use for the estimation. Defaults to None.</span>
+<span class="sd">            precision (float | None): The precision to use for the estimation. Defaults to None.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            BasePrimitiveJob[PrimitiveResult[PubResult]]: A job representing the execution of the estimator PUBs.</span>
+<span class="sd">            qiskit.primitives.BasePrimitiveJob[qiskit.primitives.PrimitiveResult[qiskit.primitives.PubResult]]: A job</span>
+<span class="sd">            representing the execution of the estimator PUBs.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">wrapped_backend</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend_factory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">)</span>
         <span class="n">delegate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">estimator_factory</span><span class="p">(</span><span class="n">wrapped_backend</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">)</span>
@@ -349,7 +351,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=944fa962"></script>
+</div><script src="../../../_static/documentation_options.js?v=391fd9ae"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

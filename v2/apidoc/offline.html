@@ -3,10 +3,10 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Options" href="options.html"><link rel="prev" title="Direct Access Backends" href="direct.html">
+<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Transpiler plugin" href="transpiler_plugin.html"><link rel="prev" title="Direct Access Backends" href="direct.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>Offline Simulators - Qiskit AQT Provider 2.0.0a1</title>
+        <title>Offline Simulators - Qiskit AQT Provider 2.0.0b1</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=75810a84" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -156,7 +156,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit AQT Provider 2.0.0a1</div></a>
+      <a href="../index.html"><div class="brand">Qiskit AQT Provider 2.0.0b1</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -178,7 +178,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.0a1</span>
+  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.0b1</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -205,6 +205,7 @@
 <li class="toctree-l1"><a class="reference internal" href="cloud.html">Cloud Access</a></li>
 <li class="toctree-l1"><a class="reference internal" href="direct.html">Direct Access</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Offline Simulators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="transpiler_plugin.html">Transpiler plugin</a></li>
 <li class="toctree-l1"><a class="reference internal" href="options.html">Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="exceptions.html">Exceptions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="primitives.html">Qiskit primitives</a></li>
@@ -289,7 +290,7 @@
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_aqt_provider._offline_sim.resource.OfflineSimulatorResource.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/1.4/qiskit.circuit.QuantumCircuit" title="(in Qiskit v1.4)"><span class="pre">QuantumCircuit</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence" title="(in Python v3.14)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/1.4/qiskit.circuit.QuantumCircuit" title="(in Qiskit v1.4)"><span class="pre">QuantumCircuit</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Unpack" title="(in Python v3.14)"><span class="pre">Unpack</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="options.html#qiskit_aqt_provider.options.ResourceRunOptions" title="qiskit_aqt_provider.options.ResourceRunOptions"><span class="pre">ResourceRunOptions</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#qiskit_aqt_provider._offline_sim.job.OfflineSimulatorJob" title="qiskit_aqt_provider._offline_sim.job.OfflineSimulatorJob"><span class="pre">OfflineSimulatorJob</span></a></span></span><a class="reference internal" href="../_modules/qiskit_aqt_provider/_offline_sim/resource.html#OfflineSimulatorResource.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_aqt_provider._offline_sim.resource.OfflineSimulatorResource.run" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">circuit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v2.5)"><span class="pre">QuantumCircuit</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Sequence" title="(in Python v3.14)"><span class="pre">Sequence</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v2.5)"><span class="pre">QuantumCircuit</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Unpack" title="(in Python v3.14)"><span class="pre">Unpack</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="options.html#qiskit_aqt_provider.options.ResourceRunOptions" title="qiskit_aqt_provider.options.ResourceRunOptions"><span class="pre">ResourceRunOptions</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#qiskit_aqt_provider._offline_sim.job.OfflineSimulatorJob" title="qiskit_aqt_provider._offline_sim.job.OfflineSimulatorJob"><span class="pre">OfflineSimulatorJob</span></a></span></span><a class="reference internal" href="../_modules/qiskit_aqt_provider/_offline_sim/resource.html#OfflineSimulatorResource.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_aqt_provider._offline_sim.resource.OfflineSimulatorResource.run" title="Link to this definition">¶</a></dt>
 <dd><p>Run a quantum circuit or a sequence of quantum circuits on the offline simulator.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -312,7 +313,7 @@ will be used.</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="qiskit_aqt_provider._offline_sim.resource.OfflineSimulatorResource.target">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/1.4/qiskit.transpiler.Target" title="(in Qiskit v1.4)"><span class="pre">Target</span></a></em><a class="headerlink" href="#qiskit_aqt_provider._offline_sim.resource.OfflineSimulatorResource.target" title="Link to this definition">¶</a></dt>
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">target</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.transpiler.Target" title="(in Qiskit v2.5)"><span class="pre">Target</span></a></em><a class="headerlink" href="#qiskit_aqt_provider._offline_sim.resource.OfflineSimulatorResource.target" title="Link to this definition">¶</a></dt>
 <dd><p>The resource’s target.</p>
 </dd></dl>
 
@@ -323,13 +324,13 @@ will be used.</p></li>
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_aqt_provider._offline_sim.job.</span></span><span class="sig-name descname"><span class="pre">OfflineSimulatorJob</span></span><a class="reference internal" href="../_modules/qiskit_aqt_provider/_offline_sim/job.html#OfflineSimulatorJob"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_aqt_provider._offline_sim.job.OfflineSimulatorJob" title="Link to this definition">¶</a></dt>
 <dd><dl class="py method">
 <dt class="sig sig-object py" id="qiskit_aqt_provider._offline_sim.job.OfflineSimulatorJob.result">
-<span class="sig-name descname"><span class="pre">result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/1.4/qiskit.result.Result" title="(in Qiskit v1.4)"><span class="pre">Result</span></a></span></span><a class="reference internal" href="../_modules/qiskit_aqt_provider/_offline_sim/job.html#OfflineSimulatorJob.result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_aqt_provider._offline_sim.job.OfflineSimulatorJob.result" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">result</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.result.Result" title="(in Qiskit v2.5)"><span class="pre">Result</span></a></span></span><a class="reference internal" href="../_modules/qiskit_aqt_provider/_offline_sim/job.html#OfflineSimulatorJob.result"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_aqt_provider._offline_sim.job.OfflineSimulatorJob.result" title="Link to this definition">¶</a></dt>
 <dd><p>Return the results of the job.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_aqt_provider._offline_sim.job.OfflineSimulatorJob.status">
-<span class="sig-name descname"><span class="pre">status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/1.4/qiskit.providers.JobStatus" title="(in Qiskit v1.4)"><span class="pre">JobStatus</span></a></span></span><a class="reference internal" href="../_modules/qiskit_aqt_provider/_offline_sim/job.html#OfflineSimulatorJob.status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_aqt_provider._offline_sim.job.OfflineSimulatorJob.status" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">status</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.JobStatus" title="(in Qiskit v2.5)"><span class="pre">JobStatus</span></a></span></span><a class="reference internal" href="../_modules/qiskit_aqt_provider/_offline_sim/job.html#OfflineSimulatorJob.status"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_aqt_provider._offline_sim.job.OfflineSimulatorJob.status" title="Link to this definition">¶</a></dt>
 <dd><p>Return the status of the underlying Aer job.</p>
 </dd></dl>
 
@@ -355,12 +356,12 @@ invalid and always raises a RuntimeError.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="options.html">
+          <a class="next-page" href="transpiler_plugin.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Options</div>
+                <div class="title">Transpiler plugin</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -435,7 +436,7 @@ invalid and always raises a RuntimeError.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=944fa962"></script>
+</div><script src="../_static/documentation_options.js?v=391fd9ae"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>

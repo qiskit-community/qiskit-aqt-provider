@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Migrating to 2.0" href="migrating.html"><link rel="prev" title="User guide" href="direct.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>Quantum circuit evaluation - Qiskit AQT Provider 2.0.0a1</title>
+        <title>Quantum circuit evaluation - Qiskit AQT Provider 2.0.0b1</title>
       <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=75810a84" />
     <link rel="stylesheet" type="text/css" href="_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -156,7 +156,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Qiskit AQT Provider 2.0.0a1</div></a>
+      <a href="index.html"><div class="brand">Qiskit AQT Provider 2.0.0b1</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -178,7 +178,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.0a1</span>
+  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.0b1</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="search.html" role="search">
@@ -205,6 +205,7 @@
 <li class="toctree-l1"><a class="reference internal" href="apidoc/cloud.html">Cloud Access</a></li>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/direct.html">Direct Access</a></li>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/offline.html">Offline Simulators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apidoc/transpiler_plugin.html">Transpiler plugin</a></li>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/options.html">Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/exceptions.html">Exceptions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/primitives.html">Qiskit primitives</a></li>
@@ -254,7 +255,7 @@
 <span id="evaluation"></span><h1>Quantum circuit evaluation<a class="headerlink" href="#quantum-circuit-evaluation" title="Link to this heading">¶</a></h1>
 <section id="single-circuit-evaluation">
 <h2>Single circuit evaluation<a class="headerlink" href="#single-circuit-evaluation" title="Link to this heading">¶</a></h2>
-<p>Basic quantum circuit execution follows the regular Qiskit workflow. A quantum circuit is defined by a <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/1.4/qiskit.circuit.QuantumCircuit" title="(in Qiskit v1.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumCircuit</span></code></a> instance:</p>
+<p>Basic quantum circuit execution follows the regular Qiskit workflow. A quantum circuit is defined by a <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.QuantumCircuit" title="(in Qiskit v2.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QuantumCircuit</span></code></a> instance:</p>
 <div class="highlight-python notranslate" id="bell-state-circuit"><div class="highlight"><pre><span></span><span class="n">circuit</span> <span class="o">=</span> <span class="n">qiskit</span><span class="o">.</span><span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 <span class="n">circuit</span><span class="o">.</span><span class="n">h</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">circuit</span><span class="o">.</span><span class="n">cx</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -265,14 +266,14 @@
 <p class="admonition-title">Warning</p>
 <p>AQT backends currently require a single projective measurement as last operation in a circuit. The hardware implementation always targets all the qubits in the quantum register, even if the circuit defines a partial measurement.</p>
 </div>
-<p>Prior to execution circuits must be transpiled to only use gates supported by the selected backend. The transpiler’s entry point is the <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/1.4/compiler#qiskit.compiler.transpile" title="(in Qiskit v1.4)"><code class="xref py py-func docutils literal notranslate"><span class="pre">qiskit.transpile</span></code></a> function. See <a class="reference internal" href="transpilation.html#transpilation"><span class="std std-ref">Quantum circuit transpilation</span></a> for more information.</p>
+<p>Prior to execution circuits must be transpiled to only use gates supported by the selected backend. The transpiler’s entry point is the <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/compiler#qiskit.compiler.transpile" title="(in Qiskit v2.5)"><code class="xref py py-func docutils literal notranslate"><span class="pre">qiskit.transpile</span></code></a> function. See <a class="reference internal" href="transpilation.html#transpilation"><span class="std std-ref">Quantum circuit transpilation</span></a> for more information.</p>
 <p>The <code class="code docutils literal notranslate"><span class="pre">run</span></code> method of all AQT backends submits the circuit for execution on a backend and immediately returns the corresponding job handle:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">transpiled_circuit</span> <span class="o">=</span> <span class="n">qiskit</span><span class="o">.</span><span class="n">transpile</span><span class="p">(</span><span class="n">circuit</span><span class="p">,</span> <span class="n">backend</span><span class="p">)</span>
 <span class="n">job</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">transpiled_circuit</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Each type of resource (cloud, direct access, or offline simulator) has a corresponding job class, all of which implement the <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/1.4/qiskit.providers.JobV1" title="(in Qiskit v1.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">JobV1</span></code></a> interface. The returned job handle can be used to monitor the execution and retrieve results once the job completes.</p>
-<p>The <code class="code docutils literal notranslate"><span class="pre">result</span></code> method blocks until the job completes, whether successfully or not. The return type is a standard Qiskit <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/1.4/qiskit.result.Result" title="(in Qiskit v1.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Result</span></code></a> instance:</p>
+<p>Each type of resource (cloud, direct access, or offline simulator) has a corresponding job class, all of which implement the <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.JobV1" title="(in Qiskit v2.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">JobV1</span></code></a> interface. The returned job handle can be used to monitor the execution and retrieve results once the job completes.</p>
+<p>The <code class="code docutils literal notranslate"><span class="pre">result</span></code> method blocks until the job completes, whether successfully or not. The return type is a standard Qiskit <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.result.Result" title="(in Qiskit v2.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Result</span></code></a> instance:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
 
 <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
@@ -285,12 +286,12 @@
 </section>
 <section id="batch-circuits-evaluation">
 <h2>Batch circuits evaluation<a class="headerlink" href="#batch-circuits-evaluation" title="Link to this heading">¶</a></h2>
-<p>The resource’s <code class="code docutils literal notranslate"><span class="pre">run</span></code> method can also be given a list of quantum circuits to execute as a batch. The returned <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/1.4/qiskit.providers.JobV1" title="(in Qiskit v1.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">JobV1</span></code></a> is a handle for all the circuit executions.</p>
+<p>The resource’s <code class="code docutils literal notranslate"><span class="pre">run</span></code> method can also be given a list of quantum circuits to execute as a batch. The returned <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.JobV1" title="(in Qiskit v2.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">JobV1</span></code></a> is a handle for all the circuit executions.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Displaying job progress with a progress bar - as was possible in the v1 provider - is not (yet) supported by the v2 provider.</p>
 </div>
-<p>The result of a batch job is also a standard Qiskit <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/1.4/qiskit.result.Result" title="(in Qiskit v1.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Result</span></code></a> instance. The <cite>success</cite> marker is true if and only if all individual circuits were successfully executed:</p>
+<p>The result of a batch job is also a standard Qiskit <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.result.Result" title="(in Qiskit v2.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Result</span></code></a> instance. The <cite>success</cite> marker is true if and only if all individual circuits were successfully executed:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">job</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
 
 <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
@@ -301,7 +302,7 @@
 </div>
 <div class="admonition attention">
 <p class="admonition-title">Attention</p>
-<p>In a batch job, the execution order of circuits is not guaranteed. In the <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/1.4/qiskit.result.Result" title="(in Qiskit v1.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Result</span></code></a> instance, however, results are listed in submission order.</p>
+<p>In a batch job, the execution order of circuits is not guaranteed. In the <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.result.Result" title="(in Qiskit v2.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Result</span></code></a> instance, however, results are listed in submission order.</p>
 </div>
 </section>
 <section id="job-handle-persistence">
@@ -313,10 +314,10 @@
 </section>
 <section id="using-qiskit-primitives">
 <h2>Using Qiskit primitives<a class="headerlink" href="#using-qiskit-primitives" title="Link to this heading">¶</a></h2>
-<p>Circuit evaluation can also be performed using <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/1.4/primitives#module-qiskit.primitives" title="(in Qiskit v1.4)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Qiskit</span> <span class="pre">primitives</span></code></a> through their specialized implementations for AQT backends <a class="reference internal" href="apidoc/primitives.html#qiskit_aqt_provider.primitives.sampler.AQTSampler" title="qiskit_aqt_provider.primitives.sampler.AQTSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">AQTSampler</span></code></a> and <a class="reference internal" href="apidoc/primitives.html#qiskit_aqt_provider.primitives.estimator.AQTEstimator" title="qiskit_aqt_provider.primitives.estimator.AQTEstimator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AQTEstimator</span></code></a>. These classes expose the <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/1.4/qiskit.primitives.BaseSamplerV2" title="(in Qiskit v1.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseSamplerV2</span></code></a> and <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/1.4/qiskit.primitives.BaseEstimatorV2" title="(in Qiskit v1.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseEstimatorV2</span></code></a> interfaces respectively.</p>
+<p>Circuit evaluation can also be performed using <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/primitives#module-qiskit.primitives" title="(in Qiskit v2.5)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Qiskit</span> <span class="pre">primitives</span></code></a> through their specialized implementations for AQT backends <a class="reference internal" href="apidoc/primitives.html#qiskit_aqt_provider.primitives.sampler.AQTSampler" title="qiskit_aqt_provider.primitives.sampler.AQTSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">AQTSampler</span></code></a> and <a class="reference internal" href="apidoc/primitives.html#qiskit_aqt_provider.primitives.estimator.AQTEstimator" title="qiskit_aqt_provider.primitives.estimator.AQTEstimator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AQTEstimator</span></code></a>. These classes expose the <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.primitives.BaseSamplerV2" title="(in Qiskit v2.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseSamplerV2</span></code></a> and <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.primitives.BaseEstimatorV2" title="(in Qiskit v2.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseEstimatorV2</span></code></a> interfaces respectively.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>The generic implementations <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/1.4/qiskit.primitives.BackendSampler" title="(in Qiskit v1.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">BackendSampler</span></code></a> and <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/1.4/qiskit.primitives.BackendEstimator" title="(in Qiskit v1.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">BackendEstimator</span></code></a> are <strong>not</strong> compatible with backends retrieved from the <a class="reference internal" href="apidoc/provider.html#qiskit_aqt_provider.aqt_provider.AQTProvider" title="qiskit_aqt_provider.aqt_provider.AQTProvider"><code class="xref py py-class docutils literal notranslate"><span class="pre">AQTProvider</span></code></a>. Please use the specialized implementations <a class="reference internal" href="apidoc/primitives.html#qiskit_aqt_provider.primitives.sampler.AQTSampler" title="qiskit_aqt_provider.primitives.sampler.AQTSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">AQTSampler</span></code></a> and <a class="reference internal" href="apidoc/primitives.html#qiskit_aqt_provider.primitives.estimator.AQTEstimator" title="qiskit_aqt_provider.primitives.estimator.AQTEstimator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AQTEstimator</span></code></a> instead.</p>
+<p>The generic implementations <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.primitives.BackendSamplerV2" title="(in Qiskit v2.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">BackendSamplerV2</span></code></a> and <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.primitives.BackendEstimatorV2" title="(in Qiskit v2.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">BackendEstimatorV2</span></code></a> are <strong>not</strong> compatible with backends retrieved from the <a class="reference internal" href="apidoc/provider.html#qiskit_aqt_provider.aqt_provider.AQTProvider" title="qiskit_aqt_provider.aqt_provider.AQTProvider"><code class="xref py py-class docutils literal notranslate"><span class="pre">AQTProvider</span></code></a>. Please use the specialized implementations <a class="reference internal" href="apidoc/primitives.html#qiskit_aqt_provider.primitives.sampler.AQTSampler" title="qiskit_aqt_provider.primitives.sampler.AQTSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">AQTSampler</span></code></a> and <a class="reference internal" href="apidoc/primitives.html#qiskit_aqt_provider.primitives.estimator.AQTEstimator" title="qiskit_aqt_provider.primitives.estimator.AQTEstimator"><code class="xref py py-class docutils literal notranslate"><span class="pre">AQTEstimator</span></code></a> instead.</p>
 </div>
 <p>For example, the <a class="reference internal" href="apidoc/primitives.html#qiskit_aqt_provider.primitives.sampler.AQTSampler" title="qiskit_aqt_provider.primitives.sampler.AQTSampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">AQTSampler</span></code></a> can evaluate bitstring quasi-probabilities for a given circuit. Using the <a class="reference internal" href="#bell-state-circuit"><span class="std std-ref">Bell state circuit</span></a> defined above, we see that the states <span class="math notranslate nohighlight">\(|00\rangle\)</span> and <span class="math notranslate nohighlight">\(|11\rangle\)</span> roughly have the same quasi-probability:</p>
 <div class="jupyter_cell docutils container">
@@ -365,7 +366,7 @@
 </div>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>The circuit passed to estimator’s <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/1.4/qiskit.primitives.BaseEstimatorV2#run" title="(in Qiskit v1.4)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run</span></code></a> method is used to prepare the state the observable is evaluated in. Therefore, it must not contain unconditional measurement operations.</p>
+<p>The circuit passed to estimator’s <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.primitives.BaseEstimatorV2#run" title="(in Qiskit v2.5)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run</span></code></a> method is used to prepare the state the observable is evaluated in. Therefore, it must not contain unconditional measurement operations.</p>
 </div>
 </section>
 </section>
@@ -441,7 +442,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=944fa962"></script>
+</div><script src="_static/documentation_options.js?v=391fd9ae"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
