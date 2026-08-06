@@ -76,8 +76,8 @@ class CloudResource(BackendV2, TranspilerMixin):
         This method returns a :class:`~qiskit.providers.Job` object that runs circuits.
 
         Args:
-            circuits (QuantumCircuit or list[QuantumCircuit]): An individual or a list of :class:`~qiskit.circuit.QuantumCircuit`
-                objects to run on the backend.
+            circuits (QuantumCircuit or list[QuantumCircuit]): An individual or a list of
+                :class:`~qiskit.circuit.QuantumCircuit` objects to run on the backend.
             shots (int | None): The number of shots to execute. If not provided, the default from the resource's options
                 will be used.
             memory (bool): Whether to include memory in the result. If not provided, defaults to False.

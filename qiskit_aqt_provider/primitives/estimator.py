@@ -56,7 +56,8 @@ class AQTEstimator(BaseEstimatorV2):
             precision (float | None): The precision to use for the estimation. Defaults to None.
 
         Returns:
-            qiskit.primitives.BasePrimitiveJob[qiskit.primitives.PrimitiveResult[qiskit.primitives.PubResult]]: A job representing the execution of the estimator PUBs.
+            qiskit.primitives.BasePrimitiveJob[qiskit.primitives.PrimitiveResult[qiskit.primitives.PubResult]]: A job
+            representing the execution of the estimator PUBs.
         """
         wrapped_backend = self.backend_factory(self.backend)
         delegate = self.estimator_factory(wrapped_backend, self._options)

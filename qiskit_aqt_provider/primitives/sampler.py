@@ -36,7 +36,8 @@ class AQTSampler(BaseSamplerV2):
             shots (int | None): The number of shots to use for each circuit. Defaults to None.
 
         Returns:
-            qiskit.primitives.BasePrimitiveJob[qiskit.primitives.PrimitiveResult[qiskit.primitives.SamplerPubResult]]: A job representing the execution of the sampler PUBs.
+            qiskit.primitives.BasePrimitiveJob[qiskit.primitives.PrimitiveResult[qiskit.primitives.SamplerPubResult]]: A
+            job representing the execution of the sampler PUBs.
         """
         wrapped_backend = self.backend_factory(self.backend)
         delegate = self.sampler_factory(wrapped_backend, self._options)

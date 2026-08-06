@@ -52,7 +52,8 @@ class DirectAccessJob(JobV1):
             APIError: the operation failed on the target resource.
             AQTJobInvalidStateError: if the job was cancelled.
             AQTJobFailedError: if the job failed with an error.
-            qiskit.providers.exceptions.JobTimeoutError: If the job does not reach a final state before the specified timeout.
+            qiskit.providers.exceptions.JobTimeoutError: If the job does not reach a final state before the specified
+                timeout.
 
         Returns:
             The result of the circuit evaluation.
