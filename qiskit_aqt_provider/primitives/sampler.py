@@ -31,12 +31,12 @@ class AQTSampler(BaseSamplerV2):
         """Run the given sampler PUBs on the AQT backend.
 
         Args:
-            pubs (Iterable[SamplerPubLike]): An iterable of sampler PUBs, which may include parameterized
+            pubs (Iterable): An iterable of sampler PUBs, which may include parameterized
                 circuits and associated parameter values.
-            shots (int | None, optional): The number of shots to use for each circuit. Defaults to None.
+            shots (int | None): The number of shots to use for each circuit. Defaults to None.
 
         Returns:
-            BasePrimitiveJob[PrimitiveResult[SamplerPubResult]]: A job representing the execution of the sampler PUBs.
+            qiskit.primitives.BasePrimitiveJob[qiskit.primitives.PrimitiveResult[qiskit.primitives.SamplerPubResult]]: A job representing the execution of the sampler PUBs.
         """
         wrapped_backend = self.backend_factory(self.backend)
         delegate = self.sampler_factory(wrapped_backend, self._options)

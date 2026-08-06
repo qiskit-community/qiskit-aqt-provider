@@ -54,15 +54,28 @@ nitpick_ignore = [
     ("py:class", "pydantic.main.BaseModel"),
     ("py:class", "Backend"),
     ("py:class", "Target"),
+    ("py:class", "AuthenticationConfig"),
+    ("py:class", "BasePrimitiveJob"),
+    ("py:class", "EstimatorPubLike"),
+    ("py:class", "Job"),
+    ("py:class", "JobStatus"),
+    ("py:class", "JobV1"),
+    ("py:class", "Path"),
+    ("py:class", "PrimitiveResult"),
+    ("py:class", "PubResult"),
+    ("py:class", "QuantumCircuit"),
+    ("py:class", "SamplerPubLike"),
+    ("py:class", "SamplerPubResult"),
+    ("py:class", "WorkspaceResource"),
     ("py:exc", "QiskitBackendNotFoundError"),
-    ("py:class", "qiskit_aqt_provider.aqt_resource._OptionsType"),
+    ("py:exc", "JobTimeoutError"),
     # No inventory available for httpx
     # https://github.com/encode/httpx/issues/3145
     ("py:exc", "httpx.NetworkError"),
     ("py:exc", "httpx.HTTPStatusError"),
 ]
 nitpick_ignore_regex = [
-    ("py:class", r"qiskit_aqt_provider\.api_models_generated.*"),
+    ("py:class", r"aqt_connector\.models.*"),
     ("py:class", r"typing_extensions.*"),
 ]
 
@@ -85,6 +98,6 @@ autodoc_pydantic_field_list_validators = False
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
-    "qiskit": ("https://quantum.cloud.ibm.com/docs/api/qiskit/1.4", None),
+    "qiskit": ("https://quantum.cloud.ibm.com/docs/api/qiskit", None),
     "pydantic": ("https://docs.pydantic.dev/latest/", None),
 }

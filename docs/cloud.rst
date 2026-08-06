@@ -7,6 +7,7 @@ AQT Arnica cloud portal
 This guide covers usage of the Qiskit AQT provider package with the AQT Arnica cloud portal.
 
 .. _cloud-usage:
+
 Usage
 =====
 
@@ -72,7 +73,7 @@ Listing accessible resources
 
 Cloud resources can be accessed through a *workspace*. Each workspace may contain multiple *resources*, which can be of different *types* (``device`` or ``simulator``).
 
-To see which workspaces you have access to, call the :meth:`fetch_workspaces <qiskit_aqt_provider.aqt_provider.CloudProvider.fetch_workspaces>` method on the cloud handle:
+To see which workspaces you have access to, call the :meth:`fetch_workspaces <qiskit_aqt_provider._cloud.provider.CloudProvider.fetch_workspaces>` method on the cloud handle:
 
 .. code-block:: python
 
@@ -83,23 +84,23 @@ To see which workspaces you have access to, call the :meth:`fetch_workspaces <qi
 
 .. hint:: You should have received the ID of the workspace(s) you have access to from AQT. If you're not sure which to use, please contact AQT support.
 
-Get a provider for a single workspace by passing its ID to the :meth:`get_by_id <qiskit_aqt_provider.aqt_provider.WorkspaceCollection.get_by_id>` method on the workspaces handle:
+Get a provider for a single workspace by passing its ID to the :meth:`get_by_id <qiskit_aqt_provider._cloud.workspace_collection.WorkspaceCollection.get_by_id>` method on the workspaces handle:
 
 .. code-block:: python
 
     workspace = all_workspaces.get_by_id("my_workspace_id")
 
-Then list the backends available in that workspace by calling the :meth:`fetch_resources <qiskit_aqt_provider.aqt_provider.WorkspaceProvider.list_backends>` method on the workspace handle:
+Then list the backends available in that workspace by calling the :meth:`list_backends <qiskit_aqt_provider._cloud.workspace_provider.WorkspaceProvider.list_backends>` method on the workspace handle:
 
 .. code-block:: python
 
     ...
-    backends = workspace.fetch_resources()
+    backends = workspace.list_backends()
     for backend in backends:
         print(backend.id, backend.type)
 
 
-And finally get a handle to a specific backend by passing its ID to the :meth:`get_by_id <qiskit_aqt_provider.aqt_provider.WorkspaceProvider.get_backend>` method on the workspace handle:
+And finally get a handle to a specific backend by passing its ID to the :meth:`get_backend <qiskit_aqt_provider._cloud.workspace_provider.WorkspaceProvider.get_backend>` method on the workspace handle:
 
 .. code-block:: python
 

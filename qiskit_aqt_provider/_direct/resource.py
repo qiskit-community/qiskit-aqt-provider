@@ -86,7 +86,7 @@ class DirectAccessResource(BackendV2, TranspilerMixin):
             memory (bool | None): Whether to return memory slots. Default is False.
 
         Returns:
-            JobV1: The job representing the execution of the circuit(s).
+            qiskit.providers.JobV1: The job representing the execution of the circuit(s).
         """
         memory = kwargs.get("memory") or False
         shots = kwargs.get("shots")

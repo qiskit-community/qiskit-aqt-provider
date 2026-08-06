@@ -47,7 +47,7 @@ Define a circuit that generates 2-qubit Bell state and sample it on a simulator 
   data = result.data[0]
   print(data.meas)
 
-For more details see the :ref:`user guide <user-guide>`, a selection of `examples <https://github.com/qiskit-community/qiskit-aqt-provider/tree/master/examples>`_, or the reference documentation.
+For more details see the :ref:`backends documentation <backends>`, the `examples <https://github.com/qiskit-community/qiskit-aqt-provider/tree/v2-migration/examples>`_, or the reference documentation.
 
 .. toctree::
   :maxdepth: 2
@@ -69,6 +69,7 @@ For more details see the :ref:`user guide <user-guide>`, a selection of `example
   Cloud Access <apidoc/cloud>
   Direct Access <apidoc/direct>
   Offline Simulators <apidoc/offline>
+  Transpiler plugin <apidoc/transpiler_plugin>
   Options <apidoc/options>
   Exceptions <apidoc/exceptions>
   Qiskit primitives <apidoc/primitives>

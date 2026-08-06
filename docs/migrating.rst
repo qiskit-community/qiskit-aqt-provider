@@ -5,7 +5,7 @@ Migrating to 2.0
 Providers
 ---------
 
-The AQT provider now exposes individual providers for each kind of AQT backend (cloud, direct access, and offline simulator). The main :class:`AQTProvider <qiskit_aqt_provider.AQTProvider>` class is now only a factory for these individual providers. For example, instead of:
+The AQT provider now exposes individual providers for each kind of AQT backend (cloud, direct access, and offline simulator). The main :class:`AQTProvider <qiskit_aqt_provider.aqt_provider.AQTProvider>` class is now only a factory for these individual providers. For example, instead of:
 
 .. code-block:: python
 

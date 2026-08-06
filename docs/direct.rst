@@ -7,6 +7,7 @@ User guide
 This guide covers usage of the Qiskit AQT provider package with direct-access computing resources. Use this guide if you have an on-premise device. If you are using the AQT Arnica cloud portal, please refer to the :ref:`cloud` guide.
 
 .. _direct-usage:
+
 Usage
 ==============
 

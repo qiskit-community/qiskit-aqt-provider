@@ -28,7 +28,7 @@ class AQTEstimator(BaseEstimatorV2):
     when it is run.
 
     Providing options to the :class:`AQTEstimator` on instantiation will affect all circuit evaluations.
-    Setting :class:`options <qiskit_aqt_provider.aqt_options.AQTOptions>` on the backend has the same effect.
+    Setting options on the backend has the same effect.
     Passing options in :meth:`AQTEstimator.run <qiskit.primitives.BaseEstimatorV2.run>` restricts the effect to that
     evaluation.
     """
@@ -51,12 +51,12 @@ class AQTEstimator(BaseEstimatorV2):
         """Run the given estimator PUBs on the AQT backend.
 
         Args:
-            pubs (Iterable[EstimatorPubLike]): An iterable of estimator PUBs, which may include parameterized
+            pubs (Iterable): An iterable of estimator PUBs, which may include parameterized
                 circuits and associated parameter values.
-            precision (float | None, optional): The precision to use for the estimation. Defaults to None.
+            precision (float | None): The precision to use for the estimation. Defaults to None.
 
         Returns:
-            BasePrimitiveJob[PrimitiveResult[PubResult]]: A job representing the execution of the estimator PUBs.
+            qiskit.primitives.BasePrimitiveJob[qiskit.primitives.PrimitiveResult[qiskit.primitives.PubResult]]: A job representing the execution of the estimator PUBs.
         """
         wrapped_backend = self.backend_factory(self.backend)
         delegate = self.estimator_factory(wrapped_backend, self._options)

@@ -73,7 +73,7 @@ class CloudJob(JobV1):
             APIError: the operation failed on the target resource.
             AQTJobInvalidStateError: if the job was cancelled.
             AQTJobFailedError: if the job failed with an error.
-            JobTimeoutError: If the job does not reach a final state before the specified timeout.
+            qiskit.providers.exceptions.JobTimeoutError: If the job does not reach a final state before the specified timeout.
 
         Returns:
             The combined result of all circuit evaluations.
@@ -104,7 +104,7 @@ class CloudJob(JobV1):
         return Result.from_dict(result_dict)
 
     def status(self) -> QiskitJobStatus:
-        """Return the status of the job, among the values of ``JobStatus``.
+        """Return the status of the job, among the values of :class:`~qiskit.providers.JobStatus`.
 
         Raises:
             AQTCredentialsError: if the user is not authenticated and no access token is available.
@@ -116,7 +116,7 @@ class CloudJob(JobV1):
             AQTApiError: For any other unexpected errors.
 
         Returns:
-            JobStatus: The current status of the job.
+            qiskit.providers.JobStatus: The current status of the job.
         """
         if self._latest_state.status in (AQTJobStatus.FINISHED, AQTJobStatus.ERROR, AQTJobStatus.CANCELLED):
             return self.STATUS_MAPPING[self._latest_state.status]
