@@ -95,7 +95,7 @@ Circuit modifications behind the remote API
 
 Circuits accepted by the AQT API are executed exactly as they were transmitted, with the only exception that small-angle :math:`\theta` instances of :class:`RGate <qiskit.circuit.library.RGate>` are substituted with
 
-  :math:`R(\theta,\,\phi)\ \to\  R(\pi, \pi)\cdot R(\theta+\pi,\,\phi)`.
+  :math:`R(\theta,\,\phi)\ \to\  R(\pi, \phi+\pi)\cdot R(\theta+\pi,\,\phi)`.
 
 The threshold for triggering this transformation is an implementation detail, typically around :math:`\theta=\pi/5`. Please contact AQT for details.
 

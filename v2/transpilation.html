@@ -3,10 +3,10 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="AQT Backends" href="backends.html"><link rel="prev" title="Qiskit AQT provider 2.0.0b1 documentation" href="index.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="AQT Backends" href="backends.html"><link rel="prev" title="Qiskit AQT provider 2.0.0b2 documentation" href="index.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>Quantum circuit transpilation - Qiskit AQT Provider 2.0.0b1</title>
+        <title>Quantum circuit transpilation - Qiskit AQT Provider 2.0.0b2</title>
       <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=75810a84" />
     <link rel="stylesheet" type="text/css" href="_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -156,7 +156,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Qiskit AQT Provider 2.0.0b1</div></a>
+      <a href="index.html"><div class="brand">Qiskit AQT Provider 2.0.0b2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -178,7 +178,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.0b1</span>
+  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.0b2</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="search.html" role="search">
@@ -312,12 +312,12 @@
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;11&#39;: 40, &#39;00&#39;: 60}
+<div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;11&#39;: 41, &#39;00&#39;: 59}
 </pre></div>
 </div>
 </div>
 </div>
-<p>Circuits that do not satisfy the AQT API restrictions are rejected by raising a <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></a> exception.</p>
+<p>Circuits that do not satisfy the AQT API restrictions are rejected by raising a <a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></a> exception.</p>
 </section>
 <section id="transpiler-plugin">
 <span id="id1"></span><h2>Transpiler plugin<a class="headerlink" href="#transpiler-plugin" title="Link to this heading">¶</a></h2>
@@ -340,7 +340,7 @@
 <h2>Circuit modifications behind the remote API<a class="headerlink" href="#circuit-modifications-behind-the-remote-api" title="Link to this heading">¶</a></h2>
 <p>Circuits accepted by the AQT API are executed exactly as they were transmitted, with the only exception that small-angle <span class="math notranslate nohighlight">\(\theta\)</span> instances of <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.circuit.library.RGate" title="(in Qiskit v2.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">RGate</span></code></a> are substituted with</p>
 <blockquote>
-<div><p><span class="math notranslate nohighlight">\(R(\theta,\,\phi)\ \to\  R(\pi, \pi)\cdot R(\theta+\pi,\,\phi)\)</span>.</p>
+<div><p><span class="math notranslate nohighlight">\(R(\theta,\,\phi)\ \to\  R(\pi, \phi+\pi)\cdot R(\theta+\pi,\,\phi)\)</span>.</p>
 </div></blockquote>
 <p>The threshold for triggering this transformation is an implementation detail, typically around <span class="math notranslate nohighlight">\(\theta=\pi/5\)</span>. Please contact AQT for details.</p>
 <section id="common-limitations">
@@ -446,7 +446,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=391fd9ae"></script>
+</div><script src="_static/documentation_options.js?v=0ee753c4"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>
