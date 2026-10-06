@@ -14,6 +14,21 @@ Exceptions
 .. autoclass:: qiskit_aqt_provider.exceptions.AQTJobFailedError
     :exclude-members: __init__, __new__
 
+.. autoclass:: qiskit_aqt_provider.exceptions.AQTJobPersistenceError
+    :exclude-members: __init__, __new__
+
+.. autoclass:: qiskit_aqt_provider.exceptions.AQTJobNotFoundError
+    :exclude-members: __init__, __new__
+
+.. autoclass:: qiskit_aqt_provider.exceptions.AQTJobCorruptError
+    :exclude-members: __init__, __new__
+
+.. autoclass:: qiskit_aqt_provider.exceptions.AQTJobIncompatibleError
+    :exclude-members: __init__, __new__
+
+.. autoclass:: qiskit_aqt_provider.exceptions.AQTJobBackendMismatchError
+    :exclude-members: __init__, __new__
+
 .. autoclass:: qiskit_aqt_provider.exceptions.AQTApiError
     :exclude-members: __init__, __new__
 

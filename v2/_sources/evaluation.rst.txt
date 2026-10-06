@@ -70,7 +70,9 @@ Job handle persistence
 ----------------------
 
 .. important::
-   Job persistence is not currently supported by the v2 provider.
+   Submitted cloud jobs and single-circuit direct-access jobs support
+   persistence. See :doc:`persistence`; lazy multi-circuit direct-access jobs
+   cannot be persisted.
 
 
 

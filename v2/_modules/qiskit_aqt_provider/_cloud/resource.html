@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>qiskit_aqt_provider._cloud.resource - Qiskit AQT Provider 2.0.0b2</title>
+        <title>qiskit_aqt_provider._cloud.resource - Qiskit AQT Provider 2.0.0b3</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=75810a84" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -156,7 +156,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit AQT Provider 2.0.0b2</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit AQT Provider 2.0.0b3</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -178,7 +178,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.0b2</span>
+  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.0b3</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
@@ -197,6 +197,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../../../evaluation.html">Circuit evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../persistence.html">Job persistence</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../migrating.html">Migrating to 2.0</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
@@ -208,6 +209,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/transpiler_plugin.html">Transpiler plugin</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/options.html">Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/exceptions.html">Exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apidoc/persistence.html">Job persistence</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../apidoc/primitives.html">Qiskit primitives</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">External links</span></p>
@@ -261,7 +263,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">httpx</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pdt</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aqt_connector</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArnicaApp</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">aqt_connector.models.arnica.response_bodies.jobs</span><span class="w"> </span><span class="kn">import</span> <span class="n">SubmitJobResponse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">aqt_connector.models.arnica.response_bodies.jobs</span><span class="w"> </span><span class="kn">import</span> <span class="n">RRQueued</span><span class="p">,</span> <span class="n">SubmitJobResponse</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">aqt_connector.models.arnica.response_bodies.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResourceDetails</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantumCircuit</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">RGate</span><span class="p">,</span> <span class="n">RXXGate</span><span class="p">,</span> <span class="n">RZGate</span>
@@ -276,6 +278,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aqt_provider._transformers</span><span class="w"> </span><span class="kn">import</span> <span class="n">circuits_to_aqt_job</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aqt_provider.api_client.errors</span><span class="w"> </span><span class="kn">import</span> <span class="n">http_response_raise_for_status</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aqt_provider.options</span><span class="w"> </span><span class="kn">import</span> <span class="n">ResourceRunOptions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aqt_provider.persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">JobStore</span><span class="p">,</span> <span class="n">delete_job</span><span class="p">,</span> <span class="n">restore_job</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aqt_provider.transpiler_plugin</span><span class="w"> </span><span class="kn">import</span> <span class="n">TranspilerMixin</span>
 
 
@@ -381,6 +384,33 @@
         <span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="CloudResource.restore_job">
+<a class="viewcode-back" href="../../../apidoc/cloud.html#qiskit_aqt_provider._cloud.resource.CloudResource.restore_job">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">restore_job</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">store</span><span class="p">:</span> <span class="n">JobStore</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">delete</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CloudJob</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Restore a persisted cloud job using this resource&#39;s authenticated client.&quot;&quot;&quot;</span>
+        <span class="n">snapshot</span> <span class="o">=</span> <span class="n">restore_job</span><span class="p">(</span>
+            <span class="n">job_id</span><span class="p">,</span>
+            <span class="n">store</span><span class="o">=</span><span class="n">store</span><span class="p">,</span>
+            <span class="n">backend_kind</span><span class="o">=</span><span class="s2">&quot;cloud&quot;</span><span class="p">,</span>
+            <span class="n">backend_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">job</span> <span class="o">=</span> <span class="n">CloudJob</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_arnica</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span><span class="p">,</span>
+            <span class="n">CloudJobMetadata</span><span class="p">(</span>
+                <span class="n">job_id</span><span class="o">=</span><span class="n">snapshot</span><span class="o">.</span><span class="n">job_id</span><span class="p">,</span>
+                <span class="n">shots</span><span class="o">=</span><span class="n">snapshot</span><span class="o">.</span><span class="n">shots</span><span class="p">,</span>
+                <span class="n">backend_name</span><span class="o">=</span><span class="n">snapshot</span><span class="o">.</span><span class="n">backend_name</span><span class="p">,</span>
+                <span class="n">circuits</span><span class="o">=</span><span class="n">snapshot</span><span class="o">.</span><span class="n">circuits</span><span class="p">,</span>
+                <span class="n">initial_state</span><span class="o">=</span><span class="n">RRQueued</span><span class="p">(),</span>
+                <span class="n">memory</span><span class="o">=</span><span class="n">snapshot</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">delete</span><span class="p">:</span>
+            <span class="n">delete_job</span><span class="p">(</span><span class="n">job_id</span><span class="p">,</span> <span class="n">store</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">job</span></div>
+
+
     <span class="k">def</span><span class="w"> </span><span class="nf">_update_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_qubits</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Updates the target of this resource based on the given number of qubits.&quot;&quot;&quot;</span>
         <span class="n">theta</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;θ&quot;</span><span class="p">)</span>
@@ -427,7 +457,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=0ee753c4"></script>
+</div><script src="../../../_static/documentation_options.js?v=aa9fd7dd"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

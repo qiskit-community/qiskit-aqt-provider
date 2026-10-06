@@ -3,10 +3,10 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Qiskit primitives" href="primitives.html"><link rel="prev" title="Options" href="options.html">
+<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Job persistence" href="persistence.html"><link rel="prev" title="Options" href="options.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>Exceptions - Qiskit AQT Provider 2.0.0b2</title>
+        <title>Exceptions - Qiskit AQT Provider 2.0.0b3</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=75810a84" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -156,7 +156,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit AQT Provider 2.0.0b2</div></a>
+      <a href="../index.html"><div class="brand">Qiskit AQT Provider 2.0.0b3</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -178,7 +178,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.0b2</span>
+  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.0b3</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -197,6 +197,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../evaluation.html">Circuit evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../persistence.html">Job persistence</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../migrating.html">Migrating to 2.0</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
@@ -208,6 +209,7 @@
 <li class="toctree-l1"><a class="reference internal" href="transpiler_plugin.html">Transpiler plugin</a></li>
 <li class="toctree-l1"><a class="reference internal" href="options.html">Options</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="persistence.html">Job persistence</a></li>
 <li class="toctree-l1"><a class="reference internal" href="primitives.html">Qiskit primitives</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">External links</span></p>
@@ -278,6 +280,36 @@
 </dd></dl>
 
 <dl class="py class">
+<dt class="sig sig-object py" id="qiskit_aqt_provider.exceptions.AQTJobPersistenceError">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_aqt_provider.exceptions.</span></span><span class="sig-name descname"><span class="pre">AQTJobPersistenceError</span></span><a class="reference internal" href="../_modules/qiskit_aqt_provider/exceptions.html#AQTJobPersistenceError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_aqt_provider.exceptions.AQTJobPersistenceError" title="Link to this definition">¶</a></dt>
+<dd><p>Base class for errors raised while persisting or restoring jobs.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qiskit_aqt_provider.exceptions.AQTJobNotFoundError">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_aqt_provider.exceptions.</span></span><span class="sig-name descname"><span class="pre">AQTJobNotFoundError</span></span><a class="reference internal" href="../_modules/qiskit_aqt_provider/exceptions.html#AQTJobNotFoundError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_aqt_provider.exceptions.AQTJobNotFoundError" title="Link to this definition">¶</a></dt>
+<dd><p>Error raised when a persisted job cannot be found.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qiskit_aqt_provider.exceptions.AQTJobCorruptError">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_aqt_provider.exceptions.</span></span><span class="sig-name descname"><span class="pre">AQTJobCorruptError</span></span><a class="reference internal" href="../_modules/qiskit_aqt_provider/exceptions.html#AQTJobCorruptError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_aqt_provider.exceptions.AQTJobCorruptError" title="Link to this definition">¶</a></dt>
+<dd><p>Error raised when persisted job data cannot be decoded.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qiskit_aqt_provider.exceptions.AQTJobIncompatibleError">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_aqt_provider.exceptions.</span></span><span class="sig-name descname"><span class="pre">AQTJobIncompatibleError</span></span><a class="reference internal" href="../_modules/qiskit_aqt_provider/exceptions.html#AQTJobIncompatibleError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_aqt_provider.exceptions.AQTJobIncompatibleError" title="Link to this definition">¶</a></dt>
+<dd><p>Error raised when persisted job data uses an unsupported format.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qiskit_aqt_provider.exceptions.AQTJobBackendMismatchError">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_aqt_provider.exceptions.</span></span><span class="sig-name descname"><span class="pre">AQTJobBackendMismatchError</span></span><a class="reference internal" href="../_modules/qiskit_aqt_provider/exceptions.html#AQTJobBackendMismatchError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_aqt_provider.exceptions.AQTJobBackendMismatchError" title="Link to this definition">¶</a></dt>
+<dd><p>Error raised when a job is restored on a different backend.</p>
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="qiskit_aqt_provider.exceptions.AQTApiError">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_aqt_provider.exceptions.</span></span><span class="sig-name descname"><span class="pre">AQTApiError</span></span><a class="reference internal" href="../_modules/qiskit_aqt_provider/exceptions.html#AQTApiError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_aqt_provider.exceptions.AQTApiError" title="Link to this definition">¶</a></dt>
 <dd><p>Errors that occur unexpectedly when querying the server.</p>
@@ -318,12 +350,12 @@ contains the original <a class="reference external" href="https://www.python-htt
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="primitives.html">
+          <a class="next-page" href="persistence.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Qiskit primitives</div>
+                <div class="title">Job persistence</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -373,6 +405,11 @@ contains the original <a class="reference external" href="https://www.python-htt
 <li><a class="reference internal" href="#qiskit_aqt_provider.exceptions.AQTJobError"><code class="docutils literal notranslate"><span class="pre">AQTJobError</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_aqt_provider.exceptions.AQTJobInvalidStateError"><code class="docutils literal notranslate"><span class="pre">AQTJobInvalidStateError</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_aqt_provider.exceptions.AQTJobFailedError"><code class="docutils literal notranslate"><span class="pre">AQTJobFailedError</span></code></a></li>
+<li><a class="reference internal" href="#qiskit_aqt_provider.exceptions.AQTJobPersistenceError"><code class="docutils literal notranslate"><span class="pre">AQTJobPersistenceError</span></code></a></li>
+<li><a class="reference internal" href="#qiskit_aqt_provider.exceptions.AQTJobNotFoundError"><code class="docutils literal notranslate"><span class="pre">AQTJobNotFoundError</span></code></a></li>
+<li><a class="reference internal" href="#qiskit_aqt_provider.exceptions.AQTJobCorruptError"><code class="docutils literal notranslate"><span class="pre">AQTJobCorruptError</span></code></a></li>
+<li><a class="reference internal" href="#qiskit_aqt_provider.exceptions.AQTJobIncompatibleError"><code class="docutils literal notranslate"><span class="pre">AQTJobIncompatibleError</span></code></a></li>
+<li><a class="reference internal" href="#qiskit_aqt_provider.exceptions.AQTJobBackendMismatchError"><code class="docutils literal notranslate"><span class="pre">AQTJobBackendMismatchError</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_aqt_provider.exceptions.AQTApiError"><code class="docutils literal notranslate"><span class="pre">AQTApiError</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_aqt_provider.exceptions.AQTCredentialsError"><code class="docutils literal notranslate"><span class="pre">AQTCredentialsError</span></code></a></li>
 <li><a class="reference internal" href="#qiskit_aqt_provider.exceptions.AQTValueError"><code class="docutils literal notranslate"><span class="pre">AQTValueError</span></code></a></li>
@@ -389,7 +426,7 @@ contains the original <a class="reference external" href="https://www.python-htt
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=0ee753c4"></script>
+</div><script src="../_static/documentation_options.js?v=aa9fd7dd"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>

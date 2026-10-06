@@ -4,7 +4,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="#"><link rel="search" title="Search" href="search.html">
 
-    <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 --><title>Index - Qiskit AQT Provider 2.0.0b2</title>
+    <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 --><title>Index - Qiskit AQT Provider 2.0.0b3</title>
 <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=75810a84" />
     <link rel="stylesheet" type="text/css" href="_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -155,7 +155,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Qiskit AQT Provider 2.0.0b2</div></a>
+      <a href="index.html"><div class="brand">Qiskit AQT Provider 2.0.0b3</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -177,7 +177,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.0b2</span>
+  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.0b3</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="search.html" role="search">
@@ -196,6 +196,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="evaluation.html">Circuit evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="persistence.html">Job persistence</a></li>
 <li class="toctree-l1"><a class="reference internal" href="migrating.html">Migrating to 2.0</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
@@ -207,6 +208,7 @@
 <li class="toctree-l1"><a class="reference internal" href="apidoc/transpiler_plugin.html">Transpiler plugin</a></li>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/options.html">Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/exceptions.html">Exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apidoc/persistence.html">Job persistence</a></li>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/primitives.html">Qiskit primitives</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">External links</span></p>
@@ -247,7 +249,7 @@
           
 <section class="genindex-section">
   <h1 id="index">Index</h1>
-  <div class="genindex-jumpbox"><a href="#_"><strong>_</strong></a> | <a href="#A"><strong>A</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#O"><strong>O</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#W"><strong>W</strong></a></div>
+  <div class="genindex-jumpbox"><a href="#_"><strong>_</strong></a> | <a href="#A"><strong>A</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#J"><strong>J</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#O"><strong>O</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#W"><strong>W</strong></a></div>
 </section>
 <section id="_" class="genindex-section">
   <h2>_</h2>
@@ -259,6 +261,12 @@
           <li><a href="apidoc/provider.html#qiskit_aqt_provider.aqt_provider.AQTProvider.__init__">(qiskit_aqt_provider.aqt_provider.AQTProvider method)</a>
 </li>
           <li><a href="apidoc/cloud.html#qiskit_aqt_provider.aqt_provider.ArnicaConfig.__init__">(qiskit_aqt_provider.aqt_provider.ArnicaConfig method)</a>
+</li>
+          <li><a href="apidoc/persistence.html#qiskit_aqt_provider.persistence.FileJobStore.__init__">(qiskit_aqt_provider.persistence.FileJobStore method)</a>
+</li>
+          <li><a href="apidoc/persistence.html#qiskit_aqt_provider.persistence.JobSnapshot.__init__">(qiskit_aqt_provider.persistence.JobSnapshot method)</a>
+</li>
+          <li><a href="apidoc/persistence.html#qiskit_aqt_provider.persistence.JobStore.__init__">(qiskit_aqt_provider.persistence.JobStore method)</a>
 </li>
           <li><a href="apidoc/primitives.html#qiskit_aqt_provider.primitives.estimator.AQTEstimator.__init__">(qiskit_aqt_provider.primitives.estimator.AQTEstimator method)</a>
 </li>
@@ -299,13 +307,23 @@
 </li>
         <li><a href="apidoc/primitives.html#qiskit_aqt_provider.primitives.estimator.AQTEstimator">AQTEstimator (class in qiskit_aqt_provider.primitives.estimator)</a>
 </li>
+        <li><a href="apidoc/exceptions.html#qiskit_aqt_provider.exceptions.AQTJobBackendMismatchError">AQTJobBackendMismatchError (class in qiskit_aqt_provider.exceptions)</a>
+</li>
+        <li><a href="apidoc/exceptions.html#qiskit_aqt_provider.exceptions.AQTJobCorruptError">AQTJobCorruptError (class in qiskit_aqt_provider.exceptions)</a>
+</li>
         <li><a href="apidoc/exceptions.html#qiskit_aqt_provider.exceptions.AQTJobError">AQTJobError (class in qiskit_aqt_provider.exceptions)</a>
 </li>
         <li><a href="apidoc/exceptions.html#qiskit_aqt_provider.exceptions.AQTJobFailedError">AQTJobFailedError (class in qiskit_aqt_provider.exceptions)</a>
 </li>
+        <li><a href="apidoc/exceptions.html#qiskit_aqt_provider.exceptions.AQTJobIncompatibleError">AQTJobIncompatibleError (class in qiskit_aqt_provider.exceptions)</a>
+</li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="apidoc/exceptions.html#qiskit_aqt_provider.exceptions.AQTJobInvalidStateError">AQTJobInvalidStateError (class in qiskit_aqt_provider.exceptions)</a>
+</li>
+        <li><a href="apidoc/exceptions.html#qiskit_aqt_provider.exceptions.AQTJobNotFoundError">AQTJobNotFoundError (class in qiskit_aqt_provider.exceptions)</a>
+</li>
+        <li><a href="apidoc/exceptions.html#qiskit_aqt_provider.exceptions.AQTJobPersistenceError">AQTJobPersistenceError (class in qiskit_aqt_provider.exceptions)</a>
 </li>
         <li><a href="apidoc/provider.html#qiskit_aqt_provider.aqt_provider.AQTProvider">AQTProvider (class in qiskit_aqt_provider.aqt_provider)</a>
 </li>
@@ -359,12 +377,18 @@
   <h2>D</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
-        <li><a href="apidoc/provider.html#qiskit_aqt_provider.aqt_provider.AQTProvider.direct_access">direct_access() (qiskit_aqt_provider.aqt_provider.AQTProvider method)</a>
+        <li><a href="apidoc/persistence.html#qiskit_aqt_provider.persistence.FileJobStore.delete">delete() (qiskit_aqt_provider.persistence.FileJobStore method)</a>
+
+        <ul>
+          <li><a href="apidoc/persistence.html#qiskit_aqt_provider.persistence.JobStore.delete">(qiskit_aqt_provider.persistence.JobStore method)</a>
 </li>
-        <li><a href="apidoc/direct.html#qiskit_aqt_provider._direct.job.DirectAccessJob">DirectAccessJob (class in qiskit_aqt_provider._direct.job)</a>
+        </ul></li>
+        <li><a href="apidoc/provider.html#qiskit_aqt_provider.aqt_provider.AQTProvider.direct_access">direct_access() (qiskit_aqt_provider.aqt_provider.AQTProvider method)</a>
 </li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="apidoc/direct.html#qiskit_aqt_provider._direct.job.DirectAccessJob">DirectAccessJob (class in qiskit_aqt_provider._direct.job)</a>
+</li>
         <li><a href="apidoc/direct.html#qiskit_aqt_provider._direct.provider.DirectAccessProvider">DirectAccessProvider (class in qiskit_aqt_provider._direct.provider)</a>
 </li>
         <li><a href="apidoc/direct.html#qiskit_aqt_provider._direct.resource.DirectAccessResource">DirectAccessResource (class in qiskit_aqt_provider._direct.resource)</a>
@@ -378,6 +402,10 @@
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="apidoc/cloud.html#qiskit_aqt_provider._cloud.provider.CloudProvider.fetch_workspaces">fetch_workspaces() (qiskit_aqt_provider._cloud.provider.CloudProvider method)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="apidoc/persistence.html#qiskit_aqt_provider.persistence.FileJobStore">FileJobStore (class in qiskit_aqt_provider.persistence)</a>
 </li>
     </ul></td>
   </tr></table>
@@ -421,12 +449,32 @@
   </tr></table>
 </section>
 
+<section id="J" class="genindex-section">
+  <h2>J</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="apidoc/persistence.html#qiskit_aqt_provider.persistence.JobSnapshot">JobSnapshot (class in qiskit_aqt_provider.persistence)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="apidoc/persistence.html#qiskit_aqt_provider.persistence.JobStore">JobStore (class in qiskit_aqt_provider.persistence)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
 <section id="L" class="genindex-section">
   <h2>L</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="apidoc/cloud.html#qiskit_aqt_provider._cloud.workspace_provider.WorkspaceProvider.list_backends">list_backends() (qiskit_aqt_provider._cloud.workspace_provider.WorkspaceProvider method)</a>
 </li>
+        <li><a href="apidoc/persistence.html#qiskit_aqt_provider.persistence.FileJobStore.load">load() (qiskit_aqt_provider.persistence.FileJobStore method)</a>
+
+        <ul>
+          <li><a href="apidoc/persistence.html#qiskit_aqt_provider.persistence.JobStore.load">(qiskit_aqt_provider.persistence.JobStore method)</a>
+</li>
+        </ul></li>
     </ul></td>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="apidoc/cloud.html#qiskit_aqt_provider._cloud.provider.CloudProvider.log_in">log_in() (qiskit_aqt_provider._cloud.provider.CloudProvider method)</a>
@@ -489,12 +537,34 @@
   </tr></table>
 </section>
 
+<section id="P" class="genindex-section">
+  <h2>P</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="apidoc/cloud.html#qiskit_aqt_provider._cloud.job.CloudJob.persist">persist() (qiskit_aqt_provider._cloud.job.CloudJob method)</a>
+
+        <ul>
+          <li><a href="apidoc/direct.html#qiskit_aqt_provider._direct.composite_job.CompositeDirectAccessJob.persist">(qiskit_aqt_provider._direct.composite_job.CompositeDirectAccessJob method)</a>
+</li>
+          <li><a href="apidoc/direct.html#qiskit_aqt_provider._direct.job.DirectAccessJob.persist">(qiskit_aqt_provider._direct.job.DirectAccessJob method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
 <section id="R" class="genindex-section">
   <h2>R</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
         <li><a href="apidoc/options.html#qiskit_aqt_provider.options.ResourceRunOptions">ResourceRunOptions (class in qiskit_aqt_provider.options)</a>
 </li>
+        <li><a href="apidoc/cloud.html#qiskit_aqt_provider._cloud.resource.CloudResource.restore_job">restore_job() (qiskit_aqt_provider._cloud.resource.CloudResource method)</a>
+
+        <ul>
+          <li><a href="apidoc/direct.html#qiskit_aqt_provider._direct.resource.DirectAccessResource.restore_job">(qiskit_aqt_provider._direct.resource.DirectAccessResource method)</a>
+</li>
+        </ul></li>
         <li><a href="apidoc/cloud.html#qiskit_aqt_provider._cloud.job.CloudJob.result">result() (qiskit_aqt_provider._cloud.job.CloudJob method)</a>
 
         <ul>
@@ -529,6 +599,12 @@
   <h2>S</h2>
   <table style="width: 100%" class="indextable genindextable"><tr>
     <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="apidoc/persistence.html#qiskit_aqt_provider.persistence.FileJobStore.save">save() (qiskit_aqt_provider.persistence.FileJobStore method)</a>
+
+        <ul>
+          <li><a href="apidoc/persistence.html#qiskit_aqt_provider.persistence.JobStore.save">(qiskit_aqt_provider.persistence.JobStore method)</a>
+</li>
+        </ul></li>
         <li><a href="apidoc/options.html#qiskit_aqt_provider.options.ResourceRunOptions.seed_simulator">seed_simulator (qiskit_aqt_provider.options.ResourceRunOptions attribute)</a>
 </li>
         <li><a href="apidoc/options.html#qiskit_aqt_provider.options.ResourceRunOptions.shots">shots (qiskit_aqt_provider.options.ResourceRunOptions attribute)</a>
@@ -625,7 +701,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=0ee753c4"></script>
+</div><script src="_static/documentation_options.js?v=aa9fd7dd"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

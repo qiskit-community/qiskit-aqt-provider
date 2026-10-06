@@ -3,10 +3,10 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Migrating to 2.0" href="migrating.html"><link rel="prev" title="User guide" href="direct.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Job persistence" href="persistence.html"><link rel="prev" title="User guide" href="direct.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>Quantum circuit evaluation - Qiskit AQT Provider 2.0.0b2</title>
+        <title>Quantum circuit evaluation - Qiskit AQT Provider 2.0.0b3</title>
       <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=75810a84" />
     <link rel="stylesheet" type="text/css" href="_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -156,7 +156,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Qiskit AQT Provider 2.0.0b2</div></a>
+      <a href="index.html"><div class="brand">Qiskit AQT Provider 2.0.0b3</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -178,7 +178,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.0b2</span>
+  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.0b3</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="search.html" role="search">
@@ -197,6 +197,7 @@
 </ul>
 </li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Circuit evaluation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="persistence.html">Job persistence</a></li>
 <li class="toctree-l1"><a class="reference internal" href="migrating.html">Migrating to 2.0</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
@@ -208,6 +209,7 @@
 <li class="toctree-l1"><a class="reference internal" href="apidoc/transpiler_plugin.html">Transpiler plugin</a></li>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/options.html">Options</a></li>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/exceptions.html">Exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="apidoc/persistence.html">Job persistence</a></li>
 <li class="toctree-l1"><a class="reference internal" href="apidoc/primitives.html">Qiskit primitives</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">External links</span></p>
@@ -309,7 +311,9 @@
 <h2>Job handle persistence<a class="headerlink" href="#job-handle-persistence" title="Link to this heading">¶</a></h2>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
-<p>Job persistence is not currently supported by the v2 provider.</p>
+<p>Submitted cloud jobs and single-circuit direct-access jobs support
+persistence. See <a class="reference internal" href="persistence.html"><span class="doc">Job persistence</span></a>; lazy multi-circuit direct-access jobs
+cannot be persisted.</p>
 </div>
 </section>
 <section id="using-qiskit-primitives">
@@ -376,12 +380,12 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="migrating.html">
+          <a class="next-page" href="persistence.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Migrating to 2.0</div>
+                <div class="title">Job persistence</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -442,7 +446,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=0ee753c4"></script>
+</div><script src="_static/documentation_options.js?v=aa9fd7dd"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

@@ -54,7 +54,9 @@ You should now do:
 Job persistence
 ---------------
 
-Job persistence is not currently supported by the v2 provider. This means that job handles returned by the :code:`run` method of AQT backends cannot be stored and retrieved at a later time. If your code relies on job persistence, we recommend you postpone migration until this is supported.
+Submitted cloud jobs and single-circuit direct-access jobs can be persisted and
+restored across processes. See :doc:`persistence` for the storage API and the
+direct-access composite-job limitation.
 
 
 Qiskit primitives 

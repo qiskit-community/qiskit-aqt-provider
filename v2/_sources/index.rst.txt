@@ -57,6 +57,7 @@ For more details see the :ref:`backends documentation <backends>`, the `examples
   Circuit transpilation <transpilation>
   Backends <backends>
   Circuit evaluation <evaluation>
+  Job persistence <persistence>
   Migrating to 2.0 <migrating>
 
 .. toctree::
@@ -72,6 +73,7 @@ For more details see the :ref:`backends documentation <backends>`, the `examples
   Transpiler plugin <apidoc/transpiler_plugin>
   Options <apidoc/options>
   Exceptions <apidoc/exceptions>
+  Job persistence <apidoc/persistence>
   Qiskit primitives <apidoc/primitives>
   
 

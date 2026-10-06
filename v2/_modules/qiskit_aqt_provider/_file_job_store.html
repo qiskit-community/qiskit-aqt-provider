@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>aqt_connector._sdk_config - Qiskit AQT Provider 2.0.0b3</title>
+        <title>qiskit_aqt_provider._file_job_store - Qiskit AQT Provider 2.0.0b3</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=75810a84" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=8ff9dcb6" />
@@ -247,94 +247,105 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <h1>Source code for aqt_connector._sdk_config</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
+          <h1>Source code for qiskit_aqt_provider._file_job_store</h1><div class="highlight"><pre>
+<span></span><span class="c1"># This code is part of Qiskit.</span>
+<span class="c1">#</span>
+<span class="c1"># (C) Copyright Alpine Quantum Technologies GmbH 2026</span>
+<span class="c1">#</span>
+<span class="c1"># This code is licensed under the Apache License, Version 2.0. You may</span>
+<span class="c1"># obtain a copy of this license in the LICENSE.txt file in the root directory</span>
+<span class="c1"># of this source tree or at [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0).</span>
+<span class="c1">#</span>
+<span class="c1"># Any modifications or derivative works of this code must retain this</span>
+<span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
+<span class="c1"># that they have been altered from the originals.</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tempfile</span><span class="w"> </span><span class="kn">import</span> <span class="n">NamedTemporaryFile</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">tomli</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">platformdirs</span>
 
-<span class="n">DEFAULT_APP_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;.aqt&quot;</span>
-
-
-<span class="nd">@dataclass</span>
-<span class="k">class</span><span class="w"> </span><span class="nc">AuthenticationConfig</span><span class="p">:</span>
-    <span class="n">audience</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;https://arnica.aqt.eu/api&quot;</span>
-    <span class="n">issuer</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;https://arnica.eu.auth0.com/&quot;</span>
-    <span class="n">jwks_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;https://arnica.eu.auth0.com/.well-known/jwks.json&quot;</span>
-    <span class="n">device_client_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;HvaMEfNSq30OoxjqDyRWIRkBfJwJywyi&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aqt_provider.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">AQTJobNotFoundError</span><span class="p">,</span> <span class="n">AQTJobPersistenceError</span>
 
 
-<div class="viewcode-block" id="ArnicaConfig">
-<a class="viewcode-back" href="../../apidoc/cloud.html#qiskit_aqt_provider.aqt_provider.ArnicaConfig">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">ArnicaConfig</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Configuration for the SDK.</span>
+<div class="viewcode-block" id="FileJobStore">
+<a class="viewcode-back" href="../../apidoc/persistence.html#qiskit_aqt_provider.persistence.FileJobStore">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FileJobStore</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A filesystem adapter for the :class:`~qiskit_aqt_provider.persistence.JobStore` port.&quot;&quot;&quot;</span>
 
-<span class="sd">    Attributes:</span>
-<span class="sd">        arnica_url (str): the base URL of the Arnica API. Defaults to &quot;https://arnica.aqt.eu/api&quot;.</span>
-<span class="sd">        client_id (str | None): the ID to use for authentication with client credentials. Defaults to None.</span>
-<span class="sd">        client_secret (str | None): the secret to use for authentication with client credentials. Defaults to None.</span>
-<span class="sd">        store_access_token (bool): when True, the access token will be persisted to disk. Defaults to True.</span>
-<span class="sd">        oidc_config (AuthenticationConfig): configuration for the OIDC provider.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">root</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="ArnicaConfig.__init__">
-<a class="viewcode-back" href="../../apidoc/cloud.html#qiskit_aqt_provider.aqt_provider.ArnicaConfig.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_dir</span><span class="o">=</span><span class="n">DEFAULT_APP_DIR</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the configuration.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">platformdirs</span><span class="o">.</span><span class="n">user_data_dir</span><span class="p">(</span><span class="s2">&quot;qiskit_aqt_provider&quot;</span><span class="p">))</span> <span class="o">/</span> <span class="s2">&quot;jobs&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
+        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;root&quot;</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            app_dir (Path): the directory where the application will store its config and cache files. Defaults to</span>
-<span class="sd">                `Path.home() / .aqt`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_app_dir</span> <span class="o">=</span> <span class="n">app_dir</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">arnica_url</span> <span class="o">=</span> <span class="s2">&quot;https://arnica.aqt.eu/api&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">client_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">client_secret</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">store_access_token</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">oidc_config</span> <span class="o">=</span> <span class="n">AuthenticationConfig</span><span class="p">()</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_read_config</span><span class="p">()</span></div>
-
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_read_config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reads config from the host system.&quot;&quot;&quot;</span>
-        <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_file_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_app_dir</span> <span class="o">/</span> <span class="s2">&quot;config&quot;</span><span class="p">)</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_add_env_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">arnica_url</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;arnica_url&quot;</span><span class="p">,</span> <span class="s2">&quot;https://arnica.aqt.eu/api&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">client_id</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;client_id&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">client_secret</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;client_secret&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">store_access_token</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;store_access_token&quot;</span><span class="p">,</span> <span class="s2">&quot;true&quot;</span><span class="p">))</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_add_file_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">config_filepath</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<div class="viewcode-block" id="FileJobStore.save">
+<a class="viewcode-back" href="../../apidoc/persistence.html#qiskit_aqt_provider.persistence.FileJobStore.save">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Atomically save a payload under a job ID.&quot;&quot;&quot;</span>
+        <span class="n">filepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filepath</span><span class="p">(</span><span class="n">job_id</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_filepath</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">file_config</span> <span class="o">=</span> <span class="n">tomli</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">config</span>
-        <span class="k">except</span> <span class="n">tomli</span><span class="o">.</span><span class="n">TOMLDecodeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Config file at </span><span class="si">{</span><span class="n">config_filepath</span><span class="si">}</span><span class="s2"> is badly formed and is being ignored:&quot;</span><span class="p">,</span>
-                <span class="n">e</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="n">config</span>
+            <span class="n">filepath</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="mo">0o700</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AQTJobPersistenceError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to create job store </span><span class="si">{</span><span class="n">filepath</span><span class="o">.</span><span class="n">parent</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
 
-        <span class="n">new_config</span> <span class="o">=</span> <span class="n">file_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="n">file_config</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">config</span><span class="p">)</span> <span class="o">|</span> <span class="n">new_config</span>
+        <span class="n">temporary_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="n">filepath</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;.job-&quot;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.tmp&quot;</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">temporary</span><span class="p">:</span>
+                <span class="n">temporary_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temporary</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="n">temporary</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+                <span class="n">temporary</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">fsync</span><span class="p">(</span><span class="n">temporary</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
+            <span class="n">temporary_path</span><span class="o">.</span><span class="n">chmod</span><span class="p">(</span><span class="mo">0o600</span><span class="p">)</span>
+            <span class="n">temporary_path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">temporary_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">temporary_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">AQTJobPersistenceError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to persist job </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span></div>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_add_env_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-        <span class="n">_config</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">env_key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^AQT_&quot;</span><span class="p">,</span> <span class="n">env_key</span><span class="p">):</span>
-                <span class="k">continue</span>
-            <span class="n">config_key</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^AQT_&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">env_key</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-            <span class="n">_config</span><span class="p">[</span><span class="n">config_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
 
-        <span class="k">return</span> <span class="n">_config</span></div>
+<div class="viewcode-block" id="FileJobStore.load">
+<a class="viewcode-back" href="../../apidoc/persistence.html#qiskit_aqt_provider.persistence.FileJobStore.load">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a payload by job ID.&quot;&quot;&quot;</span>
+        <span class="n">filepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filepath</span><span class="p">(</span><span class="n">job_id</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">filepath</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AQTJobNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No persisted job found for ID </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+        <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AQTJobPersistenceError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to read persisted job </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span></div>
+
+
+<div class="viewcode-block" id="FileJobStore.delete">
+<a class="viewcode-back" href="../../apidoc/persistence.html#qiskit_aqt_provider.persistence.FileJobStore.delete">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete a payload by job ID; missing payloads are ignored.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_filepath</span><span class="p">(</span><span class="n">job_id</span><span class="p">)</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AQTJobPersistenceError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to delete persisted job </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_filepath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">job_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="ow">not</span> <span class="n">job_id</span>
+            <span class="ow">or</span> <span class="n">Path</span><span class="p">(</span><span class="n">job_id</span><span class="p">)</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">job_id</span>
+            <span class="ow">or</span> <span class="s2">&quot;/&quot;</span> <span class="ow">in</span> <span class="n">job_id</span>
+            <span class="ow">or</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">job_id</span>
+            <span class="ow">or</span> <span class="n">job_id</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">}</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="n">AQTJobPersistenceError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid job ID: </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">AQTJobPersistenceError</span><span class="p">(</span><span class="s2">&quot;Job store has no root directory&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">.aqt-job&quot;</span></div>
 
 </pre></div>
         </article>
