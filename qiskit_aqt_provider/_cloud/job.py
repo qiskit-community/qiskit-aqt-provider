@@ -39,6 +39,7 @@ from qiskit_aqt_provider.exceptions import (
     AQTRequestError,
     AQTValueError,
 )
+from qiskit_aqt_provider.persistence import JobSnapshot, JobStore, persist_job
 
 
 class CloudJob(JobV1):
@@ -70,6 +71,20 @@ class CloudJob(JobV1):
             RuntimeError: Job submission is performed by backend.run().
         """
         raise RuntimeError("Job is already submitted via backend.run()")
+
+    def persist(self, *, store: JobStore | None = None) -> None:
+        """Persist this submitted job for restoration in a later process."""
+        persist_job(
+            JobSnapshot(
+                job_id=UUID(self.job_id()),
+                backend_kind="cloud",
+                backend_name=self._properties.backend_name,
+                shots=self._properties.shots,
+                memory=self._properties.memory,
+                circuits=self._properties.circuits,
+            ),
+            store,
+        )
 
     def result(
         self,
@@ -111,7 +126,9 @@ class CloudJob(JobV1):
         for circuit_index, circuit in enumerate(self._properties.circuits):
             samples = self._latest_state.result[circuit_index]
             result_dict["results"].append(
-                partial_qiskit_result_dict(samples, circuit, shots=self._properties.shots, memory=False)
+                partial_qiskit_result_dict(
+                    samples, circuit, shots=self._properties.shots, memory=self._properties.memory
+                )
             )
 
         return Result.from_dict(result_dict)

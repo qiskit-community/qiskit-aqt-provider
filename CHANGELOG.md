@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+* Add job persistence for cloud jobs and direct API circuits
 
 ## qiskit-aqt-provider v2.0.0b2
 * Added licence headers to all code files

@@ -30,6 +30,26 @@ class AQTJobFailedError(AQTJobError):
     """Error raised when a job has failed."""
 
 
+class AQTJobPersistenceError(AQTJobError):
+    """Base class for errors raised while persisting or restoring jobs."""
+
+
+class AQTJobNotFoundError(AQTJobPersistenceError):
+    """Error raised when a persisted job cannot be found."""
+
+
+class AQTJobCorruptError(AQTJobPersistenceError):
+    """Error raised when persisted job data cannot be decoded."""
+
+
+class AQTJobIncompatibleError(AQTJobPersistenceError):
+    """Error raised when persisted job data uses an unsupported format."""
+
+
+class AQTJobBackendMismatchError(AQTJobPersistenceError):
+    """Error raised when a job is restored on a different backend."""
+
+
 class AQTApiError(AQTError):
     """Errors that occur unexpectedly when querying the server."""
 

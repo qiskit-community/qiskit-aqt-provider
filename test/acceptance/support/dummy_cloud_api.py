@@ -138,6 +138,32 @@ async def submit_job(workspace_id: str, resource_id: str, request: Request, body
     )
 
 
+@app.get("/v1/result/{job_id}")
+async def result(job_id: str, request: Request) -> Any:
+    _record_request(request)
+
+    if job_id != "c8919003-1bc1-445f-a968-e7f4c90029d3":
+        return JSONResponse(status_code=404, content={"detail": "Job not found."})
+
+    return JSONResponse(
+        content={
+            "job": {
+                "job_id": job_id,
+                "job_type": "quantum_circuit",
+                "resource_id": "r1",
+                "workspace_id": "w1",
+            },
+            "response": {
+                "status": "finished",
+                "result": {
+                    "0": [[0], [1], [1]],
+                    "1": [[1, 0], [0, 1], [1, 0]],
+                },
+            },
+        }
+    )
+
+
 @app.get("/__requests")
 async def get_requests() -> Any:
     return JSONResponse(_requests)

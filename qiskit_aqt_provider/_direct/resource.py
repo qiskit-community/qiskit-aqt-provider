@@ -13,6 +13,7 @@
 from collections.abc import Sequence
 from dataclasses import dataclass
 from functools import partial
+from uuid import UUID
 
 import pydantic as pdt
 from aqt_connector.models.circuits import QuantumCircuit as AQTQuantumCircuit
@@ -31,7 +32,9 @@ from qiskit_aqt_provider._direct.composite_job import (
 )
 from qiskit_aqt_provider._direct.job import DirectAccessJob, DirectAccessJobMetadata
 from qiskit_aqt_provider._transformers import qiskit_to_aqt_circuit
+from qiskit_aqt_provider.exceptions import AQTJobPersistenceError
 from qiskit_aqt_provider.options import ResourceRunOptions
+from qiskit_aqt_provider.persistence import JobStore, delete_job, restore_job
 from qiskit_aqt_provider.transpiler_plugin import TranspilerMixin
 
 
@@ -125,6 +128,30 @@ class DirectAccessResource(BackendV2, TranspilerMixin):
         target.add_instruction(Measure())
 
         self._target = target
+
+    def restore_job(self, job_id: str, *, store: JobStore | None = None, delete: bool = False) -> DirectAccessJob:
+        """Restore a persisted single-circuit direct-access job."""
+        snapshot = restore_job(
+            job_id,
+            store=store,
+            backend_kind="direct",
+            backend_name=self.id,
+        )
+        if len(snapshot.circuits) != 1:
+            raise AQTJobPersistenceError("A direct-access job must contain exactly one circuit")
+        job = DirectAccessJob(
+            self._api_client,
+            UUID(job_id),
+            DirectAccessJobMetadata(
+                backend_name=snapshot.backend_name,
+                shots=snapshot.shots,
+                circuit=snapshot.circuits[0],
+                memory=snapshot.memory,
+            ),
+        )
+        if delete:
+            delete_job(job_id, store)
+        return job
 
     def _prepare_single_circuit_job(self, circuit: QuantumCircuit, shots: int, memory: bool) -> DirectAccessJob:
         """Creates a DirectAccessJob for a single circuit."""

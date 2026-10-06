@@ -13,7 +13,7 @@
 import httpx
 import pydantic as pdt
 from aqt_connector import ArnicaApp
-from aqt_connector.models.arnica.response_bodies.jobs import SubmitJobResponse
+from aqt_connector.models.arnica.response_bodies.jobs import RRQueued, SubmitJobResponse
 from aqt_connector.models.arnica.response_bodies.resources import ResourceDetails
 from qiskit import QuantumCircuit
 from qiskit.circuit.library import RGate, RXXGate, RZGate
@@ -28,6 +28,7 @@ from qiskit_aqt_provider._cloud.job_metadata import CloudJobMetadata
 from qiskit_aqt_provider._transformers import circuits_to_aqt_job
 from qiskit_aqt_provider.api_client.errors import http_response_raise_for_status
 from qiskit_aqt_provider.options import ResourceRunOptions
+from qiskit_aqt_provider.persistence import JobStore, delete_job, restore_job
 from qiskit_aqt_provider.transpiler_plugin import TranspilerMixin
 
 
@@ -127,6 +128,30 @@ class CloudResource(BackendV2, TranspilerMixin):
                 memory=kwargs.get("memory") or False,
             ),
         )
+
+    def restore_job(self, job_id: str, *, store: JobStore | None = None, delete: bool = False) -> CloudJob:
+        """Restore a persisted cloud job using this resource's authenticated client."""
+        snapshot = restore_job(
+            job_id,
+            store=store,
+            backend_kind="cloud",
+            backend_name=self.name or self.id,
+        )
+        job = CloudJob(
+            self._arnica,
+            self._api_client,
+            CloudJobMetadata(
+                job_id=snapshot.job_id,
+                shots=snapshot.shots,
+                backend_name=snapshot.backend_name,
+                circuits=snapshot.circuits,
+                initial_state=RRQueued(),
+                memory=snapshot.memory,
+            ),
+        )
+        if delete:
+            delete_job(job_id, store)
+        return job
 
     def _update_target(self, num_qubits: int) -> None:
         """Updates the target of this resource based on the given number of qubits."""

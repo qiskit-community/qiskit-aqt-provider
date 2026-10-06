@@ -22,6 +22,7 @@ from qiskit_aqt_provider._direct.api_client import DirectAccessAPIClient
 from qiskit_aqt_provider._transformers import partial_qiskit_result_dict
 from qiskit_aqt_provider.api_client import models_direct as api_models_direct
 from qiskit_aqt_provider.exceptions import AQTJobFailedError
+from qiskit_aqt_provider.persistence import JobSnapshot, JobStore, persist_job
 
 
 @dataclass(frozen=True)
@@ -52,6 +53,20 @@ class DirectAccessJob(JobV1):
             RuntimeError: Job submission is performed by backend.run().
         """
         raise RuntimeError("Job is already submitted via backend.run()")
+
+    def persist(self, *, store: JobStore | None = None) -> None:
+        """Persist this submitted job for restoration in a later process."""
+        persist_job(
+            JobSnapshot(
+                job_id=UUID(self.job_id()),
+                backend_kind="direct",
+                backend_name=self._metadata.backend_name,
+                shots=self._metadata.shots,
+                memory=self._metadata.memory,
+                circuits=[self._metadata.circuit],
+            ),
+            store,
+        )
 
     def result(self, *, timeout: float | None = None) -> Result:
         """Blocks until the job finishes processing then returns the result.

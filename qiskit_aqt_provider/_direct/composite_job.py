@@ -21,7 +21,9 @@ from qiskit.result import Result
 from qiskit_aqt_provider._direct.job import DirectAccessJob
 from qiskit_aqt_provider.exceptions import (
     AQTJobFailedError,
+    AQTJobPersistenceError,
 )
+from qiskit_aqt_provider.persistence import JobStore
 
 
 class CompositeDirectAccessJobMetadata(pdt.BaseModel):
@@ -58,6 +60,14 @@ class CompositeDirectAccessJob(JobV1):
             RuntimeError: Job submission is performed by backend.run().
         """
         raise RuntimeError("Job is already submitted via backend.run()")
+
+    def persist(self, *, store: JobStore | None = None) -> None:
+        """Reject persistence because composite jobs submit circuits lazily."""
+        del store
+        raise AQTJobPersistenceError(
+            "Persistence is supported only for submitted single-circuit direct jobs; "
+            "multi-circuit direct jobs submit circuits lazily."
+        )
 
     def result(self, *, timeout: float | None = None) -> Result:
         """Blocks until the job finishes processing then returns the result.
