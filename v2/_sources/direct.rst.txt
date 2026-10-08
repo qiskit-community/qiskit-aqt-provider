@@ -30,7 +30,7 @@ Quantum register size
 
 The number of qubits available on a given resource may vary. This is because the number of ions loaded in an AQT quantum computing resource is adjustable. All-to-all connectivity is always guaranteed, independently of the number of available qubits.
 
-The number of qubits available for direct-access resources cannot be configured with this provider. 
+The number of qubits available for direct-access resources cannot be configured with this provider.
 
 
 .. warning:: The number of qubits is fetched from the resource when initializing the resource handle, i.e. when calling :meth:`get_resource <qiskit_aqt_provider._direct.provider.DirectAccessProvider.get_resource>`. Subsequent transpilation calls will assume that at least this number of qubits is available.

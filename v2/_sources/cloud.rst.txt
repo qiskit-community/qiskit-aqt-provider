@@ -115,6 +115,6 @@ Quantum register size
 
 The number of qubits available on a given resource may vary. This is because the number of ions loaded in an AQT quantum computing resource is adjustable. All-to-all connectivity is always guaranteed, independently of the number of available qubits.
 
-The number of qubits available for cloud resources cannot be configured with this provider. 
+The number of qubits available for cloud resources cannot be configured with this provider.
 
 .. warning:: The number of qubits is fetched from the API when initializing the resource handle, i.e. when calling :meth:`get_backend <qiskit_aqt_provider._cloud.workspace_provider.WorkspaceProvider.get_backend>`. Subsequent transpilation calls will assume that at least this number of qubits is available.

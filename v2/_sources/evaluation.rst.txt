@@ -87,7 +87,7 @@ For example, the :class:`AQTSampler <qiskit_aqt_provider.primitives.sampler.AQTS
 
 .. jupyter-execute::
    :hide-code:
-   
+
    from qiskit.circuit import QuantumCircuit
    from qiskit_aqt_provider import AQTProvider
 

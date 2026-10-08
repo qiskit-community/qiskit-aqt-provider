@@ -4,7 +4,7 @@
    :hide-code:
 
    from math import pi
-   
+
    import qiskit
    from qiskit_aqt_provider import AQTProvider
 

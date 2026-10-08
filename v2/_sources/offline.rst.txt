@@ -11,7 +11,7 @@ This guide covers usage of the Qiskit AQT provider package with the offline AQT 
 Usage
 =====
 
-The offline simulator provider provides access to ideal and noisy simulators that are running locally. 
+The offline simulator provider provides access to ideal and noisy simulators that are running locally.
 
 .. code-block:: python
 
