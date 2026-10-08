@@ -15,6 +15,14 @@
 This project contains a provider that allows access to [AQT](https://www.aqt.eu/) ion-trap quantum computing
 systems.
 
+## Support
+
+Provider v2 supports Python 3.10–3.14 and Qiskit 2.3–2.4.1.
+
+Provider v1 is end-of-life and receives no maintenance or security updates. The
+[`/v1/` documentation](https://qiskit-community.github.io/qiskit-aqt-provider/v1/)
+is retained only as an archive.
+
 ## Usage
 
 See the [documentation](https://qiskit-community.github.io/qiskit-aqt-provider/) and the [examples](https://github.com/qiskit-community/qiskit-aqt-provider/tree/master/examples).

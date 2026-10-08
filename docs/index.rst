@@ -19,6 +19,15 @@ Install the latest release from the `PyPI <https://pypi.org/project/qiskit-aqt-p
 
 .. warning:: Some dependencies might be pinned or tightly constrained to ensure optimal performance. If you encounter conflicts for your use case, please `open an issue <https://github.com/qiskit-community/qiskit-aqt-provider/issues/new/choose>`_.
 
+Support
+-------
+
+Provider v2 supports Python 3.10–3.14 and Qiskit 2.3–2.4.1.
+
+Provider v1 is end-of-life and receives no maintenance or security updates. The
+`/v1/ documentation <https://qiskit-community.github.io/qiskit-aqt-provider/v1/>`_
+is retained only as an archive.
+
 Define a circuit that generates 2-qubit Bell state and sample it on a simulator backend running on the local machine:
 
 .. code-block:: python
