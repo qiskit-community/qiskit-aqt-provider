@@ -1,0 +1,237 @@
+# This code is part of Qiskit.
+#
+# (C) Copyright Alpine Quantum Technologies GmbH 2023
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0).
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+
+import httpx
+import pytest
+from aqt_connector import ArnicaApp, ArnicaConfig
+from qiskit import QuantumCircuit
+from qiskit.circuit import Parameter
+from qiskit.providers import BackendV2, JobV1
+
+from qiskit_aqt_provider._cloud.job import CloudJob
+from qiskit_aqt_provider._cloud.job_metadata import CloudJobMetadata
+from qiskit_aqt_provider._cloud.resource import CloudResource
+from qiskit_aqt_provider.aqt_provider import AQTProvider
+from test.acceptance.conftest import DummyDirectAccessServer
+
+
+def has_cloud_access(monkeypatch: pytest.MonkeyPatch, token: str) -> None:
+    """The user has access to the cloud provider with the given token.
+
+    Args:
+        monkeypatch (pytest.MonkeyPatch): The pytest monkeypatch fixture.
+        token (str): The token to use for cloud access.
+    """
+    monkeypatch.setattr("aqt_connector.log_in", lambda _: token)
+    monkeypatch.setattr("aqt_connector.get_access_token", lambda _: token)
+
+
+def lists_accessible_workspaces(cloud_provider_config: ArnicaConfig) -> set[str]:
+    """Lists the workspaces accessible to the user.
+
+    Args:
+        cloud_provider_config (ArnicaConfig): The configuration for the cloud provider.
+
+    Returns:
+        set[str]: The set of accessible workspace IDs.
+    """
+    with AQTProvider() as provider:
+        workspace_collection = provider.cloud(cloud_provider_config).fetch_workspaces()
+        return {w.id for w in workspace_collection}
+
+
+def lists_cloud_backends_in_workspace(cloud_provider_config: ArnicaConfig, workspace_id: str) -> set[str]:
+    """Lists the cloud backends available in a specific workspace.
+
+    Args:
+        cloud_provider_config (ArnicaConfig): The configuration for the cloud provider.
+        workspace_id (str): The ID of the workspace to list backends from.
+
+    Returns:
+        set[str]: The set of backend IDs available in the specified workspace.
+    """
+    with AQTProvider() as provider:
+        workspace_collection = provider.cloud(cloud_provider_config).fetch_workspaces()
+        workspace_provider = workspace_collection.get_by_id(workspace_id)
+        if workspace_provider is None:
+            raise ValueError(f"Workspace with ID '{workspace_id}' not found.")
+        return {b.id for b in workspace_provider.list_backends()}
+
+
+def acquires_backend_from_workspace(
+    cloud_provider_config: ArnicaConfig, workspace_id: str, backend_id: str
+) -> CloudResource:
+    """Acquires a backend by exact identifier from a specific workspace.
+
+    Args:
+        cloud_provider_config (ArnicaConfig): The configuration for the cloud provider.
+        workspace_id (str): The ID of the workspace to acquire the backend from.
+        backend_id (str): The ID of the backend to acquire.
+
+    Returns:
+        CloudResource: The acquired backend, fully hydrated with details from the cloud provider
+            and retaining its workspace context.
+    """
+    with AQTProvider() as provider:
+        workspace_collection = provider.cloud(cloud_provider_config).fetch_workspaces()
+        workspace_provider = workspace_collection.get_by_id(workspace_id)
+        if workspace_provider is None:
+            raise ValueError(f"Workspace with ID '{workspace_id}' not found.")
+        return workspace_provider.get_backend(backend_id)
+
+
+def submits_circuit(
+    cloud_provider_config: ArnicaConfig,
+    workspace_id: str,
+    backend_id: str,
+    circuit: QuantumCircuit | list[QuantumCircuit],
+    shots: int | None = None,
+) -> CloudJob:
+    """Submits a job to a specific backend in a specific workspace.
+
+    Args:
+        cloud_provider_config (ArnicaConfig): The configuration for the cloud provider.
+        workspace_id (str): The ID of the workspace to submit the job to.
+        backend_id (str): The ID of the backend to submit the job to.
+        circuit (Union[QuantumCircuit, list[QuantumCircuit]]): The quantum circuit(s) to submit as a job.
+        shots (Optional[int]): The number of shots to use for the job execution. If None, the default from the backend
+            will be used.
+
+    Returns:
+        CloudJob: The submitted job, with a stable identity and accessible for polling and result retrieval.
+    """
+    with AQTProvider() as provider:
+        workspace_collection = provider.cloud(cloud_provider_config).fetch_workspaces()
+        workspace_provider = workspace_collection.get_by_id(workspace_id)
+        if workspace_provider is None:
+            raise ValueError(f"Workspace with ID '{workspace_id}' not found.")
+        backend = workspace_provider.get_backend(backend_id)
+
+        if shots is not None:
+            return backend.run(circuit, shots=shots)
+        return backend.run(circuit)
+
+
+def has_submitted_cloud_job(metadata: CloudJobMetadata, api_client: httpx.Client) -> CloudJob:
+    """Builds a cloud job object from known metadata and API client for acceptance tests."""
+    return CloudJob(
+        ArnicaApp(),
+        api_client,
+        metadata,
+    )
+
+
+def acquires_direct_access_backend(base_url: str, access_token: str) -> BackendV2:
+    """Acquires a direct-access backend.
+
+    Args:
+        base_url (str): Base URL of the direct access API.
+        access_token (str): Access token for authentication.
+
+    Returns:
+        BackendV2: The acquired direct-access backend.
+    """
+    provider = AQTProvider()
+    return provider.direct_access().get_resource(base_url, access_token)
+
+
+def has_access_to_direct_access_resource(
+    dummy_direct_access_server: DummyDirectAccessServer, *, name: str = "direct-r1", qubits: int = 6
+) -> tuple[str, int]:
+    """Configures a direct access resource on the dummy server and returns its details.
+
+    Args:
+        dummy_direct_access_server (DummyDirectAccessServer): The fixture for the dummy direct access server.
+        name (str): The name of the direct access resource to configure.
+        qubits (int): The number of qubits for the direct access resource.
+
+    Returns:
+        tuple[str, int]: The name and number of qubits of the configured direct access resource
+    """
+    dummy_direct_access_server.configure_direct_access(name=name, num_ions=qubits)
+    return (name, qubits)
+
+
+def submits_direct_access_circuit(
+    base_url: str, access_token: str, circuit: QuantumCircuit, shots: int | None = None
+) -> JobV1:
+    """Submits a single circuit to a direct-access backend.
+
+    Args:
+        base_url (str): Base URL of the direct access API.
+        access_token (str): Access token for authentication.
+        circuit (QuantumCircuit): Circuit to submit.
+        shots (int | None): Optional number of shots.
+
+    Returns:
+        JobV1: Submitted job.
+    """
+    backend = acquires_direct_access_backend(base_url, access_token)
+    if shots is None:
+        return backend.run(circuit)
+    return backend.run(circuit, shots=shots)
+
+
+def submits_direct_access_circuits(
+    base_url: str,
+    access_token: str,
+    circuits: list[QuantumCircuit],
+    shots: int | None = None,
+) -> JobV1:
+    """Submits multiple circuits to a direct-access backend.
+
+    Args:
+        base_url (str): Base URL of the direct access API.
+        access_token (str): Access token for authentication.
+        circuits (list[QuantumCircuit]): Circuits to submit.
+        shots (int | None): Optional number of shots.
+
+    Returns:
+        JobV1: Submitted composite job.
+    """
+    backend = acquires_direct_access_backend(base_url, access_token)
+    if shots is None:
+        return backend.run(circuits)
+    return backend.run(circuits, shots=shots)
+
+
+def native_circuit(*, num_qubits: int = 1) -> QuantumCircuit:
+    """Builds a minimal native circuit accepted by direct access."""
+    circuit = QuantumCircuit(num_qubits)
+    circuit.measure_all()
+    return circuit
+
+
+def non_native_circuit(*, num_qubits: int = 1) -> QuantumCircuit:
+    """Builds a circuit containing a non-native operation."""
+    circuit = QuantumCircuit(num_qubits)
+    circuit.x(0)
+    circuit.measure_all()
+    return circuit
+
+
+def parametrised_circuit(*, num_qubits: int = 1) -> QuantumCircuit:
+    """Builds a circuit with an unbound parameter."""
+    theta = Parameter("theta")
+    circuit = QuantumCircuit(num_qubits)
+    circuit.rz(theta, 0)
+    circuit.measure_all()
+    return circuit
+
+
+def acquires_offline_simulator_resource(seed_simulator: int | None = None) -> BackendV2:
+    """Acquires an offline simulator resource."""
+    provider = AQTProvider()
+    resource = provider.offline.ideal()
+    if seed_simulator is not None:
+        resource.simulator.options.seed_simulator = seed_simulator
+    return resource

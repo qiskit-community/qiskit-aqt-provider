@@ -15,22 +15,20 @@
 import re
 from collections.abc import Collection, Iterator
 from re import Pattern
-from typing import Literal, Optional, Union
+from typing import Literal, TypeAlias
 
 from aqt_connector.models.arnica.resources import ResourceType
 from aqt_connector.models.arnica.response_bodies.workspaces import Workspace as AQTWorkspace
 from pydantic import BaseModel, ConfigDict, RootModel
 from qiskit.providers.exceptions import JobError
-from typing_extensions import Self, TypeAlias, override
+from typing_extensions import Self, override
 
 
 class UnknownJobError(JobError):
     """An unknown job was requested from the AQT cloud portal."""
 
 
-AQTBackendType: TypeAlias = Literal[
-    ResourceType.DEVICE, ResourceType.SIMULATOR, "offline_simulator", "direct_access"
-]
+AQTBackendType: TypeAlias = Literal[ResourceType.DEVICE, ResourceType.SIMULATOR, "offline_simulator", "direct_access"]
 
 
 class Resource(BaseModel):
@@ -185,9 +183,9 @@ class Workspaces(
     def filter(
         self,
         *,
-        workspace_pattern: Optional[Union[str, Pattern[str]]] = None,
-        name_pattern: Optional[Union[str, Pattern[str]]] = None,
-        backend_type: Optional[AQTBackendType] = None,
+        workspace_pattern: str | Pattern[str] | None = None,
+        name_pattern: str | Pattern[str] | None = None,
+        backend_type: AQTBackendType | None = None,
     ) -> Self:
         """Filtered copy of the list of available workspaces and devices.
 
@@ -203,9 +201,7 @@ class Workspaces(
         """
         filtered_workspaces = []
         for workspace in self.root:
-            if workspace_pattern is not None and not re.match(
-                workspace_pattern, workspace.workspace_id
-            ):
+            if workspace_pattern is not None and not re.match(workspace_pattern, workspace.workspace_id):
                 continue
 
             filtered_resources = []
@@ -219,8 +215,6 @@ class Workspaces(
 
                 filtered_resources.append(resource)
 
-            filtered_workspaces.append(
-                Workspace(workspace_id=workspace.workspace_id, resources=filtered_resources)
-            )
+            filtered_workspaces.append(Workspace(workspace_id=workspace.workspace_id, resources=filtered_resources))
 
         return self.__class__(root=filtered_workspaces)

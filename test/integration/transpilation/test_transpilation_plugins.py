@@ -1,0 +1,103 @@
+# This code is part of Qiskit.
+#
+# (C) Copyright Alpine Quantum Technologies GmbH 2023
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0).
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+
+from math import pi
+
+import pytest
+from qiskit import QuantumCircuit
+from qiskit.compiler import transpile
+from qiskit.transpiler import StagedPassManager, generate_preset_pass_manager
+
+from test.helpers import assert_circuits_equivalent
+from test.integration.transpilation.helpers import DummyResource
+
+
+def collect_pass_names(passmanager: StagedPassManager) -> list[str]:
+    """Helper function to collect the names of passes in a pass manager."""
+    names: list[str] = []
+    for tasklist in passmanager._tasks:
+        for task in tasklist:
+            names.append(type(task).__name__)  # noqa: PERF401
+    return names
+
+
+def test_the_scheduling_plugin_is_registered_with_cloud_backends() -> None:
+    """The AQT transpiler plugins for scheduling should be registered with AQT backends.
+
+    They should be used during transpilation for those backends. This test checks that the expected passes from the
+    plugin are present in the preset pass manager for a CloudResource.
+    """
+    dummy_resource = DummyResource()
+    pm = generate_preset_pass_manager(backend=dummy_resource)
+
+    scheduling_passes = set(collect_pass_names(pm.scheduling))
+
+    assert scheduling_passes == {
+        "EnsureSingleFinalMeasurement",
+        "Decompose",
+        "RewriteRxAsR",
+        "WrapRxxAngles",
+        "Optimize1qGatesDecomposition",
+    }
+
+
+@pytest.mark.parametrize(("optimization_level"), [0, 1, 2, 3])
+def test_transpile_and_generate_preset_pass_manager_run_produce_the_same_results(optimization_level: int) -> None:
+    """Transpiling a circuit with the preset pass manager for an AQT cloud resource should produce the same result as
+    using the transpile function with that resource as the backend.
+    """
+    dummy_resource = DummyResource()
+    qc = QuantumCircuit(2)
+    qc.h(1)
+    qc.ry(0.5, 0)
+    qc.rxx(12, 0, 1)
+    qc.h(0)
+    qc.measure_all()
+
+    transpiled_1 = generate_preset_pass_manager(backend=dummy_resource, optimization_level=optimization_level).run(qc)
+    transpiled_2 = transpile(backend=dummy_resource, circuits=qc, optimization_level=optimization_level)
+
+    assert transpiled_1 == transpiled_2
+
+
+def test_scheduling_plugin_passes_order_is_correct() -> None:
+    """The order of passes in the scheduling plugin should be correct."""
+    dummy_resource = DummyResource()
+    pm = generate_preset_pass_manager(backend=dummy_resource, optimization_level=0)
+
+    scheduling_passes = collect_pass_names(pm.scheduling)
+
+    assert scheduling_passes[-5:] == [
+        "WrapRxxAngles",
+        "Decompose",
+        "Optimize1qGatesDecomposition",
+        "RewriteRxAsR",
+        "EnsureSingleFinalMeasurement",
+    ]
+
+
+def test_decompose_1q_rotations_example() -> None:
+    """Snapshot test for the efficient rewrite of single-qubit rotation runs as ZXZ."""
+    dummy_resource = DummyResource()
+    qc = QuantumCircuit(1)
+    qc.rx(pi / 2, 0)
+    qc.ry(pi / 2, 0)
+    expected = QuantumCircuit(1)
+    expected.rz(-pi / 2, 0)
+    expected.r(pi / 2, 0, 0)
+
+    pm = generate_preset_pass_manager(backend=dummy_resource, optimization_level=3)
+    result = pm.run(qc)
+
+    assert isinstance(result, QuantumCircuit)
+    assert_circuits_equivalent(result, expected)
+    assert result == expected

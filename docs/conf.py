@@ -12,14 +12,13 @@
 
 """Sphinx documentation builder."""
 
-project = "Qiskit AQT Provider"
-copyright = "2023, Qiskit and AQT development teams"
-author = "Qiskit and AQT development teams"
+from datetime import date
+from importlib import metadata
 
-# The short X.Y version
-version = "1.15.0"
-# The full version, including alpha/beta/rc tags
-release = "1.15.0"
+project = "Qiskit AQT Provider"
+copyright = f"{date.today().year}, Qiskit and AQT development teams"
+author = "Qiskit and AQT development teams"
+release = metadata.version("qiskit_aqt_provider")
 
 extensions = [
     "sphinx.ext.napoleon",
@@ -55,9 +54,21 @@ nitpick_ignore = [
     ("py:class", "pydantic.main.BaseModel"),
     ("py:class", "Backend"),
     ("py:class", "Target"),
+    ("py:class", "AuthenticationConfig"),
+    ("py:class", "BasePrimitiveJob"),
+    ("py:class", "EstimatorPubLike"),
+    ("py:class", "Job"),
+    ("py:class", "JobStatus"),
+    ("py:class", "JobV1"),
+    ("py:class", "Path"),
+    ("py:class", "PrimitiveResult"),
+    ("py:class", "PubResult"),
+    ("py:class", "QuantumCircuit"),
+    ("py:class", "SamplerPubLike"),
+    ("py:class", "SamplerPubResult"),
+    ("py:class", "WorkspaceResource"),
     ("py:exc", "QiskitBackendNotFoundError"),
     ("py:exc", "JobTimeoutError"),
-    ("py:class", "qiskit_aqt_provider.aqt_resource._OptionsType"),
     # No inventory available for httpx
     # https://github.com/encode/httpx/issues/3145
     ("py:exc", "httpx.NetworkError"),
@@ -87,6 +98,6 @@ autodoc_pydantic_field_list_validators = False
 
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
-    "qiskit": ("https://quantum.cloud.ibm.com/docs/api/qiskit/1.4", None),
+    "qiskit": ("https://quantum.cloud.ibm.com/docs/api/qiskit", None),
     "pydantic": ("https://docs.pydantic.dev/latest/", None),
 }

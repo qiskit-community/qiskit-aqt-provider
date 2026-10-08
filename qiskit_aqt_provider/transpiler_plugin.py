@@ -9,59 +9,53 @@
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
+"""AQT transpiler plugin.
+
+The transpilation for AQT backends is based on
+[custom plugins](https://quantum.cloud.ibm.com/docs/en/api/qiskit/transpiler_plugins#writing-plugins)
+that are connected to the AQT resources/backends with
+[custom transpiler passes](https://quantum.cloud.ibm.com/docs/en/api/qiskit/providers#custom-transpiler-passes)
+for backends. We currently have a plugin for the scheduling stage, which is the last stage of transpilation. It includes
+the following passes:
+  - Decomposing single-qubit gates
+  - Rewriting RX → R, also wrapping the angles
+  - Wrapping RXX gate angles again. Due to optimization there may be incompatible angles again
+  - Decomposing wrapped RXX gates
+  - Remove redundant final measurements and raise error for mid-circuit measurements
+"""
 
 import math
-from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Final, Optional
+from enum import Enum, auto
+from typing import Final
 
 import numpy as np
 from qiskit import QuantumCircuit
-from qiskit.circuit import Gate, Instruction
+from qiskit.circuit import Clbit, Gate, Instruction, Qubit
 from qiskit.circuit.library import RGate, RXGate, RXXGate, RZGate
 from qiskit.circuit.tools import pi_check
-from qiskit.dagcircuit import DAGCircuit
-from qiskit.transpiler import Target
-from qiskit.transpiler.basepasses import BasePass, TransformationPass
+from qiskit.dagcircuit import DAGCircuit, DAGOpNode
+from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.transpiler.exceptions import TranspilerError
 from qiskit.transpiler.passes import Decompose, Optimize1qGatesDecomposition
-from qiskit.transpiler.passmanager import PassManager
+from qiskit.transpiler.passmanager import PassManager, Task
 from qiskit.transpiler.passmanager_config import PassManagerConfig
-from qiskit.transpiler.preset_passmanagers import common
 from qiskit.transpiler.preset_passmanagers.plugin import PassManagerStagePlugin
 
 from qiskit_aqt_provider.utils import map_exceptions
 
 
-class UnboundParametersTarget(Target):
-    """Marker class for transpilation targets to disable passes that require bound parameters."""
-
-
-def bound_pass_manager() -> PassManager:
-    """Transpilation passes to apply on circuits after the parameters are bound.
-
-    This assumes that a preset pass manager was applied to the unbound circuits
-    (by setting the target to an instance of `UnboundParametersTarget`).
-    """
-    return PassManager(
-        [
-            # wrap the Rxx angles
-            WrapRxxAngles(),
-            # decompose the substituted Rxx gates
-            Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]),
-            # collapse the single-qubit gates runs as ZXZ
-            Optimize1qGatesDecomposition(basis=["rx", "rz"]),
-            # wrap the Rx angles, rewrite as R
-            RewriteRxAsR(),
-        ]
-    )
-
-
-def rewrite_rx_as_r(theta: float) -> Instruction:
+def _rewrite_rx_as_r(theta: float) -> Instruction:
     """Instruction equivalent to Rx(θ) as R(θ, φ) with θ ∈ [0, π] and φ ∈ [0, 2π]."""
     theta = math.atan2(math.sin(theta), math.cos(theta))
     phi = math.pi if theta < 0.0 else 0.0
     return RGate(abs(theta), phi)
+
+
+class _MeasurementAction(Enum):
+    COPY = auto()
+    SKIP = auto()
+    RECORD_AND_COPY = auto()
 
 
 class RewriteRxAsR(TransformationPass):
@@ -77,41 +71,108 @@ class RewriteRxAsR(TransformationPass):
         for node in dag.gate_nodes():
             if node.name == "rx":
                 (theta,) = node.op.params
-                dag.substitute_node(node, rewrite_rx_as_r(float(theta)))
+                dag.substitute_node(node, _rewrite_rx_as_r(float(theta)))
         return dag
 
 
-class AQTSchedulingPlugin(PassManagerStagePlugin):
-    """Scheduling stage plugin for the :mod:`qiskit.transpiler`.
+class EnsureSingleFinalMeasurement(TransformationPass):
+    """Ensure at most one measurement per qubit, only at the end of the circuit."""
 
-    If the transpilation target is not :class:`UnboundParametersTarget`,
-    register a single-qubit gates run decomposition and a :class:`RewriteRxAsR` pass,
-    irrespective of the optimization level.
-    """
+    @staticmethod
+    def _copy_empty_dag(dag: DAGCircuit) -> tuple[DAGCircuit, dict[Qubit, Qubit], dict[Clbit, Clbit]]:
+        """Copy the DAG structure without its operations."""
+        new_dag = DAGCircuit()
+        new_dag.name = dag.name
+        new_dag.metadata = dag.metadata.copy() if dag.metadata else {}
+        new_dag.global_phase = dag.global_phase
 
-    def pass_manager(
-        self,
-        pass_manager_config: PassManagerConfig,
-        optimization_level: Optional[int] = None,  # noqa: ARG002
-    ) -> PassManager:
-        """Pass manager for the scheduling phase."""
-        if isinstance(pass_manager_config.target, UnboundParametersTarget):
-            return PassManager([])
+        for qreg in dag.qregs.values():
+            new_dag.add_qreg(qreg)
+        for creg in dag.cregs.values():
+            new_dag.add_creg(creg)
 
-        passes: list[BasePass] = [
-            # The transpilation target defines R/RZ/RXX as basis gates, so the
-            # single-qubit gates decomposition pass uses a RR decomposition, which
-            # emits code that requires two pulses per single-qubit gates run.
-            # Since Z gates are virtual, a ZXZ decomposition is better, because
-            # it only requires a single pulse.
-            # Apply the single-qubit gates decomposition assuming the basis gates are
-            # RX/RZ/RXX, then rewrite RX → R, also wrapping the angles to match
-            # the API constraints.
-            Optimize1qGatesDecomposition(basis=["rx", "rz"]),
-            RewriteRxAsR(),
-        ]
+        # Some circuits include anonymous bits not attached to any register.
+        # Preserve them so all operation arguments are representable in the rebuilt DAG.
+        for qbit in dag.qubits:
+            if qbit not in new_dag.qubits:
+                new_dag.add_qubits([qbit])
+        for cbit in dag.clbits:
+            if cbit not in new_dag.clbits:
+                new_dag.add_clbits([cbit])
 
-        return PassManager(passes)
+        return (
+            new_dag,
+            dict(zip(dag.qubits, new_dag.qubits, strict=True)),
+            dict(zip(dag.clbits, new_dag.clbits, strict=True)),
+        )
+
+    @staticmethod
+    def _apply_mapped_op(
+        dag: DAGCircuit,
+        node: DAGOpNode,
+        qbit_map: dict[Qubit, Qubit],
+        cbit_map: dict[Clbit, Clbit],
+    ) -> None:
+        """Apply a source operation to a rebuilt DAG using the rebuilt DAG's bits."""
+        dag.apply_operation_back(
+            node.op,
+            [qbit_map[qarg] for qarg in node.qargs],
+            [cbit_map[carg] for carg in node.cargs],
+        )
+
+    @staticmethod
+    def _final_measurement_action(
+        node: DAGOpNode,
+        *,
+        seen_measure: bool,
+        measured_qubits: set[Qubit],
+    ) -> _MeasurementAction:
+        """Choose how the final-measurement pass should process a node."""
+        op_name = node.op.name
+
+        if op_name == "measure":
+            return _MeasurementAction.SKIP if node.qargs[0] in measured_qubits else _MeasurementAction.RECORD_AND_COPY
+
+        if op_name == "barrier":
+            return _MeasurementAction.SKIP if seen_measure else _MeasurementAction.COPY
+
+        if seen_measure:
+            raise TranspilerError(
+                "Measurement must only occur at the end of the circuit (found non-measure operation after measurement)."
+            )
+
+        return _MeasurementAction.COPY
+
+    @map_exceptions(TranspilerError)
+    def run(self, dag: DAGCircuit) -> DAGCircuit:
+        """Ensures exactly one measurement at the end of the circuit.
+
+        Some algorithms introduce measurements. If they are at the end of the circuit, they can be
+        safely replaced by a single measure all operation. This pass ensures that there is exactly
+        one measurement at the end of the circuit, and raises a TranspilerError if it finds a
+        mid-circuit measurement.
+        """
+        ops = list(dag.topological_op_nodes())
+
+        if not ops:
+            return dag
+
+        seen_measure = False
+        measured_qubits: set[Qubit] = set()
+        new_dag, qbit_map, cbit_map = self._copy_empty_dag(dag)
+
+        for node in ops:
+            action = self._final_measurement_action(node, seen_measure=seen_measure, measured_qubits=measured_qubits)
+
+            if action is _MeasurementAction.SKIP:
+                continue
+            if action is _MeasurementAction.RECORD_AND_COPY:
+                measured_qubits.add(node.qargs[0])
+                seen_measure = True
+
+            self._apply_mapped_op(new_dag, node, qbit_map, cbit_map)
+
+        return new_dag
 
 
 @dataclass(frozen=True)
@@ -149,7 +210,7 @@ def _emit_rxx_instruction(theta: float, instructions: list[CircuitInstruction]) 
     return qc.to_instruction()
 
 
-def wrap_rxx_angle(theta: float) -> Instruction:
+def _wrap_rxx_angle(theta: float) -> Instruction:
     """Instruction equivalent to RXX(θ) with θ ∈ [0, π/2]."""
     # fast path if -π/2 <= θ <= π/2
     if abs(theta) <= math.pi / 2:
@@ -190,48 +251,56 @@ class WrapRxxAngles(TransformationPass):
                 if 0 <= float(theta) <= math.pi / 2:
                     continue
 
-                rxx = wrap_rxx_angle(float(theta))
+                rxx = _wrap_rxx_angle(float(theta))
                 dag.substitute_node(node, rxx)
 
         return dag
 
 
-class AQTTranslationPlugin(PassManagerStagePlugin):
-    """Translation stage plugin for the :mod:`qiskit.transpiler`.
+class AQTSchedulingPlugin(PassManagerStagePlugin):
+    """Scheduling stage plugin for the :mod:`qiskit.transpiler`.
 
-    If the transpilation target is not :class:`UnboundParametersTarget`,
-    register a :class:`WrapRxxAngles` pass after the preset pass irrespective
-    of the optimization level.
+    Register the following passes to conclude transpilation, irrespective of the optimization level:
+    1. :class:`WrapRxxAngles` pass to wrap Rxx angles to [0, π/2].
+    2. Pass for the wrapped RXX gates decomposition.
+    3. Single-qubit gates decomposition. It uses a RR decomposition, which emits code that requires
+    two pulses per single-qubit gates run. Since Z gates are virtual, a ZXZ decomposition is
+    better, because it only requires a single pulse.
+    4. :class:`RewriteRxAsR` pass to rewrite RX → R, also wrapping the angles to match the API
+    constraints.
+    5. Remove redundant final measurements and raise error for mid-circuit measurements.
+
+    Note: This plugin was originally created for Qiskit 1. Qiskit 2 introduces a transpiler pass
+    :class:`WrapAngles <qiskit.transpiler.passes.WrapAngles>` for
+    wrapping angles and it may be possible to find a better solution based on it.
     """
 
     def pass_manager(
         self,
-        pass_manager_config: PassManagerConfig,
-        optimization_level: Optional[int] = None,
+        pass_manager_config: PassManagerConfig,  # noqa: ARG002
+        optimization_level: int | None = None,  # noqa: ARG002
     ) -> PassManager:
-        """Pass manager for the translation stage."""
-        translation_pm = common.generate_translation_passmanager(
-            target=pass_manager_config.target,
-            basis_gates=pass_manager_config.basis_gates,
-            approximation_degree=pass_manager_config.approximation_degree,
-            coupling_map=pass_manager_config.coupling_map,
-            backend_props=pass_manager_config.backend_properties,
-            unitary_synthesis_method=pass_manager_config.unitary_synthesis_method,
-            unitary_synthesis_plugin_config=pass_manager_config.unitary_synthesis_plugin_config,
-            hls_config=pass_manager_config.hls_config,
-        )
-
-        if isinstance(pass_manager_config.target, UnboundParametersTarget):
-            return translation_pm
-
-        passes: Sequence[BasePass] = [
+        """Pass manager for the scheduling phase."""
+        passes: list[Task] = [
             WrapRxxAngles(),
-        ] + (
-            [
-                Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]),
-            ]
-            if optimization_level is None or optimization_level == 0
-            else []
-        )
+            Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]),
+            Optimize1qGatesDecomposition(basis=["rx", "rz"]),
+            RewriteRxAsR(),
+            EnsureSingleFinalMeasurement(),
+        ]
+        return PassManager(passes)
 
-        return translation_pm + PassManager(passes)
+
+class TranspilerMixin:
+    """Mixin class to connect the custom transpiler plugin to the AQT backends.
+
+     Qiskit allows to connect
+    [custom transpiler passes](https://quantum.cloud.ibm.com/docs/en/api/qiskit/providers#custom-transpiler-passes)
+    to backends via transpiler plugins. This is possible for the scheduling stage through the
+    method `get_scheduling_stage_plugin`. This is used to connect the appropriate transpiler plugin
+    to AQT backends.
+    """
+
+    def get_scheduling_stage_plugin(self) -> str:
+        """For usage of the custom scheduling stage plugin in the Qiskit transpiler."""
+        return "aqt"

@@ -1,0 +1,190 @@
+# This code is part of Qiskit.
+#
+# (C) Copyright Alpine Quantum Technologies GmbH 2023
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0).
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+
+from collections.abc import Sequence
+from dataclasses import dataclass
+from functools import partial
+from uuid import UUID
+
+import pydantic as pdt
+from aqt_connector.models.circuits import QuantumCircuit as AQTQuantumCircuit
+from qiskit.circuit import QuantumCircuit
+from qiskit.circuit.library import RGate, RXXGate, RZGate
+from qiskit.circuit.measure import Measure
+from qiskit.circuit.parameter import Parameter
+from qiskit.providers import BackendV2, JobV1
+from qiskit.transpiler import Target
+from typing_extensions import Unpack
+
+from qiskit_aqt_provider._direct.api_client import DirectAccessAPIClient
+from qiskit_aqt_provider._direct.composite_job import (
+    CompositeDirectAccessJob,
+    CompositeDirectAccessJobMetadata,
+)
+from qiskit_aqt_provider._direct.job import DirectAccessJob, DirectAccessJobMetadata
+from qiskit_aqt_provider._transformers import qiskit_to_aqt_circuit
+from qiskit_aqt_provider.exceptions import AQTJobPersistenceError
+from qiskit_aqt_provider.options import ResourceRunOptions
+from qiskit_aqt_provider.persistence import JobStore, delete_job, restore_job
+from qiskit_aqt_provider.transpiler_plugin import TranspilerMixin
+
+
+@dataclass
+class DirectAccessResourceConfig:
+    name: str
+    number_of_ions: int
+    client: DirectAccessAPIClient
+
+
+class DirectAccessOptions(pdt.BaseModel):
+    """Options for a direct access resource."""
+
+    shots: pdt.PositiveInt = pdt.Field(default=100)
+
+
+class DirectAccessResource(BackendV2, TranspilerMixin):
+    """A resource with direct access."""
+
+    MAX_SHOTS = 2000
+
+    def __init__(self, config: DirectAccessResourceConfig) -> None:
+        """Initializes a direct access resource with the given configuration."""
+        self._api_client = config.client
+        self._resource_id = config.name
+        super().__init__(name=config.name)
+        self._update_target(config.number_of_ions)
+
+    @property
+    def id(self) -> str:
+        """The resource's identifier."""
+        return self._resource_id
+
+    @property
+    def target(self) -> Target:
+        """The resource's target."""
+        return self._target
+
+    @property
+    def max_circuits(self) -> int:
+        """Maximum number of circuits per batch."""
+        return 50
+
+    @classmethod
+    def _default_options(cls) -> DirectAccessOptions:
+        """Get the default options.
+
+        Returns:
+            DirectAccessOptions: The default options for this resource.
+        """
+        return DirectAccessOptions()
+
+    def run(
+        self,
+        circuit: QuantumCircuit | Sequence[QuantumCircuit],
+        **kwargs: Unpack[ResourceRunOptions],
+    ) -> JobV1:
+        """Run a quantum circuit or a sequence of quantum circuits on the resource.
+
+        Args:
+            circuit (QuantumCircuit | Sequence[QuantumCircuit]): The quantum circuit(s) to run.
+            shots (int | None): The number of shots to execute. If not provided, the default from the resource's options
+                will be used.
+            memory (bool | None): Whether to return memory slots. Default is False.
+
+        Returns:
+            qiskit.providers.JobV1: The job representing the execution of the circuit(s).
+        """
+        memory = kwargs.get("memory") or False
+        shots = kwargs.get("shots")
+        if shots is None:
+            shots = self._options.shots
+        if shots < 1 or shots > self.MAX_SHOTS:
+            raise ValueError(f"Shots must be in the range [1, {self.MAX_SHOTS}].")
+
+        if isinstance(circuit, QuantumCircuit):
+            return self._prepare_single_circuit_job(circuit, shots, memory)
+
+        return self._prepare_multi_circuit_job(circuit, shots, memory)
+
+    def _update_target(self, num_qubits: int) -> None:
+        """Updates the target of this resource based on the given number of qubits."""
+        theta = Parameter("θ")
+        phi = Parameter("φ")
+        lam = Parameter("λ")
+
+        target = Target(num_qubits=num_qubits)
+        target.add_instruction(RZGate(lam))
+        target.add_instruction(RGate(theta, phi))
+        target.add_instruction(RXXGate(theta))
+        target.add_instruction(Measure())
+
+        self._target = target
+
+    def restore_job(self, job_id: str, *, store: JobStore | None = None, delete: bool = False) -> DirectAccessJob:
+        """Restore a persisted single-circuit direct-access job."""
+        snapshot = restore_job(
+            job_id,
+            store=store,
+            backend_kind="direct",
+            backend_name=self.id,
+        )
+        if len(snapshot.circuits) != 1:
+            raise AQTJobPersistenceError("A direct-access job must contain exactly one circuit")
+        job = DirectAccessJob(
+            self._api_client,
+            UUID(job_id),
+            DirectAccessJobMetadata(
+                backend_name=snapshot.backend_name,
+                shots=snapshot.shots,
+                circuit=snapshot.circuits[0],
+                memory=snapshot.memory,
+            ),
+        )
+        if delete:
+            delete_job(job_id, store)
+        return job
+
+    def _prepare_single_circuit_job(self, circuit: QuantumCircuit, shots: int, memory: bool) -> DirectAccessJob:
+        """Creates a DirectAccessJob for a single circuit."""
+        payload = AQTQuantumCircuit(
+            repetitions=shots,
+            quantum_circuit=qiskit_to_aqt_circuit(circuit),
+            number_of_qubits=circuit.num_qubits,
+        )
+        metadata = DirectAccessJobMetadata(backend_name=self._resource_id, shots=shots, circuit=circuit, memory=memory)
+        return self._submit_one(payload, metadata)
+
+    def _prepare_multi_circuit_job(
+        self, circuits: Sequence[QuantumCircuit], shots: int, memory: bool
+    ) -> CompositeDirectAccessJob:
+        """Creates a CompositeDirectAccessJob for multiple circuits."""
+        payloads = [
+            AQTQuantumCircuit(
+                repetitions=shots,
+                quantum_circuit=qiskit_to_aqt_circuit(c),
+                number_of_qubits=c.num_qubits,
+            )
+            for c in circuits
+        ]
+        circuit_metadata = [
+            DirectAccessJobMetadata(backend_name=self._resource_id, shots=shots, circuit=c, memory=memory)
+            for c in circuits
+        ]
+        job_submitters = [partial(self._submit_one, p, m) for p, m in zip(payloads, circuit_metadata)]
+
+        composite_metadata = CompositeDirectAccessJobMetadata(backend_name=self._resource_id)
+        return CompositeDirectAccessJob(composite_metadata, job_submitters)
+
+    def _submit_one(self, payload: AQTQuantumCircuit, metadata: DirectAccessJobMetadata) -> DirectAccessJob:
+        """Submits a single circuit to the resource and returns the corresponding job."""
+        job_id = self._api_client.submit_circuit(payload)
+        return DirectAccessJob(self._api_client, job_id, metadata)

@@ -10,13 +10,13 @@
 
 import importlib.metadata
 import platform
-from typing import Final, Optional
+from typing import Final
 
 PACKAGE_VERSION: Final = importlib.metadata.version("qiskit-aqt-provider")
 __version__: Final = PACKAGE_VERSION
 
 
-def make_user_agent(name: str, *, extra: Optional[str] = None) -> str:
+def make_user_agent(name: str, *, extra: str | None = None) -> str:
     """User-agent strings factory.
 
     Args:

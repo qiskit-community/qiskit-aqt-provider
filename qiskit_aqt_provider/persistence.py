@@ -1,171 +1,184 @@
 # This code is part of Qiskit.
 #
-# (C) Copyright Alpine Quantum Technologies 2023
+# (C) Copyright Alpine Quantum Technologies GmbH 2026
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
-# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+# of this source tree or at [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0).
 #
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-import base64
 import io
-from pathlib import Path
-from typing import Any, Optional, Union
+import json
+from dataclasses import dataclass
+from typing import Final, Literal, Protocol, runtime_checkable
+from uuid import UUID
 
-import platformdirs
 import pydantic as pdt
-from pydantic import ConfigDict, GetCoreSchemaHandler
-from pydantic_core import CoreSchema, core_schema
 from qiskit import qpy
 from qiskit.circuit import QuantumCircuit
-from typing_extensions import Self
 
-from qiskit_aqt_provider.api_client import Resource
-from qiskit_aqt_provider.aqt_options import AQTOptions
-from qiskit_aqt_provider.utils import map_exceptions
-from qiskit_aqt_provider.versions import QISKIT_AQT_PROVIDER_VERSION
+from qiskit_aqt_provider._file_job_store import FileJobStore
+from qiskit_aqt_provider.exceptions import (
+    AQTJobBackendMismatchError,
+    AQTJobCorruptError,
+    AQTJobIncompatibleError,
+    AQTJobNotFoundError,
+    AQTJobPersistenceError,
+)
 
+__all__ = [
+    "FileJobStore",
+    "JobBackendMismatchError",
+    "JobCorruptError",
+    "JobIncompatibleError",
+    "JobNotFoundError",
+    "JobPersistenceError",
+    "JobSnapshot",
+    "JobStore",
+    "decode_job",
+    "delete_job",
+    "encode_job",
+    "persist_job",
+    "restore_job",
+]
 
-class JobNotFoundError(Exception):
-    """A job was not found in persistent storage."""
+JobKind = Literal["cloud", "direct"]
+FORMAT_VERSION: Final = 1
 
-
-class Circuits:
-    """Custom Pydantic type to persist and restore lists of Qiskit circuits.
-
-    Serialization of :class:`QuantumCircuit <qiskit.circuit.QuantumCircuit>` instances is
-    provided by :mod:`qiskit.qpy`.
-    """
-
-    def __init__(self, circuits: list[QuantumCircuit]) -> None:
-        """Initialize a container filled with the given circuits."""
-        self.circuits = circuits
-
-    @classmethod
-    def __get_pydantic_core_schema__(
-        cls, source_type: Any, handler: GetCoreSchemaHandler
-    ) -> CoreSchema:
-        """Setup custom validator, to turn this class into a pydantic model."""
-        return core_schema.no_info_plain_validator_function(function=cls.validate)
-
-    @classmethod
-    def validate(cls, value: Union[Self, str]) -> Self:
-        """Parse the base64-encoded :mod:`qiskit.qpy` representation of a list of quantum circuits.
-
-        Because initializing a Pydantic model also triggers validation, this parser accepts
-        already formed instances of this class and returns them unvalidated.
-        """
-        if isinstance(value, Circuits):  # self bypass
-            return value
-
-        if not isinstance(value, str):
-            raise ValueError(f"Expected string, received {type(value)}")
-
-        data = base64.b64decode(value.encode("ascii"))
-        buf = io.BytesIO(data)
-        obj = qpy.load(buf)
-
-        if not isinstance(obj, list):
-            obj = [obj]
-
-        for n, qc in enumerate(obj):
-            if not isinstance(qc, QuantumCircuit):
-                raise ValueError(f"Object at position {n} is not a QuantumCircuit: {type(qc)}")
-
-        return cls(circuits=obj)
-
-    @classmethod
-    def json_encoder(cls, value: Self) -> str:
-        """Return a base64-encoded QPY representation of the held list of circuits."""
-        buf = io.BytesIO()
-        qpy.dump(value.circuits, buf)
-        return base64.b64encode(buf.getvalue()).decode("ascii")
+JobPersistenceError = AQTJobPersistenceError
+JobNotFoundError = AQTJobNotFoundError
+JobCorruptError = AQTJobCorruptError
+JobIncompatibleError = AQTJobIncompatibleError
+JobBackendMismatchError = AQTJobBackendMismatchError
 
 
-class Job(pdt.BaseModel):
-    """Model for job persistence in local storage."""
+@runtime_checkable
+class JobStore(Protocol):
+    """Port used to save and retrieve opaque persisted job payloads."""
 
-    model_config = ConfigDict(frozen=True, json_encoders={Circuits: Circuits.json_encoder})
+    def save(self, job_id: str, payload: bytes) -> None:
+        """Save a payload under a job ID."""
 
-    resource: Resource
-    circuits: Circuits
-    options: AQTOptions
+    def load(self, job_id: str) -> bytes:
+        """Load a payload by job ID."""
 
-    @classmethod
-    @map_exceptions(JobNotFoundError, source_exc=(FileNotFoundError,))
-    def restore(cls, job_id: str, store_path: Path) -> Self:
-        """Load data for a job by ID from local storage.
-
-        Args:
-            job_id: identifier of the job to restore.
-            store_path: path to the local storage directory.
-
-        Raises:
-            JobNotFoundError: no job with the given identifier is stored in the local storage.
-        """
-        data = cls.filepath(job_id, store_path).read_text("utf-8")
-        return cls.model_validate_json(data)
-
-    def persist(self, job_id: str, store_path: Path) -> Path:
-        """Persist the job data to the local storage.
-
-        Args:
-            job_id: storage key for this job data.
-            store_path: path to the local storage directory.
-
-        Returns:
-            The path of the persisted data file.
-        """
-        filepath = self.filepath(job_id, store_path)
-        filepath.write_text(self.model_dump_json(), "utf-8")
-        return filepath
-
-    @classmethod
-    def remove_from_store(cls, job_id: str, store_path: Path) -> None:
-        """Remove persisted job data from the local storage.
-
-        This function also succeeds if there is no data under `job_id`.
-
-        Args:
-            job_id: storage key for the data to delete.
-            store_path: path to the local storage directory.
-        """
-        cls.filepath(job_id, store_path).unlink(missing_ok=True)
-
-    @classmethod
-    def filepath(cls, job_id: str, store_path: Path) -> Path:
-        """Path of the file to store data under a given key in local storage.
-
-        Args:
-            job_id: storage key for the data.
-            store_path: path to the local storage directory.
-        """
-        return store_path / job_id
+    def delete(self, job_id: str) -> None:
+        """Delete a payload by job ID."""
 
 
-def get_store_path(override: Optional[Path] = None) -> Path:
-    """Resolve the local persistence store path.
+@dataclass(frozen=True)
+class JobSnapshot:
+    """The state needed to recreate a submitted remote job handle."""
 
-    By default, this is the user cache directory for this package.
-    Different cache directories are used for different package versions.
+    job_id: UUID
+    backend_kind: JobKind
+    backend_name: str
+    shots: int
+    memory: bool
+    circuits: list[QuantumCircuit]
 
-    Args:
-        override: if given, return this override instead of the default path.
 
-    Returns:
-       Path for the persistence store. Ensured to exist.
-    """
-    if override is not None:
-        override.mkdir(parents=True, exist_ok=True)
-        return override
+class _JobHeader(pdt.BaseModel):
+    job_id: UUID
+    backend_kind: JobKind
+    backend_name: str
+    shots: pdt.PositiveInt
+    memory: bool
+    circuit_count: pdt.PositiveInt
 
-    return Path(
-        platformdirs.user_cache_dir(
-            "qiskit_aqt_provider",
-            version=QISKIT_AQT_PROVIDER_VERSION,
-            ensure_exists=True,
-        )
+
+def encode_job(snapshot: JobSnapshot) -> bytes:
+    """Encode a job snapshot as a versioned JSON header followed by QPY circuits."""
+    if not snapshot.circuits:
+        raise ValueError("A persisted job must contain at least one circuit")
+
+    header = {
+        "format_version": FORMAT_VERSION,
+        "job_id": str(snapshot.job_id),
+        "backend_kind": snapshot.backend_kind,
+        "backend_name": snapshot.backend_name,
+        "shots": snapshot.shots,
+        "memory": snapshot.memory,
+        "circuit_count": len(snapshot.circuits),
+    }
+    circuit_data = io.BytesIO()
+    qpy.dump(snapshot.circuits, circuit_data)
+    return json.dumps(header, separators=(",", ":")).encode("utf-8") + b"\n" + circuit_data.getvalue()
+
+
+def decode_job(payload: bytes) -> JobSnapshot:
+    """Decode and validate a persisted job payload."""
+    try:
+        header_data, circuit_data = payload.split(b"\n", maxsplit=1)
+        raw_header = json.loads(header_data.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
+        raise JobCorruptError("Persisted job has an invalid header") from exc
+
+    if not isinstance(raw_header, dict):
+        raise JobCorruptError("Persisted job header is not an object")
+    if raw_header.get("format_version") != FORMAT_VERSION:
+        raise JobIncompatibleError("Persisted job uses an unsupported format version")
+
+    try:
+        header = _JobHeader.model_validate(raw_header)
+    except pdt.ValidationError as exc:
+        raise JobCorruptError("Persisted job metadata is invalid") from exc
+
+    try:
+        circuits = qpy.load(io.BytesIO(circuit_data))
+    except Exception as exc:
+        raise JobCorruptError("Persisted job circuits cannot be decoded") from exc
+
+    if not isinstance(circuits, list):
+        raise JobCorruptError("Persisted job circuits are not a list")
+    if len(circuits) != header.circuit_count or not all(isinstance(circuit, QuantumCircuit) for circuit in circuits):
+        raise JobCorruptError("Persisted job contains an unexpected circuit payload")
+
+    return JobSnapshot(
+        job_id=header.job_id,
+        backend_kind=header.backend_kind,
+        backend_name=header.backend_name,
+        shots=header.shots,
+        memory=header.memory,
+        circuits=circuits,
     )
+
+
+def persist_job(snapshot: JobSnapshot, store: JobStore | None = None) -> None:
+    """Persist a snapshot using the supplied store or the default file store."""
+    _resolve_store(store).save(str(snapshot.job_id), encode_job(snapshot))
+
+
+def restore_job(
+    job_id: str,
+    *,
+    store: JobStore | None = None,
+    backend_kind: JobKind,
+    backend_name: str,
+) -> JobSnapshot:
+    """Load a snapshot and verify that it belongs to the requested backend."""
+    snapshot = decode_job(_resolve_store(store).load(job_id))
+    try:
+        requested_id = UUID(job_id)
+    except (ValueError, AttributeError, TypeError) as exc:
+        raise JobPersistenceError(f"Invalid job ID: {job_id}") from exc
+
+    if snapshot.job_id != requested_id:
+        raise JobCorruptError("Persisted job ID does not match its storage key")
+    if snapshot.backend_kind != backend_kind or snapshot.backend_name != backend_name:
+        raise JobBackendMismatchError(
+            f"Persisted job belongs to {snapshot.backend_kind} backend {snapshot.backend_name!r}"
+        )
+    return snapshot
+
+
+def delete_job(job_id: str, store: JobStore | None = None) -> None:
+    """Delete a persisted job using the supplied store or the default file store."""
+    _resolve_store(store).delete(job_id)
+
+
+def _resolve_store(store: JobStore | None) -> JobStore:
+    return store if store is not None else FileJobStore()
