@@ -1,11 +1,22 @@
 #!/usr/bin/env python3
+# This code is part of Qiskit.
+#
+# (C) Copyright Alpine Quantum Technologies GmbH 2023
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0).
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
 
 import re
 import shlex
 import subprocess
 import sys
 from pathlib import Path
-from typing import Final, Optional
+from typing import Final
 
 import typer
 from mistletoe import block_token
@@ -14,7 +25,7 @@ from mistletoe.block_token import Document
 from typing_extensions import override
 
 REVISION_HEADER_LEVEL: Final = 2
-HEADER_REGEX: Final = re.compile(r"([a-z-]+)\s+(v\d+\.\d+\.\d+)")
+HEADER_REGEX: Final = re.compile(r"([a-z-]+)\s+(v\d+\.\d+\.\d+(?:(?:a|b|rc)\d+)?(?:\.post\d+)?(?:\.dev\d+)?)")
 
 
 class Renderer(BaseRenderer):
@@ -42,7 +53,7 @@ def default_changelog_path() -> Path:
 
 
 def main(
-    version: Optional[str] = typer.Argument(None),
+    version: str | None = typer.Argument(None),
     changelog_path: Path = typer.Argument(default_changelog_path),
 ) -> None:
     """Print the changes for the given version. By default, use the latest version (if any)."""
@@ -50,25 +61,17 @@ def main(
         md_ast = Document(fp)
 
     changelogs: dict[str, str] = {}
-    current_version: Optional[str] = None
+    current_version: str | None = None
 
     if not md_ast.children:
         print("Nothing found in changelog.", file=sys.stderr)
         sys.exit(1)
 
     for node in md_ast.children:
-        current_version = None
-        if (
-            isinstance(node, block_token.Heading)
-            and node.level == REVISION_HEADER_LEVEL
-            and node.children is not None
-        ):
+        if isinstance(node, block_token.Heading) and node.level == REVISION_HEADER_LEVEL and node.children is not None:
+            current_version = None
             first_child = next(iter(node.children), None)
-            if (
-                first_child
-                and hasattr(first_child, "content")
-                and (match := HEADER_REGEX.search(first_child.content))
-            ):
+            if first_child and hasattr(first_child, "content") and (match := HEADER_REGEX.search(first_child.content)):
                 _, revision = match.groups()
                 current_version = revision
 

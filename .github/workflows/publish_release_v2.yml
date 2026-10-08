@@ -4,7 +4,7 @@ on:
   workflow_run:
     workflows: [Test]
     types: [completed]
-    branches: [v2-migration]
+    branches: [master]
 
 concurrency:
   group: release-${{ github.event.workflow_run.head_branch }}
@@ -143,7 +143,7 @@ jobs:
           data = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))
           version = data["project"]["version"]
           if not re.fullmatch(r"2\.\d+\.\d+(?:(?:a|b|rc)\d+)?(?:\.post\d+)?(?:\.dev\d+)?", version):
-              print(f"Expected a 2.x.x version on v2-migration, found {version}.", file=sys.stderr)
+              print(f"Expected a 2.x.x version on master, found {version}.", file=sys.stderr)
               sys.exit(1)
           print(version)
           PY
@@ -223,14 +223,14 @@ jobs:
           ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Download release distributions
-        if: needs.preflight.outputs.should_publish == 'true'
+        if: needs.preflight.outputs.should_publish == 'true' || needs.preflight.outputs.should_create_release == 'true'
         uses: actions/download-artifact@v4
         with:
           name: release-dists
           path: dist/
 
       - name: Download release changelog
-        if: needs.preflight.outputs.should_publish == 'true'
+        if: needs.preflight.outputs.should_publish == 'true' || needs.preflight.outputs.should_create_release == 'true'
         uses: actions/download-artifact@v4
         with:
           name: release-changelog
@@ -246,6 +246,14 @@ jobs:
         shell: bash
         run: |
           tag="${{ needs.preflight.outputs.tag }}"
+          version="${{ needs.preflight.outputs.version }}"
+
+          release_flags=()
+          if [[ "${version}" =~ (a|b|rc)[0-9]+ ]]; then
+            release_flags+=(--prerelease)
+          else
+            release_flags+=(--latest)
+          fi
 
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
@@ -255,6 +263,7 @@ jobs:
           gh release create "${tag}" \
             --title "${tag}" \
             --notes-file RELEASE_CHANGELOG.txt \
+            "${release_flags[@]}" \
             dist/*
 
   docs:

@@ -2,6 +2,27 @@
 
 ## Unreleased
 
+## qiskit-aqt-provider v2.0.0
+
+* Add support for Qiskit 2 and Python 3.10 through 3.14.
+* Introduce separate cloud, direct-access, and offline-simulator providers.
+* Add Qiskit 2-compatible Sampler and Estimator primitives.
+* Add persistence for cloud jobs and direct-access circuits.
+* Add provider context-manager support so remote HTTP clients are closed reliably.
+* Add workspace discovery and backend access through the AQT cloud API.
+
+## qiskit-aqt-provider v2.0.0b3
+
+* Add job persistence for cloud jobs and direct API circuits
+
+## qiskit-aqt-provider v2.0.0b2
+
+* Add licence headers to all code files
+
+## qiskit-aqt-provider v2.0.0b1
+
+* Add support for Qiskit v2
+
 ## qiskit-aqt-provider v1.15.0
 
 * Use aqt-connector models (#248)

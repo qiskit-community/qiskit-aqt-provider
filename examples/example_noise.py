@@ -21,37 +21,25 @@ from qiskit import QuantumCircuit
 from qiskit_aqt_provider.aqt_provider import AQTProvider
 
 if __name__ == "__main__":
-    # Ways to authenticate the AQTProvider with an Arnica account:
-    # - using the `log_in` method
-    # - with a static access token (in precedence order):
-    #   - as argument to the AQTProvider initializer
-    #   - in the AQT_TOKEN environment variable
-    # - if none of the above is provided, no authentication is attempted and
-    #   access is restricted to the default workspace only.
-    provider = AQTProvider()
+    # Use a context manager to ensure the provider is properly closed after use.
+    with AQTProvider() as provider:
+        # Initialise a noisy simulator.
+        backend = provider.offline.noisy()
 
-    # The backends() method lists all available computing backends. Printing it
-    # renders it as a table that shows each backend's containing workspace.
-    print(provider.backends())
+        # Define a quantum circuit that produces a 2-qubit GHZ state.
+        qc = QuantumCircuit(2)
+        qc.h(0)
+        qc.cx(0, 1)
+        qc.measure_all()
 
-    # Retrieve a backend by providing search criteria. The search must have a single
-    # match. For example:
-    backend = provider.get_backend("offline_simulator_noise", workspace="default")
+        # Transpile for the target backend.
+        qc = qiskit.transpile(qc, backend)
 
-    # Define a quantum circuit that produces a 2-qubit GHZ state.
-    qc = QuantumCircuit(2)
-    qc.h(0)
-    qc.cx(0, 1)
-    qc.measure_all()
+        # Execute on the target backend.
+        result = backend.run(qc, shots=200).result()
 
-    # Transpile for the target backend.
-    qc = qiskit.transpile(qc, backend)
-
-    # Execute on the target backend.
-    result = backend.run(qc, shots=200).result()
-
-    if result.success:
-        # due to the noise, also the states '01' and '10' may be populated!
-        print(result.get_counts())
-    else:  # pragma: no cover
-        print(result.to_dict()["error"])
+        if result.success:
+            # due to the noise, also the states '01' and '10' may be populated!
+            print(result.get_counts())
+        else:  # pragma: no cover
+            print(result.to_dict()["error"])

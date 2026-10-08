@@ -1,0 +1,175 @@
+# This code is part of Qiskit.
+#
+# (C) Copyright Alpine Quantum Technologies GmbH 2023
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0).
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+
+from datetime import datetime
+from typing import Any
+from uuid import UUID
+
+from aqt_connector.models.arnica.request_bodies.jobs import SubmitJobRequest
+from aqt_connector.models.arnica.resources import ResourceStatus, ResourceType
+from aqt_connector.models.arnica.response_bodies.jobs import SubmitJobResponse
+from aqt_connector.models.arnica.response_bodies.resources import ResourceDetails, WorkspaceResource
+from aqt_connector.models.arnica.response_bodies.workspaces import Workspace
+from fastapi import FastAPI, Request
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
+
+app = FastAPI()
+_requests: list[dict[str, Any]] = []
+
+
+def _record_request(request: Request, body: Any | None = None) -> None:
+    _requests.append(
+        {
+            "method": request.method,
+            "path": request.url.path,
+            "headers": dict(request.headers),
+            "query": dict(request.query_params),
+            "client": request.client.host if request.client else None,
+            "body": jsonable_encoder(body) if body is not None else None,
+        }
+    )
+
+
+@app.get("/health")
+async def health() -> Any:
+    return {"status": "ok"}
+
+
+@app.get("/v1/workspaces")
+async def workspaces(request: Request) -> Any:
+    _record_request(request)
+    return JSONResponse(
+        content=jsonable_encoder(
+            [
+                Workspace(
+                    id="w1",
+                    accepting_job_submissions=True,
+                    jobs_being_processed=True,
+                    resources=[
+                        WorkspaceResource(id="r1", name="R1", type=ResourceType.DEVICE),
+                        WorkspaceResource(id="r2", name="R2", type=ResourceType.DEVICE),
+                    ],
+                ),
+                Workspace(
+                    id="w2",
+                    accepting_job_submissions=True,
+                    jobs_being_processed=True,
+                    resources=[
+                        WorkspaceResource(id="r1", name="R1", type=ResourceType.DEVICE),
+                    ],
+                ),
+                Workspace(
+                    id="w93",
+                    accepting_job_submissions=True,
+                    jobs_being_processed=True,
+                    resources=[
+                        WorkspaceResource(id="r1", name="R1", type=ResourceType.DEVICE),
+                    ],
+                ),
+            ]
+        )
+    )
+
+
+@app.get("/v1/resources/{resource_id}")
+async def resource_details(resource_id: str, request: Request) -> Any:
+    _record_request(request)
+    if resource_id == "r1":
+        return JSONResponse(
+            content=jsonable_encoder(
+                ResourceDetails(
+                    id="r1",
+                    name="R1",
+                    type=ResourceType.DEVICE,
+                    status=ResourceStatus.ONLINE,
+                    available_qubits=10,
+                    status_updated_at=datetime(2026, 3, 27, 0, 0, 0),
+                )
+            )
+        )
+    if resource_id == "r2":
+        return JSONResponse(
+            content=jsonable_encoder(
+                ResourceDetails(
+                    id="r2",
+                    name="R2",
+                    type=ResourceType.DEVICE,
+                    status=ResourceStatus.ONLINE,
+                    available_qubits=20,
+                    status_updated_at=datetime(2026, 3, 27, 0, 0, 0),
+                )
+            )
+        )
+
+    return JSONResponse(status_code=404, content={"error": f"Resource with ID '{resource_id}' not found."})
+
+
+@app.post("/v1/submit/{workspace_id}/{resource_id}")
+async def submit_job(workspace_id: str, resource_id: str, request: Request, body: SubmitJobRequest) -> Any:
+    _record_request(request, body)
+
+    if workspace_id not in ("w1", "w2"):
+        return JSONResponse(status_code=404, content={"detail": "Workspace not available."})
+
+    return JSONResponse(
+        content=jsonable_encoder(
+            SubmitJobResponse.model_validate(
+                {
+                    "job": {
+                        "job_id": UUID("c8919003-1bc1-445f-a968-e7f4c90029d3"),
+                        "job_type": "quantum_circuit",
+                        "resource_id": resource_id,
+                        "workspace_id": workspace_id,
+                    },
+                    "response": {"status": "queued"},
+                }
+            )
+        )
+    )
+
+
+@app.get("/v1/result/{job_id}")
+async def result(job_id: str, request: Request) -> Any:
+    _record_request(request)
+
+    if job_id != "c8919003-1bc1-445f-a968-e7f4c90029d3":
+        return JSONResponse(status_code=404, content={"detail": "Job not found."})
+
+    return JSONResponse(
+        content={
+            "job": {
+                "job_id": job_id,
+                "job_type": "quantum_circuit",
+                "resource_id": "r1",
+                "workspace_id": "w1",
+            },
+            "response": {
+                "status": "finished",
+                "result": {
+                    "0": [[0], [1], [1]],
+                    "1": [[1, 0], [0, 1], [1, 0]],
+                },
+            },
+        }
+    )
+
+
+@app.get("/__requests")
+async def get_requests() -> Any:
+    return JSONResponse(_requests)
+
+
+@app.post("/__clear")
+async def clear_requests() -> Any:
+    _requests.clear()
+    return JSONResponse({"ok": True})

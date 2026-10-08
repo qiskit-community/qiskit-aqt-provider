@@ -1,0 +1,38 @@
+[settings]
+python.uv_venv_auto = "source"
+
+[tasks."test:unit"]
+run = "pytest test/unit"
+
+[tasks."test:integration"]
+run = "pytest test/integration"
+
+[tasks."test:acceptance"]
+run = "pytest test/acceptance"
+
+[tasks."check:pyproject"]
+run = "pyproject-fmt --check pyproject.toml"
+
+[tasks."check:types"]
+run = "mypy ."
+
+[tasks."check:linting"]
+run = "ruff check"
+
+[tasks."check:spelling"]
+run = "typos ."
+
+[tasks."check:format"]
+run = "ruff format --check"
+
+[tasks."format:pyproject"]
+run = "pyproject-fmt pyproject.toml"
+
+[tasks."format:code"]
+run = "ruff check --fix"
+
+[tasks.docs]
+run = "sphinx-build -j auto -b html -W docs docs/_build"
+
+[tasks.build]
+run = "uv build"

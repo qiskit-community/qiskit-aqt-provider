@@ -4,68 +4,73 @@
 #
 # This code is licensed under the Apache License, Version 2.0. You may
 # obtain a copy of this license in the LICENSE.txt file in the root directory
-# of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+# of this source tree or at [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0).
 #
 # Any modifications or derivative works of this code must retain this
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
-from copy import copy
-from typing import Any, Optional
+from __future__ import annotations
 
-from qiskit.primitives import BackendEstimator
+from collections.abc import Callable, Iterable
+from typing import Any
 
-from qiskit_aqt_provider import transpiler_plugin
-from qiskit_aqt_provider.aqt_resource import AnyAQTResource, make_transpiler_target
+from qiskit.primitives import (
+    BackendEstimatorV2,
+    BaseEstimatorV2,
+    BasePrimitiveJob,
+    PrimitiveResult,
+    PubResult,
+)
+from qiskit.primitives.containers.estimator_pub import EstimatorPubLike
+from qiskit.providers import BackendV2, Options
+
+from qiskit_aqt_provider.aqt_provider import AnyAQTResource
+from qiskit_aqt_provider.primitives._transpiling_backend import TranspilingBackend
+
+BackendFactory = Callable[[AnyAQTResource], BackendV2]
+EstimatorFactory = Callable[[BackendV2, dict[str, Any] | None], BaseEstimatorV2]
 
 
-class AQTEstimator(BackendEstimator):
-    """:class:`BaseEstimatorV1 <qiskit.primitives.BaseEstimatorV1>` primitive for AQT backends."""
+class AQTEstimator(BaseEstimatorV2):
+    """:class:`BaseEstimatorV2 <qiskit.primitives.BaseEstimatorV2>` primitive for AQT backends.
 
-    _backend: AnyAQTResource
+    As circuit transpilation for AQT backends includes angle wrapping, the transpilation needs to be done after
+    parameter binding. In order for the AQTEstimator to support parameterized circuits, it needs to transpile circuits
+    when it is run.
+
+    Providing options to the :class:`AQTEstimator` on instantiation will affect all circuit evaluations.
+    Setting options on the backend has the same effect.
+    Passing options in :meth:`AQTEstimator.run <qiskit.primitives.BaseEstimatorV2.run>` restricts the effect to that
+    evaluation.
+    """
 
     def __init__(
         self,
+        *,
         backend: AnyAQTResource,
-        options: Optional[dict[str, Any]] = None,
-        abelian_grouping: bool = True,
-        skip_transpilation: bool = False,
+        options: dict[str, Any] | None = None,
     ) -> None:
-        """Initialize an ``Estimator`` primitive using an AQT backend.
+        self.backend = backend
+        self._options = options or Options()
 
-        See :class:`AQTSampler <qiskit_aqt_provider.primitives.sampler.AQTSampler>` for
-        examples configuring run options.
+        self.backend_factory: BackendFactory = TranspilingBackend
+        self.estimator_factory: EstimatorFactory = lambda b, o: BackendEstimatorV2(backend=b, options=o)
+
+    def run(
+        self, pubs: Iterable[EstimatorPubLike], *, precision: float | None = None
+    ) -> BasePrimitiveJob[PrimitiveResult[PubResult]]:
+        """Run the given estimator PUBs on the AQT backend.
 
         Args:
-            backend: AQT resource to evaluate circuits on.
-            options: options passed to through to the underlying
-              :class:`BackendEstimator <qiskit.primitives.BackendEstimator>`.
-            abelian_grouping:  whether the observable should be grouped into commuting parts.
-            skip_transpilation: if :data:`True`, do not transpile circuits
-              before passing them to the execution backend.
+            pubs (Iterable): An iterable of estimator PUBs, which may include parameterized
+                circuits and associated parameter values.
+            precision (float | None): The precision to use for the estimation. Defaults to None.
+
+        Returns:
+            qiskit.primitives.BasePrimitiveJob[qiskit.primitives.PrimitiveResult[qiskit.primitives.PubResult]]: A job
+            representing the execution of the estimator PUBs.
         """
-        # Signal the transpiler to disable passes that require bound
-        # parameters.
-        # This allows the underlying sampler to apply most of
-        # the transpilation passes, and cache the results.
-        mod_backend = copy(backend)
-        mod_backend._target = make_transpiler_target(
-            transpiler_plugin.UnboundParametersTarget, backend.num_qubits
-        )
-
-        # if `with_progress_bar` is not explicitly set in the options, disable it
-        options_copy = (options or {}).copy()
-        options_copy.update(with_progress_bar=options_copy.get("with_progress_bar", False))
-
-        super().__init__(
-            mod_backend,
-            bound_pass_manager=transpiler_plugin.bound_pass_manager(),
-            options=options_copy,
-            abelian_grouping=abelian_grouping,
-            skip_transpilation=skip_transpilation,
-        )
-
-    @property
-    def backend(self) -> AnyAQTResource:
-        """Computing resource used for circuit evaluation."""
-        return self._backend
+        wrapped_backend = self.backend_factory(self.backend)
+        delegate = self.estimator_factory(wrapped_backend, self._options)
+        return delegate.run(pubs, precision=precision)

@@ -1,0 +1,168 @@
+# This code is part of Qiskit.
+#
+# (C) Copyright Alpine Quantum Technologies GmbH 2023
+#
+# This code is licensed under the Apache License, Version 2.0. You may
+# obtain a copy of this license in the LICENSE.txt file in the root directory
+# of this source tree or at [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0).
+#
+# Any modifications or derivative works of this code must retain this
+# copyright notice, and modified files need to carry a notice indicating
+# that they have been altered from the originals.
+
+import httpx
+import pydantic as pdt
+from aqt_connector import ArnicaApp
+from aqt_connector.models.arnica.response_bodies.jobs import RRQueued, SubmitJobResponse
+from aqt_connector.models.arnica.response_bodies.resources import ResourceDetails
+from qiskit import QuantumCircuit
+from qiskit.circuit.library import RGate, RXXGate, RZGate
+from qiskit.circuit.measure import Measure
+from qiskit.circuit.parameter import Parameter
+from qiskit.providers import BackendV2
+from qiskit.transpiler import Target
+from typing_extensions import Unpack
+
+from qiskit_aqt_provider._cloud.job import CloudJob
+from qiskit_aqt_provider._cloud.job_metadata import CloudJobMetadata
+from qiskit_aqt_provider._transformers import circuits_to_aqt_job
+from qiskit_aqt_provider.api_client.errors import http_response_raise_for_status
+from qiskit_aqt_provider.options import ResourceRunOptions
+from qiskit_aqt_provider.persistence import JobStore, delete_job, restore_job
+from qiskit_aqt_provider.transpiler_plugin import TranspilerMixin
+
+
+class CloudOptions(pdt.BaseModel):
+    """Options for a cloud resource."""
+
+    shots: pdt.PositiveInt = pdt.Field(default=100)
+
+
+class CloudResource(BackendV2, TranspilerMixin):
+    """A resource in the AQT cloud, associated with a specific workspace."""
+
+    MAX_SHOTS = 2000
+
+    def __init__(
+        self, arnica: ArnicaApp, api_client: httpx.Client, workspace_id: str, resource_details: ResourceDetails
+    ) -> None:
+        """Initializes a cloud resource with the given workspace and resource details."""
+        self._arnica = arnica
+        self._api_client = api_client
+        self.workspace_id = workspace_id
+        self._resource_id = resource_details.id
+        super().__init__(name=resource_details.id)
+        self._update_target(resource_details.available_qubits)
+        self._options = self._default_options()
+
+    @property
+    def id(self) -> str:
+        """The resource's identifier."""
+        return self._resource_id
+
+    @property
+    def target(self) -> Target:
+        """The resource's target."""
+        return self._target
+
+    @property
+    def max_circuits(self) -> int:
+        """Maximum number of circuits per batch."""
+        return 50
+
+    @classmethod
+    def _default_options(cls) -> CloudOptions:
+        """Get the default options.
+
+        Returns:
+            CloudOptions: The default options for this resource.
+        """
+        return CloudOptions()
+
+    def run(
+        self,
+        circuits: QuantumCircuit | list[QuantumCircuit],
+        **kwargs: Unpack[ResourceRunOptions],
+    ) -> CloudJob:
+        """Run on the backend.
+
+        This method returns a :class:`~qiskit.providers.Job` object that runs circuits.
+
+        Args:
+            circuits (QuantumCircuit or list[QuantumCircuit]): An individual or a list of
+                :class:`~qiskit.circuit.QuantumCircuit` objects to run on the backend.
+            shots (int | None): The number of shots to execute. If not provided, the default from the resource's options
+                will be used.
+            memory (bool): Whether to include memory in the result. If not provided, defaults to False.
+
+        Returns:
+            qiskit_aqt_provider._cloud.job.CloudJob: The job object for the run.
+        """
+        if not isinstance(circuits, list):
+            circuits = [circuits]
+
+        shots = kwargs.get("shots")
+        if shots is None:
+            shots = self._options.shots
+        if shots < 1 or shots > self.MAX_SHOTS:
+            raise ValueError(f"Shots must be in the range [1, {self.MAX_SHOTS}].")
+
+        request_payload = circuits_to_aqt_job(circuits, shots)
+        resp = http_response_raise_for_status(
+            self._api_client.post(
+                f"/v1/submit/{self.workspace_id}/{self._resource_id}",
+                json=request_payload.model_dump(mode="json"),
+            )
+        )
+        job_response = SubmitJobResponse.model_validate_json(resp.text)
+
+        return CloudJob(
+            self._arnica,
+            self._api_client,
+            CloudJobMetadata(
+                job_id=job_response.job.job_id,
+                shots=shots,
+                backend_name=self.name or self.id,
+                circuits=circuits,
+                initial_state=job_response.response,
+                memory=kwargs.get("memory") or False,
+            ),
+        )
+
+    def restore_job(self, job_id: str, *, store: JobStore | None = None, delete: bool = False) -> CloudJob:
+        """Restore a persisted cloud job using this resource's authenticated client."""
+        snapshot = restore_job(
+            job_id,
+            store=store,
+            backend_kind="cloud",
+            backend_name=self.name or self.id,
+        )
+        job = CloudJob(
+            self._arnica,
+            self._api_client,
+            CloudJobMetadata(
+                job_id=snapshot.job_id,
+                shots=snapshot.shots,
+                backend_name=snapshot.backend_name,
+                circuits=snapshot.circuits,
+                initial_state=RRQueued(),
+                memory=snapshot.memory,
+            ),
+        )
+        if delete:
+            delete_job(job_id, store)
+        return job
+
+    def _update_target(self, num_qubits: int) -> None:
+        """Updates the target of this resource based on the given number of qubits."""
+        theta = Parameter("θ")
+        phi = Parameter("φ")
+        lam = Parameter("λ")
+
+        target = Target(num_qubits=num_qubits)
+        target.add_instruction(RZGate(lam))
+        target.add_instruction(RGate(theta, phi))
+        target.add_instruction(RXXGate(theta))
+        target.add_instruction(Measure())
+
+        self._target = target
