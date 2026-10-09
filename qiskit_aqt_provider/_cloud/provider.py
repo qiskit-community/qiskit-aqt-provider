@@ -57,6 +57,8 @@ class CloudProvider:
 
     def log_in(self) -> None:
         """Logs the user into the cloud provider, establishing a session for subsequent API calls."""
+        if self._arnica.config.store_access_token:
+            self._arnica.config._app_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
         access_token = aqt_connector.log_in(self._arnica)
         self._set_access_token(access_token)
 
