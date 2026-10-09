@@ -10,13 +10,15 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+from pathlib import Path
+
 import pytest
 from aqt_connector import ArnicaApp, ArnicaConfig
 
 from qiskit_aqt_provider._cloud.provider import CloudProvider
 
 
-def test_it_logs_in_with_provided_config(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_it_logs_in_with_provided_config(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     """The CloudProvider should log in using the provided configuration."""
     given_app: ArnicaApp | None = None
 
@@ -26,7 +28,7 @@ def test_it_logs_in_with_provided_config(monkeypatch: pytest.MonkeyPatch) -> Non
         return "arnica.token"
 
     monkeypatch.setattr("aqt_connector.log_in", _log_in_handler)
-    config = ArnicaConfig()
+    config = ArnicaConfig(tmp_path)
     provider = CloudProvider(config)
 
     provider.log_in()
