@@ -10,9 +10,11 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+from pathlib import Path
 from unittest import mock
 
-from aqt_connector import ArnicaConfig
+import pytest
+from aqt_connector import ArnicaApp, ArnicaConfig
 
 from qiskit_aqt_provider._cloud.provider import CloudProvider
 
@@ -29,3 +31,20 @@ def test_close_closes_http_client() -> None:
     provider.close()
 
     http_client.close.assert_called_once_with()
+
+
+def test_it_creates_the_app_dir_before_persisting_tokens(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """CloudProvider creates the directory used by aqt-connector for token storage."""
+    app_dir = tmp_path / ".aqt"
+    provider = CloudProvider(ArnicaConfig(app_dir))
+
+    def _log_in_and_save_token(app: ArnicaApp) -> str:
+        app.auth_service.save_access_token("token")
+        return "token"
+
+    monkeypatch.setattr("aqt_connector.log_in", _log_in_and_save_token)
+
+    provider.log_in()
+
+    assert (app_dir / "access_token").read_text() == "token"
+    provider.close()
