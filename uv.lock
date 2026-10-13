@@ -4403,7 +4403,7 @@ dev = [
     { name = "pre-commit", specifier = ">=3.1.1" },
     { name = "pyproject-fmt", specifier = "==2.8" },
     { name = "qiskit", extras = ["visualization"], specifier = ">=2" },
-    { name = "qiskit-sphinx-theme", specifier = ">=1.16.1" },
+    { name = "qiskit-sphinx-theme", specifier = ">=2.1.1" },
     { name = "rich", specifier = ">=13.5.3" },
     { name = "ruff", specifier = ">=0.12" },
     { name = "sphinx", specifier = ">=8,<9" },
@@ -4432,7 +4432,7 @@ lint = [
     { name = "pre-commit", specifier = ">=3.1.1" },
     { name = "pyproject-fmt", specifier = "==2.8" },
     { name = "qiskit", extras = ["visualization"], specifier = ">=2" },
-    { name = "qiskit-sphinx-theme", specifier = ">=1.16.1" },
+    { name = "qiskit-sphinx-theme", specifier = ">=2.1.1" },
     { name = "rich", specifier = ">=13.5.3" },
     { name = "ruff", specifier = ">=0.12" },
     { name = "sphinx", specifier = ">=8,<9" },
@@ -4469,7 +4469,7 @@ wheels = [
 
 [[package]]
 name = "qiskit-sphinx-theme"
-version = "2.1.0"
+version = "2.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "docutils" },
@@ -4477,9 +4477,9 @@ dependencies = [
     { name = "sphinx", version = "8.1.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "sphinx", version = "8.2.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/36/60/7f7a0b5eefb1d4d3169773d2736550ac6a1d19887733f807e37b61a9e80b/qiskit_sphinx_theme-2.1.0.tar.gz", hash = "sha256:5abd24d33dfe6488d3fc8e9e48905592b36366ad304bb3ce09c3f95b7320dfb0", size = 2435832, upload-time = "2026-05-19T20:25:56.959Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ae/7f/a5675211bf1fde835a6205f3515bf288e4e553370fd6969f2b1ac30ed164/qiskit_sphinx_theme-2.1.1.tar.gz", hash = "sha256:aad41382a460e004b99f9dbba59cda3d489dcff25a7f2c3f11fa3358da87c116", size = 2435632, upload-time = "2026-10-11T14:26:14.646Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/8b/bf/3d51358b875927b2cb8108394424d4affb6ee50fc9b3a461ff211d2284a9/qiskit_sphinx_theme-2.1.0-py3-none-any.whl", hash = "sha256:19fb393a5b1200e2c212a0e4f0317abbfb2a0272af66b9f6a2137acd09923657", size = 188226, upload-time = "2026-05-19T20:25:55.013Z" },
+    { url = "https://files.pythonhosted.org/packages/14/e8/afb3ba567851ad8fe16c5cc61964572320debb79d1a804e71743a391b2c9/qiskit_sphinx_theme-2.1.1-py3-none-any.whl", hash = "sha256:e21dc6607ef511223d7de58b2a868e2a096d5c7c378f0da1b49d34772485db11", size = 190154, upload-time = "2026-10-11T14:26:12.639Z" },
 ]
 
 [[package]]
