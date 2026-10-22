@@ -53,6 +53,19 @@ jobs:
       - name: Install all dependencies
         run: uv sync --all-extras
 
+      - name: Check changelog for project version
+        shell: bash
+        run: |
+          version="$(uv run python - <<'PY'
+          import tomlkit
+          from pathlib import Path
+
+          pyproject = tomlkit.parse(Path("pyproject.toml").read_text(encoding="utf-8"))
+          print(pyproject["project"]["version"])
+          PY
+          )"
+          uv run python scripts/extract-changelog.py "v${version}"
+
       - name: Check pyproject.toml formatting
         run: mise run check:pyproject
 
