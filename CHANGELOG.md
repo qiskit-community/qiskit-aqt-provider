@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+
+## qiskit-aqt-provider v2.0.1
+
+* Loosen version constraint for AQT Connector.
+
 ## qiskit-aqt-provider v2.0.0
 
 * Add support for Qiskit 2 and Python 3.10 through 3.14.
