@@ -13,8 +13,9 @@
 from math import pi
 
 import pytest
-from qiskit import QiskitError, QuantumCircuit
+from qiskit import QuantumCircuit
 from qiskit.transpiler import generate_preset_pass_manager
+from qiskit.transpiler.exceptions import TranspilerError
 
 from test.integration.transpilation.helpers import DummyResource
 
@@ -100,5 +101,5 @@ def test_transpilation_for_target_fails_for_too_many_qubits() -> None:
 
     pm = generate_preset_pass_manager(backend=dummy_resource)
 
-    with pytest.raises(QiskitError):
+    with pytest.raises(TranspilerError, match="Circuit has 13 qubits, but the target supports at most 12"):
         pm.run(qc)
