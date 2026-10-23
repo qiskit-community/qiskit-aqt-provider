@@ -43,7 +43,7 @@ dependencies = [
   "pydantic>=2.5",
   "pydantic-core>=2",
   "python-dotenv>=1",
-  "qiskit>=2.3,<=2.4.1",                                        # lower bound is for dropping of Python 3.9 support. upper bound is to ensure AQTSampler and AQTEstimator are working, could break for untested new versions.
+  "qiskit>=2.3,<3",
   "qiskit-aer>=0.17",
   "scipy>=1.15",
   "tabulate>=0.9",
