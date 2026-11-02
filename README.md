@@ -17,7 +17,7 @@ systems.
 
 ## Support
 
-Provider v2 supports Python 3.10–3.14 and Qiskit 2.3–2.4.1.
+Provider v2 supports Python 3.10–3.14 and Qiskit 2.3 or newer in the Qiskit 2.x series.
 
 Provider v1 is end-of-life and receives no maintenance or security updates. The
 [`/v1/` documentation](https://qiskit-community.github.io/qiskit-aqt-provider/v1/)

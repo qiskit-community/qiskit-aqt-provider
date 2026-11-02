@@ -47,6 +47,7 @@ def test_the_scheduling_plugin_is_registered_with_cloud_backends() -> None:
         "RewriteRxAsR",
         "WrapRxxAngles",
         "Optimize1qGatesDecomposition",
+        "ValidateCircuitWidth",
     }
 
 

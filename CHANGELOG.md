@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* Support Qiskit 2.3 and newer releases in the Qiskit 2.x series.
 
 ## qiskit-aqt-provider v2.0.1
 

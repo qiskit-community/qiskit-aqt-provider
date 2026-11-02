@@ -35,7 +35,7 @@ from qiskit.circuit import Clbit, Gate, Instruction, Qubit
 from qiskit.circuit.library import RGate, RXGate, RXXGate, RZGate
 from qiskit.circuit.tools import pi_check
 from qiskit.dagcircuit import DAGCircuit, DAGOpNode
-from qiskit.transpiler.basepasses import TransformationPass
+from qiskit.transpiler.basepasses import AnalysisPass, TransformationPass
 from qiskit.transpiler.exceptions import TranspilerError
 from qiskit.transpiler.passes import Decompose, Optimize1qGatesDecomposition
 from qiskit.transpiler.passmanager import PassManager, Task
@@ -257,6 +257,21 @@ class WrapRxxAngles(TransformationPass):
         return dag
 
 
+class ValidateCircuitWidth(AnalysisPass):
+    """Reject circuits that exceed the number of qubits supported by the target."""
+
+    def __init__(self, max_qubits: int) -> None:
+        super().__init__()
+        self._max_qubits = max_qubits
+
+    def run(self, dag: DAGCircuit) -> None:
+        """Validate the circuit width."""
+        if dag.num_qubits() > self._max_qubits:
+            raise TranspilerError(
+                f"Circuit has {dag.num_qubits()} qubits, but the target supports at most {self._max_qubits}."
+            )
+
+
 class AQTSchedulingPlugin(PassManagerStagePlugin):
     """Scheduling stage plugin for the :mod:`qiskit.transpiler`.
 
@@ -277,17 +292,22 @@ class AQTSchedulingPlugin(PassManagerStagePlugin):
 
     def pass_manager(
         self,
-        pass_manager_config: PassManagerConfig,  # noqa: ARG002
+        pass_manager_config: PassManagerConfig,
         optimization_level: int | None = None,  # noqa: ARG002
     ) -> PassManager:
         """Pass manager for the scheduling phase."""
-        passes: list[Task] = [
-            WrapRxxAngles(),
-            Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]),
-            Optimize1qGatesDecomposition(basis=["rx", "rz"]),
-            RewriteRxAsR(),
-            EnsureSingleFinalMeasurement(),
-        ]
+        passes: list[Task] = []
+        if pass_manager_config.target is not None and pass_manager_config.target.num_qubits is not None:
+            passes.append(ValidateCircuitWidth(pass_manager_config.target.num_qubits))
+        passes.extend(
+            [
+                WrapRxxAngles(),
+                Decompose([f"{WrapRxxAngles.SUBSTITUTE_GATE_NAME}*"]),
+                Optimize1qGatesDecomposition(basis=["rx", "rz"]),
+                RewriteRxAsR(),
+                EnsureSingleFinalMeasurement(),
+            ]
+        )
         return PassManager(passes)
 
 
