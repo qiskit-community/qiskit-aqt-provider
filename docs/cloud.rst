@@ -52,10 +52,10 @@ Pass an instance of the `ArnicaConfig` helper class to :meth:`AQTProvider <qiski
    from qiskit_aqt_provider import AQTProvider
    from qiskit_aqt_provider.aqt_provider import ArnicaConfig
 
-   config = ArnicaConfig(
-       client_id="YOUR_CLIENT_ID",
-       client_secret="YOUR_CLIENT_SECRET",
-   )
+   config = ArnicaConfig()
+   config.client_id="YOUR_CLIENT_ID"
+   config.client_secret="YOUR_CLIENT_SECRET"
+   
    with AQTProvider() as provider:
       cloud = provider.cloud(config)
       cloud.log_in()
