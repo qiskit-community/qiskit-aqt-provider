@@ -6,6 +6,10 @@ AQT Arnica cloud portal
 
 This guide covers usage of the Qiskit AQT provider package with the AQT Arnica cloud portal.
 
+.. tip:: Use the `Arnica cloud example script`_ as a basis for your scripts, to help make them more resilient.
+
+.. _Arnica cloud example script: https://github.com/qiskit-community/qiskit-aqt-provider/blob/d0be3337dc17c3199d527b2721f148a5170b378c/examples/arnica_cloud_resources.py
+
 .. _cloud-usage:
 
 Usage
