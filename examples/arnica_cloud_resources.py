@@ -15,25 +15,40 @@
 from qiskit import QuantumCircuit
 
 from qiskit_aqt_provider.aqt_provider import AQTProvider
+from qiskit_aqt_provider.persistence import FileJobStore
 
 if __name__ == "__main__":
+    # Create a store to persist our job
+    store = FileJobStore()
+
     # Use the provider in a context manager to ensure proper cleanup of resources.
     with AQTProvider() as provider:
-        cloud_provider = provider.cloud()  # Get the cloud provider interface.
-        cloud_provider.log_in()  # Log in to the cloud provider to establish a session.
-        workspaces = cloud_provider.fetch_workspaces()
-        workspace = workspaces.get_by_id("my-workspace-id")  # Get a workspace provider by its ID.
+        # Get the cloud provider interface.
+        cloud_provider = provider.cloud()
+        # Log in to the cloud provider to establish a session.
+        cloud_provider.log_in()
+
+        # Get a workspace provider by its ID.
+        workspace = cloud_provider.fetch_workspaces().get_by_id("my-workspace-id")
+
+        # Acquire a backend resource by its ID.
         backend = workspace.get_backend(  # type: ignore[union-attr]
             "my-backend-id"
-        )  # Acquire a backend resource by its ID.
-
-        qc = QuantumCircuit(2)
-        qc.measure_all()
+        )
 
         # Execute on the target backend.
-        result = backend.run(qc, shots=200).result()
+        qc = QuantumCircuit(2)
+        qc.measure_all()
+        job = backend.run(qc, shots=200)
+
+        # Persist our job so we can resume it if something goes wrong
+        print(f"Submitted job {job.job_id()}")
+        job.persist(store=store)
+
+        # Block until the result is ready
+        result = job.result()
 
         if result.success:
             print(result.get_counts())
-        else:  # pragma: no cover
+        else:
             print(result.to_dict()["error"])
