@@ -22,6 +22,46 @@ The recommended way to use the :class:`AQTProvider <qiskit_aqt_provider.aqt_prov
       ...
 
 
+Handling transient errors
+-------------------------
+
+Submitting jobs to the Arnica cloud portal involves lots of steps that might go wrong; there could be network errors, authentication problems, long queues, and many more. 
+Because of the way Qiskit jobs work, a link between the :class:`Job <qiskit.providers.Job>` object in your script and the remote circuit needs to be maintained. Any single issue could cause this link to be broken and mean that your results are lost.
+We therefore *strongly* recommend persisting your jobs immediately after submitting them. This will allow the link between the :class:`Job <qiskit.providers.Job>` and the remote circuit to be restored at any time.
+
+.. code-block:: python
+
+   from qiskit_aqt_provider import AQTProvider
+   from qiskit_aqt_provider.persistence import FileJobStore
+
+   store = FileJobStore()
+
+   with AQTProvider() as provider:
+     cloud = provider.cloud()
+     ...
+     backend = workspace.get_backend("my_backend_id")
+     job = backend.run(my_transpiled_circuit)
+     print(job.job_id())
+     job.persist(store=store)  # save it in case something bad happens
+     job.result()  # wait for the result
+    
+
+Now that you've persisted the Job (and kept a record of the job ID), you can easily restore it at any time, even in a different process:
+
+.. code-block:: python
+
+   # later...
+   with AQTProvider() as provider:
+     cloud = provider.cloud()
+     ...
+     backend = workspace.get_backend("my_backend_id")
+     job = backend.restore_job(job_id, store=store)  # job_id that was printed previously
+     job.result()  # wait for the result
+
+
+See the :doc:`Job Persistence <persistence>` documentation for more information.
+
+
 Authentication
 ==============
 
