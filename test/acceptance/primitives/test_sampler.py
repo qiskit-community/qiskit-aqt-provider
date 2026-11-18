@@ -16,8 +16,29 @@ import pytest
 from qiskit import QuantumCircuit, transpile
 from qiskit.circuit import Parameter
 
+from qiskit_aqt_provider import AQTProvider
+from qiskit_aqt_provider.api_client.models_direct import JobResultFinished
 from qiskit_aqt_provider.primitives import AQTSampler
+from test.acceptance import dsl
+from test.acceptance.conftest import DummyDirectAccessServer
 from test.acceptance.primitives.spy_backend import SpyBackend
+
+
+@pytest.mark.parametrize("measurement", ["11", "1111"])
+def test_sampler_preserves_all_one_results(direct_access_api: DummyDirectAccessServer, measurement: str) -> None:
+    """Sampling should preserve all-one measurement bitstrings."""
+    circuit = QuantumCircuit(len(measurement))
+    circuit.x(range(len(measurement)))
+    circuit.measure_all()
+    dsl.direct_access_resource.will_return_results(
+        direct_access_api, [JobResultFinished(result=[[int(x) for x in measurement] for _ in range(10)])]
+    )
+
+    with AQTProvider() as provider:
+        backend = provider.direct_access().get_resource(direct_access_api.base_url, "direct_token")
+        sampler_result = AQTSampler(backend=backend).run([circuit], shots=10).result()
+
+    assert sampler_result[0].data.meas.get_counts() == {measurement: 10}
 
 
 def test_sampler_returns_expected_counts_when_running_single_parameter_set() -> None:
