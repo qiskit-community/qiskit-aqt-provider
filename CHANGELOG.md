@@ -2,7 +2,11 @@
 
 ## Unreleased
 
+
+## qiskit-aqt-provider v2.0.2
+
 * Support Qiskit 2.3 and newer releases in the Qiskit 2.x series.
+* Fixed an error in result memory encoding that was causing errors in the sampler.
 
 ## qiskit-aqt-provider v2.0.1
 
