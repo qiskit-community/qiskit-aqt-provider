@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>qiskit_aqt_provider._direct.job - Qiskit AQT Provider 2.0.1</title>
+        <title>qiskit_aqt_provider._direct.job - Qiskit AQT Provider 2.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=75810a84" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=fc6d6d93" />
@@ -156,7 +156,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit AQT Provider 2.0.1</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit AQT Provider 2.0.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -178,7 +178,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.1</span>
+  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.2</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
@@ -286,10 +286,10 @@
 <div class="viewcode-block" id="DirectAccessJob">
 <a class="viewcode-back" href="../../../apidoc/direct.html#qiskit_aqt_provider._direct.job.DirectAccessJob">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DirectAccessJob</span><span class="p">(</span><span class="n">JobV1</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A job representing the execution of a circuit on an AQT direct access resource.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A job representing the execution of a circuit on an AQT direct access resource."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api_client</span><span class="p">:</span> <span class="n">DirectAccessAPIClient</span><span class="p">,</span> <span class="n">job_id</span><span class="p">:</span> <span class="n">UUID</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="n">DirectAccessJobMetadata</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes a direct access job with the given job ID.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Initializes a direct access job with the given job ID."""</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">job_id</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="n">metadata</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span> <span class="o">=</span> <span class="n">api_client</span>
@@ -298,25 +298,25 @@
 <div class="viewcode-block" id="DirectAccessJob.submit">
 <a class="viewcode-back" href="../../../apidoc/direct.html#qiskit_aqt_provider._direct.job.DirectAccessJob.submit">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">submit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Do not call — submission is handled by the backend.</span>
+<span class="w">        </span><span class="sd">"""Do not call — submission is handled by the backend.</span>
 
 <span class="sd">        This job object represents an execution that has already been submitted via backend.run(). Calling submit() is</span>
 <span class="sd">        invalid and always raises a RuntimeError.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            RuntimeError: Job submission is performed by backend.run().</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Job is already submitted via backend.run()&quot;</span><span class="p">)</span></div>
+<span class="sd">        """</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Job is already submitted via backend.run()"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="DirectAccessJob.persist">
 <a class="viewcode-back" href="../../../apidoc/direct.html#qiskit_aqt_provider._direct.job.DirectAccessJob.persist">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">persist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">store</span><span class="p">:</span> <span class="n">JobStore</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Persist this submitted job for restoration in a later process.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Persist this submitted job for restoration in a later process."""</span>
         <span class="n">persist_job</span><span class="p">(</span>
             <span class="n">JobSnapshot</span><span class="p">(</span>
                 <span class="n">job_id</span><span class="o">=</span><span class="n">UUID</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">job_id</span><span class="p">()),</span>
-                <span class="n">backend_kind</span><span class="o">=</span><span class="s2">&quot;direct&quot;</span><span class="p">,</span>
+                <span class="n">backend_kind</span><span class="o">=</span><span class="s2">"direct"</span><span class="p">,</span>
                 <span class="n">backend_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">backend_name</span><span class="p">,</span>
                 <span class="n">shots</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">shots</span><span class="p">,</span>
                 <span class="n">memory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span>
@@ -329,7 +329,7 @@
 <div class="viewcode-block" id="DirectAccessJob.result">
 <a class="viewcode-back" href="../../../apidoc/direct.html#qiskit_aqt_provider._direct.job.DirectAccessJob.result">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Result</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Blocks until the job finishes processing then returns the result.</span>
+<span class="w">        </span><span class="sd">"""Blocks until the job finishes processing then returns the result.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            timeout: The maximum number of seconds to wait for the job to finish. If None, wait indefinitely. The</span>
@@ -344,18 +344,18 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The result of the circuit evaluation.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">job_result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span><span class="o">.</span><span class="n">await_result</span><span class="p">(</span><span class="n">UUID</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">job_id</span><span class="p">()),</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">job_result</span><span class="p">,</span> <span class="n">api_models_direct</span><span class="o">.</span><span class="n">JobResultError</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_status</span> <span class="o">=</span> <span class="n">QiskitJobStatus</span><span class="o">.</span><span class="n">ERROR</span>
-            <span class="k">raise</span> <span class="n">AQTJobFailedError</span><span class="p">(</span><span class="s2">&quot;Job failed with error&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">AQTJobFailedError</span><span class="p">(</span><span class="s2">"Job failed with error"</span><span class="p">)</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;backend_name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">backend_name</span><span class="p">,</span>
-            <span class="s2">&quot;job_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_job_id</span><span class="p">,</span>
-            <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"backend_name"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">backend_name</span><span class="p">,</span>
+            <span class="s2">"job_id"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_job_id</span><span class="p">,</span>
+            <span class="s2">"success"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="s2">"results"</span><span class="p">:</span> <span class="p">[</span>
                 <span class="n">partial_qiskit_result_dict</span><span class="p">(</span>
                     <span class="n">job_result</span><span class="o">.</span><span class="n">result</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">circuit</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">shots</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="o">.</span><span class="n">memory</span>
                 <span class="p">)</span>
@@ -367,7 +367,7 @@
 <div class="viewcode-block" id="DirectAccessJob.status">
 <a class="viewcode-back" href="../../../apidoc/direct.html#qiskit_aqt_provider._direct.job.DirectAccessJob.status">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">QiskitJobStatus</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the status of the job, among the values of :class:`~qiskit.providers.JobStatus`.</span>
+<span class="w">        </span><span class="sd">"""Return the status of the job, among the values of :class:`~qiskit.providers.JobStatus`.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            AQTCredentialsError: if the user is not authenticated and no access token is available.</span>
@@ -380,7 +380,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            qiskit.providers.JobStatus: The current status of the job.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_status</span></div>
 </div>
 
@@ -416,7 +416,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=f5cff4aa"></script>
+</div><script src="../../../_static/documentation_options.js?v=c2377ec0"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

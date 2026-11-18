@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>qiskit_aqt_provider._file_job_store - Qiskit AQT Provider 2.0.1</title>
+        <title>qiskit_aqt_provider._file_job_store - Qiskit AQT Provider 2.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=75810a84" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=fc6d6d93" />
@@ -156,7 +156,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit AQT Provider 2.0.1</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit AQT Provider 2.0.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -178,7 +178,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.1</span>
+  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.2</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../search.html" role="search">
@@ -274,30 +274,30 @@
 <a class="viewcode-back" href="../../apidoc/persistence.html#qiskit_aqt_provider.persistence.FileJobStore">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">FileJobStore</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A filesystem adapter for the :class:`~qiskit_aqt_provider.persistence.JobStore` port.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A filesystem adapter for the :class:`~qiskit_aqt_provider.persistence.JobStore` port."""</span>
 
     <span class="n">root</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">platformdirs</span><span class="o">.</span><span class="n">user_data_dir</span><span class="p">(</span><span class="s2">&quot;qiskit_aqt_provider&quot;</span><span class="p">))</span> <span class="o">/</span> <span class="s2">&quot;jobs&quot;</span>
+            <span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">platformdirs</span><span class="o">.</span><span class="n">user_data_dir</span><span class="p">(</span><span class="s2">"qiskit_aqt_provider"</span><span class="p">))</span> <span class="o">/</span> <span class="s2">"jobs"</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
-        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;root&quot;</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
+        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"root"</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
 
 <div class="viewcode-block" id="FileJobStore.save">
 <a class="viewcode-back" href="../../apidoc/persistence.html#qiskit_aqt_provider.persistence.FileJobStore.save">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Atomically save a payload under a job ID.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Atomically save a payload under a job ID."""</span>
         <span class="n">filepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filepath</span><span class="p">(</span><span class="n">job_id</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">filepath</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="mo">0o700</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">AQTJobPersistenceError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to create job store </span><span class="si">{</span><span class="n">filepath</span><span class="o">.</span><span class="n">parent</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+            <span class="k">raise</span> <span class="n">AQTJobPersistenceError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unable to create job store </span><span class="si">{</span><span class="n">filepath</span><span class="o">.</span><span class="n">parent</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
 
         <span class="n">temporary_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">with</span> <span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="n">filepath</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;.job-&quot;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.tmp&quot;</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">temporary</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="nb">dir</span><span class="o">=</span><span class="n">filepath</span><span class="o">.</span><span class="n">parent</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">".job-"</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">".tmp"</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">temporary</span><span class="p">:</span>
                 <span class="n">temporary_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temporary</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
                 <span class="n">temporary</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
                 <span class="n">temporary</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
@@ -307,30 +307,30 @@
         <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">temporary_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">temporary_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="n">AQTJobPersistenceError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to persist job </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span></div>
+            <span class="k">raise</span> <span class="n">AQTJobPersistenceError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unable to persist job </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span></div>
 
 
 <div class="viewcode-block" id="FileJobStore.load">
 <a class="viewcode-back" href="../../apidoc/persistence.html#qiskit_aqt_provider.persistence.FileJobStore.load">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a payload by job ID.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Load a payload by job ID."""</span>
         <span class="n">filepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_filepath</span><span class="p">(</span><span class="n">job_id</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">filepath</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">()</span>
         <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">AQTJobNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No persisted job found for ID </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+            <span class="k">raise</span> <span class="n">AQTJobNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"No persisted job found for ID </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
         <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">AQTJobPersistenceError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to read persisted job </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span></div>
+            <span class="k">raise</span> <span class="n">AQTJobPersistenceError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unable to read persisted job </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span></div>
 
 
 <div class="viewcode-block" id="FileJobStore.delete">
 <a class="viewcode-back" href="../../apidoc/persistence.html#qiskit_aqt_provider.persistence.FileJobStore.delete">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete a payload by job ID; missing payloads are ignored.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Delete a payload by job ID; missing payloads are ignored."""</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_filepath</span><span class="p">(</span><span class="n">job_id</span><span class="p">)</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">AQTJobPersistenceError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to delete persisted job </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span></div>
+            <span class="k">raise</span> <span class="n">AQTJobPersistenceError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unable to delete persisted job </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_filepath</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
@@ -338,14 +338,14 @@
             <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">job_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
             <span class="ow">or</span> <span class="ow">not</span> <span class="n">job_id</span>
             <span class="ow">or</span> <span class="n">Path</span><span class="p">(</span><span class="n">job_id</span><span class="p">)</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">job_id</span>
-            <span class="ow">or</span> <span class="s2">&quot;/&quot;</span> <span class="ow">in</span> <span class="n">job_id</span>
-            <span class="ow">or</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">job_id</span>
-            <span class="ow">or</span> <span class="n">job_id</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;..&quot;</span><span class="p">}</span>
+            <span class="ow">or</span> <span class="s2">"/"</span> <span class="ow">in</span> <span class="n">job_id</span>
+            <span class="ow">or</span> <span class="s2">"</span><span class="se">\\</span><span class="s2">"</span> <span class="ow">in</span> <span class="n">job_id</span>
+            <span class="ow">or</span> <span class="n">job_id</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">"."</span><span class="p">,</span> <span class="s2">".."</span><span class="p">}</span>
         <span class="p">):</span>
-            <span class="k">raise</span> <span class="n">AQTJobPersistenceError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid job ID: </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">AQTJobPersistenceError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid job ID: </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">AQTJobPersistenceError</span><span class="p">(</span><span class="s2">&quot;Job store has no root directory&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">.aqt-job&quot;</span></div>
+            <span class="k">raise</span> <span class="n">AQTJobPersistenceError</span><span class="p">(</span><span class="s2">"Job store has no root directory"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">root</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">.aqt-job"</span></div>
 
 </pre></div>
         </article>
@@ -379,7 +379,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=f5cff4aa"></script>
+</div><script src="../../_static/documentation_options.js?v=c2377ec0"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

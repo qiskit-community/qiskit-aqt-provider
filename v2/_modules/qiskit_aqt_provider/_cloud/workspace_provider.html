@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>qiskit_aqt_provider._cloud.workspace_provider - Qiskit AQT Provider 2.0.1</title>
+        <title>qiskit_aqt_provider._cloud.workspace_provider - Qiskit AQT Provider 2.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=75810a84" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=fc6d6d93" />
@@ -156,7 +156,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit AQT Provider 2.0.1</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit AQT Provider 2.0.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -178,7 +178,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.1</span>
+  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.2</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
@@ -273,10 +273,10 @@
 <div class="viewcode-block" id="WorkspaceProvider">
 <a class="viewcode-back" href="../../../apidoc/cloud.html#qiskit_aqt_provider._cloud.workspace_provider.WorkspaceProvider">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">WorkspaceProvider</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A provider for a workspace in the AQT cloud.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A provider for a workspace in the AQT cloud."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">APIWorkspace</span><span class="p">,</span> <span class="n">arnica</span><span class="p">:</span> <span class="n">ArnicaApp</span><span class="p">,</span> <span class="n">api_client</span><span class="p">:</span> <span class="n">httpx</span><span class="o">.</span><span class="n">Client</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes a workspace provider from the given API workspace data.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Initializes a workspace provider from the given API workspace data."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_id</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_resources</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">resources</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_arnica</span> <span class="o">=</span> <span class="n">arnica</span>
@@ -284,24 +284,24 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The workspace&#39;s identifier.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The workspace's identifier."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id</span>
 
 <div class="viewcode-block" id="WorkspaceProvider.list_backends">
 <a class="viewcode-back" href="../../../apidoc/cloud.html#qiskit_aqt_provider._cloud.workspace_provider.WorkspaceProvider.list_backends">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">list_backends</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">WorkspaceResource</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Lists the backends available in this workspace.</span>
+<span class="w">        </span><span class="sd">"""Lists the backends available in this workspace.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            list[WorkspaceResource]: The list of backends available in this workspace.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resources</span></div>
 
 
 <div class="viewcode-block" id="WorkspaceProvider.get_backend">
 <a class="viewcode-back" href="../../../apidoc/cloud.html#qiskit_aqt_provider._cloud.workspace_provider.WorkspaceProvider.get_backend">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_backend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backend_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CloudResource</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Gets a specific backend available in this workspace by its identifier.</span>
+<span class="w">        </span><span class="sd">"""Gets a specific backend available in this workspace by its identifier.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            backend_id (str): The identifier of the backend to retrieve.</span>
@@ -311,14 +311,14 @@
 
 <span class="sd">        Raises:</span>
 <span class="sd">            QiskitBackendNotFoundError: If no backend with the specified identifier is found.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">for</span> <span class="n">resource</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resources</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">resource</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">backend_id</span><span class="p">:</span>
-                <span class="n">response</span> <span class="o">=</span> <span class="n">http_response_raise_for_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/v1/resources/</span><span class="si">{</span><span class="n">resource</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="n">http_response_raise_for_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">"/v1/resources/</span><span class="si">{</span><span class="n">resource</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">"</span><span class="p">))</span>
                 <span class="n">details</span> <span class="o">=</span> <span class="n">ResourceDetails</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">CloudResource</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_arnica</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_api_client</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">,</span> <span class="n">details</span><span class="p">)</span>
 
-        <span class="k">raise</span> <span class="n">QiskitBackendNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Backend with ID &#39;</span><span class="si">{</span><span class="n">backend_id</span><span class="si">}</span><span class="s2">&#39; not found in workspace &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="n">QiskitBackendNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Backend with ID '</span><span class="si">{</span><span class="n">backend_id</span><span class="si">}</span><span class="s2">' not found in workspace '</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="si">}</span><span class="s2">'."</span><span class="p">)</span></div>
 </div>
 
 </pre></div>
@@ -353,7 +353,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=f5cff4aa"></script>
+</div><script src="../../../_static/documentation_options.js?v=c2377ec0"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

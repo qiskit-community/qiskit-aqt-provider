@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>qiskit_aqt_provider._offline_sim.job - Qiskit AQT Provider 2.0.1</title>
+        <title>qiskit_aqt_provider._offline_sim.job - Qiskit AQT Provider 2.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=75810a84" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=fc6d6d93" />
@@ -156,7 +156,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit AQT Provider 2.0.1</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit AQT Provider 2.0.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -178,7 +178,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.1</span>
+  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.2</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
@@ -276,21 +276,21 @@
 <div class="viewcode-block" id="OfflineSimulatorJob.submit">
 <a class="viewcode-back" href="../../../apidoc/offline.html#qiskit_aqt_provider._offline_sim.job.OfflineSimulatorJob.submit">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">submit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Do not call — submission is handled by the backend.</span>
+<span class="w">        </span><span class="sd">"""Do not call — submission is handled by the backend.</span>
 
 <span class="sd">        This job object represents an execution that has already been submitted via backend.run(). Calling submit() is</span>
 <span class="sd">        invalid and always raises a RuntimeError.</span>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            RuntimeError: Job submission is performed by backend.run().</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Job is already submitted via backend.run()&quot;</span><span class="p">)</span></div>
+<span class="sd">        """</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Job is already submitted via backend.run()"</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="OfflineSimulatorJob.status">
 <a class="viewcode-back" href="../../../apidoc/offline.html#qiskit_aqt_provider._offline_sim.job.OfflineSimulatorJob.status">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JobStatus</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the status of the underlying Aer job.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Return the status of the underlying Aer job."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_aer_job</span><span class="o">.</span><span class="n">status</span><span class="p">()</span></div>
 
 
@@ -332,7 +332,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=f5cff4aa"></script>
+</div><script src="../../../_static/documentation_options.js?v=c2377ec0"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

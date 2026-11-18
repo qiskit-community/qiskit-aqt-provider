@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>qiskit_aqt_provider._offline_sim.provider - Qiskit AQT Provider 2.0.1</title>
+        <title>qiskit_aqt_provider._offline_sim.provider - Qiskit AQT Provider 2.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=75810a84" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=fc6d6d93" />
@@ -156,7 +156,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit AQT Provider 2.0.1</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit AQT Provider 2.0.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -178,7 +178,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.1</span>
+  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.2</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
@@ -269,21 +269,21 @@
 <div class="viewcode-block" id="OfflineSimulatorProvider">
 <a class="viewcode-back" href="../../../apidoc/offline.html#qiskit_aqt_provider._offline_sim.provider.OfflineSimulatorProvider">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">OfflineSimulatorProvider</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A provider for offline simulators.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A provider for offline simulators."""</span>
 
 <div class="viewcode-block" id="OfflineSimulatorProvider.noisy">
 <a class="viewcode-back" href="../../../apidoc/offline.html#qiskit_aqt_provider._offline_sim.provider.OfflineSimulatorProvider.noisy">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">noisy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OfflineSimulatorResource</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a noisy offline simulator resource.&quot;&quot;&quot;</span>
-        <span class="n">noise_model</span> <span class="o">=</span> <span class="n">NoiseModel</span><span class="p">(</span><span class="n">basis_gates</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="s2">&quot;rz&quot;</span><span class="p">,</span> <span class="s2">&quot;rxx&quot;</span><span class="p">])</span>
-        <span class="n">noise_model</span><span class="o">.</span><span class="n">add_all_qubit_quantum_error</span><span class="p">(</span><span class="n">depolarizing_error</span><span class="p">(</span><span class="mf">0.003</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;r&quot;</span><span class="p">])</span>
-        <span class="n">noise_model</span><span class="o">.</span><span class="n">add_all_qubit_quantum_error</span><span class="p">(</span><span class="n">depolarizing_error</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">[</span><span class="s2">&quot;rxx&quot;</span><span class="p">])</span>
+<span class="w">        </span><span class="sd">"""Returns a noisy offline simulator resource."""</span>
+        <span class="n">noise_model</span> <span class="o">=</span> <span class="n">NoiseModel</span><span class="p">(</span><span class="n">basis_gates</span><span class="o">=</span><span class="p">[</span><span class="s2">"r"</span><span class="p">,</span> <span class="s2">"rz"</span><span class="p">,</span> <span class="s2">"rxx"</span><span class="p">])</span>
+        <span class="n">noise_model</span><span class="o">.</span><span class="n">add_all_qubit_quantum_error</span><span class="p">(</span><span class="n">depolarizing_error</span><span class="p">(</span><span class="mf">0.003</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">[</span><span class="s2">"r"</span><span class="p">])</span>
+        <span class="n">noise_model</span><span class="o">.</span><span class="n">add_all_qubit_quantum_error</span><span class="p">(</span><span class="n">depolarizing_error</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">[</span><span class="s2">"rxx"</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="n">OfflineSimulatorResource</span><span class="p">(</span>
             <span class="n">config</span><span class="o">=</span><span class="n">OfflineSimulatorResourceConfig</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;offline_simulator_noise&quot;</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">"offline_simulator_noise"</span><span class="p">,</span>
                 <span class="n">number_of_ions</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
-                <span class="n">simulator</span><span class="o">=</span><span class="n">AerSimulator</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;statevector&quot;</span><span class="p">,</span> <span class="n">noise_model</span><span class="o">=</span><span class="n">noise_model</span><span class="p">),</span>
+                <span class="n">simulator</span><span class="o">=</span><span class="n">AerSimulator</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">"statevector"</span><span class="p">,</span> <span class="n">noise_model</span><span class="o">=</span><span class="n">noise_model</span><span class="p">),</span>
             <span class="p">)</span>
         <span class="p">)</span></div>
 
@@ -291,12 +291,12 @@
 <div class="viewcode-block" id="OfflineSimulatorProvider.ideal">
 <a class="viewcode-back" href="../../../apidoc/offline.html#qiskit_aqt_provider._offline_sim.provider.OfflineSimulatorProvider.ideal">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">ideal</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OfflineSimulatorResource</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns an ideal offline simulator resource.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns an ideal offline simulator resource."""</span>
         <span class="k">return</span> <span class="n">OfflineSimulatorResource</span><span class="p">(</span>
             <span class="n">config</span><span class="o">=</span><span class="n">OfflineSimulatorResourceConfig</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;offline_simulator_no_noise&quot;</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">"offline_simulator_no_noise"</span><span class="p">,</span>
                 <span class="n">number_of_ions</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
-                <span class="n">simulator</span><span class="o">=</span><span class="n">AerSimulator</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">&quot;statevector&quot;</span><span class="p">),</span>
+                <span class="n">simulator</span><span class="o">=</span><span class="n">AerSimulator</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">"statevector"</span><span class="p">),</span>
             <span class="p">)</span>
         <span class="p">)</span></div>
 </div>
@@ -333,7 +333,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=f5cff4aa"></script>
+</div><script src="../../../_static/documentation_options.js?v=c2377ec0"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

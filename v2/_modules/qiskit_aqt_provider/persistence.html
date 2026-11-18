@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>qiskit_aqt_provider.persistence - Qiskit AQT Provider 2.0.1</title>
+        <title>qiskit_aqt_provider.persistence - Qiskit AQT Provider 2.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=75810a84" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=fc6d6d93" />
@@ -156,7 +156,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit AQT Provider 2.0.1</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit AQT Provider 2.0.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -178,7 +178,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.1</span>
+  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.2</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../search.html" role="search">
@@ -280,22 +280,22 @@
 <span class="p">)</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;FileJobStore&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;JobBackendMismatchError&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;JobCorruptError&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;JobIncompatibleError&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;JobNotFoundError&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;JobPersistenceError&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;JobSnapshot&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;JobStore&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;decode_job&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;delete_job&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;encode_job&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;persist_job&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;restore_job&quot;</span><span class="p">,</span>
+    <span class="s2">"FileJobStore"</span><span class="p">,</span>
+    <span class="s2">"JobBackendMismatchError"</span><span class="p">,</span>
+    <span class="s2">"JobCorruptError"</span><span class="p">,</span>
+    <span class="s2">"JobIncompatibleError"</span><span class="p">,</span>
+    <span class="s2">"JobNotFoundError"</span><span class="p">,</span>
+    <span class="s2">"JobPersistenceError"</span><span class="p">,</span>
+    <span class="s2">"JobSnapshot"</span><span class="p">,</span>
+    <span class="s2">"JobStore"</span><span class="p">,</span>
+    <span class="s2">"decode_job"</span><span class="p">,</span>
+    <span class="s2">"delete_job"</span><span class="p">,</span>
+    <span class="s2">"encode_job"</span><span class="p">,</span>
+    <span class="s2">"persist_job"</span><span class="p">,</span>
+    <span class="s2">"restore_job"</span><span class="p">,</span>
 <span class="p">]</span>
 
-<span class="n">JobKind</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;cloud&quot;</span><span class="p">,</span> <span class="s2">&quot;direct&quot;</span><span class="p">]</span>
+<span class="n">JobKind</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"cloud"</span><span class="p">,</span> <span class="s2">"direct"</span><span class="p">]</span>
 <span class="n">FORMAT_VERSION</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="mi">1</span>
 
 <span class="n">JobPersistenceError</span> <span class="o">=</span> <span class="n">AQTJobPersistenceError</span>
@@ -309,24 +309,24 @@
 <a class="viewcode-back" href="../../apidoc/persistence.html#qiskit_aqt_provider.persistence.JobStore">[docs]</a>
 <span class="nd">@runtime_checkable</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">JobStore</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Port used to save and retrieve opaque persisted job payloads.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Port used to save and retrieve opaque persisted job payloads."""</span>
 
 <div class="viewcode-block" id="JobStore.save">
 <a class="viewcode-back" href="../../apidoc/persistence.html#qiskit_aqt_provider.persistence.JobStore.save">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">payload</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save a payload under a job ID.&quot;&quot;&quot;</span></div>
+<span class="w">        </span><span class="sd">"""Save a payload under a job ID."""</span></div>
 
 
 <div class="viewcode-block" id="JobStore.load">
 <a class="viewcode-back" href="../../apidoc/persistence.html#qiskit_aqt_provider.persistence.JobStore.load">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load a payload by job ID.&quot;&quot;&quot;</span></div>
+<span class="w">        </span><span class="sd">"""Load a payload by job ID."""</span></div>
 
 
 <div class="viewcode-block" id="JobStore.delete">
 <a class="viewcode-back" href="../../apidoc/persistence.html#qiskit_aqt_provider.persistence.JobStore.delete">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">job_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Delete a payload by job ID.&quot;&quot;&quot;</span></div>
+<span class="w">        </span><span class="sd">"""Delete a payload by job ID."""</span></div>
 </div>
 
 
@@ -335,7 +335,7 @@
 <a class="viewcode-back" href="../../apidoc/persistence.html#qiskit_aqt_provider.persistence.JobSnapshot">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">JobSnapshot</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The state needed to recreate a submitted remote job handle.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The state needed to recreate a submitted remote job handle."""</span>
 
     <span class="n">job_id</span><span class="p">:</span> <span class="n">UUID</span>
     <span class="n">backend_kind</span><span class="p">:</span> <span class="n">JobKind</span>
@@ -356,51 +356,51 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">encode_job</span><span class="p">(</span><span class="n">snapshot</span><span class="p">:</span> <span class="n">JobSnapshot</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bytes</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Encode a job snapshot as a versioned JSON header followed by QPY circuits.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Encode a job snapshot as a versioned JSON header followed by QPY circuits."""</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">snapshot</span><span class="o">.</span><span class="n">circuits</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;A persisted job must contain at least one circuit&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"A persisted job must contain at least one circuit"</span><span class="p">)</span>
 
     <span class="n">header</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;format_version&quot;</span><span class="p">:</span> <span class="n">FORMAT_VERSION</span><span class="p">,</span>
-        <span class="s2">&quot;job_id&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">snapshot</span><span class="o">.</span><span class="n">job_id</span><span class="p">),</span>
-        <span class="s2">&quot;backend_kind&quot;</span><span class="p">:</span> <span class="n">snapshot</span><span class="o">.</span><span class="n">backend_kind</span><span class="p">,</span>
-        <span class="s2">&quot;backend_name&quot;</span><span class="p">:</span> <span class="n">snapshot</span><span class="o">.</span><span class="n">backend_name</span><span class="p">,</span>
-        <span class="s2">&quot;shots&quot;</span><span class="p">:</span> <span class="n">snapshot</span><span class="o">.</span><span class="n">shots</span><span class="p">,</span>
-        <span class="s2">&quot;memory&quot;</span><span class="p">:</span> <span class="n">snapshot</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span>
-        <span class="s2">&quot;circuit_count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">snapshot</span><span class="o">.</span><span class="n">circuits</span><span class="p">),</span>
+        <span class="s2">"format_version"</span><span class="p">:</span> <span class="n">FORMAT_VERSION</span><span class="p">,</span>
+        <span class="s2">"job_id"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">snapshot</span><span class="o">.</span><span class="n">job_id</span><span class="p">),</span>
+        <span class="s2">"backend_kind"</span><span class="p">:</span> <span class="n">snapshot</span><span class="o">.</span><span class="n">backend_kind</span><span class="p">,</span>
+        <span class="s2">"backend_name"</span><span class="p">:</span> <span class="n">snapshot</span><span class="o">.</span><span class="n">backend_name</span><span class="p">,</span>
+        <span class="s2">"shots"</span><span class="p">:</span> <span class="n">snapshot</span><span class="o">.</span><span class="n">shots</span><span class="p">,</span>
+        <span class="s2">"memory"</span><span class="p">:</span> <span class="n">snapshot</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span>
+        <span class="s2">"circuit_count"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">snapshot</span><span class="o">.</span><span class="n">circuits</span><span class="p">),</span>
     <span class="p">}</span>
     <span class="n">circuit_data</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">()</span>
     <span class="n">qpy</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">snapshot</span><span class="o">.</span><span class="n">circuits</span><span class="p">,</span> <span class="n">circuit_data</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">separators</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="s2">&quot;:&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">circuit_data</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">separators</span><span class="o">=</span><span class="p">(</span><span class="s2">","</span><span class="p">,</span> <span class="s2">":"</span><span class="p">))</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="o">+</span> <span class="sa">b</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> <span class="n">circuit_data</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">decode_job</span><span class="p">(</span><span class="n">payload</span><span class="p">:</span> <span class="nb">bytes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JobSnapshot</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Decode and validate a persisted job payload.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Decode and validate a persisted job payload."""</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">header_data</span><span class="p">,</span> <span class="n">circuit_data</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">raw_header</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">header_data</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+        <span class="n">header_data</span><span class="p">,</span> <span class="n">circuit_data</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="sa">b</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">raw_header</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">header_data</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">"utf-8"</span><span class="p">))</span>
     <span class="k">except</span> <span class="p">(</span><span class="ne">UnicodeDecodeError</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">JobCorruptError</span><span class="p">(</span><span class="s2">&quot;Persisted job has an invalid header&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+        <span class="k">raise</span> <span class="n">JobCorruptError</span><span class="p">(</span><span class="s2">"Persisted job has an invalid header"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw_header</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">JobCorruptError</span><span class="p">(</span><span class="s2">&quot;Persisted job header is not an object&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">raw_header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;format_version&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="n">FORMAT_VERSION</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">JobIncompatibleError</span><span class="p">(</span><span class="s2">&quot;Persisted job uses an unsupported format version&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">JobCorruptError</span><span class="p">(</span><span class="s2">"Persisted job header is not an object"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">raw_header</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"format_version"</span><span class="p">)</span> <span class="o">!=</span> <span class="n">FORMAT_VERSION</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">JobIncompatibleError</span><span class="p">(</span><span class="s2">"Persisted job uses an unsupported format version"</span><span class="p">)</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">header</span> <span class="o">=</span> <span class="n">_JobHeader</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">raw_header</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">pdt</span><span class="o">.</span><span class="n">ValidationError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">JobCorruptError</span><span class="p">(</span><span class="s2">&quot;Persisted job metadata is invalid&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+        <span class="k">raise</span> <span class="n">JobCorruptError</span><span class="p">(</span><span class="s2">"Persisted job metadata is invalid"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">circuits</span> <span class="o">=</span> <span class="n">qpy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">circuit_data</span><span class="p">))</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">JobCorruptError</span><span class="p">(</span><span class="s2">&quot;Persisted job circuits cannot be decoded&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+        <span class="k">raise</span> <span class="n">JobCorruptError</span><span class="p">(</span><span class="s2">"Persisted job circuits cannot be decoded"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">circuits</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">JobCorruptError</span><span class="p">(</span><span class="s2">&quot;Persisted job circuits are not a list&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">JobCorruptError</span><span class="p">(</span><span class="s2">"Persisted job circuits are not a list"</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">circuits</span><span class="p">)</span> <span class="o">!=</span> <span class="n">header</span><span class="o">.</span><span class="n">circuit_count</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">circuit</span><span class="p">,</span> <span class="n">QuantumCircuit</span><span class="p">)</span> <span class="k">for</span> <span class="n">circuit</span> <span class="ow">in</span> <span class="n">circuits</span><span class="p">):</span>
-        <span class="k">raise</span> <span class="n">JobCorruptError</span><span class="p">(</span><span class="s2">&quot;Persisted job contains an unexpected circuit payload&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">JobCorruptError</span><span class="p">(</span><span class="s2">"Persisted job contains an unexpected circuit payload"</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">JobSnapshot</span><span class="p">(</span>
         <span class="n">job_id</span><span class="o">=</span><span class="n">header</span><span class="o">.</span><span class="n">job_id</span><span class="p">,</span>
@@ -413,7 +413,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">persist_job</span><span class="p">(</span><span class="n">snapshot</span><span class="p">:</span> <span class="n">JobSnapshot</span><span class="p">,</span> <span class="n">store</span><span class="p">:</span> <span class="n">JobStore</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Persist a snapshot using the supplied store or the default file store.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Persist a snapshot using the supplied store or the default file store."""</span>
     <span class="n">_resolve_store</span><span class="p">(</span><span class="n">store</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">snapshot</span><span class="o">.</span><span class="n">job_id</span><span class="p">),</span> <span class="n">encode_job</span><span class="p">(</span><span class="n">snapshot</span><span class="p">))</span>
 
 
@@ -424,24 +424,24 @@
     <span class="n">backend_kind</span><span class="p">:</span> <span class="n">JobKind</span><span class="p">,</span>
     <span class="n">backend_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JobSnapshot</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load a snapshot and verify that it belongs to the requested backend.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Load a snapshot and verify that it belongs to the requested backend."""</span>
     <span class="n">snapshot</span> <span class="o">=</span> <span class="n">decode_job</span><span class="p">(</span><span class="n">_resolve_store</span><span class="p">(</span><span class="n">store</span><span class="p">)</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">job_id</span><span class="p">))</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">requested_id</span> <span class="o">=</span> <span class="n">UUID</span><span class="p">(</span><span class="n">job_id</span><span class="p">)</span>
     <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">JobPersistenceError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid job ID: </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+        <span class="k">raise</span> <span class="n">JobPersistenceError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Invalid job ID: </span><span class="si">{</span><span class="n">job_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
 
     <span class="k">if</span> <span class="n">snapshot</span><span class="o">.</span><span class="n">job_id</span> <span class="o">!=</span> <span class="n">requested_id</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">JobCorruptError</span><span class="p">(</span><span class="s2">&quot;Persisted job ID does not match its storage key&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">JobCorruptError</span><span class="p">(</span><span class="s2">"Persisted job ID does not match its storage key"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">snapshot</span><span class="o">.</span><span class="n">backend_kind</span> <span class="o">!=</span> <span class="n">backend_kind</span> <span class="ow">or</span> <span class="n">snapshot</span><span class="o">.</span><span class="n">backend_name</span> <span class="o">!=</span> <span class="n">backend_name</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">JobBackendMismatchError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Persisted job belongs to </span><span class="si">{</span><span class="n">snapshot</span><span class="o">.</span><span class="n">backend_kind</span><span class="si">}</span><span class="s2"> backend </span><span class="si">{</span><span class="n">snapshot</span><span class="o">.</span><span class="n">backend_name</span><span class="si">!r}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Persisted job belongs to </span><span class="si">{</span><span class="n">snapshot</span><span class="o">.</span><span class="n">backend_kind</span><span class="si">}</span><span class="s2"> backend </span><span class="si">{</span><span class="n">snapshot</span><span class="o">.</span><span class="n">backend_name</span><span class="si">!r}</span><span class="s2">"</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">snapshot</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">delete_job</span><span class="p">(</span><span class="n">job_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">store</span><span class="p">:</span> <span class="n">JobStore</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Delete a persisted job using the supplied store or the default file store.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Delete a persisted job using the supplied store or the default file store."""</span>
     <span class="n">_resolve_store</span><span class="p">(</span><span class="n">store</span><span class="p">)</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">job_id</span><span class="p">)</span>
 
 
@@ -479,7 +479,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=f5cff4aa"></script>
+</div><script src="../../_static/documentation_options.js?v=c2377ec0"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

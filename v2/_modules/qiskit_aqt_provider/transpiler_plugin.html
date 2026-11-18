@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>qiskit_aqt_provider.transpiler_plugin - Qiskit AQT Provider 2.0.1</title>
+        <title>qiskit_aqt_provider.transpiler_plugin - Qiskit AQT Provider 2.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=75810a84" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=fc6d6d93" />
@@ -156,7 +156,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit AQT Provider 2.0.1</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit AQT Provider 2.0.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -178,7 +178,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.1</span>
+  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.2</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../search.html" role="search">
@@ -259,7 +259,7 @@
 <span class="c1"># Any modifications or derivative works of this code must retain this</span>
 <span class="c1"># copyright notice, and modified files need to carry a notice indicating</span>
 <span class="c1"># that they have been altered from the originals.</span>
-<span class="sd">&quot;&quot;&quot;AQT transpiler plugin.</span>
+<span class="sd">"""AQT transpiler plugin.</span>
 
 <span class="sd">The transpilation for AQT backends is based on</span>
 <span class="sd">[custom plugins](https://quantum.cloud.ibm.com/docs/en/api/qiskit/transpiler_plugins#writing-plugins)</span>
@@ -272,7 +272,7 @@
 <span class="sd">  - Wrapping RXX gate angles again. Due to optimization there may be incompatible angles again</span>
 <span class="sd">  - Decomposing wrapped RXX gates</span>
 <span class="sd">  - Remove redundant final measurements and raise error for mid-circuit measurements</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
@@ -285,7 +285,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit.library</span><span class="w"> </span><span class="kn">import</span> <span class="n">RGate</span><span class="p">,</span> <span class="n">RXGate</span><span class="p">,</span> <span class="n">RXXGate</span><span class="p">,</span> <span class="n">RZGate</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.circuit.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">pi_check</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.dagcircuit</span><span class="w"> </span><span class="kn">import</span> <span class="n">DAGCircuit</span><span class="p">,</span> <span class="n">DAGOpNode</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.transpiler.basepasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">TransformationPass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.transpiler.basepasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnalysisPass</span><span class="p">,</span> <span class="n">TransformationPass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.transpiler.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">TranspilerError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.transpiler.passes</span><span class="w"> </span><span class="kn">import</span> <span class="n">Decompose</span><span class="p">,</span> <span class="n">Optimize1qGatesDecomposition</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit.transpiler.passmanager</span><span class="w"> </span><span class="kn">import</span> <span class="n">PassManager</span><span class="p">,</span> <span class="n">Task</span>
@@ -296,7 +296,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_rewrite_rx_as_r</span><span class="p">(</span><span class="n">theta</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Instruction</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Instruction equivalent to Rx(θ) as R(θ, φ) with θ ∈ [0, π] and φ ∈ [0, 2π].&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Instruction equivalent to Rx(θ) as R(θ, φ) with θ ∈ [0, π] and φ ∈ [0, 2π]."""</span>
     <span class="n">theta</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">))</span>
     <span class="n">phi</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="k">if</span> <span class="n">theta</span> <span class="o">&lt;</span> <span class="mf">0.0</span> <span class="k">else</span> <span class="mf">0.0</span>
     <span class="k">return</span> <span class="n">RGate</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span> <span class="n">phi</span><span class="p">)</span>
@@ -311,17 +311,17 @@
 <div class="viewcode-block" id="RewriteRxAsR">
 <a class="viewcode-back" href="../../apidoc/transpiler_plugin.html#qiskit_aqt_provider.transpiler_plugin.RewriteRxAsR">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">RewriteRxAsR</span><span class="p">(</span><span class="n">TransformationPass</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Rewrite Rx(θ) and R(θ, φ) as R(θ, φ) with θ ∈ [0, π] and φ ∈ [0, 2π].</span>
+<span class="w">    </span><span class="sd">"""Rewrite Rx(θ) and R(θ, φ) as R(θ, φ) with θ ∈ [0, π] and φ ∈ [0, 2π].</span>
 
 <span class="sd">    Since the pass needs to determine if the relevant angles are in range,</span>
 <span class="sd">    target circuits must have all these angles bound when applying the pass.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="nd">@map_exceptions</span><span class="p">(</span><span class="n">TranspilerError</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dag</span><span class="p">:</span> <span class="n">DAGCircuit</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DAGCircuit</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the transformation pass.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Apply the transformation pass."""</span>
         <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">dag</span><span class="o">.</span><span class="n">gate_nodes</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;rx&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"rx"</span><span class="p">:</span>
                 <span class="p">(</span><span class="n">theta</span><span class="p">,)</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">op</span><span class="o">.</span><span class="n">params</span>
                 <span class="n">dag</span><span class="o">.</span><span class="n">substitute_node</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">_rewrite_rx_as_r</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">theta</span><span class="p">)))</span>
         <span class="k">return</span> <span class="n">dag</span></div>
@@ -329,11 +329,11 @@
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">EnsureSingleFinalMeasurement</span><span class="p">(</span><span class="n">TransformationPass</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Ensure at most one measurement per qubit, only at the end of the circuit.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Ensure at most one measurement per qubit, only at the end of the circuit."""</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_copy_empty_dag</span><span class="p">(</span><span class="n">dag</span><span class="p">:</span> <span class="n">DAGCircuit</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">DAGCircuit</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Qubit</span><span class="p">,</span> <span class="n">Qubit</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Clbit</span><span class="p">,</span> <span class="n">Clbit</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Copy the DAG structure without its operations.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Copy the DAG structure without its operations."""</span>
         <span class="n">new_dag</span> <span class="o">=</span> <span class="n">DAGCircuit</span><span class="p">()</span>
         <span class="n">new_dag</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">dag</span><span class="o">.</span><span class="n">name</span>
         <span class="n">new_dag</span><span class="o">.</span><span class="n">metadata</span> <span class="o">=</span> <span class="n">dag</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="k">if</span> <span class="n">dag</span><span class="o">.</span><span class="n">metadata</span> <span class="k">else</span> <span class="p">{}</span>
@@ -366,7 +366,7 @@
         <span class="n">qbit_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Qubit</span><span class="p">,</span> <span class="n">Qubit</span><span class="p">],</span>
         <span class="n">cbit_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Clbit</span><span class="p">,</span> <span class="n">Clbit</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply a source operation to a rebuilt DAG using the rebuilt DAG&#39;s bits.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Apply a source operation to a rebuilt DAG using the rebuilt DAG's bits."""</span>
         <span class="n">dag</span><span class="o">.</span><span class="n">apply_operation_back</span><span class="p">(</span>
             <span class="n">node</span><span class="o">.</span><span class="n">op</span><span class="p">,</span>
             <span class="p">[</span><span class="n">qbit_map</span><span class="p">[</span><span class="n">qarg</span><span class="p">]</span> <span class="k">for</span> <span class="n">qarg</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">qargs</span><span class="p">],</span>
@@ -380,31 +380,31 @@
         <span class="n">seen_measure</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
         <span class="n">measured_qubits</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">Qubit</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_MeasurementAction</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Choose how the final-measurement pass should process a node.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Choose how the final-measurement pass should process a node."""</span>
         <span class="n">op_name</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">op</span><span class="o">.</span><span class="n">name</span>
 
-        <span class="k">if</span> <span class="n">op_name</span> <span class="o">==</span> <span class="s2">&quot;measure&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">op_name</span> <span class="o">==</span> <span class="s2">"measure"</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">_MeasurementAction</span><span class="o">.</span><span class="n">SKIP</span> <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">qargs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="n">measured_qubits</span> <span class="k">else</span> <span class="n">_MeasurementAction</span><span class="o">.</span><span class="n">RECORD_AND_COPY</span>
 
-        <span class="k">if</span> <span class="n">op_name</span> <span class="o">==</span> <span class="s2">&quot;barrier&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">op_name</span> <span class="o">==</span> <span class="s2">"barrier"</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">_MeasurementAction</span><span class="o">.</span><span class="n">SKIP</span> <span class="k">if</span> <span class="n">seen_measure</span> <span class="k">else</span> <span class="n">_MeasurementAction</span><span class="o">.</span><span class="n">COPY</span>
 
         <span class="k">if</span> <span class="n">seen_measure</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">TranspilerError</span><span class="p">(</span>
-                <span class="s2">&quot;Measurement must only occur at the end of the circuit (found non-measure operation after measurement).&quot;</span>
+                <span class="s2">"Measurement must only occur at the end of the circuit (found non-measure operation after measurement)."</span>
             <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">_MeasurementAction</span><span class="o">.</span><span class="n">COPY</span>
 
     <span class="nd">@map_exceptions</span><span class="p">(</span><span class="n">TranspilerError</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dag</span><span class="p">:</span> <span class="n">DAGCircuit</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DAGCircuit</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensures exactly one measurement at the end of the circuit.</span>
+<span class="w">        </span><span class="sd">"""Ensures exactly one measurement at the end of the circuit.</span>
 
 <span class="sd">        Some algorithms introduce measurements. If they are at the end of the circuit, they can be</span>
 <span class="sd">        safely replaced by a single measure all operation. This pass ensures that there is exactly</span>
 <span class="sd">        one measurement at the end of the circuit, and raises a TranspilerError if it finds a</span>
 <span class="sd">        mid-circuit measurement.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">ops</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dag</span><span class="o">.</span><span class="n">topological_op_nodes</span><span class="p">())</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">ops</span><span class="p">:</span>
@@ -430,18 +430,18 @@
 
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">CircuitInstruction</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Substitute for `qiskit.circuit.CircuitInstruction`.</span>
+<span class="w">    </span><span class="sd">"""Substitute for `qiskit.circuit.CircuitInstruction`.</span>
 
 <span class="sd">    Contrary to its Qiskit counterpart, this type allows</span>
 <span class="sd">    passing the qubits as integers.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">gate</span><span class="p">:</span> <span class="n">Gate</span>
     <span class="n">qubits</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_rxx_positive_angle</span><span class="p">(</span><span class="n">theta</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">CircuitInstruction</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;List of instructions equivalent to RXX(θ) with θ &gt;= 0.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""List of instructions equivalent to RXX(θ) with θ &gt;= 0."""</span>
     <span class="n">rxx</span> <span class="o">=</span> <span class="n">CircuitInstruction</span><span class="p">(</span><span class="n">RXXGate</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">theta</span><span class="p">)),</span> <span class="n">qubits</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
 
     <span class="k">if</span> <span class="n">theta</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
@@ -455,8 +455,8 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_emit_rxx_instruction</span><span class="p">(</span><span class="n">theta</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">instructions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CircuitInstruction</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Instruction</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Collect the passed instructions into a single one labeled &#39;Rxx(θ)&#39;.&quot;&quot;&quot;</span>
-    <span class="n">qc</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">WrapRxxAngles</span><span class="o">.</span><span class="n">SUBSTITUTE_GATE_NAME</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">pi_check</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Collect the passed instructions into a single one labeled 'Rxx(θ)'."""</span>
+    <span class="n">qc</span> <span class="o">=</span> <span class="n">QuantumCircuit</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">WrapRxxAngles</span><span class="o">.</span><span class="n">SUBSTITUTE_GATE_NAME</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">pi_check</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">instruction</span> <span class="ow">in</span> <span class="n">instructions</span><span class="p">:</span>
         <span class="n">qc</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">instruction</span><span class="o">.</span><span class="n">gate</span><span class="p">,</span> <span class="n">instruction</span><span class="o">.</span><span class="n">qubits</span><span class="p">)</span>
 
@@ -464,7 +464,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_wrap_rxx_angle</span><span class="p">(</span><span class="n">theta</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Instruction</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Instruction equivalent to RXX(θ) with θ ∈ [0, π/2].&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Instruction equivalent to RXX(θ) with θ ∈ [0, π/2]."""</span>
     <span class="c1"># fast path if -π/2 &lt;= θ &lt;= π/2</span>
     <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">:</span>
         <span class="n">operations</span> <span class="o">=</span> <span class="n">_rxx_positive_angle</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span>
@@ -492,15 +492,15 @@
 <div class="viewcode-block" id="WrapRxxAngles">
 <a class="viewcode-back" href="../../apidoc/transpiler_plugin.html#qiskit_aqt_provider.transpiler_plugin.WrapRxxAngles">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">WrapRxxAngles</span><span class="p">(</span><span class="n">TransformationPass</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Wrap Rxx angles to [0, π/2].&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Wrap Rxx angles to [0, π/2]."""</span>
 
-    <span class="n">SUBSTITUTE_GATE_NAME</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="s2">&quot;Rxx-wrapped&quot;</span>
+    <span class="n">SUBSTITUTE_GATE_NAME</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="s2">"Rxx-wrapped"</span>
 
     <span class="nd">@map_exceptions</span><span class="p">(</span><span class="n">TranspilerError</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dag</span><span class="p">:</span> <span class="n">DAGCircuit</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DAGCircuit</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the transformation pass.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Apply the transformation pass."""</span>
         <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">dag</span><span class="o">.</span><span class="n">gate_nodes</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;rxx&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"rxx"</span><span class="p">:</span>
                 <span class="p">(</span><span class="n">theta</span><span class="p">,)</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">op</span><span class="o">.</span><span class="n">params</span>
 
                 <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="nb">float</span><span class="p">(</span><span class="n">theta</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">2</span><span class="p">:</span>
@@ -513,10 +513,25 @@
 
 
 
+<span class="k">class</span><span class="w"> </span><span class="nc">ValidateCircuitWidth</span><span class="p">(</span><span class="n">AnalysisPass</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Reject circuits that exceed the number of qubits supported by the target."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_qubits</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_max_qubits</span> <span class="o">=</span> <span class="n">max_qubits</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dag</span><span class="p">:</span> <span class="n">DAGCircuit</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Validate the circuit width."""</span>
+        <span class="k">if</span> <span class="n">dag</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">()</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max_qubits</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">TranspilerError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Circuit has </span><span class="si">{</span><span class="n">dag</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">()</span><span class="si">}</span><span class="s2"> qubits, but the target supports at most </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_max_qubits</span><span class="si">}</span><span class="s2">."</span>
+            <span class="p">)</span>
+
+
 <div class="viewcode-block" id="AQTSchedulingPlugin">
 <a class="viewcode-back" href="../../apidoc/transpiler_plugin.html#qiskit_aqt_provider.transpiler_plugin.AQTSchedulingPlugin">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AQTSchedulingPlugin</span><span class="p">(</span><span class="n">PassManagerStagePlugin</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Scheduling stage plugin for the :mod:`qiskit.transpiler`.</span>
+<span class="w">    </span><span class="sd">"""Scheduling stage plugin for the :mod:`qiskit.transpiler`.</span>
 
 <span class="sd">    Register the following passes to conclude transpilation, irrespective of the optimization level:</span>
 <span class="sd">    1. :class:`WrapRxxAngles` pass to wrap Rxx angles to [0, π/2].</span>
@@ -531,38 +546,43 @@
 <span class="sd">    Note: This plugin was originally created for Qiskit 1. Qiskit 2 introduces a transpiler pass</span>
 <span class="sd">    :class:`WrapAngles &lt;qiskit.transpiler.passes.WrapAngles&gt;` for</span>
 <span class="sd">    wrapping angles and it may be possible to find a better solution based on it.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">pass_manager</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">pass_manager_config</span><span class="p">:</span> <span class="n">PassManagerConfig</span><span class="p">,</span>  <span class="c1"># noqa: ARG002</span>
+        <span class="n">pass_manager_config</span><span class="p">:</span> <span class="n">PassManagerConfig</span><span class="p">,</span>
         <span class="n">optimization_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># noqa: ARG002</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PassManager</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pass manager for the scheduling phase.&quot;&quot;&quot;</span>
-        <span class="n">passes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Task</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">WrapRxxAngles</span><span class="p">(),</span>
-            <span class="n">Decompose</span><span class="p">([</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">WrapRxxAngles</span><span class="o">.</span><span class="n">SUBSTITUTE_GATE_NAME</span><span class="si">}</span><span class="s2">*&quot;</span><span class="p">]),</span>
-            <span class="n">Optimize1qGatesDecomposition</span><span class="p">(</span><span class="n">basis</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;rx&quot;</span><span class="p">,</span> <span class="s2">&quot;rz&quot;</span><span class="p">]),</span>
-            <span class="n">RewriteRxAsR</span><span class="p">(),</span>
-            <span class="n">EnsureSingleFinalMeasurement</span><span class="p">(),</span>
-        <span class="p">]</span>
+<span class="w">        </span><span class="sd">"""Pass manager for the scheduling phase."""</span>
+        <span class="n">passes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Task</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">pass_manager_config</span><span class="o">.</span><span class="n">target</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">pass_manager_config</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">num_qubits</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">passes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ValidateCircuitWidth</span><span class="p">(</span><span class="n">pass_manager_config</span><span class="o">.</span><span class="n">target</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">))</span>
+        <span class="n">passes</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">WrapRxxAngles</span><span class="p">(),</span>
+                <span class="n">Decompose</span><span class="p">([</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">WrapRxxAngles</span><span class="o">.</span><span class="n">SUBSTITUTE_GATE_NAME</span><span class="si">}</span><span class="s2">*"</span><span class="p">]),</span>
+                <span class="n">Optimize1qGatesDecomposition</span><span class="p">(</span><span class="n">basis</span><span class="o">=</span><span class="p">[</span><span class="s2">"rx"</span><span class="p">,</span> <span class="s2">"rz"</span><span class="p">]),</span>
+                <span class="n">RewriteRxAsR</span><span class="p">(),</span>
+                <span class="n">EnsureSingleFinalMeasurement</span><span class="p">(),</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="n">PassManager</span><span class="p">(</span><span class="n">passes</span><span class="p">)</span></div>
 
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">TranspilerMixin</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Mixin class to connect the custom transpiler plugin to the AQT backends.</span>
+<span class="w">    </span><span class="sd">"""Mixin class to connect the custom transpiler plugin to the AQT backends.</span>
 
 <span class="sd">     Qiskit allows to connect</span>
 <span class="sd">    [custom transpiler passes](https://quantum.cloud.ibm.com/docs/en/api/qiskit/providers#custom-transpiler-passes)</span>
 <span class="sd">    to backends via transpiler plugins. This is possible for the scheduling stage through the</span>
 <span class="sd">    method `get_scheduling_stage_plugin`. This is used to connect the appropriate transpiler plugin</span>
 <span class="sd">    to AQT backends.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_scheduling_stage_plugin</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;For usage of the custom scheduling stage plugin in the Qiskit transpiler.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="s2">&quot;aqt&quot;</span>
+<span class="w">        </span><span class="sd">"""For usage of the custom scheduling stage plugin in the Qiskit transpiler."""</span>
+        <span class="k">return</span> <span class="s2">"aqt"</span>
 </pre></div>
         </article>
       </div>
@@ -595,7 +615,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=f5cff4aa"></script>
+</div><script src="../../_static/documentation_options.js?v=c2377ec0"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

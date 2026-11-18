@@ -68,4 +68,4 @@ There have been significant changes to the Sampler and Estimator primitive APIs.
 Qiskit
 ------
 
-The v2 provider supports Python 3.10–3.14 and Qiskit 2.3–2.4.1. See the `Qiskit 2.0 migration guide <https://quantum.cloud.ibm.com/docs/en/guides/qiskit-2.0>`_ for more details on how to update your non-provider code.
+The v2 provider supports Python 3.10–3.14 and Qiskit 2.3 or newer in the Qiskit 2.x series. See the `Qiskit 2.0 migration guide <https://quantum.cloud.ibm.com/docs/en/guides/qiskit-2.0>`_ for more details on how to update your non-provider code.

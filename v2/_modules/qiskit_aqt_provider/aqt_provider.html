@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>qiskit_aqt_provider.aqt_provider - Qiskit AQT Provider 2.0.1</title>
+        <title>qiskit_aqt_provider.aqt_provider - Qiskit AQT Provider 2.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=75810a84" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=fc6d6d93" />
@@ -156,7 +156,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit AQT Provider 2.0.1</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit AQT Provider 2.0.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -178,7 +178,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.1</span>
+  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.2</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../search.html" role="search">
@@ -273,28 +273,28 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aqt_provider._offline_sim.provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">OfflineSimulatorProvider</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aqt_provider._offline_sim.resource</span><span class="w"> </span><span class="kn">import</span> <span class="n">OfflineSimulatorResource</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;AQTProvider&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"AQTProvider"</span><span class="p">]</span>
 
 
 <span class="n">AnyAQTResource</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">CloudResource</span> <span class="o">|</span> <span class="n">OfflineSimulatorResource</span> <span class="o">|</span> <span class="n">DirectAccessResource</span>
-<span class="sd">&quot;&quot;&quot;Type of any resource.&quot;&quot;&quot;</span>
+<span class="sd">"""Type of any resource."""</span>
 
 
 <div class="viewcode-block" id="AQTProvider">
 <a class="viewcode-back" href="../../apidoc/provider.html#qiskit_aqt_provider.aqt_provider.AQTProvider">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AQTProvider</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Provider for backends from Alpine Quantum Technologies (AQT).</span>
+<span class="w">    </span><span class="sd">"""Provider for backends from Alpine Quantum Technologies (AQT).</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        name (str): The provider&#39;s name.</span>
-<span class="sd">        offline (OfflineSimulatorProvider): The provider&#39;s offline simulator provider.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        name (str): The provider's name.</span>
+<span class="sd">        offline (OfflineSimulatorProvider): The provider's offline simulator provider.</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="AQTProvider.__init__">
 <a class="viewcode-back" href="../../apidoc/provider.html#qiskit_aqt_provider.aqt_provider.AQTProvider.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the AQT provider.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;aqt_provider&quot;</span>
+<span class="w">        </span><span class="sd">"""Initialize the AQT provider."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"aqt_provider"</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_cloud</span><span class="p">:</span> <span class="n">CloudProvider</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_direct_access</span><span class="p">:</span> <span class="n">DirectAccessProvider</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">offline</span> <span class="o">=</span> <span class="n">OfflineSimulatorProvider</span><span class="p">()</span></div>
@@ -303,7 +303,7 @@
 <div class="viewcode-block" id="AQTProvider.cloud">
 <a class="viewcode-back" href="../../apidoc/provider.html#qiskit_aqt_provider.aqt_provider.AQTProvider.cloud">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">cloud</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">ArnicaConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CloudProvider</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The provider&#39;s cloud provider instance.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The provider's cloud provider instance."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cloud</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">config</span> <span class="o">=</span> <span class="n">config</span> <span class="ow">or</span> <span class="n">ArnicaConfig</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_cloud</span> <span class="o">=</span> <span class="n">CloudProvider</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
@@ -313,14 +313,14 @@
 <div class="viewcode-block" id="AQTProvider.direct_access">
 <a class="viewcode-back" href="../../apidoc/provider.html#qiskit_aqt_provider.aqt_provider.AQTProvider.direct_access">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">direct_access</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DirectAccessProvider</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The provider&#39;s direct access provider instance.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The provider's direct access provider instance."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_direct_access</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_direct_access</span> <span class="o">=</span> <span class="n">DirectAccessProvider</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_direct_access</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Self&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Enters the runtime context for this provider.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Self"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Enters the runtime context for this provider."""</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span>
@@ -329,7 +329,7 @@
         <span class="n">exc</span><span class="p">:</span> <span class="ne">BaseException</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">tb</span><span class="p">:</span> <span class="n">TracebackType</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Exit the context manager and clean up resources.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Exit the context manager and clean up resources."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cloud</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_cloud</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_cloud</span> <span class="o">=</span> <span class="kc">None</span>
@@ -369,7 +369,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=f5cff4aa"></script>
+</div><script src="../../_static/documentation_options.js?v=c2377ec0"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

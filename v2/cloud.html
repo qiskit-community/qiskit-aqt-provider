@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="Offline Simulators" href="offline.html"><link rel="prev" title="AQT Backends" href="backends.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>AQT Arnica cloud portal - Qiskit AQT Provider 2.0.1</title>
+        <title>AQT Arnica cloud portal - Qiskit AQT Provider 2.0.2</title>
       <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=75810a84" />
     <link rel="stylesheet" type="text/css" href="_static/styles/qiskit-sphinx-theme.css?v=fc6d6d93" />
@@ -156,7 +156,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Qiskit AQT Provider 2.0.1</div></a>
+      <a href="index.html"><div class="brand">Qiskit AQT Provider 2.0.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -178,7 +178,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.1</span>
+  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.2</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="search.html" role="search">
@@ -256,6 +256,10 @@
           <section id="aqt-arnica-cloud-portal">
 <span id="cloud"></span><h1>AQT Arnica cloud portal<a class="headerlink" href="#aqt-arnica-cloud-portal" title="Link to this heading">¶</a></h1>
 <p>This guide covers usage of the Qiskit AQT provider package with the AQT Arnica cloud portal.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Use the <a class="reference external" href="https://github.com/qiskit-community/qiskit-aqt-provider/blob/d0be3337dc17c3199d527b2721f148a5170b378c/examples/arnica_cloud_resources.py">Arnica cloud example script</a> as a basis for your scripts, to help make them more resilient.</p>
+</div>
 <section id="usage">
 <span id="cloud-usage"></span><h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
 <p>The recommended way to use the <a class="reference internal" href="apidoc/provider.html#qiskit_aqt_provider.aqt_provider.AQTProvider" title="qiskit_aqt_provider.aqt_provider.AQTProvider"><code class="xref py py-class docutils literal notranslate"><span class="pre">AQTProvider</span></code></a> class to access AQT Arnica cloud resources is as a context manager. This will ensure that connections are properly cleaned up when leaving the context.</p>
@@ -266,6 +270,38 @@
    <span class="o">...</span>
 </pre></div>
 </div>
+<section id="handling-transient-errors">
+<h3>Handling transient errors<a class="headerlink" href="#handling-transient-errors" title="Link to this heading">¶</a></h3>
+<p>Submitting jobs to the Arnica cloud portal involves lots of steps that might go wrong; there could be network errors, authentication problems, long queues, and many more.
+Because of the way Qiskit jobs work, a link between the <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.Job" title="(in Qiskit v2.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Job</span></code></a> object in your script and the remote circuit needs to be maintained. Any single issue could cause this link to be broken and mean that your results are lost.
+We therefore <em>strongly</em> recommend persisting your jobs immediately after submitting them. This will allow the link between the <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.providers.Job" title="(in Qiskit v2.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Job</span></code></a> and the remote circuit to be restored at any time.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aqt_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">AQTProvider</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aqt_provider.persistence</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileJobStore</span>
+
+<span class="n">store</span> <span class="o">=</span> <span class="n">FileJobStore</span><span class="p">()</span>
+
+<span class="k">with</span> <span class="n">AQTProvider</span><span class="p">()</span> <span class="k">as</span> <span class="n">provider</span><span class="p">:</span>
+  <span class="n">cloud</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">cloud</span><span class="p">()</span>
+  <span class="o">...</span>
+  <span class="n">backend</span> <span class="o">=</span> <span class="n">workspace</span><span class="o">.</span><span class="n">get_backend</span><span class="p">(</span><span class="s2">"my_backend_id"</span><span class="p">)</span>
+  <span class="n">job</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">my_transpiled_circuit</span><span class="p">)</span>
+  <span class="nb">print</span><span class="p">(</span><span class="n">job</span><span class="o">.</span><span class="n">job_id</span><span class="p">())</span>
+  <span class="n">job</span><span class="o">.</span><span class="n">persist</span><span class="p">(</span><span class="n">store</span><span class="o">=</span><span class="n">store</span><span class="p">)</span>  <span class="c1"># save it in case something bad happens</span>
+  <span class="n">job</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>  <span class="c1"># wait for the result</span>
+</pre></div>
+</div>
+<p>Now that you’ve persisted the Job (and kept a record of the job ID), you can easily restore it at any time, even in a different process:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># later...</span>
+<span class="k">with</span> <span class="n">AQTProvider</span><span class="p">()</span> <span class="k">as</span> <span class="n">provider</span><span class="p">:</span>
+  <span class="n">cloud</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">cloud</span><span class="p">()</span>
+  <span class="o">...</span>
+  <span class="n">backend</span> <span class="o">=</span> <span class="n">workspace</span><span class="o">.</span><span class="n">get_backend</span><span class="p">(</span><span class="s2">"my_backend_id"</span><span class="p">)</span>
+  <span class="n">job</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">restore_job</span><span class="p">(</span><span class="n">job_id</span><span class="p">,</span> <span class="n">store</span><span class="o">=</span><span class="n">store</span><span class="p">)</span>  <span class="c1"># job_id that was printed previously</span>
+  <span class="n">job</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>  <span class="c1"># wait for the result</span>
+</pre></div>
+</div>
+<p>See the <a class="reference internal" href="persistence.html"><span class="doc">Job Persistence</span></a> documentation for more information.</p>
+</section>
 </section>
 <section id="authentication">
 <h2>Authentication<a class="headerlink" href="#authentication" title="Link to this heading">¶</a></h2>
@@ -298,10 +334,10 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aqt_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">AQTProvider</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aqt_provider.aqt_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">ArnicaConfig</span>
 
-<span class="n">config</span> <span class="o">=</span> <span class="n">ArnicaConfig</span><span class="p">(</span>
-    <span class="n">client_id</span><span class="o">=</span><span class="s2">&quot;YOUR_CLIENT_ID&quot;</span><span class="p">,</span>
-    <span class="n">client_secret</span><span class="o">=</span><span class="s2">&quot;YOUR_CLIENT_SECRET&quot;</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">ArnicaConfig</span><span class="p">()</span>
+<span class="n">config</span><span class="o">.</span><span class="n">client_id</span><span class="o">=</span><span class="s2">"YOUR_CLIENT_ID"</span>
+<span class="n">config</span><span class="o">.</span><span class="n">client_secret</span><span class="o">=</span><span class="s2">"YOUR_CLIENT_SECRET"</span>
+
 <span class="k">with</span> <span class="n">AQTProvider</span><span class="p">()</span> <span class="k">as</span> <span class="n">provider</span><span class="p">:</span>
    <span class="n">cloud</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">cloud</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
    <span class="n">cloud</span><span class="o">.</span><span class="n">log_in</span><span class="p">()</span>
@@ -330,7 +366,7 @@
 <p>You should have received the ID of the workspace(s) you have access to from AQT. If you’re not sure which to use, please contact AQT support.</p>
 </div>
 <p>Get a provider for a single workspace by passing its ID to the <a class="reference internal" href="apidoc/cloud.html#qiskit_aqt_provider._cloud.workspace_collection.WorkspaceCollection.get_by_id" title="qiskit_aqt_provider._cloud.workspace_collection.WorkspaceCollection.get_by_id"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_by_id</span></code></a> method on the workspaces handle:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">workspace</span> <span class="o">=</span> <span class="n">all_workspaces</span><span class="o">.</span><span class="n">get_by_id</span><span class="p">(</span><span class="s2">&quot;my_workspace_id&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">workspace</span> <span class="o">=</span> <span class="n">all_workspaces</span><span class="o">.</span><span class="n">get_by_id</span><span class="p">(</span><span class="s2">"my_workspace_id"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Then list the backends available in that workspace by calling the <a class="reference internal" href="apidoc/cloud.html#qiskit_aqt_provider._cloud.workspace_provider.WorkspaceProvider.list_backends" title="qiskit_aqt_provider._cloud.workspace_provider.WorkspaceProvider.list_backends"><code class="xref py py-meth docutils literal notranslate"><span class="pre">list_backends</span></code></a> method on the workspace handle:</p>
@@ -342,10 +378,10 @@
 </div>
 <p>And finally get a handle to a specific backend by passing its ID to the <a class="reference internal" href="apidoc/cloud.html#qiskit_aqt_provider._cloud.workspace_provider.WorkspaceProvider.get_backend" title="qiskit_aqt_provider._cloud.workspace_provider.WorkspaceProvider.get_backend"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_backend</span></code></a> method on the workspace handle:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
-<span class="n">backend</span> <span class="o">=</span> <span class="n">workspace</span><span class="o">.</span><span class="n">get_backend</span><span class="p">(</span><span class="s2">&quot;my_backend_id&quot;</span><span class="p">)</span>
+<span class="n">backend</span> <span class="o">=</span> <span class="n">workspace</span><span class="o">.</span><span class="n">get_backend</span><span class="p">(</span><span class="s2">"my_backend_id"</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>If no backend with the given ID is found, a <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/providers#qiskit.providers.QiskitBackendNotFoundError" title="(in Qiskit v2.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QiskitBackendNotFoundError</span></code></a> exception is raised.</p>
+<p>If no backend with the given ID is found, a <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/providers#qiskit.providers.QiskitBackendNotFoundError" title="(in Qiskit v2.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">QiskitBackendNotFoundError</span></code></a> exception is raised.</p>
 </section>
 <section id="quantum-register-size">
 <h2>Quantum register size<a class="headerlink" href="#quantum-register-size" title="Link to this heading">¶</a></h2>
@@ -414,7 +450,10 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">AQT Arnica cloud portal</a><ul>
-<li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#usage">Usage</a><ul>
+<li><a class="reference internal" href="#handling-transient-errors">Handling transient errors</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#authentication">Authentication</a><ul>
 <li><a class="reference internal" href="#using-an-arnica-account">Using an Arnica account</a></li>
 <li><a class="reference internal" href="#using-client-credentials">Using client credentials</a></li>
@@ -434,7 +473,7 @@
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=f5cff4aa"></script>
+</div><script src="_static/documentation_options.js?v=c2377ec0"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

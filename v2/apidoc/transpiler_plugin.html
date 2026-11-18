@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Options" href="options.html"><link rel="prev" title="Offline Simulators" href="offline.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>Transpiler plugin - Qiskit AQT Provider 2.0.1</title>
+        <title>Transpiler plugin - Qiskit AQT Provider 2.0.2</title>
       <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=75810a84" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/qiskit-sphinx-theme.css?v=fc6d6d93" />
@@ -156,7 +156,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../index.html"><div class="brand">Qiskit AQT Provider 2.0.1</div></a>
+      <a href="../index.html"><div class="brand">Qiskit AQT Provider 2.0.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -178,7 +178,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.1</span>
+  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.2</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../search.html" role="search">
@@ -258,8 +258,8 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="qiskit_aqt_provider.transpiler_plugin.AQTSchedulingPlugin">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_aqt_provider.transpiler_plugin.</span></span><span class="sig-name descname"><span class="pre">AQTSchedulingPlugin</span></span><a class="reference internal" href="../_modules/qiskit_aqt_provider/transpiler_plugin.html#AQTSchedulingPlugin"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_aqt_provider.transpiler_plugin.AQTSchedulingPlugin" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.transpiler.preset_passmanagers.plugin.PassManagerStagePlugin" title="(in Qiskit v2.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">PassManagerStagePlugin</span></code></a></p>
-<p>Scheduling stage plugin for the <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/transpiler#module-qiskit.transpiler" title="(in Qiskit v2.5)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit.transpiler</span></code></a>.</p>
+<dd><p>Bases: <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.transpiler.preset_passmanagers.plugin.PassManagerStagePlugin" title="(in Qiskit v2.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">PassManagerStagePlugin</span></code></a></p>
+<p>Scheduling stage plugin for the <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/transpiler#module-qiskit.transpiler" title="(in Qiskit v2.6)"><code class="xref py py-mod docutils literal notranslate"><span class="pre">qiskit.transpiler</span></code></a>.</p>
 <p>Register the following passes to conclude transpilation, irrespective of the optimization level:
 1. <a class="reference internal" href="#qiskit_aqt_provider.transpiler_plugin.WrapRxxAngles" title="qiskit_aqt_provider.transpiler_plugin.WrapRxxAngles"><code class="xref py py-class docutils literal notranslate"><span class="pre">WrapRxxAngles</span></code></a> pass to wrap Rxx angles to [0, π/2].
 2. Pass for the wrapped RXX gates decomposition.
@@ -270,7 +270,7 @@ better, because it only requires a single pulse.
 constraints.
 5. Remove redundant final measurements and raise error for mid-circuit measurements.</p>
 <p>Note: This plugin was originally created for Qiskit 1. Qiskit 2 introduces a transpiler pass
-<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.transpiler.passes.WrapAngles" title="(in Qiskit v2.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">WrapAngles</span></code></a> for
+<a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.transpiler.passes.WrapAngles" title="(in Qiskit v2.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">WrapAngles</span></code></a> for
 wrapping angles and it may be possible to find a better solution based on it.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_aqt_provider.transpiler_plugin.AQTSchedulingPlugin.__init__">
@@ -287,7 +287,7 @@ wrapping angles and it may be possible to find a better solution based on it.</p
 <dl class="py class">
 <dt class="sig sig-object py" id="qiskit_aqt_provider.transpiler_plugin.RewriteRxAsR">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_aqt_provider.transpiler_plugin.</span></span><span class="sig-name descname"><span class="pre">RewriteRxAsR</span></span><a class="reference internal" href="../_modules/qiskit_aqt_provider/transpiler_plugin.html#RewriteRxAsR"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_aqt_provider.transpiler_plugin.RewriteRxAsR" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.transpiler.TransformationPass" title="(in Qiskit v2.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">TransformationPass</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.transpiler.TransformationPass" title="(in Qiskit v2.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">TransformationPass</span></code></a></p>
 <p>Rewrite Rx(θ) and R(θ, φ) as R(θ, φ) with θ ∈ [0, π] and φ ∈ [0, 2π].</p>
 <p>Since the pass needs to determine if the relevant angles are in range,
 target circuits must have all these angles bound when applying the pass.</p>
@@ -306,7 +306,7 @@ target circuits must have all these angles bound when applying the pass.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="qiskit_aqt_provider.transpiler_plugin.WrapRxxAngles">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qiskit_aqt_provider.transpiler_plugin.</span></span><span class="sig-name descname"><span class="pre">WrapRxxAngles</span></span><a class="reference internal" href="../_modules/qiskit_aqt_provider/transpiler_plugin.html#WrapRxxAngles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#qiskit_aqt_provider.transpiler_plugin.WrapRxxAngles" title="Link to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.transpiler.TransformationPass" title="(in Qiskit v2.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">TransformationPass</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://quantum.cloud.ibm.com/docs/api/qiskit/qiskit.transpiler.TransformationPass" title="(in Qiskit v2.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">TransformationPass</span></code></a></p>
 <p>Wrap Rxx angles to [0, π/2].</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="qiskit_aqt_provider.transpiler_plugin.WrapRxxAngles.__init__">
@@ -404,7 +404,7 @@ target circuits must have all these angles bound when applying the pass.</p>
       
     </aside>
   </div>
-</div><script src="../_static/documentation_options.js?v=f5cff4aa"></script>
+</div><script src="../_static/documentation_options.js?v=c2377ec0"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/scripts/furo.js?v=46bd48cc"></script>

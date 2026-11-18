@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../genindex.html"><link rel="search" title="Search" href="../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>qiskit_aqt_provider.exceptions - Qiskit AQT Provider 2.0.1</title>
+        <title>qiskit_aqt_provider.exceptions - Qiskit AQT Provider 2.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=75810a84" />
     <link rel="stylesheet" type="text/css" href="../../_static/styles/qiskit-sphinx-theme.css?v=fc6d6d93" />
@@ -156,7 +156,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../index.html"><div class="brand">Qiskit AQT Provider 2.0.1</div></a>
+      <a href="../../index.html"><div class="brand">Qiskit AQT Provider 2.0.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -178,7 +178,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.1</span>
+  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.2</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../search.html" role="search">
@@ -267,91 +267,91 @@
 <div class="viewcode-block" id="AQTError">
 <a class="viewcode-back" href="../../apidoc/exceptions.html#qiskit_aqt_provider.exceptions.AQTError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AQTError</span><span class="p">(</span><span class="n">QiskitError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for errors raised by the AQT provider.&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">"""Base class for errors raised by the AQT provider."""</span></div>
 
 
 
 <div class="viewcode-block" id="AQTJobError">
 <a class="viewcode-back" href="../../apidoc/exceptions.html#qiskit_aqt_provider.exceptions.AQTJobError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AQTJobError</span><span class="p">(</span><span class="n">AQTError</span><span class="p">,</span> <span class="n">JobError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for errors raised by AQT cloud jobs.&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">"""Base class for errors raised by AQT cloud jobs."""</span></div>
 
 
 
 <div class="viewcode-block" id="AQTJobInvalidStateError">
 <a class="viewcode-back" href="../../apidoc/exceptions.html#qiskit_aqt_provider.exceptions.AQTJobInvalidStateError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AQTJobInvalidStateError</span><span class="p">(</span><span class="n">AQTJobError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Error raised when an operation is attempted on a job in an invalid state.&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">"""Error raised when an operation is attempted on a job in an invalid state."""</span></div>
 
 
 
 <div class="viewcode-block" id="AQTJobFailedError">
 <a class="viewcode-back" href="../../apidoc/exceptions.html#qiskit_aqt_provider.exceptions.AQTJobFailedError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AQTJobFailedError</span><span class="p">(</span><span class="n">AQTJobError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Error raised when a job has failed.&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">"""Error raised when a job has failed."""</span></div>
 
 
 
 <div class="viewcode-block" id="AQTJobPersistenceError">
 <a class="viewcode-back" href="../../apidoc/exceptions.html#qiskit_aqt_provider.exceptions.AQTJobPersistenceError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AQTJobPersistenceError</span><span class="p">(</span><span class="n">AQTJobError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for errors raised while persisting or restoring jobs.&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">"""Base class for errors raised while persisting or restoring jobs."""</span></div>
 
 
 
 <div class="viewcode-block" id="AQTJobNotFoundError">
 <a class="viewcode-back" href="../../apidoc/exceptions.html#qiskit_aqt_provider.exceptions.AQTJobNotFoundError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AQTJobNotFoundError</span><span class="p">(</span><span class="n">AQTJobPersistenceError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Error raised when a persisted job cannot be found.&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">"""Error raised when a persisted job cannot be found."""</span></div>
 
 
 
 <div class="viewcode-block" id="AQTJobCorruptError">
 <a class="viewcode-back" href="../../apidoc/exceptions.html#qiskit_aqt_provider.exceptions.AQTJobCorruptError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AQTJobCorruptError</span><span class="p">(</span><span class="n">AQTJobPersistenceError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Error raised when persisted job data cannot be decoded.&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">"""Error raised when persisted job data cannot be decoded."""</span></div>
 
 
 
 <div class="viewcode-block" id="AQTJobIncompatibleError">
 <a class="viewcode-back" href="../../apidoc/exceptions.html#qiskit_aqt_provider.exceptions.AQTJobIncompatibleError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AQTJobIncompatibleError</span><span class="p">(</span><span class="n">AQTJobPersistenceError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Error raised when persisted job data uses an unsupported format.&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">"""Error raised when persisted job data uses an unsupported format."""</span></div>
 
 
 
 <div class="viewcode-block" id="AQTJobBackendMismatchError">
 <a class="viewcode-back" href="../../apidoc/exceptions.html#qiskit_aqt_provider.exceptions.AQTJobBackendMismatchError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AQTJobBackendMismatchError</span><span class="p">(</span><span class="n">AQTJobPersistenceError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Error raised when a job is restored on a different backend.&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">"""Error raised when a job is restored on a different backend."""</span></div>
 
 
 
 <div class="viewcode-block" id="AQTApiError">
 <a class="viewcode-back" href="../../apidoc/exceptions.html#qiskit_aqt_provider.exceptions.AQTApiError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AQTApiError</span><span class="p">(</span><span class="n">AQTError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Errors that occur unexpectedly when querying the server.&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">"""Errors that occur unexpectedly when querying the server."""</span></div>
 
 
 
 <div class="viewcode-block" id="AQTCredentialsError">
 <a class="viewcode-back" href="../../apidoc/exceptions.html#qiskit_aqt_provider.exceptions.AQTCredentialsError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AQTCredentialsError</span><span class="p">(</span><span class="n">AQTError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Errors related to authentication and credentials for the AQT API.&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">"""Errors related to authentication and credentials for the AQT API."""</span></div>
 
 
 
 <div class="viewcode-block" id="AQTValueError">
 <a class="viewcode-back" href="../../apidoc/exceptions.html#qiskit_aqt_provider.exceptions.AQTValueError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AQTValueError</span><span class="p">(</span><span class="n">AQTError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Error raised when an invalid value is provided to a function or method.&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">"""Error raised when an invalid value is provided to a function or method."""</span></div>
 
 
 
 <div class="viewcode-block" id="AQTRequestError">
 <a class="viewcode-back" href="../../apidoc/exceptions.html#qiskit_aqt_provider.exceptions.AQTRequestError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AQTRequestError</span><span class="p">(</span><span class="n">AQTError</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Error raised due to issues with a request.&quot;&quot;&quot;</span></div>
+<span class="w">    </span><span class="sd">"""Error raised due to issues with a request."""</span></div>
 
 </pre></div>
         </article>
@@ -385,7 +385,7 @@
       
     </aside>
   </div>
-</div><script src="../../_static/documentation_options.js?v=f5cff4aa"></script>
+</div><script src="../../_static/documentation_options.js?v=c2377ec0"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/scripts/furo.js?v=46bd48cc"></script>

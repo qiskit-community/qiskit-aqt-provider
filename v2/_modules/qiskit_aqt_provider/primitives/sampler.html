@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>qiskit_aqt_provider.primitives.sampler - Qiskit AQT Provider 2.0.1</title>
+        <title>qiskit_aqt_provider.primitives.sampler - Qiskit AQT Provider 2.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=75810a84" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=fc6d6d93" />
@@ -156,7 +156,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit AQT Provider 2.0.1</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit AQT Provider 2.0.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -178,7 +178,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.1</span>
+  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.2</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
@@ -279,12 +279,12 @@
 <div class="viewcode-block" id="AQTSampler">
 <a class="viewcode-back" href="../../../apidoc/primitives.html#qiskit_aqt_provider.primitives.sampler.AQTSampler">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AQTSampler</span><span class="p">(</span><span class="n">BaseSamplerV2</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A sampler primitive for AQT backends.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A sampler primitive for AQT backends."""</span>
 
 <div class="viewcode-block" id="AQTSampler.__init__">
 <a class="viewcode-back" href="../../../apidoc/primitives.html#qiskit_aqt_provider.primitives.sampler.AQTSampler.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">backend</span><span class="p">:</span> <span class="n">AnyAQTResource</span><span class="p">,</span> <span class="n">options</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the sampler with the given AQT backend.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Initialize the sampler with the given AQT backend."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">backend</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_options</span> <span class="o">=</span> <span class="n">options</span> <span class="ow">or</span> <span class="n">Options</span><span class="p">()</span>
 
@@ -297,7 +297,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">pubs</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">SamplerPubLike</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">shots</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BasePrimitiveJob</span><span class="p">[</span><span class="n">PrimitiveResult</span><span class="p">[</span><span class="n">SamplerPubResult</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run the given sampler PUBs on the AQT backend.</span>
+<span class="w">        </span><span class="sd">"""Run the given sampler PUBs on the AQT backend.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            pubs (Iterable): An iterable of sampler PUBs, which may include parameterized</span>
@@ -307,7 +307,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            qiskit.primitives.BasePrimitiveJob[qiskit.primitives.PrimitiveResult[qiskit.primitives.SamplerPubResult]]: A</span>
 <span class="sd">            job representing the execution of the sampler PUBs.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">wrapped_backend</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">backend_factory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">)</span>
         <span class="n">delegate</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sampler_factory</span><span class="p">(</span><span class="n">wrapped_backend</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">delegate</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">pubs</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="n">shots</span><span class="p">)</span></div>
@@ -345,7 +345,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=f5cff4aa"></script>
+</div><script src="../../../_static/documentation_options.js?v=c2377ec0"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

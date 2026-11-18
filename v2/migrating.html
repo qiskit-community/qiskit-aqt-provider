@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="AQTProvider" href="apidoc/provider.html"><link rel="prev" title="Job persistence" href="persistence.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>Migrating to 2.0 - Qiskit AQT Provider 2.0.1</title>
+        <title>Migrating to 2.0 - Qiskit AQT Provider 2.0.2</title>
       <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=75810a84" />
     <link rel="stylesheet" type="text/css" href="_static/styles/qiskit-sphinx-theme.css?v=fc6d6d93" />
@@ -156,7 +156,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="index.html"><div class="brand">Qiskit AQT Provider 2.0.1</div></a>
+      <a href="index.html"><div class="brand">Qiskit AQT Provider 2.0.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -178,7 +178,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.1</span>
+  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.2</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="search.html" role="search">
@@ -260,7 +260,7 @@
 <p>The AQT provider now exposes individual providers for each kind of AQT backend (cloud, direct access, and offline simulator). The main <a class="reference internal" href="apidoc/provider.html#qiskit_aqt_provider.aqt_provider.AQTProvider" title="qiskit_aqt_provider.aqt_provider.AQTProvider"><code class="xref py py-class docutils literal notranslate"><span class="pre">AQTProvider</span></code></a> class is now only a factory for these individual providers. For example, instead of:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aqt_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">AQTProvider</span>
 <span class="n">provider</span> <span class="o">=</span> <span class="n">AQTProvider</span><span class="p">()</span>
-<span class="n">backend</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">backend</span><span class="p">(</span><span class="s2">&quot;simulator_no_noise&quot;</span><span class="p">)</span>
+<span class="n">backend</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">backend</span><span class="p">(</span><span class="s2">"simulator_no_noise"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>You should now do:</p>
@@ -276,7 +276,7 @@
 <p>The AQTProvider should now be used as a context manager when working with remote backends (cloud and direct access). This ensures that network connections are properly closed after use. For example, instead of:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aqt_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">AQTProvider</span>
 <span class="n">provider</span> <span class="o">=</span> <span class="n">AQTProvider</span><span class="p">()</span>
-<span class="n">backend</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">get_backend</span><span class="p">(</span><span class="s2">&quot;simulator_no_noise&quot;</span><span class="p">,</span> <span class="n">workspace</span><span class="o">=</span><span class="s2">&quot;aqt_simulators&quot;</span><span class="p">)</span>
+<span class="n">backend</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">get_backend</span><span class="p">(</span><span class="s2">"simulator_no_noise"</span><span class="p">,</span> <span class="n">workspace</span><span class="o">=</span><span class="s2">"aqt_simulators"</span><span class="p">)</span>
 <span class="c1"># use backend</span>
 <span class="c1"># ...</span>
 </pre></div>
@@ -285,7 +285,7 @@
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">qiskit_aqt_provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">AQTProvider</span>
 
 <span class="k">with</span> <span class="n">AQTProvider</span><span class="p">()</span> <span class="k">as</span> <span class="n">provider</span><span class="p">:</span>
-    <span class="n">backend</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">cloud</span><span class="p">()</span><span class="o">.</span><span class="n">fetch_workspaces</span><span class="p">()</span><span class="o">.</span><span class="n">get_by_id</span><span class="p">(</span><span class="s2">&quot;aqt_simulators&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">get_backend</span><span class="p">(</span><span class="s2">&quot;simulator_no_noise&quot;</span><span class="p">)</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="n">provider</span><span class="o">.</span><span class="n">cloud</span><span class="p">()</span><span class="o">.</span><span class="n">fetch_workspaces</span><span class="p">()</span><span class="o">.</span><span class="n">get_by_id</span><span class="p">(</span><span class="s2">"aqt_simulators"</span><span class="p">)</span><span class="o">.</span><span class="n">get_backend</span><span class="p">(</span><span class="s2">"simulator_no_noise"</span><span class="p">)</span>
     <span class="c1"># use backend</span>
     <span class="c1"># ...</span>
 </pre></div>
@@ -303,7 +303,7 @@ direct-access composite-job limitation.</p>
 </section>
 <section id="qiskit">
 <h2>Qiskit<a class="headerlink" href="#qiskit" title="Link to this heading">¶</a></h2>
-<p>The v2 provider supports Python 3.10–3.14 and Qiskit 2.3–2.4.1. See the <a class="reference external" href="https://quantum.cloud.ibm.com/docs/en/guides/qiskit-2.0">Qiskit 2.0 migration guide</a> for more details on how to update your non-provider code.</p>
+<p>The v2 provider supports Python 3.10–3.14 and Qiskit 2.3 or newer in the Qiskit 2.x series. See the <a class="reference external" href="https://quantum.cloud.ibm.com/docs/en/guides/qiskit-2.0">Qiskit 2.0 migration guide</a> for more details on how to update your non-provider code.</p>
 </section>
 </section>
 
@@ -379,7 +379,7 @@ direct-access composite-job limitation.</p>
       
     </aside>
   </div>
-</div><script src="_static/documentation_options.js?v=f5cff4aa"></script>
+</div><script src="_static/documentation_options.js?v=c2377ec0"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/scripts/furo.js?v=46bd48cc"></script>

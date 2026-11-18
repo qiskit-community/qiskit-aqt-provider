@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>qiskit_aqt_provider._cloud.provider - Qiskit AQT Provider 2.0.1</title>
+        <title>qiskit_aqt_provider._cloud.provider - Qiskit AQT Provider 2.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=75810a84" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=fc6d6d93" />
@@ -156,7 +156,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit AQT Provider 2.0.1</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit AQT Provider 2.0.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -178,7 +178,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.1</span>
+  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.2</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
@@ -274,10 +274,10 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_http_client_factory</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">ArnicaConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">httpx</span><span class="o">.</span><span class="n">Client</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Creates an HTTP client for the given configuration.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Creates an HTTP client for the given configuration."""</span>
     <span class="k">return</span> <span class="n">httpx</span><span class="o">.</span><span class="n">Client</span><span class="p">(</span>
         <span class="n">base_url</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">arnica_url</span><span class="p">,</span>
-        <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;User-Agent&quot;</span><span class="p">:</span> <span class="n">make_user_agent</span><span class="p">(</span><span class="n">CloudProvider</span><span class="o">.</span><span class="n">USER_AGENT_NAME</span><span class="p">)},</span>
+        <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">"User-Agent"</span><span class="p">:</span> <span class="n">make_user_agent</span><span class="p">(</span><span class="n">CloudProvider</span><span class="o">.</span><span class="n">USER_AGENT_NAME</span><span class="p">)},</span>
         <span class="n">timeout</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
         <span class="n">follow_redirects</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
@@ -286,9 +286,9 @@
 <div class="viewcode-block" id="CloudProvider">
 <a class="viewcode-back" href="../../../apidoc/cloud.html#qiskit_aqt_provider._cloud.provider.CloudProvider">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">CloudProvider</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;An AQT cloud provider for use in the Qiskit AQT provider.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""An AQT cloud provider for use in the Qiskit AQT provider."""</span>
 
-    <span class="n">USER_AGENT_NAME</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="s2">&quot;aqt-cloud-provider&quot;</span>
+    <span class="n">USER_AGENT_NAME</span><span class="p">:</span> <span class="n">Final</span> <span class="o">=</span> <span class="s2">"aqt-cloud-provider"</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -296,7 +296,7 @@
         <span class="o">*</span><span class="p">,</span>
         <span class="n">http_client_factory</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">ArnicaConfig</span><span class="p">],</span> <span class="n">httpx</span><span class="o">.</span><span class="n">Client</span><span class="p">]</span> <span class="o">=</span> <span class="n">_http_client_factory</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the cloud provider with the given configuration.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Initializes the cloud provider with the given configuration."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_arnica</span> <span class="o">=</span> <span class="n">ArnicaApp</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http_client</span> <span class="o">=</span> <span class="n">http_client_factory</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">existing_token</span> <span class="o">:=</span> <span class="n">aqt_connector</span><span class="o">.</span><span class="n">get_access_token</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_arnica</span><span class="p">):</span>
@@ -305,7 +305,7 @@
 <div class="viewcode-block" id="CloudProvider.close">
 <a class="viewcode-back" href="../../../apidoc/cloud.html#qiskit_aqt_provider._cloud.provider.CloudProvider.close">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Closes the cloud provider, releasing any resources it holds.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Closes the cloud provider, releasing any resources it holds."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_arnica</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_http_client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
 
@@ -313,7 +313,7 @@
 <div class="viewcode-block" id="CloudProvider.log_in">
 <a class="viewcode-back" href="../../../apidoc/cloud.html#qiskit_aqt_provider._cloud.provider.CloudProvider.log_in">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">log_in</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Logs the user into the cloud provider, establishing a session for subsequent API calls.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Logs the user into the cloud provider, establishing a session for subsequent API calls."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arnica</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">store_access_token</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_arnica</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">_app_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="mo">0o700</span><span class="p">)</span>
         <span class="n">access_token</span> <span class="o">=</span> <span class="n">aqt_connector</span><span class="o">.</span><span class="n">log_in</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_arnica</span><span class="p">)</span>
@@ -323,19 +323,19 @@
 <div class="viewcode-block" id="CloudProvider.fetch_workspaces">
 <a class="viewcode-back" href="../../../apidoc/cloud.html#qiskit_aqt_provider._cloud.provider.CloudProvider.fetch_workspaces">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">fetch_workspaces</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WorkspaceCollection</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fetches workspaces accessible to the user.</span>
+<span class="w">        </span><span class="sd">"""Fetches workspaces accessible to the user.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            WorkspaceCollection: A collection of workspaces accessible to the user.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">http_response_raise_for_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/v1/workspaces&quot;</span><span class="p">))</span>
+<span class="sd">        """</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">http_response_raise_for_status</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_http_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"/v1/workspaces"</span><span class="p">))</span>
         <span class="n">api_workspaces</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ApiWorkspaces</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">WorkspaceCollection</span><span class="p">(</span><span class="n">api_workspaces</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_arnica</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_http_client</span><span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_set_access_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">access_token</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the access token to use for authentication in API requests.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_http_client</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">&quot;Authorization&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Bearer </span><span class="si">{</span><span class="n">access_token</span><span class="si">}</span><span class="s2">&quot;</span></div>
+<span class="w">        </span><span class="sd">"""Sets the access token to use for authentication in API requests."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_http_client</span><span class="o">.</span><span class="n">headers</span><span class="p">[</span><span class="s2">"Authorization"</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"Bearer </span><span class="si">{</span><span class="n">access_token</span><span class="si">}</span><span class="s2">"</span></div>
 
 </pre></div>
         </article>
@@ -369,7 +369,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=f5cff4aa"></script>
+</div><script src="../../../_static/documentation_options.js?v=c2377ec0"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>

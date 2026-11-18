@@ -5,7 +5,7 @@
     <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html"><link rel="search" title="Search" href="../../../search.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
-        <title>qiskit_aqt_provider._offline_sim.resource - Qiskit AQT Provider 2.0.1</title>
+        <title>qiskit_aqt_provider._offline_sim.resource - Qiskit AQT Provider 2.0.2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=7bdb33bb" />
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=75810a84" />
     <link rel="stylesheet" type="text/css" href="../../../_static/styles/qiskit-sphinx-theme.css?v=fc6d6d93" />
@@ -156,7 +156,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="../../../index.html"><div class="brand">Qiskit AQT Provider 2.0.1</div></a>
+      <a href="../../../index.html"><div class="brand">Qiskit AQT Provider 2.0.2</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -178,7 +178,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
   
   
-  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.1</span>
+  <span class="sidebar-brand-text">Qiskit AQT Provider 2.0.2</span>
   
 </a>
 <form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
@@ -286,7 +286,7 @@
 
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">OfflineSimulatorOptions</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Options for an offline simulator resource.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Options for an offline simulator resource."""</span>
 
     <span class="n">shots</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span>
 
@@ -294,12 +294,12 @@
 <div class="viewcode-block" id="OfflineSimulatorResource">
 <a class="viewcode-back" href="../../../apidoc/offline.html#qiskit_aqt_provider._offline_sim.resource.OfflineSimulatorResource">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">OfflineSimulatorResource</span><span class="p">(</span><span class="n">BackendV2</span><span class="p">,</span> <span class="n">TranspilerMixin</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A resource for offline simulation.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""A resource for offline simulation."""</span>
 
     <span class="n">MAX_SHOTS</span> <span class="o">=</span> <span class="mi">2000</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">OfflineSimulatorResourceConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the resource with the given configuration.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Initialize the resource with the given configuration."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_resource_id</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">name</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_target</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">number_of_ions</span><span class="p">)</span>
@@ -307,26 +307,26 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The resource&#39;s identifier.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The resource's identifier."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resource_id</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">target</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Target</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The resource&#39;s target.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The resource's target."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">max_circuits</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Maximum number of circuits per batch.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Maximum number of circuits per batch."""</span>
         <span class="k">return</span> <span class="mi">50</span>
 
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_default_options</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Options</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the default options.</span>
+<span class="w">        </span><span class="sd">"""Get the default options.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            OfflineSimulatorOptions: The default options for this resource.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">Options</span><span class="p">(</span><span class="o">**</span><span class="n">asdict</span><span class="p">(</span><span class="n">OfflineSimulatorOptions</span><span class="p">()))</span>
 
 <div class="viewcode-block" id="OfflineSimulatorResource.run">
@@ -336,35 +336,35 @@
         <span class="n">circuit</span><span class="p">:</span> <span class="n">QuantumCircuit</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">QuantumCircuit</span><span class="p">],</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Unpack</span><span class="p">[</span><span class="n">ResourceRunOptions</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OfflineSimulatorJob</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run a quantum circuit or a sequence of quantum circuits on the offline simulator.</span>
+<span class="w">        </span><span class="sd">"""Run a quantum circuit or a sequence of quantum circuits on the offline simulator.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            circuit (QuantumCircuit | Sequence[QuantumCircuit]): The quantum circuit(s) to run.</span>
-<span class="sd">            shots (int | None): The number of shots to execute. If not provided, the default from the resource&#39;s options</span>
+<span class="sd">            shots (int | None): The number of shots to execute. If not provided, the default from the resource's options</span>
 <span class="sd">                will be used.</span>
-<span class="sd">            seed_simulator (int | None): The seed for the simulator&#39;s random number generator.</span>
+<span class="sd">            seed_simulator (int | None): The seed for the simulator's random number generator.</span>
 <span class="sd">            memory (bool | None): Whether to return memory slots. Default is False.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            OfflineSimulatorJob: The job representing the simulation.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">shots</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shots&quot;</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="n">shots</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"shots"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">shots</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">shots</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_options</span><span class="o">.</span><span class="n">shots</span>
-        <span class="n">seed_simulator</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;seed_simulator&quot;</span><span class="p">)</span>
+        <span class="n">seed_simulator</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"seed_simulator"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">shots</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">shots</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">MAX_SHOTS</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Shots must be in the range [1, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">MAX_SHOTS</span><span class="si">}</span><span class="s2">].&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Shots must be in the range [1, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">MAX_SHOTS</span><span class="si">}</span><span class="s2">]."</span><span class="p">)</span>
         <span class="n">aer_job</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulator</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
-            <span class="n">circuit</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="n">shots</span><span class="p">,</span> <span class="n">seed_simulator</span><span class="o">=</span><span class="n">seed_simulator</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;memory&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">False</span>
+            <span class="n">circuit</span><span class="p">,</span> <span class="n">shots</span><span class="o">=</span><span class="n">shots</span><span class="p">,</span> <span class="n">seed_simulator</span><span class="o">=</span><span class="n">seed_simulator</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"memory"</span><span class="p">)</span> <span class="ow">or</span> <span class="kc">False</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">OfflineSimulatorJob</span><span class="p">(</span><span class="n">aer_job</span><span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_update_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_qubits</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Updates the target of this resource based on the given number of qubits.&quot;&quot;&quot;</span>
-        <span class="n">theta</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;θ&quot;</span><span class="p">)</span>
-        <span class="n">phi</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;φ&quot;</span><span class="p">)</span>
-        <span class="n">lam</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">&quot;λ&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">"""Updates the target of this resource based on the given number of qubits."""</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">"θ"</span><span class="p">)</span>
+        <span class="n">phi</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">"φ"</span><span class="p">)</span>
+        <span class="n">lam</span> <span class="o">=</span> <span class="n">Parameter</span><span class="p">(</span><span class="s2">"λ"</span><span class="p">)</span>
 
         <span class="n">target</span> <span class="o">=</span> <span class="n">Target</span><span class="p">(</span><span class="n">num_qubits</span><span class="o">=</span><span class="n">num_qubits</span><span class="p">)</span>
         <span class="n">target</span><span class="o">.</span><span class="n">add_instruction</span><span class="p">(</span><span class="n">RZGate</span><span class="p">(</span><span class="n">lam</span><span class="p">))</span>
@@ -406,7 +406,7 @@
       
     </aside>
   </div>
-</div><script src="../../../_static/documentation_options.js?v=f5cff4aa"></script>
+</div><script src="../../../_static/documentation_options.js?v=c2377ec0"></script>
     <script src="../../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../../_static/scripts/furo.js?v=46bd48cc"></script>
