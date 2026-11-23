@@ -82,15 +82,16 @@ async def direct_submit_circuit(request: Request, body: dict[str, Any] = Body(..
 async def direct_circuit_result(job_id: str, request: Request) -> Any:
     _record_request(request)
 
-    result_delay_seconds = float(_direct_access_state["result_delay_seconds"])
-    if result_delay_seconds > 0.0:
-        await asyncio.sleep(result_delay_seconds)
-
     queued_results: list[JobResultError | JobResultFinished] = _direct_access_state["queued_results"]
     if queued_results:
         payload = queued_results.pop(0).model_dump()
     else:
         return JSONResponse(status_code=404, content={"detail": "job not found"})
+
+    # Reserve the result before yielding so a timed-out request cannot consume a later test's results.
+    result_delay_seconds = float(_direct_access_state["result_delay_seconds"])
+    if result_delay_seconds > 0.0:
+        await asyncio.sleep(result_delay_seconds)
 
     return JSONResponse(
         content={
