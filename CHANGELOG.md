@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## qiskit-aqt-provider v2.0.2
+* Dependency update
 
 ## qiskit-aqt-provider v2.0.2
 
