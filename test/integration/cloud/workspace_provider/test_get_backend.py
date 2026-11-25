@@ -19,29 +19,36 @@ from aqt_connector.models.arnica.resources import ResourceStatus, ResourceType
 from aqt_connector.models.arnica.response_bodies.resources import ResourceDetails, WorkspaceResource
 from aqt_connector.models.arnica.response_bodies.workspaces import Workspace as APIWorkspace
 from httpx import Client, MockTransport, Response
+from pytest_httpx import HTTPXMock
 from qiskit.providers.exceptions import QiskitBackendNotFoundError
 
 from qiskit_aqt_provider._cloud.workspace_provider import WorkspaceProvider
 
 
-def test_it_gets_backend_by_id() -> None:
+def test_it_gets_backend_by_id(monkeypatch: pytest.MonkeyPatch, httpx_mock: HTTPXMock) -> None:
     """The workspace provider should be able to get a backend by its identifier."""
     resources = [
         WorkspaceResource(id="r1", name="R1", type=ResourceType.DEVICE),
         WorkspaceResource(id="r2", name="R2", type=ResourceType.DEVICE),
     ]
+    arnica = ArnicaApp()
+    monkeypatch.setattr(arnica.auth_service, "get_or_refresh_access_token", lambda _: "arnica_token")
+    httpx_mock.add_callback(_resource_details_request_handler, url="https://arnica.aqt.eu/api/v1/resources/r2")
     workspace_provider = WorkspaceProvider(
         data=APIWorkspace(id="w1", accepting_job_submissions=True, jobs_being_processed=False, resources=resources),
-        arnica=ArnicaApp(),
-        api_client=Client(
-            base_url="https://arnica.aqt.eu/api", transport=MockTransport(_resource_details_request_handler)
-        ),
+        arnica=arnica,
+        api_client=Client(transport=MockTransport(lambda _: Response(404))),
     )
 
     backend = workspace_provider.get_backend("r2")
 
     assert backend is not None
     assert backend.id == "r2"
+    assert backend.workspace_id == "w1"
+    assert backend.num_qubits == 20
+    request = httpx_mock.get_request()
+    assert request is not None
+    assert request.headers["Authorization"] == "Bearer arnica_token"
 
 
 def test_it_raises_if_backend_id_not_found() -> None:

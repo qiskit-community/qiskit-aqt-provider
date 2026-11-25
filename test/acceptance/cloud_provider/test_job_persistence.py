@@ -30,10 +30,6 @@ def _persist_cloud_job(
     tmp_path: Path,
 ) -> tuple[ArnicaConfig, Path, str]:
     dsl.user.has_cloud_access(monkeypatch, "arnica_token")
-    monkeypatch.setattr(
-        "aqt_connector._domain.auth_service.AuthService.get_or_refresh_access_token",
-        lambda _self, _store: "arnica_token",
-    )
     cloud_provider_config = ArnicaConfig(tmp_path)
     cloud_provider_config.arnica_url = dummy_cloud_server.base_url
     store_path = tmp_path / "jobs"

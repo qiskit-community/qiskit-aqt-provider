@@ -10,14 +10,14 @@
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+import aqt_connector
 import httpx
 from aqt_connector import ArnicaApp
-from aqt_connector.models.arnica.response_bodies.resources import ResourceDetails, WorkspaceResource
+from aqt_connector.models.arnica.response_bodies.resources import WorkspaceResource
 from aqt_connector.models.arnica.response_bodies.workspaces import Workspace as APIWorkspace
 from qiskit.providers.exceptions import QiskitBackendNotFoundError
 
 from qiskit_aqt_provider._cloud.resource import CloudResource
-from qiskit_aqt_provider.api_client.errors import http_response_raise_for_status
 
 
 class WorkspaceProvider:
@@ -57,8 +57,7 @@ class WorkspaceProvider:
         """
         for resource in self._resources:
             if resource.id == backend_id:
-                response = http_response_raise_for_status(self._api_client.get(f"/v1/resources/{resource.id}"))
-                details = ResourceDetails.model_validate_json(response.text)
+                details = aqt_connector.get_resource_details(self._arnica, resource.id)
                 return CloudResource(self._arnica, self._api_client, self._id, details)
 
         raise QiskitBackendNotFoundError(f"Backend with ID '{backend_id}' not found in workspace '{self._id}'.")
