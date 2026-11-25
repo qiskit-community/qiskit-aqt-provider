@@ -33,6 +33,10 @@ def has_cloud_access(monkeypatch: pytest.MonkeyPatch, token: str) -> None:
     """
     monkeypatch.setattr("aqt_connector.log_in", lambda _: token)
     monkeypatch.setattr("aqt_connector.get_access_token", lambda _: token)
+    monkeypatch.setattr(
+        "aqt_connector._domain.auth_service.AuthService.get_or_refresh_access_token",
+        lambda _self, _store: token,
+    )
 
 
 def lists_accessible_workspaces(cloud_provider_config: ArnicaConfig) -> set[str]:
